@@ -73,6 +73,12 @@ type Last struct {
 	FolderPath string `json:"folderPath"`
 }
 
+// AppConfig — глобальные настройки приложения (configs/app.json).
+// Язык интерфейса: "en" (по умолчанию) или "ru".
+type AppConfig struct {
+	Lang string `json:"lang"`
+}
+
 type server struct {
 	configsDir string
 }
@@ -98,6 +104,7 @@ func main() {
 	}
 	mux.HandleFunc("/api/pick-folder", srv.handlePickFolder)
 	mux.HandleFunc("/api/config", srv.handleConfig)
+	mux.HandleFunc("/api/app-config", srv.handleAppConfig)
 	mux.HandleFunc("/api/backups", srv.handleBackups)
 	mux.HandleFunc("/api/backups/open", srv.handleOpenBackup)
 	mux.HandleFunc("/api/apply", srv.handleApply)
@@ -124,8 +131,10 @@ func main() {
 	// занимаем порт сразу — если занят, показываем диалог вместо тихого падения
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
-		zenity.Error("Не удалось запустить сервер:\n"+err.Error()+
-			"\n\nВозможно, программа уже запущена.", zenity.Title("WidthCorrector"))
+		zenity.Error(srv.tr(
+			"Failed to start the server:\n"+err.Error()+"\n\nThe program may already be running.",
+			"Не удалось запустить сервер:\n"+err.Error()+"\n\nВозможно, программа уже запущена."),
+			zenity.Title("WidthCorrector"))
 		return
 	}
 
@@ -145,19 +154,23 @@ func main() {
 	}()
 
 	// иконка в трее с меню (блокирует main до выхода)
-	systray.Run(onTrayReady, onTrayExit)
+	systray.Run(func() { onTrayReady(srv) }, onTrayExit)
 }
 
 // ---------- системный трей ----------
 
-func onTrayReady() {
+func onTrayReady(s *server) {
 	systray.SetIcon(faviconICO)
 	systray.SetTitle("")
 	systray.SetTooltip("WidthCorrector")
 
-	mOpen := systray.AddMenuItem("Открыть программу", "Открыть интерфейс в браузере")
+	mOpen := systray.AddMenuItem(
+		s.tr("Open program", "Открыть программу"),
+		s.tr("Open the interface in the browser", "Открыть интерфейс в браузере"))
 	systray.AddSeparator()
-	mQuit := systray.AddMenuItem("Закрыть программу", "Полностью завершить работу")
+	mQuit := systray.AddMenuItem(
+		s.tr("Quit program", "Закрыть программу"),
+		s.tr("Exit completely", "Полностью завершить работу"))
 
 	go func() {
 		for {
@@ -224,7 +237,7 @@ func (s *server) handleThree(w http.ResponseWriter, r *http.Request) {
 func (s *server) handlePickFolder(w http.ResponseWriter, r *http.Request) {
 	path, err := zenity.SelectFile(
 		zenity.Directory(),
-		zenity.Title("Выберите папку с файлами .jbeam"),
+		zenity.Title(s.tr("Select a folder with .jbeam files", "Выберите папку с файлами .jbeam")),
 	)
 	if err != nil {
 		if err == zenity.ErrCanceled {
@@ -302,6 +315,74 @@ func (s *server) handleConfig(w http.ResponseWriter, r *http.Request) {
 		}
 		s.saveLast(body.FolderPath)
 		writeJSON(w, map[string]any{"ok": true, "file": "configs/" + file})
+
+	default:
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+// ---------- язык интерфейса (app.json) ----------
+
+const defaultLang = "en"
+
+func (s *server) appConfigPath() string {
+	return filepath.Join(s.configsDir, "app.json")
+}
+
+func (s *server) loadAppConfig() AppConfig {
+	cfg := AppConfig{Lang: defaultLang}
+	data, err := os.ReadFile(s.appConfigPath())
+	if err != nil {
+		return cfg
+	}
+	if err := json.Unmarshal(data, &cfg); err != nil {
+		return AppConfig{Lang: defaultLang}
+	}
+	if cfg.Lang != "ru" && cfg.Lang != "en" {
+		cfg.Lang = defaultLang
+	}
+	return cfg
+}
+
+func (s *server) saveAppConfig(cfg AppConfig) error {
+	data, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(s.appConfigPath(), data, 0o644)
+}
+
+// tr возвращает строку на языке интерфейса (для нативных элементов: трей, диалоги).
+func (s *server) tr(en, ru string) string {
+	if s.loadAppConfig().Lang == "ru" {
+		return ru
+	}
+	return en
+}
+
+// GET  /api/app-config — текущий язык интерфейса
+// POST /api/app-config — сохранить выбранный язык (body: {lang})
+func (s *server) handleAppConfig(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		writeJSON(w, map[string]any{"ok": true, "lang": s.loadAppConfig().Lang})
+
+	case http.MethodPost:
+		var body struct {
+			Lang string `json:"lang"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			writeJSON(w, map[string]any{"ok": false, "error": "bad json: " + err.Error()})
+			return
+		}
+		if body.Lang != "ru" && body.Lang != "en" {
+			body.Lang = defaultLang
+		}
+		if err := s.saveAppConfig(AppConfig{Lang: body.Lang}); err != nil {
+			writeJSON(w, map[string]any{"ok": false, "error": err.Error()})
+			return
+		}
+		writeJSON(w, map[string]any{"ok": true, "lang": body.Lang})
 
 	default:
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)

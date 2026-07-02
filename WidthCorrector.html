@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
 <title>Width Corrector</title>
+<script>
+  // Мгновенно выбираем язык до отрисовки, чтобы не мелькал русский при английском по умолчанию.
+  (function () {
+    try {
+      var l = localStorage.getItem('wc_lang') || 'en';
+      if (l !== 'ru' && l !== 'en') l = 'en';
+      document.documentElement.setAttribute('data-lang', l);
+      document.documentElement.setAttribute('lang', l);
+      if (l !== 'ru') document.documentElement.classList.add('i18n-hidden');
+    } catch (e) {}
+  })();
+</script>
 <style>
   :root {
     --bg: #0f1115;
@@ -920,6 +932,53 @@
   }
   .tg-btn:active { transform: scale(.97); }
 
+  /* ============ нижний центр: версия + GitHub ============ */
+  .footer-center {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .app-version {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: .05em;
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+  }
+  .gh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    border-radius: 9px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--panel-2);
+    border: 1px solid var(--stroke);
+    transition: background .2s, border-color .2s, box-shadow .2s, transform .1s, color .2s;
+  }
+  .gh-btn svg { width: 16px; height: 16px; fill: currentColor; }
+  .gh-btn:hover {
+    background: #2a3140;
+    border-color: #4a5568;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .45);
+    transform: translateY(-1px);
+  }
+  .gh-btn:active { transform: translateY(0) scale(.98); }
+
+  /* на узких окнах прячем центр, чтобы не наезжал на угловые блоки */
+  @media (max-width: 720px) {
+    .footer-center { display: none; }
+  }
+
   .tc-btn {
     position: relative;
     display: inline-flex;
@@ -1477,6 +1536,37 @@
     background: #3c3c3c; border: 1px solid #555; border-bottom-width: 2px; border-radius: 4px;
     padding: 1px 6px; font-family: inherit; font-size: 12px; color: #ddd;
   }
+
+  /* скрываем страницу, пока i18n не перевёл её (чтобы не мелькал русский) */
+  html.i18n-hidden { visibility: hidden; }
+
+  /* переключатель языка — сегментированный, в стиле вкладок */
+  .lang-switch {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+    border-radius: 11px;
+    padding: 4px;
+  }
+  .lang-switch button {
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    padding: 7px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .lang-switch button:hover { color: var(--text); }
+  .lang-switch button.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #1a1205;
+  }
 </style>
 </head>
 <body>
@@ -1493,6 +1583,10 @@
       <button class="tab active" data-view="main">Переменные</button>
       <button class="tab" data-view="engine">Двигатель</button>
       <button class="tab" data-view="constructor">Конструктор</button>
+    </div>
+    <div class="lang-switch" id="langSwitch" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="ru">RU</button>
     </div>
     <a class="header-credit" href="https://t.me/NSDmods_official" target="_blank" rel="noopener" title="Идея проекта">
       <span>идея —</span>
@@ -1907,6 +2001,15 @@
   </a>
 </div>
 
+<!-- нижний центр: версия проекта + ссылка на GitHub -->
+<div class="footer-center">
+  <span class="app-version" id="appVersion">v1.0.0</span>
+  <a class="gh-btn" href="https://github.com/AsQqqq/width-corrector" target="_blank" rel="noopener" title="GitHub — width-corrector">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.02-1.49-2.01.44-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 012-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    <span>GitHub</span>
+  </a>
+</div>
+
 <!-- powered by TradeCloud -->
 <div class="tc-powered">
   <span class="tc-powered-label">powered by</span>
@@ -1976,6 +2079,407 @@
         }, first ? rand(4000, 10000) : rand(22000, 50000));
       })(true);
     }
+  })();
+</script>
+
+<script>
+  // ============================================================
+  //  i18n — перевод интерфейса RU → EN
+  //  Источник (разметка/строки в коде) — на русском; при языке EN
+  //  весь видимый текст переводится по словарю прямо в DOM, включая
+  //  контент, который скрипты добавляют динамически (через
+  //  MutationObserver). Русский = исходник (перевод не применяется).
+  //  Язык по умолчанию — английский; выбор хранится в configs/app.json.
+  // ============================================================
+  (function () {
+    var lsRaw = null;
+    try { lsRaw = localStorage.getItem('wc_lang'); } catch (e) {}
+    var hadLS = (lsRaw === 'ru' || lsRaw === 'en'); // есть ли локальный выбор
+    var LANG = hadLS ? lsRaw : 'en';                 // по умолчанию — английский
+
+    // Словарь точных строк (обрезанных по краям). Ключ — русский, значение — английский.
+    var DICT = {
+      // --- шапка / вкладки ---
+      "Полноценный редактор кода под BeamNG-моды": "Full-featured code editor for BeamNG mods",
+      "</> Редактор кода": "</> Code editor",
+      "Редактор кода": "Code editor",
+      "Пакетная коррекция параметров .jbeam": "Batch correction of .jbeam parameters",
+      "Переменные": "Variables",
+      "Двигатель": "Engine",
+      "Конструктор": "Constructor",
+      "Идея проекта": "Project idea",
+      "идея —": "idea —",
+      "Сообщество": "Community",
+      // --- страница «Переменные» ---
+      "Рабочая папка": "Working folder",
+      "Папка не выбрана": "No folder selected",
+      "Выберите папку с файлами .jbeam, чтобы начать": "Select a folder with .jbeam files to start",
+      "Выбрать папку": "Select folder",
+      "Показать параметры": "Show parameters",
+      "Сбросить": "Reset",
+      "Применить": "Apply",
+      "Текущие значения параметров": "Current parameter values",
+      "Только просмотр": "View only",
+      "Закрыть": "Close",
+      "Фильтр по имени файла…": "Filter by file name…",
+      "масса узлов": "node mass",
+      "деформация": "deformation",
+      "жёсткость": "stiffness",
+      "демпфирование": "damping",
+      "прочность": "strength",
+      // --- 3D-каркас ---
+      "3D-каркас": "3D wireframe",
+      "узлы и балки": "nodes and beams",
+      "Показывать значения": "Show values",
+      "Детали": "Parts",
+      "вкл/выкл все": "toggle all",
+      "нет деталей": "no parts",
+      "ЛКМ — вращать · колесо — зум · ПКМ — сдвиг": "LMB — rotate · wheel — zoom · RMB — pan",
+      "Показать 3D-каркас": "Show 3D wireframe",
+      "В файле нет узлов с координатами.": "The file has no nodes with coordinates.",
+      // --- бекапы / подсказки ---
+      "Бекапы": "Backups",
+      "Хранятся последние 5 копий .jbeam. Создаются автоматически при «Применить».": "The last 5 copies of .jbeam are kept. Created automatically on Apply.",
+      "Открыть папку бекапов": "Open backups folder",
+      "Бекапов пока нет.": "No backups yet.",
+      "Открыть": "Open",
+      "Настройки автоматически сохраняются в": "Settings are automatically saved to",
+      "внутри выбранной папки": "inside the selected folder",
+      "и подгружаются при следующем запуске.": "and loaded on the next launch.",
+      // --- статусы ---
+      "Папка выбрана. Настройки загружены.": "Folder selected. Settings loaded.",
+      "Восстановлена прошлая сессия.": "Previous session restored.",
+      "Нет связи с сервером (запущен ли .exe?).": "No connection to server (is the .exe running?).",
+      "Подготовка…": "Preparing…",
+      "Идёт обработка…": "Processing…",
+      "Создаю бекап…": "Creating backup…",
+      "Создаю бекап и применяю…": "Creating backup and applying…",
+      "Обрабатываю файлы…": "Processing files…",
+      "Все параметры 100% — изменять нечего.": "All parameters are 100% — nothing to change.",
+      "Готово": "Done",
+      "Загрузка…": "Loading…",
+      "Сканирую…": "Scanning…",
+      "Ничего не найдено.": "Nothing found.",
+      "Ничего не найдено": "Nothing found",
+      "Ничего не найдено по фильтру.": "Nothing found for filter.",
+      "Файлы .jbeam не найдены.": "No .jbeam files found.",
+      "Файлы не найдены": "No files found",
+      "Ошибка": "Error",
+      "неизвестно": "unknown",
+      // --- страница «Двигатель» ---
+      "Файл .jbeam": ".jbeam file",
+      "Выберите файл с мотором.": "Select a file with an engine.",
+      "пик мощности, л.с.": "peak power, hp",
+      "пик момента, Нм": "peak torque, Nm",
+      "мощность, л.с.": "power, hp",
+      "момент, Нм": "torque, Nm",
+      "Кривая момента задаёт диапазон оборотов: последняя точка = предел раскрутки в игре. Чтобы мотор крутился выше — добавьте точки.": "The torque curve sets the RPM range: the last point = the rev limiter in the game. To make the engine rev higher — add points.",
+      "+ точка": "+ point",
+      "🏁 Пит-стоп": "🏁 Pit stop",
+      "Применить параметры и кривую": "Apply parameters and curve",
+      "Тюнинг / стейдж (превью «база + стейдж»)": "Tuning / stage (preview \"base + stage\")",
+      "прибавка, Нм": "gain, Nm",
+      "Применить тюнинг": "Apply tuning",
+      "Настройка двигателя": "Engine setup",
+      "Параметры двигателя (.jbeam)": "Engine parameters (.jbeam)",
+      "— сначала выберите папку на вкладке «Переменные» —": "— first select a folder on the «Variables» tab —",
+      "Папка не выбрана.": "Folder not selected.",
+      "нет .jbeam файлов": "no .jbeam files",
+      "— выберите файл —": "— select a file —",
+      "Это не jbeam мотора — в файле нет двигателя с кривой момента.": "This is not an engine jbeam — the file has no engine with a torque curve.",
+      "⚠ Кривая момента заканчивается на": "⚠ The torque curve ends at",
+      "об/мин, а отсечка/макс. —": "RPM, but the rev limiter/max is",
+      "Пик мощности:": "Peak power:",
+      "Пик момента:": "Peak torque:",
+      "Холостые:": "Idle:",
+      "Отсечка:": "Rev limiter:",
+      "нет (свободный перекрут)": "none (free over-rev)",
+      // --- параметры двигателя ---
+      "Холостые обороты (RPM)": "Idle RPM",
+      "Макс. обороты (RPM)": "Max RPM",
+      "Обороты отсечки (RPM)": "Rev limiter RPM",
+      "Инерция": "Inertia",
+      "Трение": "Friction",
+      "Динамическое трение": "Dynamic friction",
+      "Тормозной момент двигателя (Нм)": "Engine brake torque (Nm)",
+      "Предел момента без износа (Нм)": "Torque limit without wear (Nm)",
+      "Момент до поломки (Нм)": "Torque until failure (Nm)",
+      "Темп. повреждения цилиндров (°C)": "Cylinder damage temp. (°C)",
+      "Прочность прокладки ГБЦ": "Head gasket strength",
+      "Прочность поршневых колец": "Piston ring strength",
+      "Прочность шатунов": "Connecting rod strength",
+      "Перекрут до поломки": "Over-rev until damage",
+      "Объём масла (л)": "Oil volume (L)",
+      "Неровность ХХ": "Idle roughness",
+      // --- тюнинг / стейджи ---
+      "интейк": "intake",
+      "выхлоп": "exhaust",
+      "множитель (внутрянка/ECU)": "multiplier (internals/ECU)",
+      "множитель": "multiplier",
+      "Множитель базового момента по оборотам (1 = без изменений).": "Multiplier of the base torque over RPM (1 = no change).",
+      "Прибавка момента (Нм) к базовой кривой по оборотам.": "Torque gain (Nm) to the base curve over RPM.",
+      "удалить": "delete",
+      "Бекап и запись…": "Backup and write…",
+      // --- пит-стоп ---
+      "Пит-стоп — характеристики мотора": "Pit stop — engine characteristics",
+      "Свободная раскрутка по физике игры (момент · инерция · трение · отсечка)": "Free rev-up using the game's physics (torque · inertia · friction · rev limiter)",
+      "л.с. сейчас": "hp now",
+      "Нм сейчас": "Nm now",
+      "% газа": "% throttle",
+      "Газ — тяни/жми": "Throttle — pull/press",
+      "В пол (или Пробел)": "Floor it (or Space)",
+      // --- конструктор ---
+      "Конструктор jbeam": "jbeam Constructor",
+      "Сначала выберите, что создаём": "First choose what to create",
+      "Выбрать тип": "Select type",
+      "Тип:": "Type:",
+      "Сменить тип": "Change type",
+      "Основное": "General",
+      "Внутреннее имя детали": "Internal part name",
+      "Название (в игре)": "Name (in game)",
+      "Авторы": "Authors",
+      "Цена (value)": "Price (value)",
+      "Группа узлов (nodeGroup)": "Node group (nodeGroup)",
+      "Имя файла": "File name",
+      "Кривая момента": "Torque curve",
+      "Параметры двигателя": "Engine parameters",
+      "Топливо, термика, КПД": "Fuel, thermals, efficiency",
+      "Бак (energyStorage)": "Tank (energyStorage)",
+      "Тип топлива": "Fuel type",
+      "Материал блока": "Block material",
+      "КПД сгорания (burnEfficiency)": "Burn efficiency (burnEfficiency)",
+      "Термика включена": "Thermals enabled",
+      "Есть отсечка (hasRevLimiter)": "Has rev limiter (hasRevLimiter)",
+      "Слоты (тюнинг-детали)": "Slots (tuning parts)",
+      "Тип слота · деталь по умолчанию · описание": "Slot type · default part · description",
+      "+ слот": "+ slot",
+      "Модель (flexbodies)": "Model (flexbodies)",
+      "Имя меша из .dae · группа узлов": "Mesh name from .dae · node group",
+      "+ меш": "+ mesh",
+      "Узлы движка (координаты и вес)": "Engine nodes (coordinates and weight)",
+      "Структура балок берётся из проверенного шаблона. Имена узлов фиксированы (e1..e4, em1).": "The beam structure is taken from a verified template. Node names are fixed (e1..e4, em1).",
+      "узел": "node",
+      "вес": "weight",
+      "Создать .jbeam": "Create .jbeam",
+      "Код (редактор)": "Code (editor)",
+      "Что создаём?": "What are we creating?",
+      "Выберите тип jbeam-конфига": "Select the jbeam config type",
+      "jbeam под двигатель": "jbeam for engine",
+      "мотор: кривая момента, параметры, тюнинг, пит-стоп": "engine: torque curve, parameters, tuning, pit stop",
+      "jbeam под подвеску": "jbeam for suspension",
+      "скоро — пружины, амортизаторы, геометрия": "coming soon — springs, dampers, geometry",
+      "jbeam под модель / body": "jbeam for model / body",
+      "скоро — ноды, балки, флексбоди кузова": "coming soon — nodes, beams, body flexbodies",
+      "Создание jbeam-конфига двигателя": "Creating an engine jbeam config",
+      "✓ валидный мотор": "✓ valid engine",
+      "⚠ не распознан как мотор": "⚠ not recognized as engine",
+      "Укажите имя файла.": "Enter a file name.",
+      "Создаю…": "Creating…",
+      "Сначала задайте кривую момента.": "First set the torque curve.",
+      // --- редактор кода ---
+      "папка не выбрана": "no folder selected",
+      "Сохранять файл после каждого изменения": "Save the file after every change",
+      "Автосохранение": "Autosave",
+      "Размер шрифта кода": "Code font size",
+      "Шрифт": "Font",
+      "Меньше": "Smaller",
+      "Больше": "Larger",
+      "✕ Закрыть": "✕ Close",
+      "Проводник": "Explorer",
+      "Поиск (Ctrl+Shift+F)": "Search (Ctrl+Shift+F)",
+      "Открыть папку": "Open folder",
+      "Папка мода не выбрана": "No mod folder selected",
+      "Поиск по файлам": "Search across files",
+      "Искать в файлах…": "Search in files…",
+      "Введите запрос": "Enter a query",
+      "Поиск…": "Searching…",
+      "Откройте папку с модом BeamNG, чтобы редактировать файлы": "Open a folder with a BeamNG mod to edit files",
+      "📁 Открыть папку мода": "📁 Open mod folder",
+      "— сохранить": "— save",
+      "— глобальный поиск": "— global search",
+      "Файлы для редактирования": "Files for editing",
+      "Выберите папку": "Select a folder",
+      "Выделить все": "Select all",
+      "Снять все": "Deselect all",
+      "Поиск файла…": "Search for a file…",
+      "Файлы появятся после выбора папки.": "Files will appear after a folder is selected."
+    };
+
+    // Строки с подстановками (числа/имена файлов). Проверяются, если точного совпадения нет.
+    // Порядок важен: более специфичные — выше.
+    var PATTERNS = [
+      [/^Ошибка выбора папки: (.+)$/, "Folder selection error: $1"],
+      [/^Нет связи с сервером: (.+)$/, "No connection to server: $1"],
+      [/^Найдено \.jbeam файлов: (\d+)$/, "Found .jbeam files: $1"],
+      [/^Сохранено: (.+)$/, "Saved: $1"],
+      [/^Ошибка сохранения: (.+)$/, "Save error: $1"],
+      [/^Не удалось открыть папку: (.+)$/, "Failed to open folder: $1"],
+      [/^Обработано (\d+) \/ (\d+) — (.+)$/, "Processed $1 / $2 — $3"],
+      [/^Обработано (\d+) \/ (\d+)$/, "Processed $1 / $2"],
+      [/^Готово\. Ошибок: (\d+)\.$/, "Done. Errors: $1."],
+      [/^Ошибка: (.+)$/, "Error: $1"],
+      [/^Выбрано (\d+) из (\d+)$/, "Selected $1 of $2"],
+      [/^(.+) — файлов: (\d+), всего значений: (\d+)$/, "$1 — files: $2, total values: $3"],
+      [/^(\d+) узлов · (\d+) балок$/, "$1 nodes · $2 beams"],
+      [/^(\d+) \.jbeam файлов$/, "$1 .jbeam files"],
+      [/^Пик мощности: (\d+) л\.с\. @ (\d+)$/, "Peak power: $1 hp @ $2"],
+      [/^Пик момента: (\d+) Нм @ (\d+)$/, "Peak torque: $1 Nm @ $2"],
+      [/^Холостые: (\d+)$/, "Idle: $1"],
+      [/^Отсечка: (\d+)$/, "Rev limiter: $1"],
+      [/^отсечка (\d+)$/, "rev limiter $1"],
+      [/^≈ (\d+) л\.с\. \/ (\d+) Нм$/, "≈ $1 hp / $2 Nm"],
+      [/^\. В игре мотор обрежется по кривой и не раскрутится выше (\d+)\. Добавьте точки в кривую до (\d+)\.$/, ". In-game the engine will be clipped by the curve and won't rev above $1. Add points to the curve up to $2."],
+      [/^(\d+) л\.с\.$/, "$1 hp"],
+      [/^(\d+) Нм$/, "$1 Nm"],
+      [/^Готово — создан (.+)$/, "Done — created $1"],
+      [/^Бинарный файл — (\d+) байт\. Не редактируется в текстовом виде\.$/, "Binary file — $1 bytes. Not editable as text."],
+      [/^Показаны первые результаты…$/, "Showing first results…"],
+      [/^— тюнинг-деталей в файле нет —$/, "— no tuning parts in the file —"],
+      [/^— без тюнинга \(только база\) —$/, "— no tuning (base only) —"],
+      [/^(.+) не найден\.$/, "$1 not found."]
+    ];
+
+    // Зоны, где переводить нельзя: код-редакторы, textarea, пользовательский контент.
+    var SKIP_SEL = "script,style,textarea,pre,code,noscript,.monaco-editor,#ceMonaco,.code-editor";
+    function inSkip(el) { return !el || (el.closest && el.closest(SKIP_SEL)); }
+
+    function trStr(raw) {
+      var s = raw.trim();
+      if (!s) return null;
+      if (Object.prototype.hasOwnProperty.call(DICT, s)) return DICT[s];
+      for (var i = 0; i < PATTERNS.length; i++) {
+        if (PATTERNS[i][0].test(s)) return s.replace(PATTERNS[i][0], PATTERNS[i][1]);
+      }
+      return null;
+    }
+
+    function translateTextNode(node) {
+      var raw = node.nodeValue;
+      if (!raw || !/[А-Яа-яЁё]/.test(raw)) return; // без кириллицы переводить нечего
+      if (inSkip(node.parentElement)) return;
+      var out = trStr(raw);
+      if (out == null) return;
+      // сохраняем ведущие/хвостовые пробелы исходного узла
+      var lead = raw.match(/^\s*/)[0], tail = raw.match(/\s*$/)[0];
+      var next = lead + out + tail;
+      if (next !== raw) node.nodeValue = next;
+    }
+
+    var ATTRS = ["title", "placeholder", "aria-label"];
+    function translateAttrs(el) {
+      if (!el.getAttribute || inSkip(el)) return;
+      for (var i = 0; i < ATTRS.length; i++) {
+        var v = el.getAttribute(ATTRS[i]);
+        if (!v || !/[А-Яа-яЁё]/.test(v)) continue;
+        var out = trStr(v);
+        if (out != null && out !== v) el.setAttribute(ATTRS[i], out);
+      }
+    }
+
+    function translateTree(root) {
+      if (!root) return;
+      if (root.nodeType === 3) { translateTextNode(root); return; }
+      if (root.nodeType !== 1) return;
+      if (inSkip(root)) return;
+      // атрибуты самого корня и всех потомков
+      translateAttrs(root);
+      var els = root.querySelectorAll ? root.querySelectorAll("[title],[placeholder],[aria-label]") : [];
+      for (var i = 0; i < els.length; i++) translateAttrs(els[i]);
+      // текстовые узлы
+      var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode: function (n) {
+          if (inSkip(n.parentElement)) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      var batch = [], n;
+      while ((n = walker.nextNode())) batch.push(n);
+      for (var j = 0; j < batch.length; j++) translateTextNode(batch[j]);
+    }
+
+    // --- переключатель языка (кнопка в шапке) ---
+    function wireSwitch() {
+      var box = document.getElementById("langSwitch");
+      if (!box) return;
+      var btns = box.querySelectorAll("button");
+      for (var i = 0; i < btns.length; i++) {
+        var b = btns[i];
+        b.classList.toggle("active", b.getAttribute("data-lang") === LANG);
+        b.addEventListener("click", function () {
+          var l = this.getAttribute("data-lang");
+          if (l === LANG) return;
+          setLang(l);
+        });
+      }
+    }
+
+    function setLang(l) {
+      try { localStorage.setItem("wc_lang", l); } catch (e) {}
+      // сохраняем выбор в config-файле на сервере, затем перезагружаемся
+      fetch("/api/app-config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lang: l })
+      }).then(function () { location.reload(); }, function () { location.reload(); });
+    }
+
+    function reveal() { document.documentElement.classList.remove("i18n-hidden"); }
+
+    // --- запуск ---
+    function start() {
+      wireSwitch();
+      if (LANG === "en") {
+        try { translateTree(document.body); } catch (e) {}
+        // динамический контент, который скрипты добавят позже
+        var obs = new MutationObserver(function (muts) {
+          for (var i = 0; i < muts.length; i++) {
+            var m = muts[i];
+            if (m.type === "characterData") {
+              if (!inSkip(m.target.parentElement)) translateTextNode(m.target);
+            } else if (m.type === "attributes") {
+              if (m.target.nodeType === 1) translateAttrs(m.target);
+            } else {
+              for (var k = 0; k < m.addedNodes.length; k++) {
+                var node = m.addedNodes[k];
+                if (node.nodeType === 3) { if (!inSkip(node.parentElement)) translateTextNode(node); }
+                else if (node.nodeType === 1) translateTree(node);
+              }
+            }
+          }
+        });
+        obs.observe(document.body, {
+          childList: true, subtree: true, characterData: true,
+          attributes: true, attributeFilter: ATTRS
+        });
+      }
+      reveal();
+    }
+
+    // Сверяем язык с config-файлом сервера.
+    // Первый визит в браузере (нет локального выбора) — принимаем язык из файла.
+    // Есть локальный выбор — он приоритетен, синхронизируем файл под него (без отката).
+    fetch("/api/app-config").then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.ok) return;
+      var srv = (d.lang === "ru" || d.lang === "en") ? d.lang : "en";
+      if (!hadLS) {
+        if (srv !== LANG) {
+          try { localStorage.setItem("wc_lang", srv); } catch (e) {}
+          location.reload();
+        }
+      } else if (srv !== LANG) {
+        fetch("/api/app-config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lang: LANG })
+        }).catch(function () {});
+      }
+    }).catch(function () {});
+
+    // тело уже разобрано (скрипт в конце документа) — переводим сразу
+    if (document.body) start();
+    else document.addEventListener("DOMContentLoaded", start);
+    // страховка: раскрываем страницу, даже если что-то пошло не так
+    setTimeout(reveal, 1500);
   })();
 </script>
 

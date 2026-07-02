@@ -63,7 +63,7 @@ func hasNullByte(data []byte) bool {
 func (s *server) handleCodePickFolder(w http.ResponseWriter, r *http.Request) {
 	path, err := zenity.SelectFile(
 		zenity.Directory(),
-		zenity.Title("Выберите папку с модом для редактора кода"),
+		zenity.Title(s.tr("Select a mod folder for the code editor", "Выберите папку с модом для редактора кода")),
 	)
 	if err != nil {
 		if err == zenity.ErrCanceled {
