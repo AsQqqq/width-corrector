@@ -21,18 +21,18 @@ settings in the `configs/` folder next to the executable.
 - The folder is selected via the **native OS dialog**, so the real path is preserved.
 ## Requirements
 Go 1.21+ installed. On macOS:
-\`\`\`bash
+```bash
 brew install go
-\`\`\`
+```
 ## Running in development (macOS)
-\`\`\`bash
+```bash
 ./build.sh          # go run . - starts the server and opens the browser
-\`\`\`
+```
 ## Building .exe for Windows (cross-compilation from Mac)
 zenity on Windows works without cgo, so you can build the `.exe` right from a Mac:
-\`\`\`bash
+```bash
 ./build.sh win      # creates WidthCorrector.exe
-\`\`\`
+```
 The `-H windowsgui` flag removes the black console window. If you want to see the server
 log in the console - remove it from `build.sh`.
 ## Address
@@ -68,23 +68,23 @@ Go-бэкенд поднимает локальный сервер, отдаёт
 
 Установленный Go 1.21+. На macOS:
 
-\`\`\`bash
+```bash
 brew install go
-\`\`\`
+```
 
 ## Запуск при разработке (macOS)
 
-\`\`\`bash
+```bash
 ./build.sh          # go run . - поднимет сервер и откроет браузер
-\`\`\`
+```
 
 ## Сборка .exe для Windows (кросс-компиляция с Mac)
 
 zenity на Windows работает без cgo, поэтому собрать `.exe` можно прямо с Mac:
 
-\`\`\`bash
+```bash
 ./build.sh win      # создаст WidthCorrector.exe
-\`\`\`
+```
 
 Флаг `-H windowsgui` убирает чёрное окно консоли. Если хочешь видеть лог
 сервера в консоли - убери его из `build.sh`.
