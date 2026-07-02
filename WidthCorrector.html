@@ -1,0 +1,4401 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<title>Width Corrector</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --bg-2: #161a22;
+    --panel: #1c212c;
+    --panel-2: #232a37;
+    --stroke: #2c3442;
+    --text: #e6e9ef;
+    --text-dim: #8b93a3;
+    --accent: #ff7a45;
+    --accent-2: #ffb347;
+    --accent-glow: rgba(255, 122, 69, 0.35);
+    --green: #36d399;
+    --red: #f87272;
+    --track: #2a3140;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(1200px 800px at 70% -10%, #1b2230 0%, var(--bg) 55%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 32px 20px 96px;  /* запас снизу, чтобы контент скроллился выше закреплённых кнопок рекламы */
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden; /* чтобы full-bleed (100vw) на странице двигателя не давал горизонтальную прокрутку */
+  }
+
+  .app {
+    max-width: 920px;
+    margin: 0 auto;
+  }
+
+  /* ---------- Header ---------- */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .logo {
+    width: 54px; height: 54px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: grid; place-items: center;
+    box-shadow: 0 8px 24px var(--accent-glow);
+    flex-shrink: 0;
+  }
+  .logo svg { width: 30px; height: 30px; }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: .3px;
+  }
+  .header p {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .header-credit {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .header-credit svg { width: 14px; height: 14px; fill: #3aa7e8; }
+  .header-credit b { color: #3aa7e8; font-weight: 700; transition: color .15s; }
+  .header-credit:hover b { color: #8ad4ff; }
+
+  .tabs {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+    border-radius: 11px;
+    padding: 4px;
+  }
+  .tab {
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #1a1205;
+  }
+
+  /* заглушка пустой страницы */
+  .placeholder {
+    min-height: 52vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+  }
+  .placeholder-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .placeholder-sub {
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+
+  /* страница двигателя: делит экран на 70% функционал / 30% декор, во всю ширину */
+  .engine-layout {
+    position: relative;
+    left: 50%;
+    margin-left: -50vw;   /* выходим из центрированного контейнера на всю ширину окна */
+    width: 100vw;
+    display: flex;
+    gap: 0;
+    height: calc(100vh - 180px);
+    min-height: 420px;
+  }
+  .engine-left {
+    flex: 7;
+    min-width: 0;
+    padding: 0 5vw;
+  }
+  .engine-right {
+    flex: 3;
+    min-width: 0;
+    position: relative;
+    overflow: hidden;
+    background: #14110f;
+    /* плавно растушёванные края вместо резкого обреза */
+    -webkit-mask-image:
+      linear-gradient(to right, transparent 0, #000 14%, #000 97%, transparent 100%),
+      linear-gradient(to bottom, transparent 0, #000 11%, #000 89%, transparent 100%);
+            mask-image:
+      linear-gradient(to right, transparent 0, #000 14%, #000 97%, transparent 100%),
+      linear-gradient(to bottom, transparent 0, #000 11%, #000 89%, transparent 100%);
+    -webkit-mask-composite: source-in;
+            mask-composite: intersect;
+  }
+  #engineCanvas { display: block; width: 100%; height: 100%; }
+
+  /* панель настроек мотора (левая часть страницы двигателя) */
+  .eng-panel {
+    max-width: 820px;
+    height: 100%;
+    overflow-y: auto;
+    padding: 4px 8px 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .eng-pick { display: flex; gap: 12px; flex-wrap: wrap; }
+  .eng-field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 200px; }
+  .eng-field > span { font-size: 12px; color: var(--text-dim); }
+  .eng-field select {
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+  }
+  .eng-field select:focus { border-color: var(--accent); }
+  .eng-status { font-size: 14px; color: var(--text-dim); }
+  .eng-status.err { color: var(--red); }
+
+  #engSettings { display: flex; flex-direction: column; gap: 18px; }
+  #engSettings[hidden] { display: none; }  /* иначе display:flex перебивает hidden */
+
+  .eng-summary { display: flex; gap: 12px; }
+  .eng-stat {
+    flex: 1;
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--stroke);
+    border-radius: 14px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .eng-stat-val { font-size: 30px; font-weight: 800; color: var(--accent-2); line-height: 1.1; }
+  .eng-stat-lbl { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
+
+  .eng-curve {
+    width: 100%;
+    height: 210px;
+    display: block;
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+    border-radius: 14px;
+  }
+
+  .eng-params {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .eng-param {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background: var(--panel);
+    border: 1px solid var(--stroke);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .eng-param label { font-size: 11.5px; color: var(--text-dim); }
+  .eng-param input {
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+    border-radius: 7px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 7px 9px;
+    outline: none;
+  }
+  .eng-param input:focus { border-color: var(--accent); }
+
+  .eng-actions { display: flex; align-items: center; gap: 12px; justify-content: flex-end; margin-top: 4px; }
+  .eng-msg { flex: 1; font-size: 13px; color: var(--text-dim); }
+
+  .eng-stage {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--panel);
+    border: 1px solid var(--stroke);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .eng-stage-hint { font-size: 12px; color: var(--text-dim); }
+  .eng-basecurve { display: flex; flex-direction: column; gap: 10px; }
+  .eng-warn {
+    font-size: 13px;
+    line-height: 1.45;
+    color: #ffcf99;
+    background: rgba(255, 122, 69, .1);
+    border: 1px solid rgba(255, 122, 69, .35);
+    border-radius: 10px;
+    padding: 10px 14px;
+  }
+  .eng-warn[hidden] { display: none; }
+  .eng-curve-table { width: 100%; border-collapse: collapse; }
+  .eng-curve-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    padding: 4px 6px;
+  }
+  .eng-curve-table td { padding: 3px 6px; }
+  .eng-curve-table input {
+    width: 100%;
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+    border-radius: 7px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 8px;
+    outline: none;
+  }
+  .eng-curve-table input:focus { border-color: var(--accent); }
+  .eng-row-del {
+    background: var(--panel-2);
+    border: 1px solid var(--stroke);
+    color: var(--text-dim);
+    border-radius: 6px;
+    width: 28px; height: 28px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .eng-row-del:hover { color: var(--red); border-color: var(--red); }
+  .eng-stage-actions { display: flex; align-items: center; gap: 10px; }
+  #engStageAddRow { white-space: nowrap; }
+
+  /* ---------- Конструктор ---------- */
+  .placeholder[hidden], .con-typebar[hidden], .con-wrap[hidden] { display: none; }
+
+  .con-typebar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--panel);
+    border: 1px solid var(--stroke);
+    border-radius: 12px;
+    padding: 12px 18px;
+    margin-bottom: 18px;
+    font-size: 14px;
+  }
+  .con-typebar b { color: var(--accent-2); }
+  .con-typebar > span { flex: 1; }
+
+  .con-type-grid { display: flex; flex-direction: column; gap: 10px; }
+  .con-type-card {
+    text-align: left;
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+    border-radius: 12px;
+    padding: 16px 18px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color .15s, background .15s, transform .1s;
+  }
+  .con-type-card b { display: block; font-size: 15px; color: var(--text); }
+  .con-type-card span { display: block; font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .con-type-card:not(:disabled):hover { border-color: var(--accent); background: var(--panel); }
+  .con-type-card:not(:disabled):active { transform: scale(.99); }
+  .con-type-card:disabled { opacity: .45; cursor: not-allowed; }
+
+  .con-wrap {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    position: relative;
+    left: 50%;
+    margin-left: -50vw;     /* во всю ширину окна */
+    width: 100vw;
+    padding: 0 28px;
+  }
+  .con-form { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+  .con-preview {
+    width: 52%;
+    flex-shrink: 0;
+    position: sticky;
+    top: 12px;
+    height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .con-preview-head {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--stroke);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  #c_valid { font-weight: 600; text-transform: none; letter-spacing: 0; }
+
+  /* редактор кода: textarea поверх подсвеченного <pre> */
+  .code-editor { position: relative; flex: 1; overflow: hidden; }
+  .code-hl, #c_code {
+    margin: 0;
+    padding: 14px;
+    border: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    tab-size: 2;
+    white-space: pre;
+    word-wrap: normal;
+    position: absolute;
+    inset: 0;
+    overflow: auto;
+  }
+  .code-hl { z-index: 1; pointer-events: none; color: #c7d0dc; }
+  .code-hl code { display: block; }
+  #c_code {
+    z-index: 2;
+    resize: none;
+    outline: none;
+    background: transparent;
+    color: transparent;
+    caret-color: #fff;
+  }
+  /* токены подсветки */
+  .t-com  { color: #5f7e97; font-style: italic; }
+  .t-key  { color: #ff9d5c; }
+  .t-str  { color: #7ddc8c; }
+  .t-num  { color: #6cb6ff; }
+  .t-word { color: #c79bff; }
+  .t-punct{ color: #8b93a3; }
+
+  .con-section {
+    background: var(--panel);
+    border: 1px solid var(--stroke);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .con-section h3 { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .con-power { font-size: 13px; font-weight: 600; color: var(--accent-2); }
+  .con-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+  .con-hint { font-size: 12px; color: var(--text-dim); }
+  .con-section .eng-field input {
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 9px 11px;
+    outline: none;
+  }
+  .con-section .eng-field input:focus { border-color: var(--accent); }
+  .con-check { flex-direction: row !important; align-items: center; gap: 8px; }
+  .con-check input { width: 16px; height: 16px; accent-color: var(--accent); }
+  .con-actions { display: flex; align-items: center; gap: 12px; }
+  .con-actions .eng-msg { flex: 1; }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #f8556a, #c2283c);
+    color: #fff;
+    padding: 12px 22px;
+    font-size: 14px;
+    box-shadow: 0 6px 18px rgba(248, 85, 106, .3);
+  }
+  .btn-danger:hover { box-shadow: 0 8px 24px rgba(248, 85, 106, .45); }
+
+  /* ---------- Пит-стоп (мини-дино) ---------- */
+  .pit-modal { max-width: 2000px; width: 97vw; height: 88vh; }
+  .pit-body { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; }
+  .pit-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+  .pit-rpm { display: flex; align-items: baseline; gap: 8px; }
+  .pit-rpm span { font-size: 46px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .pit-rpm small { font-size: 14px; color: var(--text-dim); }
+  .pit-tach {
+    position: relative; height: 16px; border-radius: 8px;
+    background: var(--track); overflow: hidden;
+  }
+  .pit-tach-fill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+    background: linear-gradient(90deg, var(--green), var(--accent-2), var(--accent));
+    border-radius: 8px;
+    transition: width .05s linear;
+  }
+  .pit-tach-red {
+    position: absolute; top: 0; bottom: 0; right: 0;
+    background: rgba(248, 85, 114, .35);
+    border-left: 2px solid var(--red);
+  }
+  .pit-readouts { display: flex; gap: 14px; }
+  .pit-readouts > div {
+    flex: 1; background: var(--panel); border: 1px solid var(--stroke);
+    border-radius: 12px; padding: 10px 14px; text-align: center;
+  }
+  .pit-readouts b { display: block; font-size: 24px; font-weight: 800; color: var(--accent-2); font-variant-numeric: tabular-nums; }
+  .pit-readouts span { font-size: 11px; color: var(--text-dim); }
+  #pitChart { flex: 1; min-height: 0; }
+
+  .pit-pedal-wrap { width: 100%; flex-shrink: 0; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .pit-pedal-label { font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+  .pit-pedal {
+    position: relative; flex: 1; min-width: 240px; height: 44px;
+    background: var(--bg-2); border: 1px solid var(--stroke);
+    border-radius: 12px; overflow: hidden; cursor: ew-resize; user-select: none;
+  }
+  .pit-pedal-fill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+    background: linear-gradient(90deg, #c2283c, #f8556a);
+  }
+  .pit-stats { display: flex; flex-direction: row; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--text-dim); }
+  .pit-stats b { color: var(--text); font-variant-numeric: tabular-nums; }
+
+  /* ---------- Folder picker ---------- */
+  .folder-card {
+    background: var(--panel);
+    border: 1px solid var(--stroke);
+    border-radius: 16px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+  .folder-info { flex: 1; min-width: 0; }
+  .folder-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .folder-path {
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .folder-path.empty { color: var(--red); font-weight: 500; }
+  .folder-meta { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
+
+  .btn {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    border-radius: 11px;
+    transition: transform .12s ease, box-shadow .12s ease, background .2s;
+  }
+  .btn:active { transform: translateY(1px) scale(.99); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #1a1205;
+    padding: 12px 22px;
+    font-size: 14px;
+    box-shadow: 0 6px 18px var(--accent-glow);
+    white-space: nowrap;
+  }
+  .btn-primary:hover { box-shadow: 0 8px 24px var(--accent-glow); }
+
+  /* ---------- Dials grid ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 18px;
+    margin-bottom: 26px;
+  }
+
+  .dial-card {
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--stroke);
+    border-radius: 18px;
+    padding: 20px 16px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+  }
+  .dial-card::before {
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(120px 120px at 50% 0%, rgba(255,122,69,.07), transparent 70%);
+    pointer-events: none;
+  }
+  .dial-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--text);
+  }
+  .dial-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: -8px;
+    text-align: center;
+  }
+
+  /* Knob */
+  .knob-wrap {
+    position: relative;
+    width: 120px; height: 120px;
+    cursor: ns-resize;
+    user-select: none;
+    touch-action: none;
+  }
+  .knob-wrap svg { width: 100%; height: 100%; transform: rotate(135deg); overflow: visible; }
+  .knob-track { fill: none; stroke: var(--track); stroke-width: 9; stroke-linecap: round; }
+  .knob-fill {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 9;
+    stroke-linecap: round;
+    transition: stroke-dashoffset .08s linear, stroke .15s linear, filter .15s linear;
+  }
+  .knob-center {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    flex-direction: column;
+    pointer-events: none;
+  }
+  .knob-value {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .knob-unit { font-size: 13px; color: var(--text-dim); margin-left: 1px; }
+
+  .knob-input {
+    width: 70px;
+    margin-top: 2px;
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    text-align: center;
+    padding: 5px 4px;
+    outline: none;
+  }
+  .knob-input:focus { border-color: var(--accent); }
+
+  /* ---------- Footer actions ---------- */
+  .actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .status {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .btn-ghost {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--stroke);
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+  .btn-ghost:hover { background: var(--panel); }
+  .btn-run {
+    background: linear-gradient(135deg, var(--green), #2bbd86);
+    color: #06231a;
+    padding: 12px 28px;
+    font-size: 14px;
+    box-shadow: 0 6px 18px rgba(54,211,153,.3);
+  }
+  .btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .hint {
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+    line-height: 1.6;
+    padding-bottom: 40px;
+  }
+
+  /* ---------- Backups ---------- */
+  .backups-card {
+    background: var(--panel);
+    border: 1px solid var(--stroke);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-top: 26px;
+  }
+  .backups-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .backups-head h3 { font-size: 15px; font-weight: 700; }
+  .backups-head .sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .btn-sm { padding: 8px 16px; font-size: 13px; border-radius: 9px; }
+
+  .backups-list { display: flex; flex-direction: column; gap: 8px; }
+  .backup-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+    border-radius: 10px;
+    padding: 10px 14px;
+  }
+  .backup-num {
+    width: 26px; height: 26px;
+    flex-shrink: 0;
+    display: grid; place-items: center;
+    border-radius: 7px;
+    background: var(--panel-2);
+    color: var(--text-dim);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .backup-when { font-size: 13px; font-weight: 600; }
+  .backup-meta { font-size: 12px; color: var(--text-dim); margin-top: 1px; }
+  .backup-row .spacer { flex: 1; }
+  .backups-empty {
+    font-size: 13px;
+    color: var(--text-dim);
+    padding: 6px 2px;
+  }
+
+  /* ---------- Progress ---------- */
+  .progress-wrap { margin-top: 16px; }
+  .progress-bar {
+    height: 10px;
+    background: var(--track);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius: 6px;
+    box-shadow: 0 0 8px var(--accent-glow);
+    transition: width .15s ease;
+  }
+  .progress-text {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ---------- Просмотр параметров (modal) ---------- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(6, 8, 12, .6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: modal-fade .18s ease;
+  }
+  .modal-overlay[hidden] { display: none; }
+  @keyframes modal-fade { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    width: 100%;
+    max-width: 620px;
+    max-height: 82vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--stroke);
+    border-radius: 18px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+    padding: 22px 24px;
+    animation: modal-pop .2s cubic-bezier(.22, 1, .36, 1);
+  }
+  @keyframes modal-pop {
+    from { transform: translateY(12px) scale(.98); opacity: 0; }
+    to   { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  .modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .modal-head h3 { font-size: 17px; font-weight: 700; }
+  .modal-head .sub { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
+  .modal-close {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    display: grid; place-items: center;
+    border: 1px solid var(--stroke);
+    background: var(--bg-2);
+    color: var(--text-dim);
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .modal-close:hover { background: var(--panel); color: var(--text); border-color: #3a4250; }
+
+  .modal-types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .type-chip {
+    border: 1px solid var(--stroke);
+    background: var(--bg-2);
+    color: var(--text-dim);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .type-chip:hover { color: var(--text); border-color: #3a4250; }
+  .type-chip.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #1a1205;
+    border-color: transparent;
+  }
+
+  .modal-search {
+    width: 100%;
+    margin-bottom: 12px;
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .modal-search:focus { border-color: var(--accent); }
+  .modal-search::placeholder { color: var(--text-dim); }
+
+  .view-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: auto;
+    flex: 1;
+    min-height: 0;
+    padding-right: 4px;
+  }
+  .view-file {
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+    border-radius: 10px;
+  }
+  .view-file summary {
+    cursor: pointer;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+  }
+  .view-file summary::-webkit-details-marker { display: none; }
+  .view-file summary::before {
+    content: "▸";
+    color: var(--text-dim);
+    transition: transform .15s ease;
+  }
+  .view-file[open] summary::before { content: "▾"; }
+  .view-file summary .cnt { color: var(--text-dim); font-weight: 500; font-size: 12px; }
+  .view-values {
+    padding: 2px 14px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .view-val {
+    background: var(--panel-2);
+    border: 1px solid var(--stroke);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ============ powered by TradeCloud (fixed bottom-right) ============ */
+  /* закреплённые источники: выше всего, в т.ч. выше модалки (z-index 100) */
+  .tc-powered {
+    position: fixed;
+    right: 32px;
+    bottom: 26px;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .tc-powered-label { letter-spacing: .02em; }
+
+  .tc-socials {
+    position: fixed;
+    left: 32px;
+    bottom: 26px;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: #3aa7e8;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    background: rgba(41, 169, 235, .08);
+    border: 1px solid rgba(41, 169, 235, .25);
+    transition: background .2s, color .2s, border-color .2s, box-shadow .2s, transform .1s;
+  }
+  .tg-btn svg { width: 14px; height: 14px; fill: currentColor; }
+  .tg-btn:hover {
+    color: #8ad4ff;
+    background: rgba(41, 169, 235, .16);
+    border-color: rgba(41, 169, 235, .5);
+    box-shadow: 0 0 12px rgba(41, 169, 235, .35);
+  }
+  .tg-btn:active { transform: scale(.97); }
+
+  .tc-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 8px;
+    color: #4da3ff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    isolation: isolate;
+    text-shadow: 0 0 6px rgba(77,163,255,.5);
+    transition: color .25s ease, text-shadow .25s ease;
+  }
+  /* неподвижный контейнер-обрезка, чуть шире кнопки */
+  .tc-clouds {
+    position: absolute;
+    inset: -6px -14px;
+    z-index: -1;
+    border-radius: 16px;
+    overflow: hidden;
+    pointer-events: none;
+    transform: translate(var(--px, 0px), var(--py, 0px));
+    transition: transform .5s ease-out;
+    -webkit-mask-image:
+      linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent),
+      linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+            mask-image:
+      linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent),
+      linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+    -webkit-mask-composite: source-in;
+            mask-composite: intersect;
+  }
+  /* движущийся облачный паттерн (крупный мягкий) */
+  .tc-clouds::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 300%;
+    background-repeat: repeat-x;
+    background-size: 50% 100%;
+    background-image:
+      radial-gradient(38% 62% at 12% 42%, rgba(120,180,255,.45), transparent 70%),
+      radial-gradient(42% 56% at 34% 64%, rgba(60,120,255,.4), transparent 70%),
+      radial-gradient(34% 52% at 24% 28%, rgba(160,210,255,.36), transparent 70%),
+      radial-gradient(40% 60% at 62% 38%, rgba(110,170,255,.42), transparent 70%),
+      radial-gradient(44% 54% at 84% 62%, rgba(70,130,255,.4), transparent 70%),
+      radial-gradient(32% 50% at 74% 26%, rgba(165,212,255,.34), transparent 70%);
+    filter: blur(6px);
+    animation: tc-fly 9s linear infinite;
+  }
+  /* оранжевая вспышка (тот же узор, бренд-цвет), плавно гаснет */
+  .tc-clouds::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 300%;
+    background-repeat: repeat-x;
+    background-size: 50% 100%;
+    background-image:
+      radial-gradient(38% 62% at 12% 42%, rgba(255,77,0,.55), transparent 70%),
+      radial-gradient(42% 56% at 34% 64%, rgba(255,100,20,.5), transparent 70%),
+      radial-gradient(34% 52% at 24% 28%, rgba(255,140,60,.45), transparent 70%),
+      radial-gradient(40% 60% at 62% 38%, rgba(255,90,10,.5), transparent 70%),
+      radial-gradient(44% 54% at 84% 62%, rgba(255,120,40,.48), transparent 70%),
+      radial-gradient(32% 50% at 74% 26%, rgba(255,150,70,.42), transparent 70%);
+    filter: blur(6px);
+    opacity: 0;
+    transition: opacity 1.1s ease-out;
+    animation: tc-fly 9s linear infinite;
+  }
+  .tc-glitch {
+    position: relative;
+    display: inline-block;
+    transition: letter-spacing .4s cubic-bezier(.22,1,.36,1), margin-right .4s cubic-bezier(.22,1,.36,1);
+  }
+  /* белый самолётик, периодически пролетает сквозь облака справа налево */
+  .tc-plane {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    z-index: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .tc-plane-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: #ffffff;
+    filter: drop-shadow(0 0 3px rgba(255,255,255,.7));
+  }
+  /* инверсионный след — мягкая тающая дымка из хвоста */
+  .tc-plane::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 70%;
+    width: 34px;
+    height: 5px;
+    transform: translateY(-50%);
+    background: radial-gradient(closest-side at 100% 50%,
+      rgba(255,255,255,.5), rgba(255,255,255,.18) 45%, transparent 80%);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 70%);
+            mask-image: linear-gradient(90deg, transparent, #000 70%);
+    filter: blur(1.4px);
+    pointer-events: none;
+  }
+  .tc-plane.is-flying { animation: tc-plane-fly 9s linear; }
+  /* падающая звезда — редкое событие, диагональный прочерк */
+  .tc-star {
+    position: absolute;
+    top: -4px;
+    left: var(--sx, 80%);
+    width: 2px;
+    height: 2px;
+    z-index: 0;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 4px 1px rgba(255,255,255,.9);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .tc-star::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 22px;
+    height: 1px;
+    transform: translateY(-50%) rotate(-30deg);
+    transform-origin: left center;
+    background: linear-gradient(90deg, rgba(255,255,255,.85), transparent);
+    filter: blur(.5px);
+  }
+  .tc-star.is-falling { animation: tc-star-fall 1.5s ease-in; }
+  .tc-btn:active { transform: scale(.97); }
+
+  /* hover: оранжевая вспышка проявляется быстро, гаснет медленно */
+  .tc-btn:hover {
+    color: #ffb38a;
+    text-shadow: 0 0 10px rgba(255,120,40,.9), 0 0 20px rgba(255,77,0,.6);
+  }
+  .tc-btn:hover .tc-clouds::before {
+    opacity: 1;
+    transition: opacity .35s ease-in;
+  }
+  /* hover: лёгкий «вдох» — буквы чуть разъезжаются, без сдвига соседей */
+  .tc-btn:hover .tc-glitch {
+    letter-spacing: .2px;
+    margin-right: -2px;
+  }
+
+  @keyframes tc-fly {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @keyframes tc-plane-fly {
+    0%   { left: calc(100% + 14px); transform: translateY(calc(-8px + var(--y-start, 0px))) rotate(4deg) scale(.92); opacity: 0; }
+    12%  { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { left: -30px; transform: translateY(calc(-8px + var(--y-end, 0px))) rotate(-4deg) scale(.92); opacity: 0; }
+  }
+  @keyframes tc-star-fall {
+    0%   { transform: translate(0, 0); opacity: 0; }
+    15%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { transform: translate(-58px, 34px); opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tc-clouds::after,
+    .tc-clouds::before,
+    .tc-plane.is-flying,
+    .tc-star.is-falling { animation: none !important; }
+    .tc-clouds { transition: none !important; transform: none !important; }
+    .tc-glitch { transition: none !important; }
+    .tc-plane, .tc-star { opacity: 0 !important; }
+  }
+  /* ---------- Выдвижная панель файлов ---------- */
+  .drawer {
+    position: fixed;
+    top: 0; right: 0;
+    height: 100vh;
+    width: 380px;
+    max-width: 88vw;
+    z-index: 120;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--panel);
+    border-left: 1px solid var(--stroke);
+    box-shadow: -16px 0 50px rgba(0, 0, 0, .45);
+    padding: 20px;
+    transform: translateX(100%);
+    transition: transform .28s cubic-bezier(.22, 1, .36, 1);
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-head h3 { font-size: 16px; font-weight: 700; }
+  .drawer-sub { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
+  .drawer-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .drawer-search {
+    flex: 1;
+    min-width: 120px;
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+    border-radius: 9px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 10px;
+    outline: none;
+  }
+  .drawer-search:focus { border-color: var(--accent); }
+  .drawer-list {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-right: 4px;
+    padding-bottom: 72px; /* запас, чтобы нижние файлы не прятались под кнопкой TradeCloud */
+  }
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--bg-2);
+    border: 1px solid var(--stroke);
+  }
+  .file-item:hover { border-color: #3a4250; }
+  .file-pick {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+  }
+  .file-item input {
+    accent-color: var(--accent);
+    width: 16px; height: 16px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .file-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .file-size {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .file-3d {
+    flex-shrink: 0;
+    padding: 4px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 7px;
+    border: 1px solid var(--stroke);
+    background: var(--panel-2);
+    color: var(--accent-2);
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .file-3d:hover { background: var(--panel); border-color: var(--accent); }
+
+  /* ---------- 3D-вьювер ---------- */
+  .modal-3d { max-width: 860px; height: 78vh; }
+  .model-canvas-wrap {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: radial-gradient(120% 120% at 50% 30%, #161b24, #0c0e13);
+    border: 1px solid var(--stroke);
+  }
+  #modelCanvas { display: block; width: 100%; height: 100%; cursor: grab; }
+  #modelCanvas:active { cursor: grabbing; }
+
+  .model-body {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+    min-height: 0;
+  }
+  .model-parts {
+    width: 210px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--stroke);
+    border-radius: 12px;
+    background: var(--bg-2);
+    overflow: hidden;
+  }
+  .model-parts-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--stroke);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .model-parts-toggle {
+    background: var(--panel-2);
+    border: 1px solid var(--stroke);
+    color: var(--text);
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .model-parts-toggle:hover { border-color: var(--accent); }
+  .model-parts-list {
+    flex: 1;
+    overflow: auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .part-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .part-item:hover { background: var(--panel); }
+  .part-item input {
+    accent-color: var(--accent);
+    width: 15px; height: 15px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .part-name {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .part-cnt { color: var(--text-dim); font-size: 11px; flex-shrink: 0; }
+  .model-hint {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+  .model-empty {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+  .model-empty[hidden] { display: none; }  /* иначе grid перебивает hidden и блокирует мышь */
+
+  .model-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .model-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+  }
+  .model-toggle input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  .model-params { display: flex; flex-wrap: wrap; gap: 6px; }
+  .model-params .type-chip { padding: 5px 10px; }
+  .model-params.disabled { opacity: .4; pointer-events: none; }
+  .drawer-toggle {
+    position: fixed;
+    top: 18px; right: 0;
+    z-index: 121;
+    width: 40px; height: 44px;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #1a1205;
+    border: none;
+    border-radius: 12px 0 0 12px;
+    cursor: pointer;
+    box-shadow: 0 6px 18px var(--accent-glow);
+    font-size: 16px;
+    transition: right .28s cubic-bezier(.22, 1, .36, 1);
+  }
+  .drawer-toggle.open { right: 380px; }
+  .drawer-toggle .arr { transition: transform .28s ease; display: block; }
+  .drawer-toggle.open .arr { transform: rotate(180deg); }
+  /* ====================== Редактор кода (Monaco) ====================== */
+  .code-open-btn { font-size: 13px; padding: 9px 14px; white-space: nowrap; }
+
+  #codeEditor {
+    position: fixed; inset: 0; z-index: 500;
+    display: flex; flex-direction: column;
+    background: #1e1e1e; color: #cccccc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  #codeEditor[hidden] { display: none; }
+
+  .ce-topbar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 14px;
+    background: #323233; border-bottom: 1px solid #1b1b1b;
+    flex-shrink: 0;
+  }
+  .ce-brand { font-weight: 700; font-size: 14px; color: #e6e6e6; }
+  .ce-folder { font-size: 13px; color: #9a9a9a; max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ce-spacer { flex: 1; }
+  .ce-hint { font-size: 12px; color: #8a8a8a; }
+  .ce-sm { padding: 7px 14px; font-size: 13px; }
+  .ce-fontsize { display: inline-flex; align-items: center; gap: 4px; }
+  .ce-fontsize > span:first-child { font-size: 12.5px; color: #cccccc; margin-right: 2px; }
+  .ce-fs-btn {
+    width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;
+    background: #3c3c3c; color: #e6e6e6; border: 1px solid #4a4a4a; border-radius: 4px;
+    font-size: 13px; cursor: pointer; user-select: none; line-height: 1;
+  }
+  .ce-fs-btn:hover { background: #4a4a4a; }
+  #ceFontVal { min-width: 20px; text-align: center; font-size: 12.5px; color: #cccccc; font-variant-numeric: tabular-nums; }
+
+  .ce-body { flex: 1; min-height: 0; display: flex; }
+  .ce-sidebar {
+    width: 280px; flex-shrink: 0;
+    background: #252526; border-right: 1px solid #1b1b1b;
+    display: flex; flex-direction: column;
+  }
+  .ce-sidebar-head {
+    padding: 10px 14px; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .08em; color: #9a9a9a;
+  }
+  .ce-tree { flex: 1; overflow: auto; padding-bottom: 12px; }
+  .ce-tree-empty { padding: 12px 14px; font-size: 13px; color: #8a8a8a; }
+
+  .ce-row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 3px 8px; font-size: 13px; cursor: pointer;
+    white-space: nowrap; user-select: none;
+  }
+  .ce-row:hover { background: #2a2d2e; }
+  .ce-row.active { background: #094771; }
+  .ce-row .ce-ico { width: 16px; text-align: center; flex-shrink: 0; opacity: .9; }
+  .ce-row .ce-arrow { width: 12px; flex-shrink: 0; color: #8a8a8a; transition: transform .1s; display: inline-block; }
+  .ce-row.open .ce-arrow { transform: rotate(90deg); }
+  .ce-row .ce-label { overflow: hidden; text-overflow: ellipsis; }
+  .ce-children { overflow: hidden; }
+
+  .ce-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .ce-tabs {
+    display: flex; background: #252526; border-bottom: 1px solid #1b1b1b;
+    overflow-x: auto; flex-shrink: 0; min-height: 36px;
+  }
+  .ce-tab {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; font-size: 13px; cursor: pointer;
+    background: #2d2d2d; color: #9a9a9a;
+    border-right: 1px solid #1b1b1b; white-space: nowrap;
+  }
+  .ce-tab.active { background: #1e1e1e; color: #ffffff; }
+  .ce-tab .ce-dirty { color: #e6e6e6; }
+  .ce-tab .ce-x { opacity: .6; border-radius: 4px; padding: 0 4px; }
+  .ce-tab .ce-x:hover { opacity: 1; background: #ffffff22; }
+
+  .ce-content { flex: 1; min-height: 0; position: relative; }
+  .ce-monaco { position: absolute; inset: 0; }
+  .ce-pane { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: auto; }
+  .ce-pane[hidden] { display: none; }
+  .ce-empty-pane, .ce-binary { color: #8a8a8a; font-size: 14px; text-align: center; padding: 20px; }
+  #ceImage { background: #141414; }
+  #ceImage img { max-width: 100%; max-height: 100%; object-fit: contain; image-rendering: auto; }
+
+  /* топбар: тоггл автосохранения */
+  .ce-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: #cccccc; cursor: pointer; user-select: none; }
+  .ce-toggle input { width: 15px; height: 15px; accent-color: #0e639c; cursor: pointer; }
+
+  /* активити-бар (как в VS Code) */
+  .ce-activitybar { width: 48px; flex-shrink: 0; background: #333333; display: flex; flex-direction: column; align-items: center; padding-top: 6px; gap: 2px; }
+  .ce-act {
+    width: 48px; height: 44px; border: none; background: transparent;
+    color: #858585; font-size: 19px; cursor: pointer;
+    border-left: 2px solid transparent; display: grid; place-items: center;
+  }
+  .ce-act:hover { color: #ffffff; }
+  .ce-act.active { color: #ffffff; border-left-color: #ffffff; }
+
+  .ce-view { display: flex; flex-direction: column; height: 100%; }
+  .ce-view[hidden] { display: none; }
+  .ce-sidebar-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .08em; color: #9a9a9a;
+  }
+  .ce-head-btn { background: #0e639c; color: #fff; border: none; border-radius: 5px; padding: 3px 8px; font-size: 11px; cursor: pointer; }
+  .ce-head-btn:hover { background: #1177bb; }
+
+  /* поиск */
+  .ce-search-box { padding: 4px 10px 10px; }
+  .ce-search-box input {
+    width: 100%; background: #3c3c3c; border: 1px solid #3c3c3c; border-radius: 4px;
+    color: #ddd; font-family: inherit; font-size: 13px; padding: 7px 9px; outline: none;
+  }
+  .ce-search-box input:focus { border-color: #0e639c; }
+  .ce-search-results { flex: 1; overflow: auto; padding-bottom: 12px; }
+  .ce-search-file { padding: 5px 12px 2px; font-size: 11px; font-weight: 700; color: #bdbdbd; }
+  .ce-search-hit { padding: 2px 12px 2px 22px; font-size: 12px; color: #9a9a9a; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ce-search-hit:hover { background: #2a2d2e; color: #ddd; }
+  .ce-search-hit b { color: #ff7a45; font-weight: 400; background: #5a3a1a; border-radius: 2px; }
+  .ce-search-ln { color: #6a6a6a; margin-right: 6px; }
+
+  /* экран приветствия (VS Code welcome) */
+  .ce-welcome { background: #1e1e1e; }
+  .ce-welcome-card { text-align: center; max-width: 420px; padding: 24px; }
+  .ce-welcome-logo { font-size: 46px; font-weight: 800; color: #ff7a45; font-family: ui-monospace, monospace; }
+  .ce-welcome-title { font-size: 24px; font-weight: 700; color: #e6e6e6; margin-top: 6px; }
+  .ce-welcome-sub { font-size: 14px; color: #9a9a9a; margin-top: 8px; }
+  .ce-welcome-open { margin-top: 20px; }
+  .ce-welcome-keys { margin-top: 26px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #9a9a9a; }
+  .ce-welcome-keys kbd {
+    background: #3c3c3c; border: 1px solid #555; border-bottom-width: 2px; border-radius: 4px;
+    padding: 1px 6px; font-family: inherit; font-size: 12px; color: #ddd;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <button class="btn btn-ghost code-open-btn" id="openCodeEditor" title="Полноценный редактор кода под BeamNG-моды">&lt;/&gt; Редактор кода</button>
+    <div>
+      <h1 id="appTitle">Width Corrector</h1>
+      <p id="appSubtitle">Пакетная коррекция параметров .jbeam</p>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-view="main">Переменные</button>
+      <button class="tab" data-view="engine">Двигатель</button>
+      <button class="tab" data-view="constructor">Конструктор</button>
+    </div>
+    <a class="header-credit" href="https://t.me/NSDmods_official" target="_blank" rel="noopener" title="Идея проекта">
+      <span>идея —</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+      <b>NSDmods</b>
+    </a>
+  </div>
+
+  <!-- ===== Страница: Ширина ===== -->
+  <div id="viewMain">
+
+  <!-- Folder picker -->
+  <div class="folder-card">
+    <div class="folder-info">
+      <div class="folder-label">Рабочая папка</div>
+      <div class="folder-path empty" id="folderPath">Папка не выбрана</div>
+      <div class="folder-meta" id="folderMeta">Выберите папку с файлами .jbeam, чтобы начать</div>
+    </div>
+    <button class="btn btn-primary" id="pickBtn">Выбрать папку</button>
+  </div>
+
+  <!-- Dials -->
+  <div class="grid" id="grid"></div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <div class="status" id="status"></div>
+    <button class="btn btn-ghost" id="viewBtn" disabled>Показать параметры</button>
+    <button class="btn btn-ghost" id="resetBtn">Сбросить</button>
+    <button class="btn btn-run" id="runBtn" disabled>Применить</button>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap" id="progressWrap" hidden>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText"></div>
+  </div>
+
+  <!-- Модальное окно: просмотр текущих значений -->
+  <div class="modal-overlay" id="viewModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <div>
+          <h3>Текущие значения параметров</h3>
+          <div class="sub" id="viewSub">Только просмотр</div>
+        </div>
+        <button class="modal-close" id="viewCloseBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="modal-types" id="viewTypes"></div>
+      <input class="modal-search" id="viewSearch" type="text" placeholder="Фильтр по имени файла…">
+      <div class="view-list" id="viewList"></div>
+    </div>
+  </div>
+
+  <!-- Модальное окно: 3D-каркас -->
+  <div class="modal-overlay" id="modelModal" hidden>
+    <div class="modal modal-3d" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <div>
+          <h3 id="modelTitle">3D-каркас</h3>
+          <div class="sub" id="modelSub">узлы и балки</div>
+        </div>
+        <button class="modal-close" id="modelCloseBtn" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="model-controls">
+        <label class="model-toggle"><input type="checkbox" id="labelsToggle"> Показывать значения</label>
+        <div class="model-params disabled" id="modelParams"></div>
+      </div>
+      <div class="model-body">
+        <aside class="model-parts">
+          <div class="model-parts-head">
+            <span>Детали</span>
+            <button class="model-parts-toggle" id="partsAllBtn">вкл/выкл все</button>
+          </div>
+          <div class="model-parts-list" id="modelPartsList"></div>
+        </aside>
+        <div class="model-canvas-wrap">
+          <canvas id="modelCanvas"></canvas>
+          <div class="model-empty" id="modelEmpty" hidden></div>
+        </div>
+      </div>
+      <div class="model-hint">ЛКМ — вращать · колесо — зум · ПКМ — сдвиг</div>
+    </div>
+  </div>
+
+  <!-- Backups -->
+  <div class="backups-card">
+    <div class="backups-head">
+      <div>
+        <h3>Бекапы</h3>
+        <div class="sub">Хранятся последние 5 копий .jbeam. Создаются автоматически при «Применить».</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="openBackupsBtn">Открыть папку бекапов</button>
+    </div>
+    <div class="backups-list" id="backupsList">
+      <div class="backups-empty">Бекапов пока нет.</div>
+    </div>
+  </div>
+
+  <div class="hint">
+    Настройки автоматически сохраняются в <b>config.json</b> внутри выбранной папки<br>
+    и подгружаются при следующем запуске.
+  </div>
+
+  </div><!-- /viewMain -->
+
+  <!-- ===== Страница: Двигатель ===== -->
+  <div id="viewEngine" hidden>
+    <div class="engine-layout">
+      <div class="engine-left">
+        <div class="eng-panel">
+          <div class="eng-pick">
+            <label class="eng-field">
+              <span>Файл .jbeam</span>
+              <select id="engFileSelect"></select>
+            </label>
+            <label class="eng-field" id="engVariantWrap" hidden>
+              <span>Двигатель</span>
+              <select id="engVariantSelect"></select>
+            </label>
+          </div>
+          <div class="eng-status" id="engStatus">Выберите файл с мотором.</div>
+
+          <div id="engSettings" hidden>
+            <div class="eng-summary">
+              <div class="eng-stat"><div class="eng-stat-val" id="engPower">—</div><div class="eng-stat-lbl">пик мощности, л.с.</div></div>
+              <div class="eng-stat"><div class="eng-stat-val" id="engTorque">—</div><div class="eng-stat-lbl">пик момента, Нм</div></div>
+            </div>
+            <canvas id="engCurve" class="eng-curve"></canvas>
+            <div class="eng-warn" id="engWarn" hidden></div>
+            <div class="eng-basecurve">
+              <div class="eng-stage-hint">Кривая момента задаёт диапазон оборотов: последняя точка = предел раскрутки в игре. Чтобы мотор крутился выше — добавьте точки.</div>
+              <table class="eng-curve-table">
+                <thead><tr><th>RPM</th><th>момент, Нм</th><th></th></tr></thead>
+                <tbody id="engCurveRows"></tbody>
+              </table>
+              <button class="btn btn-ghost btn-sm" id="engCurveAdd">+ точка</button>
+            </div>
+            <div class="eng-params" id="engParams"></div>
+            <div class="eng-actions">
+              <button class="btn btn-danger" id="engPitBtn">🏁 Пит-стоп</button>
+              <div class="eng-msg" id="engApplyMsg"></div>
+              <button class="btn btn-run" id="engApplyBtn">Применить параметры и кривую</button>
+            </div>
+
+            <div class="eng-stage">
+              <label class="eng-field">
+                <span>Тюнинг / стейдж (превью «база + стейдж»)</span>
+                <select id="engStageSelect"></select>
+              </label>
+              <div id="engStageEditor" hidden>
+                <div class="eng-stage-hint" id="engStageHint"></div>
+                <table class="eng-curve-table">
+                  <thead><tr><th>RPM</th><th id="engStageCol">прибавка, Нм</th><th></th></tr></thead>
+                  <tbody id="engStageRows"></tbody>
+                </table>
+                <div class="eng-stage-actions">
+                  <button class="btn btn-ghost btn-sm" id="engStageAddRow">+ точка</button>
+                  <div style="flex:1"></div>
+                  <div class="eng-msg" id="engStageMsg"></div>
+                  <button class="btn btn-run btn-sm" id="engStageApply">Применить тюнинг</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="engine-right">
+        <canvas id="engineCanvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Страница: Конструктор ===== -->
+  <div id="viewConstructor" hidden>
+    <div class="placeholder" id="conPlaceholder">
+      <div class="placeholder-title">Конструктор jbeam</div>
+      <div class="placeholder-sub">Сначала выберите, что создаём</div>
+      <button class="btn btn-run" id="conChooseBtn" style="margin-top:16px">Выбрать тип</button>
+    </div>
+    <div class="con-typebar" id="conTypeBar" hidden>
+      <span>Тип: <b id="conTypeName">—</b></span>
+      <button class="btn btn-ghost btn-sm" id="conChangeType">Сменить тип</button>
+    </div>
+    <div class="con-wrap" hidden>
+      <div class="con-form">
+        <div class="con-section">
+          <h3>Основное</h3>
+          <div class="con-grid">
+            <label class="eng-field"><span>Внутреннее имя детали</span><input id="c_internalName" value="my_custom_engine"></label>
+            <label class="eng-field"><span>Название (в игре)</span><input id="c_name" value="Custom Engine"></label>
+            <label class="eng-field"><span>Авторы</span><input id="c_authors" value="NSDmods"></label>
+            <label class="eng-field"><span>Цена (value)</span><input id="c_value" type="number" value="6100"></label>
+            <label class="eng-field"><span>slotType</span><input id="c_slotType" value="2107nsd_engine"></label>
+            <label class="eng-field"><span>uiName</span><input id="c_uiName" value="Engine"></label>
+            <label class="eng-field"><span>Группа узлов (nodeGroup)</span><input id="c_nodeGroup" value="2107nsd_engine"></label>
+            <label class="eng-field"><span>Имя файла</span><input id="c_fileName" value="my_custom_engine.jbeam"></label>
+          </div>
+        </div>
+
+        <div class="con-section">
+          <h3>Кривая момента <span class="con-power" id="c_power"></span></h3>
+          <table class="eng-curve-table">
+            <thead><tr><th>RPM</th><th>момент, Нм</th><th></th></tr></thead>
+            <tbody id="c_torqueRows"></tbody>
+          </table>
+          <button class="btn btn-ghost btn-sm" id="c_torqueAdd">+ точка</button>
+        </div>
+
+        <div class="con-section">
+          <h3>Параметры двигателя</h3>
+          <div class="eng-params" id="c_params"></div>
+        </div>
+
+        <div class="con-section">
+          <h3>Топливо, термика, КПД</h3>
+          <div class="con-grid">
+            <label class="eng-field"><span>Бак (energyStorage)</span><input id="c_energyStorage" value="mainTank"></label>
+            <label class="eng-field"><span>Тип топлива</span><input id="c_requiredEnergyType" value="gasoline"></label>
+            <label class="eng-field"><span>Материал блока</span><input id="c_engineBlockMaterial" value="aluminum"></label>
+            <label class="eng-field"><span>КПД сгорания (burnEfficiency)</span><input id="c_burnEff" type="number" step="any" value="0.3"></label>
+            <label class="eng-field con-check"><input type="checkbox" id="c_thermals" checked><span>Термика включена</span></label>
+            <label class="eng-field con-check"><input type="checkbox" id="c_revLimiter" checked><span>Есть отсечка (hasRevLimiter)</span></label>
+          </div>
+        </div>
+
+        <div class="con-section">
+          <h3>Слоты (тюнинг-детали)</h3>
+          <div class="con-hint">Тип слота · деталь по умолчанию · описание</div>
+          <table class="eng-curve-table"><tbody id="c_slotRows"></tbody></table>
+          <button class="btn btn-ghost btn-sm" id="c_slotAdd">+ слот</button>
+        </div>
+
+        <div class="con-section">
+          <h3>Модель (flexbodies)</h3>
+          <div class="con-hint">Имя меша из .dae · группа узлов</div>
+          <table class="eng-curve-table"><tbody id="c_flexRows"></tbody></table>
+          <button class="btn btn-ghost btn-sm" id="c_flexAdd">+ меш</button>
+        </div>
+
+        <div class="con-section">
+          <h3>Узлы движка (координаты и вес)</h3>
+          <div class="con-hint">Структура балок берётся из проверенного шаблона. Имена узлов фиксированы (e1..e4, em1).</div>
+          <table class="eng-curve-table">
+            <thead><tr><th>узел</th><th>X</th><th>Y</th><th>Z</th><th>вес</th></tr></thead>
+            <tbody id="c_nodeRows"></tbody>
+          </table>
+        </div>
+
+        <div class="con-actions">
+          <button class="btn btn-danger" id="c_pit">🏁 Пит-стоп</button>
+          <div class="eng-msg" id="c_msg"></div>
+          <button class="btn btn-run" id="c_create">Создать .jbeam</button>
+        </div>
+      </div>
+
+      <div class="con-preview">
+        <div class="con-preview-head">Код (редактор) <span id="c_valid"></span></div>
+        <div class="code-editor">
+          <pre class="code-hl"><code id="c_hl"></code></pre>
+          <textarea id="c_code" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно: выбор типа конструктора -->
+<div class="modal-overlay" id="conTypeModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <h3>Что создаём?</h3>
+        <div class="sub">Выберите тип jbeam-конфига</div>
+      </div>
+      <button class="modal-close" id="conTypeClose" aria-label="Закрыть" hidden>✕</button>
+    </div>
+    <div class="con-type-grid">
+      <button class="con-type-card" data-ctype="engine">
+        <b>jbeam под двигатель</b>
+        <span>мотор: кривая момента, параметры, тюнинг, пит-стоп</span>
+      </button>
+      <button class="con-type-card" disabled>
+        <b>jbeam под подвеску</b>
+        <span>скоро — пружины, амортизаторы, геометрия</span>
+      </button>
+      <button class="con-type-card" disabled>
+        <b>jbeam под модель / body</b>
+        <span>скоро — ноды, балки, флексбоди кузова</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно: Пит-стоп (мини-дино) -->
+<div class="modal-overlay" id="pitModal" hidden>
+  <div class="modal pit-modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <h3>Пит-стоп — характеристики мотора</h3>
+        <div class="sub">Свободная раскрутка по физике игры (момент · инерция · трение · отсечка)</div>
+      </div>
+      <button class="modal-close" id="pitClose" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="pit-body">
+      <div class="pit-left">
+        <div class="pit-rpm"><span id="pitRpm">0</span><small>RPM</small></div>
+        <div class="pit-tach"><div class="pit-tach-fill" id="pitTach"></div><div class="pit-tach-red" id="pitRed"></div></div>
+        <div class="pit-readouts">
+          <div><b id="pitPower">0</b><span>л.с. сейчас</span></div>
+          <div><b id="pitTorque">0</b><span>Нм сейчас</span></div>
+          <div><b id="pitThrottle">0</b><span>% газа</span></div>
+        </div>
+        <canvas id="pitChart" class="eng-curve"></canvas>
+      </div>
+      <div class="pit-pedal-wrap">
+        <div class="pit-pedal-label">Газ — тяни/жми</div>
+        <div class="pit-pedal" id="pitPedal"><div class="pit-pedal-fill" id="pitPedalFill"></div></div>
+        <button class="btn btn-danger btn-sm" id="pitFloor">В пол (или Пробел)</button>
+        <div class="pit-stats" id="pitStats"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Полноэкранный редактор кода (Monaco / VS Code) -->
+<div id="codeEditor" hidden>
+  <div class="ce-topbar">
+    <span class="ce-brand">&lt;/&gt; Редактор кода</span>
+    <span class="ce-folder" id="ceFolder">папка не выбрана</span>
+    <div class="ce-spacer"></div>
+    <label class="ce-toggle" title="Сохранять файл после каждого изменения">
+      <input type="checkbox" id="ceAutoSave"><span>Автосохранение</span>
+    </label>
+    <div class="ce-fontsize" title="Размер шрифта кода">
+      <span>Шрифт</span>
+      <button class="ce-fs-btn" id="ceFontDec" title="Меньше">A−</button>
+      <span id="ceFontVal">13</span>
+      <button class="ce-fs-btn" id="ceFontInc" title="Больше">A+</button>
+    </div>
+    <span class="ce-hint">Ctrl+S · Ctrl+Shift+F</span>
+    <button class="btn btn-ghost ce-sm" id="ceClose">✕ Закрыть</button>
+  </div>
+  <div class="ce-body">
+    <div class="ce-activitybar">
+      <button class="ce-act active" id="ceActExplorer" title="Проводник">&#9783;</button>
+      <button class="ce-act" id="ceActSearch" title="Поиск (Ctrl+Shift+F)">&#128269;</button>
+    </div>
+    <div class="ce-sidebar">
+      <div class="ce-view" id="ceExplorer">
+        <div class="ce-sidebar-head">
+          <span>Проводник</span>
+          <button class="ce-head-btn" id="cePickHead">Открыть папку</button>
+        </div>
+        <div class="ce-tree" id="ceTree"><div class="ce-tree-empty">Папка мода не выбрана</div></div>
+      </div>
+      <div class="ce-view" id="ceSearch" hidden>
+        <div class="ce-sidebar-head"><span>Поиск по файлам</span></div>
+        <div class="ce-search-box"><input type="text" id="ceSearchInput" placeholder="Искать в файлах…" spellcheck="false"></div>
+        <div class="ce-search-results" id="ceSearchResults"><div class="ce-tree-empty">Введите запрос</div></div>
+      </div>
+    </div>
+    <div class="ce-main">
+      <div class="ce-tabs" id="ceTabs"></div>
+      <div class="ce-content">
+        <div id="ceMonaco" class="ce-monaco"></div>
+        <div id="ceImage" class="ce-pane" hidden></div>
+        <div id="ceBinary" class="ce-pane ce-binary" hidden></div>
+        <div id="ceWelcome" class="ce-pane ce-welcome">
+          <div class="ce-welcome-card">
+            <div class="ce-welcome-logo">&lt;/&gt;</div>
+            <div class="ce-welcome-title">Редактор кода</div>
+            <div class="ce-welcome-sub">Откройте папку с модом BeamNG, чтобы редактировать файлы</div>
+            <button class="btn btn-primary ce-welcome-open" id="cePick">📁 Открыть папку мода</button>
+            <div class="ce-welcome-keys">
+              <div><kbd>Ctrl</kbd>+<kbd>S</kbd> — сохранить</div>
+              <div><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> — глобальный поиск</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Выдвижная панель выбора файлов -->
+<button class="drawer-toggle" id="drawerToggle" title="Файлы для редактирования"><span class="arr">❮</span></button>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3>Файлы для редактирования</h3>
+    <div class="drawer-sub" id="drawerSub">Выберите папку</div>
+  </div>
+  <div class="drawer-actions">
+    <button class="btn btn-ghost btn-sm" id="selAllBtn">Выделить все</button>
+    <button class="btn btn-ghost btn-sm" id="selNoneBtn">Снять все</button>
+    <input class="drawer-search" id="fileSearch" type="text" placeholder="Поиск файла…">
+  </div>
+  <div class="drawer-list" id="fileList">
+    <div class="backups-empty">Файлы появятся после выбора папки.</div>
+  </div>
+</aside>
+
+<!-- источники: слева — соцсети, справа — проект -->
+<div class="tc-socials">
+  <a class="tg-btn" href="https://t.me/+4rwZR2jqABUyZDli" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+    Сообщество
+  </a>
+  <a class="tg-btn" href="https://t.me/danilka_pikaso" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+    @danilka_pikaso
+  </a>
+</div>
+
+<!-- powered by TradeCloud -->
+<div class="tc-powered">
+  <span class="tc-powered-label">powered by</span>
+  <a class="tc-btn" href="https://trade-cloud.org/" target="_blank" rel="noopener">
+    <span class="tc-clouds" aria-hidden="true"></span>
+    <span class="tc-plane" aria-hidden="true"><svg class="tc-plane-svg" viewBox="0 0 1280 667"><path transform="translate(0,667) scale(0.1,-0.1)" d="M2090 6659 c-247 -15 -435 -50 -545 -99 -118 -53 -161 -113 -172 -240 -6 -66 -5 -70 24 -98 66 -66 232 -87 648 -80 l292 4 272 -674 c149 -371 270 -676 268 -678 -1 -2 -333 -7 -737 -11 l-735 -8 -48 -23 c-93 -47 -115 -121 -124 -423 l-6 -207 -176 -4 c-147 -4 -186 -9 -235 -26 -108 -40 -197 -111 -268 -214 l-39 -58 -54 0 c-30 0 -55 3 -55 6 0 4 16 84 35 178 138 683 203 1232 192 1633 -8 296 -40 428 -126 515 -60 60 -116 72 -184 39 -114 -55 -167 -245 -167 -593 0 -400 81 -1027 214 -1666 l23 -112 -21 -5 c-136 -27 -181 -40 -231 -64 -70 -32 -135 -99 -135 -137 0 -88 116 -166 301 -202 64 -12 88 -21 84 -30 -10 -27 -96 -486 -130 -692 -80 -495 -109 -821 -102 -1130 6 -232 20 -324 63 -420 43 -95 90 -130 172 -130 120 0 194 117 229 364 19 135 13 530 -11 756 -35 320 -121 855 -185 1150 -12 52 -21 99 -21 105 0 6 23 9 60 7 58 -4 61 -5 79 -40 49 -96 174 -197 288 -232 54 -17 93 -20 234 -20 l169 0 0 -387 c1 -570 14 -693 86 -772 84 -93 166 -104 761 -98 449 4 464 5 768 40 323 38 571 71 860 112 94 14 177 25 186 25 12 0 45 -69 122 -262 58 -145 113 -280 121 -300 l16 -36 -73 5 c-40 3 -119 0 -175 -6 -158 -19 -256 -58 -330 -132 -83 -84 -112 -181 -119 -399 -6 -179 3 -228 51 -276 43 -43 99 -58 225 -59 l104 -1 18 -74 c49 -192 169 -338 345 -422 298 -140 666 -12 813 285 23 47 48 113 54 147 11 57 13 60 37 56 93 -19 340 -39 475 -39 134 -1 169 2 214 19 30 10 57 25 59 32 12 36 -240 219 -533 387 -271 156 -628 322 -846 395 l-66 22 -138 344 c-76 190 -136 346 -134 349 2 2 177 33 389 69 1117 189 2174 414 3395 721 2036 513 3107 842 3695 1137 96 48 213 113 260 144 l85 56 312 -7 c303 -7 523 -1 523 15 0 13 -104 38 -380 92 -146 28 -266 53 -268 54 -2 1 22 35 52 75 137 181 196 397 196 715 0 146 -19 243 -66 336 -119 236 -342 404 -633 479 -100 26 -295 36 -386 20 -265 -46 -518 -227 -699 -499 -117 -175 -188 -355 -228 -571 l-22 -123 -141 6 c-77 3 -849 9 -1716 12 l-1575 7 -22 38 c-84 145 -200 186 -319 113 -105 -65 -139 -174 -131 -426 l5 -155 -291 -6 c-407 -10 -590 -9 -621 3 l-25 10 25 50 c14 27 31 50 39 50 22 0 66 40 66 59 0 56 -78 92 -113 53 -19 -21 -22 -63 -6 -79 8 -8 3 -24 -17 -60 -15 -26 -29 -50 -31 -52 -2 -3 -20 11 -39 30 -58 54 -74 102 -81 237 l-6 117 63 75 c35 41 75 99 88 130 33 72 41 181 18 269 -22 86 -89 226 -112 235 -38 15 -212 19 -295 7 -208 -30 -380 -108 -541 -245 -67 -56 -68 -57 -78 -34 -6 13 -93 229 -194 481 l-184 459 172 -7 c94 -3 272 -11 396 -16 623 -26 1311 -21 1343 11 42 41 -1040 254 -1953 384 -903 129 -1466 167 -1990 135z m1798 -503 c1 -2 110 -270 241 -596 l239 -593 -15 -41 c-8 -23 -15 -65 -16 -94 l-2 -53 -540 3 c-297 1 -572 4 -611 6 l-71 4 -272 676 c-149 372 -271 680 -271 684 0 11 416 16 900 11 228 -3 416 -6 418 -7z"/></svg></span>
+    <span class="tc-star" aria-hidden="true"></span>
+    <span class="tc-glitch">TradeCloud®</span>
+  </a>
+</div>
+
+<script>
+  // ============ Оживление кнопки TradeCloud ============
+  (function () {
+    const btn   = document.querySelector('.tc-btn');
+    const plane = document.querySelector('.tc-plane');
+    const star  = document.querySelector('.tc-star');
+    if (!btn) return;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const rand = (min, max) => Math.random() * (max - min) + min;
+    const clouds = btn.querySelector('.tc-clouds');
+
+    /* лёгкий параллакс облаков за курсором — от центра экрана */
+    document.addEventListener('mousemove', (e) => {
+      if (reduce.matches || !clouds) return;
+      const dx = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+      const dy = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+      const clamp = (v) => Math.max(-1, Math.min(1, v));
+      clouds.style.setProperty('--px', (clamp(dx) * 1.5).toFixed(2) + 'px');
+      clouds.style.setProperty('--py', (clamp(dy) * 1).toFixed(2) + 'px');
+    });
+
+    /* самолёт — редкое событие */
+    function flyPlane() {
+      if (!plane) return;
+      plane.style.setProperty('--y-start', rand(-7, 7).toFixed(1) + 'px');
+      plane.style.setProperty('--y-end',   rand(-7, 7).toFixed(1) + 'px');
+      plane.classList.remove('is-flying');
+      void plane.offsetWidth;
+      plane.classList.add('is-flying');
+    }
+    if (plane) {
+      plane.addEventListener('animationend', () => plane.classList.remove('is-flying'));
+      (function loop(first) {
+        setTimeout(() => {
+          if (!reduce.matches) flyPlane();
+          loop(false);
+        }, first ? rand(8000, 20000) : rand(70000, 150000));
+      })(true);
+    }
+
+    /* падающая звезда — частое, но мимолётное событие */
+    function fallStar() {
+      if (!star) return;
+      star.style.setProperty('--sx', rand(55, 95).toFixed(0) + '%');
+      star.classList.remove('is-falling');
+      void star.offsetWidth;
+      star.classList.add('is-falling');
+    }
+    if (star) {
+      star.addEventListener('animationend', () => star.classList.remove('is-falling'));
+      (function loop(first) {
+        setTimeout(() => {
+          if (!reduce.matches) fallStar();
+          loop(false);
+        }, first ? rand(4000, 10000) : rand(22000, 50000));
+      })(true);
+    }
+  })();
+</script>
+
+<script>
+  // --- Параметры (крутилки) ---
+  const PARAMS = [
+    { key: "nodeWeight",   title: "nodeWeight",   sub: "масса узлов" },
+    { key: "beamDeform",   title: "beamDeform",   sub: "деформация" },
+    { key: "beamSpring",   title: "beamSpring",   sub: "жёсткость" },
+    { key: "beamDamp",     title: "beamDamp",     sub: "демпфирование" },
+    { key: "beamStrength", title: "beamStrength", sub: "прочность" },
+  ];
+
+  const MIN = 0, MAX = 200, DEFAULT = 100;
+  const state = {};
+  PARAMS.forEach(p => state[p.key] = DEFAULT);
+
+  // Геометрия дуги (270°, открытие снизу)
+  const R = 50, C = 2 * Math.PI * R;
+  const ARC = 0.75;            // 270° из 360°
+  const ARC_LEN = C * ARC;
+
+  const grid = document.getElementById("grid");
+
+  PARAMS.forEach((p, i) => {
+    const card = document.createElement("div");
+    card.className = "dial-card";
+    card.innerHTML = `
+      <div class="dial-title">${i + 1}. ${p.title}</div>
+      <div class="dial-sub">${p.sub}</div>
+      <div class="knob-wrap" data-key="${p.key}">
+        <svg viewBox="0 0 120 120">
+          <defs>
+            <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ff7a45"/>
+              <stop offset="100%" stop-color="#ffb347"/>
+            </linearGradient>
+          </defs>
+          <circle class="knob-track" cx="60" cy="60" r="${R}"
+            stroke-dasharray="${ARC_LEN} ${C}" />
+          <circle class="knob-fill" cx="60" cy="60" r="${R}"
+            stroke-dasharray="${ARC_LEN} ${C}" stroke-dashoffset="${ARC_LEN}" />
+        </svg>
+        <div class="knob-center">
+          <div>
+            <span class="knob-value" id="val-${p.key}">${DEFAULT}</span><span class="knob-unit">%</span>
+          </div>
+        </div>
+      </div>
+      <input class="knob-input" type="number" min="${MIN}" max="${MAX}" step="1"
+             value="${DEFAULT}" data-key="${p.key}" />
+    `;
+    grid.appendChild(card);
+  });
+
+  // Линейная интерполяция между двумя HEX-цветами
+  function lerpColor(a, b, t) {
+    const ah = parseInt(a.slice(1), 16), bh = parseInt(b.slice(1), 16);
+    const ar = ah >> 16, ag = (ah >> 8) & 255, ab = ah & 255;
+    const br = bh >> 16, bg = (bh >> 8) & 255, bb = bh & 255;
+    const r = Math.round(ar + (br - ar) * t);
+    const g = Math.round(ag + (bg - ag) * t);
+    const bl = Math.round(ab + (bb - ab) * t);
+    return `rgb(${r},${g},${bl})`;
+  }
+
+  const COL_LOW  = "#3da9ff";  // занижение  (< 100%)
+  const COL_MID  = "#ffb347";  // нейтрально (= 100%)
+  const COL_HIGH = "#f8556a";  // завышение  (> 100%)
+
+  function colorFor(v) {
+    if (v < DEFAULT) return lerpColor(COL_LOW, COL_MID, v / DEFAULT);
+    if (v > DEFAULT) return lerpColor(COL_MID, COL_HIGH, (v - DEFAULT) / (MAX - DEFAULT));
+    return COL_MID;
+  }
+
+  function render(key) {
+    const v = state[key];
+    const wrap = document.querySelector(`.knob-wrap[data-key="${key}"]`);
+    const fill = wrap.querySelector(".knob-fill");
+    const valEl = document.getElementById(`val-${key}`);
+    const input = document.querySelector(`.knob-input[data-key="${key}"]`);
+    const frac = (v - MIN) / (MAX - MIN);
+    const col = colorFor(v);
+
+    fill.setAttribute("stroke-dashoffset", ARC_LEN * (1 - frac));
+    fill.style.stroke = col;
+    fill.style.filter = `drop-shadow(0 0 7px ${col})`;
+    valEl.textContent = v;
+    valEl.style.color = col;
+    if (document.activeElement !== input) input.value = v;
+  }
+
+  function setVal(key, v) {
+    v = Math.max(MIN, Math.min(MAX, Math.round(v)));
+    state[key] = v;
+    render(key);
+    scheduleSave();
+  }
+
+  // --- Перетаскивание крутилки ---
+  document.querySelectorAll(".knob-wrap").forEach(wrap => {
+    const key = wrap.dataset.key;
+    let dragging = false, startY = 0, startVal = 0;
+
+    const onMove = (e) => {
+      if (!dragging) return;
+      const y = e.touches ? e.touches[0].clientY : e.clientY;
+      const dy = startY - y;            // вверх = больше
+      setVal(key, startVal + dy * 0.5); // чувствительность
+    };
+    const onUp = () => { dragging = false; document.body.style.cursor = ""; };
+
+    const onDown = (e) => {
+      dragging = true;
+      startY = e.touches ? e.touches[0].clientY : e.clientY;
+      startVal = state[key];
+      document.body.style.cursor = "ns-resize";
+      e.preventDefault();
+    };
+
+    wrap.addEventListener("mousedown", onDown);
+    wrap.addEventListener("touchstart", onDown, { passive: false });
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("touchmove", onMove, { passive: false });
+    window.addEventListener("mouseup", onUp);
+    window.addEventListener("touchend", onUp);
+
+    // Колесо мыши
+    wrap.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      setVal(key, state[key] + (e.deltaY < 0 ? 1 : -1));
+    }, { passive: false });
+  });
+
+  // --- Ручной ввод ---
+  document.querySelectorAll(".knob-input").forEach(input => {
+    input.addEventListener("input", () => setVal(input.dataset.key, +input.value || 0));
+  });
+
+  PARAMS.forEach(p => render(p.key));
+
+  // ============================================================
+  //  Работа с папкой через Go-бэкенд (локальный сервер)
+  // ============================================================
+  let currentFolder = null;   // { path, name, jbeamCount }
+  let saveTimer = null;
+  let lastSaved = "";
+  const statusEl = document.getElementById("status");
+  const runBtn = document.getElementById("runBtn");
+
+  function setStatus(msg, color) {
+    statusEl.textContent = msg;
+    statusEl.style.color = color || "var(--text-dim)";
+  }
+
+  function setValSilent(key, v) {
+    state[key] = Math.max(MIN, Math.min(MAX, Math.round(v)));
+    render(key);
+  }
+
+  function applyFolder(folder, settings) {
+    currentFolder = folder;
+    const pathEl = document.getElementById("folderPath");
+    pathEl.textContent = folder.path;
+    pathEl.classList.remove("empty");
+    document.getElementById("folderMeta").textContent =
+      `Найдено .jbeam файлов: ${folder.jbeamCount}`;
+    if (settings) {
+      PARAMS.forEach(p => {
+        if (typeof settings[p.key] === "number") setValSilent(p.key, settings[p.key]);
+      });
+    }
+    lastSaved = JSON.stringify({ folderPath: folder.path, ...state });
+    runBtn.disabled = false;
+    document.getElementById("viewBtn").disabled = false;
+    loadFiles();
+  }
+
+  // выбор папки — нативный диалог открывает Go
+  document.getElementById("pickBtn").addEventListener("click", async () => {
+    try {
+      const r = await fetch("/api/pick-folder", { method: "POST" });
+      const data = await r.json();
+      if (!data.ok) {
+        if (data.error !== "cancelled") setStatus("Ошибка выбора папки: " + data.error, "var(--red)");
+        return;
+      }
+      applyFolder(data.folder, data.settings);
+      setStatus("Папка выбрана. Настройки загружены.", "var(--green)");
+    } catch (e) {
+      setStatus("Нет связи с сервером: " + e.message, "var(--red)");
+    }
+  });
+
+  // восстановление последней сессии при запуске
+  async function restoreSession() {
+    try {
+      const r = await fetch("/api/config");
+      const data = await r.json();
+      if (data.ok && data.folder) {
+        applyFolder(data.folder, data.settings);
+        setStatus("Восстановлена прошлая сессия.", "var(--text-dim)");
+      }
+    } catch (e) {
+      setStatus("Нет связи с сервером (запущен ли .exe?).", "var(--red)");
+    }
+  }
+
+  function scheduleSave() {
+    if (!currentFolder) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveConfig, 400);
+  }
+
+  async function saveConfig() {
+    if (!currentFolder) return;
+    const snapshot = JSON.stringify({ folderPath: currentFolder.path, ...state });
+    if (snapshot === lastSaved) return;       // ничего не менялось — не пишем
+    try {
+      const r = await fetch("/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ folderPath: currentFolder.path, settings: state })
+      });
+      const data = await r.json();
+      if (data.ok) {
+        lastSaved = snapshot;
+        setStatus("Сохранено: " + data.file, "var(--green)");
+      } else {
+        setStatus("Ошибка сохранения: " + data.error, "var(--red)");
+      }
+    } catch (e) {
+      setStatus("Ошибка сохранения: " + e.message, "var(--red)");
+    }
+  }
+
+  // периодическое автосохранение (каждые 7 сек, только при изменениях)
+  setInterval(saveConfig, 7000);
+
+  // --- Сброс ---
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    PARAMS.forEach(p => setVal(p.key, DEFAULT));
+  });
+
+  // ============================================================
+  //  Бекапы
+  // ============================================================
+  function renderBackups(list) {
+    const wrap = document.getElementById("backupsList");
+    if (!list || !list.length) {
+      wrap.innerHTML = '<div class="backups-empty">Бекапов пока нет.</div>';
+      return;
+    }
+    wrap.innerHTML = list.map((b, i) => `
+      <div class="backup-row">
+        <div class="backup-num">${i + 1}</div>
+        <div>
+          <div class="backup-when">${b.datetime}</div>
+          <div class="backup-meta">${b.count} .jbeam файлов</div>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn btn-ghost btn-sm" data-id="${b.id}">Открыть</button>
+      </div>
+    `).join("");
+    wrap.querySelectorAll("button[data-id]").forEach(btn => {
+      btn.addEventListener("click", () => openBackup(btn.dataset.id));
+    });
+  }
+
+  async function loadBackups() {
+    try {
+      const r = await fetch("/api/backups");
+      const data = await r.json();
+      if (data.ok) renderBackups(data.backups);
+    } catch (e) { /* сервер недоступен — игнорируем */ }
+  }
+
+  async function openBackup(id) {
+    try {
+      await fetch("/api/backups/open", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+    } catch (e) {
+      setStatus("Не удалось открыть папку: " + e.message, "var(--red)");
+    }
+  }
+
+  document.getElementById("openBackupsBtn").addEventListener("click", async () => {
+    try {
+      await fetch("/api/backups/open", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      });
+    } catch (e) {
+      setStatus("Не удалось открыть папку: " + e.message, "var(--red)");
+    }
+  });
+
+  // --- Применить: бекап → обработка веса (с прогрессом через SSE) ---
+  const progressWrap = document.getElementById("progressWrap");
+  const progressFill = document.getElementById("progressFill");
+  const progressText = document.getElementById("progressText");
+
+  runBtn.addEventListener("click", () => {
+    if (!currentFolder) return;
+    startApply();
+  });
+
+  async function startApply() {
+    runBtn.disabled = true;
+    document.getElementById("viewBtn").disabled = true;
+    progressWrap.hidden = false;
+    progressFill.style.width = "0%";
+    progressText.textContent = "Подготовка…";
+    setStatus("Идёт обработка…", "var(--text-dim)");
+
+    const settings = {};
+    PARAMS.forEach(p => settings[p.key] = state[p.key]);
+
+    try {
+      const resp = await fetch("/api/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          folderPath: currentFolder.path,
+          settings,
+          excluded: Array.from(excludedFiles)
+        })
+      });
+      if (!resp.ok || !resp.body) throw new Error("HTTP " + resp.status);
+
+      const reader = resp.body.getReader();
+      const dec = new TextDecoder();
+      let buf = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let idx;
+        while ((idx = buf.indexOf("\n")) >= 0) {
+          const line = buf.slice(0, idx).trim();
+          buf = buf.slice(idx + 1);
+          if (line) handleApplyEvent(JSON.parse(line));
+        }
+      }
+    } catch (e) {
+      finishApply();
+      progressWrap.hidden = true;
+      setStatus("Ошибка: " + e.message, "var(--red)");
+    }
+  }
+
+  function handleApplyEvent(ev) {
+    switch (ev.event) {
+      case "phase":
+        if (ev.phase === "backup") progressText.textContent = "Создаю бекап…";
+        else if (ev.phase === "process") progressText.textContent = "Обрабатываю файлы…";
+        break;
+      case "progress": {
+        const pct = ev.total ? Math.round(ev.done / ev.total * 100) : 0;
+        progressFill.style.width = pct + "%";
+        progressText.textContent = `Обработано ${ev.done} / ${ev.total}`
+          + (ev.file ? ` — ${ev.file}` : "");
+        break;
+      }
+      case "done": {
+        progressFill.style.width = "100%";
+        finishApply();
+        renderBackups(ev.backups || []);
+        if (ev.skipped) {
+          setStatus("Все параметры 100% — изменять нечего.", "var(--accent-2)");
+        } else {
+          let msg = "Готово";
+          const hasErr = ev.errors && ev.errors.length;
+          if (hasErr) msg += `. Ошибок: ${ev.errors.length}.`;
+          setStatus(msg, hasErr ? "var(--red)" : "var(--green)");
+        }
+        setTimeout(() => { progressWrap.hidden = true; }, 1600);
+        break;
+      }
+      case "error":
+        finishApply();
+        progressWrap.hidden = true;
+        setStatus("Ошибка: " + (ev.error || "неизвестно"), "var(--red)");
+        break;
+    }
+  }
+
+  function finishApply() {
+    runBtn.disabled = false;
+    document.getElementById("viewBtn").disabled = false;
+  }
+
+  // ============================================================
+  //  Панель выбора файлов (правый проводник)
+  // ============================================================
+  let allFiles = [];              // [{file, size}]
+  let excludedFiles = new Set();  // относительные пути снятых галочек
+  const drawer = document.getElementById("drawer");
+  const drawerToggle = document.getElementById("drawerToggle");
+  const fileListEl = document.getElementById("fileList");
+  const fileSearch = document.getElementById("fileSearch");
+
+  drawerToggle.addEventListener("click", () => {
+    drawer.classList.toggle("open");
+    drawerToggle.classList.toggle("open");
+  });
+
+  async function loadFiles() {
+    if (!currentFolder) return;
+    fileListEl.innerHTML = '<div class="backups-empty">Загрузка…</div>';
+    try {
+      const r = await fetch("/api/files?folderPath=" + encodeURIComponent(currentFolder.path));
+      const d = await r.json();
+      if (!d.ok) {
+        fileListEl.innerHTML = '<div class="backups-empty">Ошибка: ' + d.error + '</div>';
+        return;
+      }
+      allFiles = d.files || [];
+      excludedFiles = new Set();   // при входе/выборе папки все выделены
+      renderFiles("");
+    } catch (e) {
+      fileListEl.innerHTML = '<div class="backups-empty">Ошибка: ' + e.message + '</div>';
+    }
+  }
+
+  function renderFiles(filter) {
+    const q = (filter || "").trim().toLowerCase();
+    const list = q ? allFiles.filter(f => f.file.toLowerCase().includes(q)) : allFiles;
+    if (!list.length) {
+      fileListEl.innerHTML = '<div class="backups-empty">' +
+        (allFiles.length ? "Ничего не найдено." : "Файлы .jbeam не найдены.") + '</div>';
+      updateDrawerSub();
+      return;
+    }
+    fileListEl.innerHTML = list.map(f => {
+      const checked = excludedFiles.has(f.file) ? "" : "checked";
+      const ef = escapeHtml(f.file);
+      return `<div class="file-item">
+        <label class="file-pick">
+          <input type="checkbox" ${checked} data-file="${ef}">
+          <span class="file-name" title="${ef}">${escapeHtml(baseName(f.file))}</span>
+        </label>
+        <span class="file-size">${formatSize(f.size)}</span>
+        <button class="file-3d" data-file="${ef}" title="Показать 3D-каркас">3D</button>
+      </div>`;
+    }).join("");
+    fileListEl.querySelectorAll("input[type=checkbox]").forEach(cb => {
+      cb.addEventListener("change", () => {
+        if (cb.checked) excludedFiles.delete(cb.dataset.file);
+        else excludedFiles.add(cb.dataset.file);
+        updateDrawerSub();
+      });
+    });
+    fileListEl.querySelectorAll(".file-3d").forEach(btn => {
+      btn.addEventListener("click", () => openModel(btn.dataset.file));
+    });
+    updateDrawerSub();
+  }
+
+  function updateDrawerSub() {
+    const total = allFiles.length;
+    const selected = total - excludedFiles.size;
+    document.getElementById("drawerSub").textContent =
+      total ? `Выбрано ${selected} из ${total}` : "Файлы не найдены";
+  }
+
+  function baseName(p) { const i = p.lastIndexOf("/"); return i >= 0 ? p.slice(i + 1) : p; }
+  function formatSize(b) {
+    if (b < 1024) return b + " B";
+    if (b < 1048576) return (b / 1024).toFixed(1) + " KB";
+    return (b / 1048576).toFixed(1) + " MB";
+  }
+
+  document.getElementById("selAllBtn").addEventListener("click", () => {
+    excludedFiles.clear();
+    renderFiles(fileSearch.value);
+  });
+  document.getElementById("selNoneBtn").addEventListener("click", () => {
+    allFiles.forEach(f => excludedFiles.add(f.file));
+    renderFiles(fileSearch.value);
+  });
+  fileSearch.addEventListener("input", () => renderFiles(fileSearch.value));
+
+  // ============================================================
+  //  Просмотр текущих значений nodeWeight (модальное окно)
+  // ============================================================
+  const viewModal = document.getElementById("viewModal");
+  const viewList = document.getElementById("viewList");
+  const viewSearch = document.getElementById("viewSearch");
+  const viewTypes = document.getElementById("viewTypes");
+  let scanFiles = [];          // последние результаты сканирования
+  let viewParam = "nodeWeight"; // выбранный тип параметра
+
+  // строим чипы выбора типа
+  viewTypes.innerHTML = PARAMS.map(p =>
+    `<button class="type-chip" data-key="${p.key}">${p.title}</button>`
+  ).join("");
+  viewTypes.querySelectorAll(".type-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      viewParam = chip.dataset.key;
+      updateTypeChips();
+      scanParam();
+    });
+  });
+  function updateTypeChips() {
+    viewTypes.querySelectorAll(".type-chip").forEach(c =>
+      c.classList.toggle("active", c.dataset.key === viewParam));
+  }
+
+  document.getElementById("viewBtn").addEventListener("click", () => {
+    if (!currentFolder) return;
+    openViewModal();
+    updateTypeChips();
+    scanParam();
+  });
+
+  async function scanParam() {
+    viewSearch.value = "";
+    viewList.innerHTML = '<div class="backups-empty">Сканирую…</div>';
+    document.getElementById("viewSub").textContent = "Сканирую…";
+    try {
+      const r = await fetch("/api/scan?param=" + viewParam
+        + "&folderPath=" + encodeURIComponent(currentFolder.path));
+      const d = await r.json();
+      if (!d.ok) {
+        viewList.innerHTML = '<div class="backups-empty">Ошибка: ' + d.error + '</div>';
+        return;
+      }
+      document.getElementById("viewSub").textContent =
+        `${viewParam} — файлов: ${d.totalFiles}, всего значений: ${d.totalPoints}`;
+      scanFiles = d.files || [];
+      renderViewList("");
+    } catch (e) {
+      viewList.innerHTML = '<div class="backups-empty">Ошибка: ' + e.message + '</div>';
+    }
+  }
+
+  function renderViewList(filter) {
+    const q = (filter || "").trim().toLowerCase();
+    const files = q ? scanFiles.filter(f => f.file.toLowerCase().includes(q)) : scanFiles;
+    if (!files.length) {
+      viewList.innerHTML = '<div class="backups-empty">' +
+        (scanFiles.length ? "Ничего не найдено по фильтру." : (viewParam + " не найден.")) + '</div>';
+      return;
+    }
+    viewList.innerHTML = files.map(f => `
+      <details class="view-file">
+        <summary>${escapeHtml(f.file)} <span class="cnt">(${f.values.length})</span></summary>
+        <div class="view-values">${f.values.map(v => `<span class="view-val">${v}</span>`).join("")}</div>
+      </details>
+    `).join("");
+  }
+
+  viewSearch.addEventListener("input", () => renderViewList(viewSearch.value));
+
+  function openViewModal() {
+    viewModal.hidden = false;
+    setTimeout(() => viewSearch.focus(), 50);
+  }
+  function closeViewModal() {
+    viewModal.hidden = true;
+  }
+
+  document.getElementById("viewCloseBtn").addEventListener("click", closeViewModal);
+  // закрытие по клику на фон
+  viewModal.addEventListener("click", (e) => {
+    if (e.target === viewModal) closeViewModal();
+  });
+  // закрытие по Esc
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !viewModal.hidden) closeViewModal();
+  });
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+  }
+
+  // ============================================================
+  //  3D-каркас (canvas, без внешних библиотек)
+  // ============================================================
+  const modelModal = document.getElementById("modelModal");
+  const modelCanvas = document.getElementById("modelCanvas");
+  const modelEmpty = document.getElementById("modelEmpty");
+  const mctx = modelCanvas.getContext("2d");
+
+  const m3d = {
+    nodes: [], beams: [], radius: 1,
+    yaw: -0.6, pitch: -0.35, zoom: 1, panX: 0, panY: 0,
+    scale: 1, dpr: 1
+  };
+  let labelsOn = false;
+  let labelParam = "nodeWeight";
+  let enabledParts = new Set();
+
+  // чипы выбора параметра для подписей
+  const modelParams = document.getElementById("modelParams");
+  modelParams.innerHTML = PARAMS.map(p =>
+    `<button class="type-chip${p.key === labelParam ? " active" : ""}" data-key="${p.key}">${p.title}</button>`
+  ).join("");
+  modelParams.querySelectorAll(".type-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      labelParam = chip.dataset.key;
+      modelParams.querySelectorAll(".type-chip").forEach(c =>
+        c.classList.toggle("active", c.dataset.key === labelParam));
+      drawModel();
+    });
+  });
+  document.getElementById("labelsToggle").addEventListener("change", (e) => {
+    labelsOn = e.target.checked;
+    modelParams.classList.toggle("disabled", !labelsOn);
+    drawModel();
+  });
+
+  function fmtVal(v) {
+    if (typeof v === "number") return (Math.round(v * 1000) / 1000).toString();
+    return String(v);
+  }
+
+  async function openModel(file) {
+    modelModal.hidden = false;
+    document.getElementById("modelTitle").textContent = baseName(file);
+    document.getElementById("modelSub").textContent = "Загрузка…";
+    document.getElementById("modelPartsList").innerHTML = "";
+    modelEmpty.hidden = true;
+    try {
+      const r = await fetch("/api/model?folderPath=" + encodeURIComponent(currentFolder.path)
+        + "&file=" + encodeURIComponent(file));
+      const d = await r.json();
+      if (!d.ok) { showModelEmpty("Ошибка: " + d.error); return; }
+      if (!d.nodes || !d.nodes.length) { showModelEmpty("В файле нет узлов с координатами."); return; }
+      setupModel(d.nodes, d.beams || [], d.parts || []);
+      document.getElementById("modelSub").textContent =
+        `${d.nodes.length} узлов · ${(d.beams || []).length} балок`;
+    } catch (e) {
+      showModelEmpty("Ошибка: " + e.message);
+    }
+  }
+
+  function showModelEmpty(msg) {
+    modelEmpty.textContent = msg;
+    modelEmpty.hidden = false;
+    document.getElementById("modelSub").textContent = "";
+    mctx.clearRect(0, 0, modelCanvas.width, modelCanvas.height);
+  }
+
+  function setupModel(nodes, beams, parts) {
+    modelEmpty.hidden = true;
+    let cx = 0, cy = 0, cz = 0;
+    nodes.forEach(n => { cx += n.x; cy += n.y; cz += n.z; });
+    cx /= nodes.length; cy /= nodes.length; cz /= nodes.length;
+    m3d.nodes = nodes.map(n => ({ x: n.x - cx, y: n.y - cy, z: n.z - cz, nodeWeight: n.nodeWeight, part: n.part }));
+    let rad = 0;
+    m3d.nodes.forEach(n => { const d = Math.hypot(n.x, n.y, n.z); if (d > rad) rad = d; });
+    m3d.radius = rad || 1;
+    m3d.beams = beams; // [{a, b, beamDeform, beamSpring, beamDamp, beamStrength, part}]
+    m3d.yaw = -0.6; m3d.pitch = -0.35; m3d.zoom = 1; m3d.panX = 0; m3d.panY = 0;
+    enabledParts = new Set(parts);
+    buildPartsPanel(parts);
+    resizeModelCanvas();
+    drawModel();
+  }
+
+  function buildPartsPanel(parts) {
+    const counts = {};
+    m3d.nodes.forEach(n => { counts[n.part] = (counts[n.part] || 0) + 1; });
+    const listEl = document.getElementById("modelPartsList");
+    if (!parts.length) {
+      listEl.innerHTML = '<div class="part-cnt" style="padding:8px">нет деталей</div>';
+      return;
+    }
+    listEl.innerHTML = parts.map(p => `
+      <label class="part-item">
+        <input type="checkbox" checked data-part="${escapeHtml(p)}">
+        <span class="part-name" title="${escapeHtml(p)}">${escapeHtml(p)}</span>
+        <span class="part-cnt">${counts[p] || 0}</span>
+      </label>`).join("");
+    listEl.querySelectorAll("input[data-part]").forEach(cb => {
+      cb.addEventListener("change", () => {
+        if (cb.checked) enabledParts.add(cb.dataset.part);
+        else enabledParts.delete(cb.dataset.part);
+        drawModel();
+      });
+    });
+  }
+
+  document.getElementById("partsAllBtn").addEventListener("click", () => {
+    const boxes = [...document.querySelectorAll("#modelPartsList input[data-part]")];
+    if (!boxes.length) return;
+    const allOn = boxes.every(b => b.checked);
+    boxes.forEach(b => {
+      b.checked = !allOn;
+      if (b.checked) enabledParts.add(b.dataset.part);
+      else enabledParts.delete(b.dataset.part);
+    });
+    drawModel();
+  });
+
+  function resizeModelCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    modelCanvas.width = Math.max(1, Math.round(modelCanvas.clientWidth * dpr));
+    modelCanvas.height = Math.max(1, Math.round(modelCanvas.clientHeight * dpr));
+    m3d.dpr = dpr;
+    m3d.scale = Math.min(modelCanvas.width, modelCanvas.height) * 0.42 / m3d.radius;
+  }
+
+  function drawModel() {
+    const W = modelCanvas.width, H = modelCanvas.height;
+    mctx.clearRect(0, 0, W, H);
+    if (!m3d.nodes.length) return;
+
+    const cyaw = Math.cos(m3d.yaw), syaw = Math.sin(m3d.yaw);
+    const cp = Math.cos(m3d.pitch), sp = Math.sin(m3d.pitch);
+    const s = m3d.scale * m3d.zoom;
+    const ox = W / 2 + m3d.panX * m3d.dpr, oy = H / 2 + m3d.panY * m3d.dpr;
+
+    // проецируем все узлы один раз
+    const P = m3d.nodes.map(n => {
+      const x = n.x * cyaw - n.y * syaw;
+      const y = n.x * syaw + n.y * cyaw;
+      const z2 = y * sp + n.z * cp;
+      return { sx: ox + x * s, sy: oy - z2 * s };
+    });
+
+    // балки одной линией (только включённые детали)
+    mctx.lineWidth = Math.max(1, m3d.dpr * 0.9);
+    mctx.strokeStyle = "rgba(120,170,235,0.5)";
+    mctx.beginPath();
+    for (const b of m3d.beams) {
+      if (!enabledParts.has(b.part)) continue;
+      const a = P[b.a], c = P[b.b];
+      if (!a || !c) continue;
+      mctx.moveTo(a.sx, a.sy); mctx.lineTo(c.sx, c.sy);
+    }
+    mctx.stroke();
+
+    // узлы (только включённые детали)
+    const r = Math.max(1.6, m3d.dpr * 1.7);
+    mctx.fillStyle = "#ff7a45";
+    for (let i = 0; i < P.length; i++) {
+      if (!enabledParts.has(m3d.nodes[i].part)) continue;
+      mctx.beginPath();
+      mctx.arc(P[i].sx, P[i].sy, r, 0, Math.PI * 2);
+      mctx.fill();
+    }
+
+    // подписи значений
+    if (labelsOn) drawLabels(P);
+  }
+
+  function drawLabels(P) {
+    mctx.font = `${Math.round(11 * m3d.dpr)}px sans-serif`;
+    mctx.textAlign = "center";
+    mctx.textBaseline = "middle";
+    mctx.fillStyle = "#ffd9a0";
+    const off = 9 * m3d.dpr;
+
+    if (labelParam === "nodeWeight") {
+      m3d.nodes.forEach((n, i) => {
+        if (n.nodeWeight == null || !enabledParts.has(n.part)) return;
+        const p = P[i];
+        mctx.fillText(fmtVal(n.nodeWeight), p.sx, p.sy - off);
+      });
+    } else {
+      for (const b of m3d.beams) {
+        const v = b[labelParam];
+        if (v == null || !enabledParts.has(b.part)) continue;
+        const a = P[b.a], c = P[b.b];
+        if (!a || !c) continue;
+        mctx.fillText(fmtVal(v), (a.sx + c.sx) / 2, (a.sy + c.sy) / 2);
+      }
+    }
+  }
+
+  // --- управление мышью ---
+  let mDrag = null, mLastX = 0, mLastY = 0;
+  modelCanvas.addEventListener("mousedown", e => {
+    mDrag = e.button === 2 ? "pan" : "rotate";
+    mLastX = e.clientX; mLastY = e.clientY;
+    e.preventDefault();
+  });
+  window.addEventListener("mousemove", e => {
+    if (!mDrag) return;
+    const dx = e.clientX - mLastX, dy = e.clientY - mLastY;
+    mLastX = e.clientX; mLastY = e.clientY;
+    if (mDrag === "rotate") {
+      m3d.yaw += dx * 0.01;
+      m3d.pitch += dy * 0.01;
+      m3d.pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, m3d.pitch));
+    } else {
+      m3d.panX += dx; m3d.panY += dy;
+    }
+    if (!modelModal.hidden) drawModel();
+  });
+  window.addEventListener("mouseup", () => { mDrag = null; });
+  modelCanvas.addEventListener("contextmenu", e => e.preventDefault());
+  modelCanvas.addEventListener("wheel", e => {
+    e.preventDefault();
+    m3d.zoom *= e.deltaY < 0 ? 1.1 : 0.9;
+    m3d.zoom = Math.max(0.1, Math.min(20, m3d.zoom));
+    drawModel();
+  }, { passive: false });
+
+  function closeModel() { modelModal.hidden = true; }
+  document.getElementById("modelCloseBtn").addEventListener("click", closeModel);
+  modelModal.addEventListener("click", e => { if (e.target === modelModal) closeModel(); });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && !modelModal.hidden) closeModel();
+  });
+  window.addEventListener("resize", () => {
+    if (!modelModal.hidden) { resizeModelCanvas(); drawModel(); }
+  });
+
+  // ============================================================
+  //  Переключение страниц (вкладки в шапке)
+  // ============================================================
+  const VIEW_TITLES = {
+    main: ["Width Corrector", "Пакетная коррекция параметров .jbeam"],
+    engine: ["Настройка двигателя", "Параметры двигателя (.jbeam)"],
+    constructor: ["Конструктор", "Создание jbeam-конфига двигателя"]
+  };
+
+  function showView(view) {
+    document.getElementById("viewMain").hidden = view !== "main";
+    document.getElementById("viewEngine").hidden = view !== "engine";
+    document.getElementById("viewConstructor").hidden = view !== "constructor";
+    document.querySelectorAll(".tab").forEach(t =>
+      t.classList.toggle("active", t.dataset.view === view));
+    document.getElementById("appTitle").textContent = VIEW_TITLES[view][0];
+    document.getElementById("appSubtitle").textContent = VIEW_TITLES[view][1];
+
+    // панель файлов — только на странице «Переменные»
+    const dt = document.getElementById("drawerToggle");
+    if (dt) dt.style.display = view === "main" ? "" : "none";
+    if (view !== "main") {
+      document.getElementById("drawer").classList.remove("open");
+      if (dt) dt.classList.remove("open");
+    }
+    if (view === "engine") {
+      populateEngineFiles();
+      if (!engSettings.hidden && engState.part) requestAnimationFrame(recomputeEngine);
+    }
+    if (view === "constructor") {
+      if (!conType) openConType();
+      else { showConForm(); requestAnimationFrame(updateConPreview); }
+    }
+  }
+  document.querySelectorAll(".tab").forEach(t =>
+    t.addEventListener("click", () => showView(t.dataset.view)));
+
+  // ============================================================
+  //  Настройка двигателя
+  // ============================================================
+  const ENG_LABELS = {
+    idleRPM: "Холостые обороты (RPM)",
+    maxRPM: "Макс. обороты (RPM)",
+    revLimiterRPM: "Обороты отсечки (RPM)",
+    inertia: "Инерция",
+    friction: "Трение",
+    dynamicFriction: "Динамическое трение",
+    engineBrakeTorque: "Тормозной момент двигателя (Нм)",
+    maxTorqueRating: "Предел момента без износа (Нм)",
+    maxOverTorqueDamage: "Момент до поломки (Нм)",
+    cylinderWallTemperatureDamageThreshold: "Темп. повреждения цилиндров (°C)",
+    headGasketDamageThreshold: "Прочность прокладки ГБЦ",
+    pistonRingDamageThreshold: "Прочность поршневых колец",
+    connectingRodDamageThreshold: "Прочность шатунов"
+  };
+
+  const engState = { file: null, part: null, engines: [] };
+  const engFileSelect = document.getElementById("engFileSelect");
+  const engVariantSelect = document.getElementById("engVariantSelect");
+  const engStatus = document.getElementById("engStatus");
+  const engSettings = document.getElementById("engSettings");
+
+  function populateEngineFiles() {
+    if (!currentFolder) {
+      engFileSelect.innerHTML = '<option value="">— сначала выберите папку на вкладке «Переменные» —</option>';
+      engStatus.textContent = "Папка не выбрана.";
+      engStatus.className = "eng-status";
+      engSettings.hidden = true;
+      return;
+    }
+    if (!allFiles.length) {
+      engFileSelect.innerHTML = '<option value="">нет .jbeam файлов</option>';
+      return;
+    }
+    const cur = engFileSelect.value;
+    engFileSelect.innerHTML = '<option value="">— выберите файл —</option>' +
+      allFiles.map(f => `<option value="${escapeHtml(f.file)}">${escapeHtml(f.file)}</option>`).join("");
+    if (cur) engFileSelect.value = cur;
+  }
+
+  engFileSelect.addEventListener("change", () => loadEngine(engFileSelect.value));
+  engVariantSelect.addEventListener("change", () => showEngine(+engVariantSelect.value));
+
+  async function loadEngine(file) {
+    const variantWrap = document.getElementById("engVariantWrap");
+    engState.file = file; engState.part = null;
+    engSettings.hidden = true; variantWrap.hidden = true;
+    if (!file) { engStatus.textContent = "Выберите файл с мотором."; engStatus.className = "eng-status"; return; }
+    engStatus.textContent = "Загрузка…"; engStatus.className = "eng-status";
+    try {
+      const r = await fetch("/api/engine?folderPath=" + encodeURIComponent(currentFolder.path)
+        + "&file=" + encodeURIComponent(file));
+      const d = await r.json();
+      if (!d.ok) { engStatus.textContent = "Ошибка: " + d.error; engStatus.className = "eng-status err"; return; }
+      if (!d.isEngine || !d.engines.length) {
+        engStatus.textContent = "Это не jbeam мотора — в файле нет двигателя с кривой момента.";
+        engStatus.className = "eng-status err";
+        return;
+      }
+      engState.engines = d.engines;
+      engState.stages = d.stages || [];
+      engState.stageIdx = -1;
+      populateStageSelect();
+      engStatus.textContent = "";
+      if (d.engines.length > 1) {
+        variantWrap.hidden = false;
+        engVariantSelect.innerHTML = d.engines.map((e, i) =>
+          `<option value="${i}">${escapeHtml(e.name)}</option>`).join("");
+      }
+      showEngine(0);
+    } catch (e) {
+      engStatus.textContent = "Ошибка: " + e.message; engStatus.className = "eng-status err";
+    }
+  }
+
+  const RPM_TO_AV = 0.104719755;
+
+  function showEngine(idx) {
+    const e = engState.engines[idx];
+    if (!e) return;
+    engState.part = e.part;
+    engState.curve = e.torqueCurve;
+    engSettings.hidden = false;
+    renderEngineParams(e.params);
+    renderEngineCurveTable(e.torqueCurve);
+    recomputeEngine();
+    document.getElementById("engApplyMsg").textContent = "";
+  }
+
+  // ---------- редактируемая базовая кривая момента ----------
+  function engCurveRow(rpm, t) {
+    return `<tr><td><input type="number" step="any" class="ec-rpm" value="${rpm}"></td>
+      <td><input type="number" step="any" class="ec-val" value="${t}"></td>
+      <td><button class="eng-row-del" data-rm>✕</button></td></tr>`;
+  }
+  function renderEngineCurveTable(curve) {
+    const tb = document.getElementById("engCurveRows");
+    tb.innerHTML = (curve || []).map(p => engCurveRow(p[0], p[1])).join("");
+    tb.querySelectorAll("input").forEach(i => i.addEventListener("input", recomputeEngine));
+    tb.querySelectorAll(".eng-row-del").forEach(b => b.addEventListener("click", () => { b.closest("tr").remove(); recomputeEngine(); }));
+  }
+  function getEngineCurveFromTable() {
+    const rows = [];
+    document.querySelectorAll("#engCurveRows tr").forEach(tr => {
+      const r = parseFloat(tr.querySelector(".ec-rpm").value);
+      const t = parseFloat(tr.querySelector(".ec-val").value);
+      if (!isNaN(r) && !isNaN(t)) rows.push([r, t]);
+    });
+    rows.sort((a, b) => a[0] - b[0]);
+    return rows;
+  }
+  document.getElementById("engCurveAdd").addEventListener("click", () => {
+    const tb = document.getElementById("engCurveRows");
+    tb.insertAdjacentHTML("beforeend", engCurveRow(0, 0));
+    const tr = tb.lastElementChild;
+    tr.querySelectorAll("input").forEach(i => i.addEventListener("input", recomputeEngine));
+    tr.querySelector(".eng-row-del").addEventListener("click", () => { tr.remove(); recomputeEngine(); });
+  });
+
+  function engParamVal(key, fallback) {
+    const inp = document.querySelector(`#engParams input[data-key="${key}"]`);
+    if (!inp) return fallback;
+    const v = parseFloat(inp.value);
+    return isNaN(v) ? fallback : v;
+  }
+
+  // линейная интерполяция кривой [[rpm,val],...] в точке rpm
+  function interpCurve(points, rpm, holdLast) {
+    if (!points.length) return 0;
+    if (rpm <= points[0][0]) return points[0][1];
+    for (let i = 1; i < points.length; i++) {
+      if (rpm <= points[i][0]) {
+        const [x0, y0] = points[i - 1], [x1, y1] = points[i];
+        return x1 === x0 ? y1 : y0 + (y1 - y0) * (rpm - x0) / (x1 - x0);
+      }
+    }
+    return holdLast ? points[points.length - 1][1] : 0;
+  }
+
+  // комбинируем базу со стейджем по формуле игры: база×mult + intake + exhaust
+  function combineCurve(base, stageCurve, modType) {
+    const set = new Set(base.map(p => p[0]));
+    if (stageCurve) stageCurve.forEach(p => set.add(p[0]));
+    const rpms = [...set].sort((a, b) => a - b);
+    return rpms.map(rpm => {
+      let t = interpCurve(base, rpm, false);
+      if (stageCurve && stageCurve.length) {
+        const m = interpCurve(stageCurve, rpm, true);
+        t = (modType === "mult") ? t * m : t + m;
+      }
+      return [rpm, t];
+    });
+  }
+
+  // живой пересчёт под текущие параметры + выбранный стейдж (без записи в файл)
+  function recomputeEngine() {
+    const base = getEngineCurveFromTable();
+    if (!base.length) return;
+    const friction = engParamVal("friction", 0);
+    const dynFric = engParamVal("dynamicFriction", 0);
+    const maxRPM = engParamVal("maxRPM", Infinity);
+    const revLim = engParamVal("revLimiterRPM", 0);
+    const reqMax = revLim > 0 ? revLim : maxRPM;           // что хочет пользователь
+    const curveMax = Math.max(...base.map(p => p[0]));      // докуда есть данные кривой
+    // в игре обороты обрезаются по кривой
+    const maxOper = isFinite(reqMax) ? Math.min(reqMax, curveMax) : curveMax;
+
+    let stageCurve = null, modType = null;
+    if (engState.stageIdx >= 0 && engState.stages[engState.stageIdx]) {
+      modType = engState.stages[engState.stageIdx].modType;
+      stageCurve = getStageCurveFromTable();
+    }
+    const gross = combineCurve(base, stageCurve, modType);
+
+    const net = gross.map(p => {
+      const loss = friction + dynFric * (p[0] * RPM_TO_AV);
+      return [p[0], Math.max(0, p[1] - loss)];
+    });
+
+    let pT = 0, pP = 0;
+    net.forEach(p => {
+      if (p[0] > maxOper) return;
+      if (p[1] > pT) pT = p[1];
+      const hp = p[1] * p[0] / 9549.3 * 1.34102;
+      if (hp > pP) pP = hp;
+    });
+    document.getElementById("engPower").textContent = Math.round(pP);
+    document.getElementById("engTorque").textContent = Math.round(pT);
+
+    // предупреждение: отсечка/maxRPM выше конца кривой
+    const warn = document.getElementById("engWarn");
+    if (isFinite(reqMax) && reqMax > curveMax + 1) {
+      warn.hidden = false;
+      warn.innerHTML = `⚠ Кривая момента заканчивается на <b>${Math.round(curveMax)}</b> об/мин, а отсечка/макс. — <b>${Math.round(reqMax)}</b>. ` +
+        `В игре мотор обрежется по кривой и не раскрутится выше ${Math.round(curveMax)}. Добавьте точки в кривую до ${Math.round(reqMax)}.`;
+    } else {
+      warn.hidden = true;
+    }
+
+    drawEngineCurve(net, maxOper);
+  }
+
+  // ---------- тюнинг / стейджи ----------
+  const engStageSelect = document.getElementById("engStageSelect");
+  const STAGE_TYPE = { intake: "интейк", exhaust: "выхлоп", mult: "множитель (внутрянка/ECU)" };
+
+  function populateStageSelect() {
+    if (!engState.stages || !engState.stages.length) {
+      engStageSelect.innerHTML = '<option value="-1">— тюнинг-деталей в файле нет —</option>';
+      document.getElementById("engStageEditor").hidden = true;
+      return;
+    }
+    engStageSelect.innerHTML = '<option value="-1">— без тюнинга (только база) —</option>' +
+      engState.stages.map((s, i) =>
+        `<option value="${i}">${escapeHtml(s.name)} — ${STAGE_TYPE[s.modType] || s.modType}</option>`).join("");
+    document.getElementById("engStageEditor").hidden = true;
+  }
+
+  engStageSelect.addEventListener("change", () => {
+    engState.stageIdx = +engStageSelect.value;
+    renderStageEditor();
+    recomputeEngine();
+  });
+
+  function renderStageEditor() {
+    const editor = document.getElementById("engStageEditor");
+    const s = engState.stages[engState.stageIdx];
+    if (!s) { editor.hidden = true; return; }
+    editor.hidden = false;
+    document.getElementById("engStageCol").textContent = s.modType === "mult" ? "множитель" : "прибавка, Нм";
+    document.getElementById("engStageHint").textContent = s.modType === "mult"
+      ? "Множитель базового момента по оборотам (1 = без изменений)."
+      : "Прибавка момента (Нм) к базовой кривой по оборотам.";
+    document.getElementById("engStageMsg").textContent = "";
+    renderStageRows(s.curve);
+  }
+
+  function renderStageRows(curve) {
+    const tb = document.getElementById("engStageRows");
+    tb.innerHTML = curve.map(p => stageRowHtml(p[0], p[1])).join("");
+    bindStageRows();
+  }
+  function stageRowHtml(rpm, val) {
+    return `<tr>
+      <td><input type="number" step="any" class="eng-rpm" value="${rpm}"></td>
+      <td><input type="number" step="any" class="eng-val" value="${val}"></td>
+      <td><button class="eng-row-del" title="удалить">✕</button></td>
+    </tr>`;
+  }
+  function bindStageRows() {
+    const tb = document.getElementById("engStageRows");
+    tb.querySelectorAll("input").forEach(inp => inp.addEventListener("input", recomputeEngine));
+    tb.querySelectorAll(".eng-row-del").forEach(btn => btn.addEventListener("click", () => {
+      btn.closest("tr").remove();
+      recomputeEngine();
+    }));
+  }
+  function getStageCurveFromTable() {
+    const rows = [];
+    document.querySelectorAll("#engStageRows tr").forEach(tr => {
+      const rpm = parseFloat(tr.querySelector(".eng-rpm").value);
+      const val = parseFloat(tr.querySelector(".eng-val").value);
+      if (!isNaN(rpm) && !isNaN(val)) rows.push([rpm, val]);
+    });
+    rows.sort((a, b) => a[0] - b[0]);
+    return rows;
+  }
+
+  document.getElementById("engStageAddRow").addEventListener("click", () => {
+    const tb = document.getElementById("engStageRows");
+    tb.insertAdjacentHTML("beforeend", stageRowHtml(0, 0));
+    const tr = tb.lastElementChild;
+    tr.querySelectorAll("input").forEach(inp => inp.addEventListener("input", recomputeEngine));
+    tr.querySelector(".eng-row-del").addEventListener("click", () => { tr.remove(); recomputeEngine(); });
+  });
+
+  document.getElementById("engStageApply").addEventListener("click", async () => {
+    const s = engState.stages[engState.stageIdx];
+    if (!s || !currentFolder) return;
+    const curve = getStageCurveFromTable();
+    if (!curve.length) return;
+    const btn = document.getElementById("engStageApply");
+    const msg = document.getElementById("engStageMsg");
+    btn.disabled = true; msg.style.color = "var(--text-dim)"; msg.textContent = "Бекап и запись…";
+    try {
+      const r = await fetch("/api/engine/stage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ folderPath: currentFolder.path, file: engState.file, part: s.part, modKey: s.modKey, curve })
+      });
+      const d = await r.json();
+      if (d.ok) {
+        msg.style.color = "var(--green)"; msg.textContent = "Готово";
+        s.curve = curve;                  // обновляем кеш
+        renderBackups(d.backups || []);
+      } else {
+        msg.style.color = "var(--red)"; msg.textContent = "Ошибка: " + d.error;
+      }
+    } catch (e) {
+      msg.style.color = "var(--red)"; msg.textContent = "Ошибка: " + e.message;
+    } finally { btn.disabled = false; }
+  });
+
+  function renderEngineParams(params) {
+    const el = document.getElementById("engParams");
+    el.innerHTML = Object.keys(params).map(k => `
+      <div class="eng-param">
+        <label title="${k}">${ENG_LABELS[k] || k}</label>
+        <input type="number" step="any" data-key="${k}" value="${params[k]}">
+      </div>`).join("");
+  }
+
+  function drawEngineCurve(curve, maxOper) {
+    const cv = document.getElementById("engCurve");
+    if (!cv.clientWidth) return;
+    const dpr = window.devicePixelRatio || 1;
+    cv.width = cv.clientWidth * dpr;
+    cv.height = cv.clientHeight * dpr;
+    const ctx = cv.getContext("2d");
+    const W = cv.width, H = cv.height;
+    ctx.clearRect(0, 0, W, H);
+    if (!curve || !curve.length) return;
+    const pad = 30 * dpr;
+    const cap = (maxOper && isFinite(maxOper)) ? maxOper : 0;
+    const rpmMax = Math.max(cap, ...curve.map(p => p[0])) || 1;
+    const tqMax = Math.max(...curve.map(p => p[1]), 1);
+    const power = curve.map(p => [p[0], p[1] * p[0] / 9549.3 * 1.34102]);
+    const pwMax = Math.max(...power.map(p => p[1]), 1);
+    const x = rpm => pad + (rpm / rpmMax) * (W - 2 * pad);
+    const yT = tq => H - pad - (tq / tqMax) * (H - 2 * pad);
+    const yP = hp => H - pad - (hp / pwMax) * (H - 2 * pad);
+
+    ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth = dpr;
+    ctx.beginPath(); ctx.moveTo(pad, H - pad); ctx.lineTo(W - pad, H - pad); ctx.stroke();
+
+    // линия отсечки / макс. оборотов
+    if (maxOper && maxOper > 0 && maxOper <= rpmMax) {
+      const lx = x(maxOper);
+      ctx.strokeStyle = "rgba(248,85,114,0.55)";
+      ctx.lineWidth = dpr; ctx.setLineDash([4 * dpr, 4 * dpr]);
+      ctx.beginPath(); ctx.moveTo(lx, pad * 0.6); ctx.lineTo(lx, H - pad); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "rgba(248,85,114,0.9)"; ctx.font = `${11 * dpr}px sans-serif`;
+      ctx.textAlign = "center"; ctx.textBaseline = "top";
+      ctx.fillText("отсечка " + Math.round(maxOper), lx, pad * 0.6);
+      ctx.textAlign = "left";
+    }
+
+    ctx.strokeStyle = "#ff7a45"; ctx.lineWidth = 2 * dpr; ctx.beginPath();
+    curve.forEach((p, i) => { const X = x(p[0]), Y = yT(p[1]); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+    ctx.stroke();
+
+    ctx.strokeStyle = "#45b6ff"; ctx.lineWidth = 2 * dpr; ctx.beginPath();
+    power.forEach((p, i) => { const X = x(p[0]), Y = yP(p[1]); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+    ctx.stroke();
+
+    ctx.font = `${12 * dpr}px sans-serif`; ctx.textBaseline = "top";
+    ctx.fillStyle = "#ff7a45"; ctx.fillText("момент, Нм", pad, 8 * dpr);
+    ctx.fillStyle = "#45b6ff"; ctx.fillText("мощность, л.с.", pad + 95 * dpr, 8 * dpr);
+    ctx.fillStyle = "rgba(255,255,255,0.4)";
+    ctx.textBaseline = "bottom";
+    ctx.fillText("0", pad, H - 8 * dpr);
+    ctx.textAlign = "right";
+    ctx.fillText(Math.round(rpmMax) + " RPM", W - pad, H - 8 * dpr);
+    ctx.textAlign = "left";
+  }
+
+  // живой пересчёт графика при изменении любого параметра (файлы не трогаем)
+  document.getElementById("engParams").addEventListener("input", recomputeEngine);
+
+  // пит-стоп из вкладки «Двигатель» — по текущей кривой/параметрам
+  document.getElementById("engPitBtn").addEventListener("click", () => {
+    const curve = getEngineCurveFromTable();
+    const params = {};
+    document.querySelectorAll("#engParams input[data-key]").forEach(i => {
+      const v = parseFloat(i.value); if (!isNaN(v)) params[i.dataset.key] = v;
+    });
+    const e = engState.engines.find(x => x.part === engState.part);
+    const hasRev = e && e.hasRevLimiter !== undefined && e.hasRevLimiter !== null ? e.hasRevLimiter : true;
+    openPitWith(curve, params, hasRev);
+  });
+
+  document.getElementById("engApplyBtn").addEventListener("click", async () => {
+    if (!engState.file || !engState.part || !currentFolder) return;
+    const params = {};
+    document.querySelectorAll("#engParams input[data-key]").forEach(inp => {
+      const v = parseFloat(inp.value);
+      if (!isNaN(v)) params[inp.dataset.key] = v;
+    });
+    const btn = document.getElementById("engApplyBtn");
+    const msg = document.getElementById("engApplyMsg");
+    btn.disabled = true;
+    msg.style.color = "var(--text-dim)";
+    msg.textContent = "Создаю бекап и применяю…";
+    try {
+      const r = await fetch("/api/engine/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          folderPath: currentFolder.path, file: engState.file, part: engState.part,
+          params, torque: getEngineCurveFromTable()
+        })
+      });
+      const d = await r.json();
+      if (d.ok) {
+        msg.style.color = "var(--green)";
+        msg.textContent = "Готово";
+        renderBackups(d.backups || []);
+      } else {
+        msg.style.color = "var(--red)";
+        msg.textContent = "Ошибка: " + d.error;
+      }
+    } catch (e) {
+      msg.style.color = "var(--red)";
+      msg.textContent = "Ошибка: " + e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // ============================================================
+  //  Конструктор jbeam движка
+  // ============================================================
+  let conInited = false;
+  let conType = null;
+  let conTimer = null;
+
+  function openConType() { document.getElementById("conTypeModal").hidden = false; }
+  function chooseConType(t) {
+    conType = t;
+    document.getElementById("conTypeModal").hidden = true;
+    document.getElementById("conTypeName").textContent = "jbeam под двигатель";
+    showConForm();
+    requestAnimationFrame(updateConPreview);
+  }
+  function showConForm() {
+    document.getElementById("conPlaceholder").hidden = true;
+    document.getElementById("conTypeBar").hidden = false;
+    document.querySelector(".con-wrap").hidden = false;
+    if (!conInited) initConstructor();
+  }
+  document.getElementById("conChooseBtn").addEventListener("click", openConType);
+  document.getElementById("conChangeType").addEventListener("click", openConType);
+  document.querySelectorAll(".con-type-card[data-ctype]").forEach(c =>
+    c.addEventListener("click", () => chooseConType(c.dataset.ctype)));
+  document.getElementById("conTypeModal").addEventListener("click", e => {
+    if (e.target.id === "conTypeModal") e.currentTarget.hidden = true;
+  });
+
+  const CON_PARAM_DEFAULTS = {
+    idleRPM: 900, maxRPM: 7000, revLimiterRPM: 7000, inertia: 0.09, friction: 12,
+    dynamicFriction: 0.028, engineBrakeTorque: 34, idleRPMRoughness: 200, oilVolume: 3,
+    maxTorqueRating: 225, maxOverTorqueDamage: 350, maxOverRevDamage: 1500,
+    cylinderWallTemperatureDamageThreshold: 125, headGasketDamageThreshold: 1500000,
+    pistonRingDamageThreshold: 1500000, connectingRodDamageThreshold: 2000000
+  };
+  const CON_LABELS = Object.assign({
+    maxOverRevDamage: "Перекрут до поломки", oilVolume: "Объём масла (л)", idleRPMRoughness: "Неровность ХХ"
+  }, ENG_LABELS);
+
+  function conCurveRow(rpm, t) {
+    return `<tr><td><input type="number" step="any" class="c-rpm" value="${rpm}"></td>
+      <td><input type="number" step="any" class="c-val" value="${t}"></td>
+      <td><button class="eng-row-del" data-rm>✕</button></td></tr>`;
+  }
+  function conSlotRow(a, b, c) {
+    return `<tr><td><input class="c-s0" value="${escapeHtml(a)}"></td>
+      <td><input class="c-s1" value="${escapeHtml(b)}"></td>
+      <td><input class="c-s2" value="${escapeHtml(c)}"></td>
+      <td><button class="eng-row-del" data-rm>✕</button></td></tr>`;
+  }
+  function conFlexRow(m, g) {
+    return `<tr><td><input class="c-f0" value="${escapeHtml(m)}"></td>
+      <td><input class="c-f1" value="${escapeHtml(g)}"></td>
+      <td><button class="eng-row-del" data-rm>✕</button></td></tr>`;
+  }
+  function conNodeRow(name, x, y, z, wt) {
+    return `<tr><td><input class="c-nn" value="${name}" readonly style="opacity:.65"></td>
+      <td><input type="number" step="any" class="c-nx" value="${x}"></td>
+      <td><input type="number" step="any" class="c-ny" value="${y}"></td>
+      <td><input type="number" step="any" class="c-nz" value="${z}"></td>
+      <td><input type="number" step="any" class="c-nw" value="${wt}"></td></tr>`;
+  }
+
+  function initConstructor() {
+    const tdef = [[0, 0], [1000, 90], [2000, 109], [3000, 159], [4000, 190], [5000, 160], [6300, 127], [7000, 106]];
+    document.getElementById("c_torqueRows").innerHTML = tdef.map(p => conCurveRow(p[0], p[1])).join("");
+
+    document.getElementById("c_params").innerHTML = Object.keys(CON_PARAM_DEFAULTS).map(k =>
+      `<div class="eng-param"><label title="${k}">${CON_LABELS[k] || k}</label>
+       <input type="number" step="any" data-key="${k}" value="${CON_PARAM_DEFAULTS[k]}"></div>`).join("");
+
+    const sdef = [
+      ["2107nsd_intake_dohc", "2107nsd_intake_dohc", "Intake"],
+      ["2107nsd_oilpan", "2107nsd_oilpan", "Oil Pan"],
+      ["2107nsd_exhaust", "2107nsd_exhaust_race", "Exhaust"],
+      ["2107nsd_enginemounts", "2107nsd_enginemounts", "Engine Mounts"],
+      ["2107nsd_transmission", "2107nsd_transmission_4M", "Transmission"]
+    ];
+    document.getElementById("c_slotRows").innerHTML = sdef.map(s => conSlotRow(s[0], s[1], s[2])).join("");
+    document.getElementById("c_flexRows").innerHTML = conFlexRow("2107nsd_engine_120", "2107nsd_engine");
+
+    const ndef = [
+      ["e1r", -0.17, -0.90, 0.29, 16], ["e1l", 0.17, -0.90, 0.29, 16],
+      ["e2r", -0.17, -1.58, 0.38, 16], ["e2l", 0.17, -1.58, 0.38, 16],
+      ["e3r", -0.13, -0.93, 0.88, 9], ["e3l", 0.13, -0.93, 0.88, 9],
+      ["e4r", -0.13, -1.58, 0.88, 9], ["e4l", 0.13, -1.58, 0.88, 9],
+      ["em1r", -0.23, -1.22, 0.60, 2], ["em1l", 0.23, -1.22, 0.60, 2]
+    ];
+    document.getElementById("c_nodeRows").innerHTML = ndef.map(n => conNodeRow(...n)).join("");
+
+    const form = document.querySelector(".con-form");
+    form.addEventListener("input", scheduleConPreview);
+    form.addEventListener("click", (e) => {
+      if (e.target.matches("[data-rm]")) { e.target.closest("tr").remove(); scheduleConPreview(); }
+    });
+    document.getElementById("c_torqueAdd").addEventListener("click", () => conAddRow("c_torqueRows", conCurveRow(0, 0)));
+    document.getElementById("c_slotAdd").addEventListener("click", () => conAddRow("c_slotRows", conSlotRow("", "", "")));
+    document.getElementById("c_flexAdd").addEventListener("click", () => conAddRow("c_flexRows", conFlexRow("", "2107nsd_engine")));
+    document.getElementById("c_create").addEventListener("click", createEngineFile);
+    conInited = true;
+    loadConstructorDraft();   // восстановить последнее редактирование
+  }
+
+  // ---------- авто-черновик конструктора ----------
+  let lastDraft = "";
+
+  async function saveConstructorDraft() {
+    if (!conInited) return;
+    const snap = JSON.stringify(collectConfig());
+    if (snap === lastDraft) return;          // не менялось — не пишем
+    try {
+      await fetch("/api/constructor/draft", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: snap
+      });
+      lastDraft = snap;
+    } catch (e) { /* нет связи — игнор */ }
+  }
+
+  async function loadConstructorDraft() {
+    try {
+      const r = await fetch("/api/constructor/draft");
+      const cfg = await r.json();
+      if (cfg && cfg.internalName !== undefined) {
+        applyConfigToForm(cfg);
+        lastDraft = JSON.stringify(collectConfig());
+      }
+    } catch (e) { /* нет черновика — игнор */ }
+    updateConPreview();
+  }
+
+  // периодическое сохранение черновика (каждые 6 сек, только при изменениях)
+  setInterval(saveConstructorDraft, 6000);
+
+  function conAddRow(tbodyId, html) {
+    document.getElementById(tbodyId).insertAdjacentHTML("beforeend", html);
+    scheduleConPreview();
+  }
+
+  function collectConfig() {
+    const val = id => document.getElementById(id).value;
+    const torque = [];
+    document.querySelectorAll("#c_torqueRows tr").forEach(tr => {
+      const r = parseFloat(tr.querySelector(".c-rpm").value), t = parseFloat(tr.querySelector(".c-val").value);
+      if (!isNaN(r) && !isNaN(t)) torque.push([r, t]);
+    });
+    torque.sort((a, b) => a[0] - b[0]);
+    const params = {};
+    document.querySelectorAll("#c_params input[data-key]").forEach(i => {
+      const v = parseFloat(i.value); if (!isNaN(v)) params[i.dataset.key] = v;
+    });
+    const slots = [];
+    document.querySelectorAll("#c_slotRows tr").forEach(tr => {
+      const a = tr.querySelector(".c-s0").value.trim();
+      if (a) slots.push([a, tr.querySelector(".c-s1").value, tr.querySelector(".c-s2").value]);
+    });
+    const flexbodies = [];
+    document.querySelectorAll("#c_flexRows tr").forEach(tr => {
+      const m = tr.querySelector(".c-f0").value.trim();
+      if (m) flexbodies.push([m, tr.querySelector(".c-f1").value]);
+    });
+    const nodes = [];
+    document.querySelectorAll("#c_nodeRows tr").forEach(tr => {
+      nodes.push({
+        name: tr.querySelector(".c-nn").value,
+        x: parseFloat(tr.querySelector(".c-nx").value) || 0,
+        y: parseFloat(tr.querySelector(".c-ny").value) || 0,
+        z: parseFloat(tr.querySelector(".c-nz").value) || 0,
+        weight: parseFloat(tr.querySelector(".c-nw").value) || 0
+      });
+    });
+    return {
+      internalName: val("c_internalName"), name: val("c_name"), authors: val("c_authors"),
+      value: parseFloat(val("c_value")) || 0, slotType: val("c_slotType"), uiName: val("c_uiName"),
+      nodeGroup: val("c_nodeGroup"), slots, torque, params,
+      hasRevLimiter: document.getElementById("c_revLimiter").checked,
+      burnEffMode: "single", burnEffSingle: parseFloat(val("c_burnEff")) || 0,
+      energyStorage: val("c_energyStorage"), requiredEnergyType: val("c_requiredEnergyType"),
+      thermalsEnabled: document.getElementById("c_thermals").checked,
+      engineBlockMaterial: val("c_engineBlockMaterial"),
+      flexbodies, nodes
+    };
+  }
+
+  function scheduleConPreview() { clearTimeout(conTimer); conTimer = setTimeout(updateConPreview, 350); }
+
+  async function updateConPreview() {
+    try {
+      const r = await fetch("/api/engine/preview", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(collectConfig())
+      });
+      const d = await r.json();
+      if (!d.ok) return;
+      setCode(d.text);
+      setConValid(d.valid);
+      const e = d.engines && d.engines[0];
+      document.getElementById("c_power").textContent = e
+        ? `≈ ${Math.round(e.peakPowerHp)} л.с. / ${Math.round(e.peakTorque)} Нм` : "";
+    } catch (e) {
+      setCode("Нет связи с сервером: " + e.message);
+    }
+  }
+
+  function setConValid(valid) {
+    const v = document.getElementById("c_valid");
+    v.textContent = valid ? "✓ валидный мотор" : "⚠ не распознан как мотор";
+    v.style.color = valid ? "var(--green)" : "var(--red)";
+  }
+
+  // ---------- редактор кода (двусторонняя синхронизация + подсветка) ----------
+  const codeEl = document.getElementById("c_code");
+  const hlEl = document.getElementById("c_hl");
+  const hlPre = document.querySelector(".code-hl");
+  let codeTimer = null;
+
+  function setCode(text) {       // форма → код (программно, без срабатывания input)
+    codeEl.value = text;
+    updateHighlight();
+  }
+  function updateHighlight() {
+    hlEl.innerHTML = highlightJbeam(codeEl.value) + "\n";
+  }
+
+  codeEl.addEventListener("input", () => {
+    updateHighlight();
+    clearTimeout(codeTimer);
+    codeTimer = setTimeout(syncCodeToForm, 450);   // код → форма (debounce)
+  });
+  codeEl.addEventListener("scroll", () => {
+    hlPre.scrollTop = codeEl.scrollTop;
+    hlPre.scrollLeft = codeEl.scrollLeft;
+  });
+  codeEl.addEventListener("keydown", (e) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      const s = codeEl.selectionStart, en = codeEl.selectionEnd;
+      codeEl.value = codeEl.value.slice(0, s) + "    " + codeEl.value.slice(en);
+      codeEl.selectionStart = codeEl.selectionEnd = s + 4;
+      updateHighlight();
+    }
+  });
+
+  async function syncCodeToForm() {
+    try {
+      const r = await fetch("/api/engine/parse", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: codeEl.value })
+      });
+      const d = await r.json();
+      setConValid(d.valid);
+      if (d.valid && d.config) applyConfigToForm(d.config);
+    } catch (e) { /* нет связи — игнор */ }
+  }
+
+  function applyConfigToForm(c) {  // код → форма (программно, без срабатывания input)
+    const set = (id, v) => { const e = document.getElementById(id); if (e && v != null) e.value = v; };
+    set("c_internalName", c.internalName); set("c_name", c.name); set("c_authors", c.authors);
+    set("c_value", c.value); set("c_slotType", c.slotType); set("c_uiName", c.uiName); set("c_nodeGroup", c.nodeGroup);
+    set("c_energyStorage", c.energyStorage); set("c_requiredEnergyType", c.requiredEnergyType);
+    set("c_engineBlockMaterial", c.engineBlockMaterial);
+    if (c.burnEffMode === "single") set("c_burnEff", c.burnEffSingle);
+    document.getElementById("c_thermals").checked = !!c.thermalsEnabled;
+    document.getElementById("c_revLimiter").checked = !!c.hasRevLimiter;
+    document.getElementById("c_torqueRows").innerHTML = (c.torque || []).map(p => conCurveRow(p[0], p[1])).join("");
+    document.querySelectorAll("#c_params input[data-key]").forEach(i => {
+      if (c.params && c.params[i.dataset.key] != null) i.value = c.params[i.dataset.key];
+    });
+    document.getElementById("c_slotRows").innerHTML = (c.slots || []).map(s => conSlotRow(s[0] || "", s[1] || "", s[2] || "")).join("");
+    document.getElementById("c_flexRows").innerHTML = (c.flexbodies || []).map(f => conFlexRow(f[0] || "", f[1] || "")).join("");
+    if (c.nodes && c.nodes.length) {
+      document.getElementById("c_nodeRows").innerHTML = c.nodes.map(n => conNodeRow(n.name, n.x, n.y, n.z, n.weight)).join("");
+    }
+  }
+
+  // кастомная подсветка jbeam (токенайзер)
+  function highlightJbeam(src) {
+    const esc = s => s.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+    let out = "", i = 0; const n = src.length;
+    while (i < n) {
+      const c = src[i];
+      if (c === "/" && src[i + 1] === "/") {
+        let j = i; while (j < n && src[j] !== "\n") j++;
+        out += `<span class="t-com">${esc(src.slice(i, j))}</span>`; i = j; continue;
+      }
+      if (c === "/" && src[i + 1] === "*") {
+        let j = i + 2; while (j < n && !(src[j] === "*" && src[j + 1] === "/")) j++; j = Math.min(j + 2, n);
+        out += `<span class="t-com">${esc(src.slice(i, j))}</span>`; i = j; continue;
+      }
+      if (c === '"') {
+        let j = i + 1; while (j < n) { if (src[j] === "\\") { j += 2; continue; } if (src[j] === '"') { j++; break; } j++; }
+        let k = j; while (k < n && /\s/.test(src[k])) k++;
+        const cls = src[k] === ":" ? "t-key" : "t-str";
+        out += `<span class="${cls}">${esc(src.slice(i, j))}</span>`; i = j; continue;
+      }
+      if (/[0-9]/.test(c) || (c === "-" && /[0-9.]/.test(src[i + 1] || ""))) {
+        let j = i + 1; while (j < n && /[0-9.eE+\-]/.test(src[j])) j++;
+        out += `<span class="t-num">${esc(src.slice(i, j))}</span>`; i = j; continue;
+      }
+      if (/[A-Za-z_]/.test(c)) {
+        let j = i + 1; while (j < n && /[A-Za-z0-9_]/.test(src[j])) j++;
+        out += `<span class="t-word">${esc(src.slice(i, j))}</span>`; i = j; continue;
+      }
+      if ("{}[]:,".includes(c)) { out += `<span class="t-punct">${esc(c)}</span>`; i++; continue; }
+      out += esc(c); i++;
+    }
+    return out;
+  }
+
+  function conMsg(t, c) { const m = document.getElementById("c_msg"); m.textContent = t; m.style.color = c; }
+
+  async function createEngineFile() {
+    if (!currentFolder) { conMsg("Сначала выберите рабочую папку на вкладке «Переменные».", "var(--red)"); return; }
+    const fileName = document.getElementById("c_fileName").value.trim();
+    if (!fileName) { conMsg("Укажите имя файла.", "var(--red)"); return; }
+    const btn = document.getElementById("c_create");
+    btn.disabled = true; conMsg("Создаю…", "var(--text-dim)");
+    try {
+      const r = await fetch("/api/engine/create", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ folderPath: currentFolder.path, fileName, config: collectConfig() })
+      });
+      const d = await r.json();
+      if (d.ok) {
+        conMsg("Готово — создан " + d.file, "var(--green)");
+        renderBackups(d.backups || []);
+        loadFiles();
+      } else conMsg("Ошибка: " + d.error, "var(--red)");
+    } catch (e) {
+      conMsg("Ошибка: " + e.message, "var(--red)");
+    } finally { btn.disabled = false; }
+  }
+
+  // ============================================================
+  //  Пит-стоп: симуляция свободной раскрутки (физика combustionEngine.lua)
+  //  угл.ускорение = (момент×газ − трение − динам.трение×ω) / инерция
+  // ============================================================
+  const AV_TO_RPM = 9.549296596425384;
+  const pit = { rpm: 0, throttle: 0, on: false, raf: 0, last: 0, cfg: null };
+  const pitModal = document.getElementById("pitModal");
+  const pedal = document.getElementById("pitPedal");
+  const pedalFill = document.getElementById("pitPedalFill");
+  let pedalDrag = false;
+
+  // универсальный запуск пит-стопа по кривой+параметрам (используют и конструктор, и вкладка «Двигатель»)
+  function openPitWith(curve, params, hasRevLimiter) {
+    if (!curve || !curve.length) return false;
+    const p = params || {};
+    const curveMaxRpm = Math.max(...curve.map(t => t[0]));
+    const maxRpm = p.maxRPM || 7000;
+    pit.cfg = {
+      curve: curve,
+      idle: p.idleRPM || 800,
+      maxRpm: maxRpm,
+      rev: p.revLimiterRPM || maxRpm,
+      hasRev: hasRevLimiter !== false,
+      inertia: p.inertia || 0.1,
+      friction: p.friction || 0,
+      dynFric: p.dynamicFriction || 0,
+      curveMaxRpm: curveMaxRpm,
+      maxPhysical: Math.max(maxRpm, curveMaxRpm) + 2500
+    };
+    pit.cfg.tachMax = pit.cfg.hasRev ? pit.cfg.maxRpm : pit.cfg.maxPhysical;
+    pit.rpm = pit.cfg.idle;
+    pit.throttle = 0;
+    pedalFill.style.width = "0%";
+    setPitStats();
+    pitModal.hidden = false;
+    pit.on = true; pit.last = performance.now();
+    pit.raf = requestAnimationFrame(pitTick);
+    return true;
+  }
+  function openPit() {   // из конструктора
+    const c = collectConfig();
+    if (!openPitWith(c.torque, c.params, c.hasRevLimiter)) conMsg("Сначала задайте кривую момента.", "var(--red)");
+  }
+  function closePit() {
+    pit.on = false;
+    if (pit.raf) cancelAnimationFrame(pit.raf);
+    pitModal.hidden = true;
+  }
+
+  // эффективный момент: за пределами кривой плавно падает к 0 (валюты не успевают / перекрут)
+  function pitGross(cf, rpm) {
+    let t = interpCurve(cf.curve, rpm, true);
+    if (rpm > cf.curveMaxRpm) {
+      t *= Math.max(0, 1 - (rpm - cf.curveMaxRpm) / 1500);
+    }
+    return t;
+  }
+
+  function pitTick(now) {
+    if (!pit.on) return;
+    let dt = (now - pit.last) / 1000; pit.last = now;
+    dt = Math.min(Math.max(dt, 0), 0.05);
+    const cf = pit.cfg;
+    const steps = 6, h = dt / steps;
+    for (let s = 0; s < steps; s++) {
+      let rpm = pit.rpm;
+      let thr = pit.throttle;
+      if (cf.hasRev && rpm >= cf.rev) thr = 0;           // отсечка режет газ (если включена)
+      const tq = pitGross(cf, rpm);
+      const av = rpm * RPM_TO_AV;
+      const net = tq * thr - cf.friction - cf.dynFric * av;
+      const accel = net / Math.max(cf.inertia, 0.001);   // рад/с²
+      let newRpm = (av + accel * h) * AV_TO_RPM;
+      if (newRpm < cf.idle) newRpm = cf.idle;             // холостые держатся
+      const ceil = cf.hasRev ? cf.rev * 1.06 : cf.maxPhysical; // без отсечки — крутит до физ. потолка
+      if (newRpm > ceil) newRpm = ceil;
+      pit.rpm = newRpm;
+    }
+    drawPit();
+    pit.raf = requestAnimationFrame(pitTick);
+  }
+
+  function drawPit() {
+    const cf = pit.cfg;
+    document.getElementById("pitRpm").textContent = Math.round(pit.rpm);
+    document.getElementById("pitTach").style.width = Math.min(pit.rpm / cf.tachMax, 1) * 100 + "%";
+    document.getElementById("pitThrottle").textContent = Math.round(pit.throttle * 100);
+    const tqNow = pitGross(cf, pit.rpm);
+    document.getElementById("pitTorque").textContent = Math.round(tqNow);
+    document.getElementById("pitPower").textContent = Math.round(tqNow * pit.rpm / 9549.3 * 1.34102);
+    drawPitChart();
+  }
+
+  function setPitStats() {
+    const cf = pit.cfg;
+    let pT = 0, pTr = 0, pP = 0, pPr = 0;
+    const cap = cf.hasRev ? cf.rev : cf.maxPhysical;
+    cf.curve.forEach(p => {
+      if (p[0] > cap) return;
+      if (p[1] > pT) { pT = p[1]; pTr = p[0]; }
+      const hp = p[1] * p[0] / 9549.3 * 1.34102;
+      if (hp > pP) { pP = hp; pPr = p[0]; }
+    });
+    document.getElementById("pitStats").innerHTML =
+      `<div>Пик мощности: <b>${Math.round(pP)} л.с.</b> @ ${Math.round(pPr)}</div>
+       <div>Пик момента: <b>${Math.round(pT)} Нм</b> @ ${Math.round(pTr)}</div>
+       <div>Холостые: <b>${Math.round(cf.idle)}</b></div>
+       <div>Отсечка: <b>${cf.hasRev ? Math.round(cf.rev) : "нет (свободный перекрут)"}</b></div>`;
+    document.getElementById("pitRed").style.width =
+      cf.hasRev ? Math.max(0, (1 - cf.rev / cf.tachMax) * 100) + "%" : "0%";
+  }
+
+  function drawPitChart() {
+    const cf = pit.cfg;
+    const cv = document.getElementById("pitChart");
+    if (!cv.clientWidth) return;
+    const dpr = window.devicePixelRatio || 1;
+    cv.width = cv.clientWidth * dpr; cv.height = cv.clientHeight * dpr;
+    const ctx = cv.getContext("2d"); const W = cv.width, H = cv.height;
+    ctx.clearRect(0, 0, W, H);
+    const curve = cf.curve, pad = 28 * dpr;
+    // ось подстраивается под параметры: с отсечкой — до неё (+отскок), без отсечки — до физ. потолка
+    const axisEnd = cf.hasRev ? Math.max(cf.maxRpm, cf.rev * 1.06) : cf.maxPhysical;
+    const rpmMax = Math.max(axisEnd, ...curve.map(p => p[0])) || 1;
+    const tqMax = Math.max(...curve.map(p => p[1]), 1);
+    const power = curve.map(p => [p[0], p[1] * p[0] / 9549.3 * 1.34102]);
+    const pwMax = Math.max(...power.map(p => p[1]), 1);
+    const x = r => pad + (r / rpmMax) * (W - 2 * pad);
+    const yT = t => H - pad - (t / tqMax) * (H - 2 * pad);
+    const yP = hp => H - pad - (hp / pwMax) * (H - 2 * pad);
+
+    ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth = dpr;
+    ctx.beginPath(); ctx.moveTo(pad, H - pad); ctx.lineTo(W - pad, H - pad); ctx.stroke();
+    if (cf.hasRev) {
+      const rlx = x(cf.rev);
+      ctx.strokeStyle = "rgba(248,85,114,0.5)"; ctx.setLineDash([4 * dpr, 4 * dpr]);
+      ctx.beginPath(); ctx.moveTo(rlx, pad * 0.4); ctx.lineTo(rlx, H - pad); ctx.stroke(); ctx.setLineDash([]);
+    }
+    ctx.strokeStyle = "#ff7a45"; ctx.lineWidth = 2 * dpr; ctx.beginPath();
+    curve.forEach((p, i) => { const X = x(p[0]), Y = yT(p[1]); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
+    ctx.strokeStyle = "#45b6ff"; ctx.lineWidth = 2 * dpr; ctx.beginPath();
+    power.forEach((p, i) => { const X = x(p[0]), Y = yP(p[1]); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke();
+    // текущая точка
+    const cx = x(pit.rpm), tqNow = interpCurve(curve, pit.rpm, true);
+    ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.lineWidth = dpr;
+    ctx.beginPath(); ctx.moveTo(cx, pad * 0.4); ctx.lineTo(cx, H - pad); ctx.stroke();
+    ctx.fillStyle = "#ff7a45"; ctx.beginPath(); ctx.arc(cx, yT(tqNow), 4 * dpr, 0, 7); ctx.fill();
+    ctx.fillStyle = "#45b6ff"; ctx.beginPath(); ctx.arc(cx, yP(tqNow * pit.rpm / 9549.3 * 1.34102), 4 * dpr, 0, 7); ctx.fill();
+  }
+
+  // педаль (тяни по вертикали), кнопка «в пол», пробел
+  function pedalSetX(clientX) {
+    const rect = pedal.getBoundingClientRect();
+    let t = (clientX - rect.left) / rect.width;
+    t = Math.min(Math.max(t, 0), 1);
+    pit.throttle = t; pedalFill.style.width = t * 100 + "%";
+  }
+  function pedalFloor() { pit.throttle = 1; pedalFill.style.width = "100%"; }
+  function pedalRelease() { pedalDrag = false; pit.throttle = 0; pedalFill.style.width = "0%"; }
+
+  pedal.addEventListener("mousedown", e => { pedalDrag = true; pedalSetX(e.clientX); e.preventDefault(); });
+  window.addEventListener("mousemove", e => { if (pedalDrag) pedalSetX(e.clientX); });
+  window.addEventListener("mouseup", () => { if (!pitModal.hidden) pedalRelease(); });
+  document.getElementById("pitFloor").addEventListener("mousedown", e => { pedalFloor(); e.preventDefault(); });
+
+  window.addEventListener("keydown", e => {
+    if (pitModal.hidden) return;
+    if (e.code === "Space") { e.preventDefault(); pedalFloor(); }
+    if (e.key === "Escape") closePit();
+  });
+  window.addEventListener("keyup", e => {
+    if (!pitModal.hidden && e.code === "Space") pedalRelease();
+  });
+
+  document.getElementById("c_pit").addEventListener("click", openPit);
+  document.getElementById("pitClose").addEventListener("click", closePit);
+  pitModal.addEventListener("click", e => { if (e.target === pitModal) closePit(); });
+
+  // ====================== Редактор кода (Monaco / VS Code) ======================
+  (function () {
+    const overlay = document.getElementById("codeEditor");
+    let ceFolder = null;       // {path, name}
+    let monaco = null, editor = null;
+    let monacoLoading = false, monacoReady = false;
+    let monacoQueue = [];
+    const openTabs = [];       // [{path, name, kind, size, dirty, model}]
+    let activePath = null;
+    let autoSave = false, autoSaveTimer = null, searchTimer = null;
+    let fontSize = 13;
+    const FONT_MIN = 8, FONT_MAX = 40;
+
+    const EXT_LANG = {
+      lua: "lua", json: "json", jbeam: "json", pc: "json", materials: "json",
+      dae: "xml", xml: "xml", html: "html", htm: "html", css: "css", js: "javascript",
+      ts: "typescript", txt: "plaintext", md: "markdown", ini: "ini", cfg: "plaintext",
+      yml: "yaml", yaml: "yaml", csv: "plaintext", sh: "shell", bat: "bat"
+    };
+    function extOf(p) { return (p.split(".").pop() || "").toLowerCase(); }
+    function langForPath(p) { return EXT_LANG[extOf(p)] || "plaintext"; }
+
+    function loadMonaco(cb) {
+      if (monacoReady) { cb(); return; }
+      monacoQueue.push(cb);
+      if (monacoLoading) return;
+      monacoLoading = true;
+      const s = document.createElement("script");
+      s.src = "/vs/loader.js";
+      s.onload = () => {
+        window.require.config({ paths: { vs: "/vs" }, "vs/nls": { availableLanguages: { "*": "en" } } });
+        // офлайн-воркеры: blob-прокси, грузит worker с нашего же сервера (без CDN)
+        window.MonacoEnvironment = {
+          getWorkerUrl: function () {
+            const base = location.origin + "/vs/";
+            const code = "self.MonacoEnvironment={baseUrl:'" + base + "'};" +
+              "importScripts('" + base + "base/worker/workerMain.js');";
+            return URL.createObjectURL(new Blob([code], { type: "text/javascript" }));
+          }
+        };
+        window.require(["vs/editor/editor.main"], () => {
+          monaco = window.monaco;
+          // jbeam/pc/json часто с комментариями — отключаем валидацию json
+          monaco.languages.json.jsonDefaults.setDiagnosticsOptions({ validate: false, allowComments: true });
+          editor = monaco.editor.create(document.getElementById("ceMonaco"), {
+            theme: "vs-dark", automaticLayout: true, fontSize: fontSize,
+            minimap: { enabled: true }, scrollBeyondLastLine: false, tabSize: 2
+          });
+          editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, saveActive);
+          editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, () => showSidebar("search"));
+          monacoReady = true;
+          monacoQueue.forEach(fn => fn()); monacoQueue = [];
+        });
+      };
+      s.onerror = () => { monacoLoading = false; };
+      document.head.appendChild(s);
+    }
+
+    // ---- открытие/закрытие + URL /editor ----
+    function openEditor(pushUrl) {
+      overlay.hidden = false;
+      if (pushUrl && location.pathname !== "/editor") history.pushState({ editor: 1 }, "", "/editor");
+      showPane("welcome");
+      loadMonaco(() => { if (editor) editor.layout(); });
+      loadEditorConfig();
+    }
+    function closeEditor() {
+      overlay.hidden = true;
+      if (location.pathname === "/editor") history.pushState({}, "", "/");
+    }
+    document.getElementById("openCodeEditor").addEventListener("click", () => openEditor(true));
+    document.getElementById("ceClose").addEventListener("click", closeEditor);
+    if (location.pathname === "/editor") openEditor(false);   // прямая ссылка /editor
+    window.addEventListener("popstate", () => {
+      if (location.pathname === "/editor") { if (overlay.hidden) openEditor(false); }
+      else overlay.hidden = true;
+    });
+
+    // ---- размер шрифта кода ----
+    function applyFontSize(save) {
+      fontSize = Math.min(FONT_MAX, Math.max(FONT_MIN, Math.round(fontSize)));
+      document.getElementById("ceFontVal").textContent = fontSize;
+      if (editor) editor.updateOptions({ fontSize: fontSize });
+      if (save) saveEditorConfig();
+    }
+    document.getElementById("ceFontDec").addEventListener("click", () => { fontSize--; applyFontSize(true); });
+    document.getElementById("ceFontInc").addEventListener("click", () => { fontSize++; applyFontSize(true); });
+
+    // ---- конфиг редактора (папка + автосохранение + размер шрифта) ----
+    async function loadEditorConfig() {
+      try {
+        const c = await (await fetch("/api/code/config")).json();
+        if (!c) return;
+        autoSave = !!c.autoSave;
+        document.getElementById("ceAutoSave").checked = autoSave;
+        if (c.fontSize) { fontSize = c.fontSize; applyFontSize(false); }
+        if (c.folderPath && !ceFolder) {
+          ceFolder = { path: c.folderPath, name: c.folderPath.split(/[\\/]/).pop() };
+          document.getElementById("ceFolder").textContent = c.folderPath;
+          loadTree();
+        }
+      } catch (e) {}
+    }
+    function saveEditorConfig() {
+      fetch("/api/code/config", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ folderPath: ceFolder ? ceFolder.path : "", autoSave, fontSize })
+      }).catch(() => {});
+    }
+    document.getElementById("ceAutoSave").addEventListener("change", (e) => {
+      autoSave = e.target.checked; saveEditorConfig();
+      if (autoSave) saveActive();
+    });
+
+    // ---- выбор папки ----
+    async function pickFolder() {
+      try {
+        const r = await fetch("/api/code/pick-folder", { method: "POST" });
+        const d = await r.json();
+        if (!d.ok) return;
+        ceFolder = { path: d.path, name: d.name };
+        document.getElementById("ceFolder").textContent = d.path;
+        openTabs.forEach(t => t.model && t.model.dispose());
+        openTabs.length = 0; activePath = null; renderTabs(); showPane("welcome");
+        saveEditorConfig();
+        loadTree();
+      } catch (e) {}
+    }
+    document.getElementById("cePick").addEventListener("click", pickFolder);
+    document.getElementById("cePickHead").addEventListener("click", pickFolder);
+
+    // ---- активити-бар: проводник / поиск ----
+    function showSidebar(which) {
+      document.getElementById("ceExplorer").hidden = which !== "explorer";
+      document.getElementById("ceSearch").hidden = which !== "search";
+      document.getElementById("ceActExplorer").classList.toggle("active", which === "explorer");
+      document.getElementById("ceActSearch").classList.toggle("active", which === "search");
+      if (which === "search") document.getElementById("ceSearchInput").focus();
+    }
+    document.getElementById("ceActExplorer").addEventListener("click", () => showSidebar("explorer"));
+    document.getElementById("ceActSearch").addEventListener("click", () => showSidebar("search"));
+
+    // ---- глобальный поиск ----
+    const ceSearchInput = document.getElementById("ceSearchInput");
+    ceSearchInput.addEventListener("input", () => { clearTimeout(searchTimer); searchTimer = setTimeout(runSearch, 300); });
+    async function runSearch() {
+      const q = ceSearchInput.value.trim();
+      const box = document.getElementById("ceSearchResults");
+      if (!q || !ceFolder) { box.innerHTML = '<div class="ce-tree-empty">Введите запрос</div>'; return; }
+      box.innerHTML = '<div class="ce-tree-empty">Поиск…</div>';
+      try {
+        const d = await (await fetch("/api/code/search?folderPath=" + encodeURIComponent(ceFolder.path) + "&q=" + encodeURIComponent(q))).json();
+        renderSearch(d.results || [], q, d.capped);
+      } catch (e) { box.innerHTML = '<div class="ce-tree-empty">Ошибка</div>'; }
+    }
+    function hlMatch(text, q) {
+      const esc = escapeHtml(text), eq = escapeHtml(q);
+      const i = esc.toLowerCase().indexOf(eq.toLowerCase());
+      return i < 0 ? esc : esc.slice(0, i) + "<b>" + esc.slice(i, i + eq.length) + "</b>" + esc.slice(i + eq.length);
+    }
+    function renderSearch(results, q, capped) {
+      const box = document.getElementById("ceSearchResults");
+      if (!results.length) { box.innerHTML = '<div class="ce-tree-empty">Ничего не найдено</div>'; return; }
+      const byFile = {};
+      results.forEach(h => { (byFile[h.file] = byFile[h.file] || []).push(h); });
+      let html = "";
+      Object.keys(byFile).forEach(file => {
+        html += `<div class="ce-search-file" title="${escapeHtml(file)}">${escapeHtml(file)} (${byFile[file].length})</div>`;
+        byFile[file].forEach(h => {
+          html += `<div class="ce-search-hit" data-file="${escapeHtml(h.file)}" data-line="${h.line}"><span class="ce-search-ln">${h.line}</span>${hlMatch(h.text, q)}</div>`;
+        });
+      });
+      if (capped) html += '<div class="ce-tree-empty">Показаны первые результаты…</div>';
+      box.innerHTML = html;
+      box.querySelectorAll(".ce-search-hit").forEach(el => {
+        el.addEventListener("click", () => openFile(el.dataset.file, el.dataset.file.split("/").pop(), +el.dataset.line));
+      });
+    }
+
+    // ---- горячие клавиши (layout-independent через e.code) ----
+    document.addEventListener("keydown", (e) => {
+      if (overlay.hidden) return;
+      const mod = e.ctrlKey || e.metaKey;
+      if (mod && e.shiftKey && e.code === "KeyF") { e.preventDefault(); showSidebar("search"); }
+    });
+
+    // ---- дерево (ленивое) ----
+    async function fetchEntries(sub) {
+      const r = await fetch("/api/code/tree?folderPath=" + encodeURIComponent(ceFolder.path) + "&sub=" + encodeURIComponent(sub));
+      const d = await r.json();
+      return d.ok ? d.entries : [];
+    }
+    async function loadTree() {
+      const tree = document.getElementById("ceTree");
+      tree.innerHTML = '<div class="ce-tree-empty">Загрузка…</div>';
+      const entries = await fetchEntries("");
+      tree.innerHTML = "";
+      renderEntries(tree, entries, 0);
+    }
+    function fileIcon(name) {
+      const e = extOf(name);
+      if (e === "lua") return "🌙";
+      if (e === "jbeam" || e === "pc") return "🔧";
+      if (e === "json" || e === "materials") return "{}";
+      if (["png", "jpg", "jpeg", "dds", "gif", "bmp", "webp", "ico"].includes(e)) return "🖼";
+      if (e === "dae" || e === "cdae") return "🧊";
+      return "📄";
+    }
+    function renderEntries(container, entries, depth) {
+      const pad = 8 + depth * 14;
+      entries.forEach(e => {
+        const row = document.createElement("div");
+        row.className = "ce-row";
+        row.style.paddingLeft = pad + "px";
+        row.innerHTML = e.dir
+          ? `<span class="ce-arrow">▶</span><span class="ce-ico">📁</span><span class="ce-label">${escapeHtml(e.name)}</span>`
+          : `<span class="ce-arrow" style="visibility:hidden">▶</span><span class="ce-ico">${fileIcon(e.name)}</span><span class="ce-label">${escapeHtml(e.name)}</span>`;
+        container.appendChild(row);
+        if (e.dir) {
+          const kids = document.createElement("div");
+          kids.className = "ce-children"; kids.hidden = true;
+          container.appendChild(kids);
+          let loaded = false;
+          row.addEventListener("click", async () => {
+            row.classList.toggle("open");
+            kids.hidden = !kids.hidden;
+            if (!loaded) {
+              loaded = true;
+              kids.innerHTML = '<div class="ce-tree-empty" style="padding-left:' + (pad + 14) + 'px">…</div>';
+              const sub = await fetchEntries(e.path);
+              kids.innerHTML = "";
+              renderEntries(kids, sub, depth + 1);
+            }
+          });
+        } else {
+          row.addEventListener("click", () => {
+            document.querySelectorAll("#ceTree .ce-row.active").forEach(x => x.classList.remove("active"));
+            row.classList.add("active");
+            openFile(e.path, e.name);
+          });
+        }
+      });
+    }
+
+    // ---- табы ----
+    function renderTabs() {
+      const tabs = document.getElementById("ceTabs");
+      tabs.innerHTML = openTabs.map(t => `
+        <div class="ce-tab ${t.path === activePath ? "active" : ""}" data-path="${escapeHtml(t.path)}">
+          <span class="ce-label">${escapeHtml(t.name)}</span>
+          <span class="ce-x ${t.dirty ? "ce-dirty" : ""}" data-close="${escapeHtml(t.path)}">${t.dirty ? "●" : "✕"}</span>
+        </div>`).join("");
+      tabs.querySelectorAll(".ce-tab").forEach(el => {
+        el.addEventListener("click", (ev) => {
+          if (ev.target.dataset.close !== undefined) { closeTab(ev.target.dataset.close); return; }
+          activateTab(el.dataset.path);
+        });
+      });
+    }
+    function activateTab(path, line) {
+      activePath = path; renderTabs();
+      const t = openTabs.find(x => x.path === path);
+      if (!t) return;
+      if (t.kind === "text") {
+        showPane("monaco"); editor.setModel(t.model); editor.focus();
+        if (line) setTimeout(() => { editor.revealLineInCenter(line); editor.setPosition({ lineNumber: line, column: 1 }); }, 30);
+      } else if (t.kind === "image") {
+        showPane("image");
+        document.getElementById("ceImage").innerHTML =
+          `<img src="/api/code/raw?folderPath=${encodeURIComponent(ceFolder.path)}&path=${encodeURIComponent(path)}">`;
+      } else {
+        showPane("binary");
+        document.getElementById("ceBinary").textContent = `Бинарный файл — ${t.size} байт. Не редактируется в текстовом виде.`;
+      }
+    }
+    function closeTab(path) {
+      const i = openTabs.findIndex(x => x.path === path);
+      if (i < 0) return;
+      if (openTabs[i].model) openTabs[i].model.dispose();
+      openTabs.splice(i, 1);
+      if (activePath === path) activePath = openTabs.length ? openTabs[Math.max(0, i - 1)].path : null;
+      renderTabs();
+      if (activePath) activateTab(activePath); else showPane("welcome");
+    }
+
+    async function openFile(path, name, line) {
+      if (openTabs.find(t => t.path === path)) { activateTab(path, line); return; }
+      try {
+        const r = await fetch("/api/code/file?folderPath=" + encodeURIComponent(ceFolder.path) + "&path=" + encodeURIComponent(path));
+        const d = await r.json();
+        if (!d.ok) return;
+        const tab = { path, name, kind: d.kind, size: d.size, dirty: false, model: null };
+        if (d.kind === "text") {
+          const uri = monaco.Uri.parse("inmemory:///" + path);
+          tab.model = monaco.editor.getModel(uri) || monaco.editor.createModel(d.text, langForPath(path), uri);
+          tab.model.onDidChangeContent(() => {
+            if (!tab.dirty) { tab.dirty = true; renderTabs(); }
+            if (autoSave) { clearTimeout(autoSaveTimer); autoSaveTimer = setTimeout(() => { if (tab.path === activePath) saveActive(); }, 600); }
+          });
+        }
+        openTabs.push(tab);
+        activateTab(path, line);
+      } catch (e) {}
+    }
+
+    function showPane(which) {
+      document.getElementById("ceMonaco").style.display = which === "monaco" ? "" : "none";
+      document.getElementById("ceImage").hidden = which !== "image";
+      document.getElementById("ceBinary").hidden = which !== "binary";
+      document.getElementById("ceWelcome").hidden = which !== "welcome";
+      if (which === "monaco" && editor) setTimeout(() => editor.layout(), 0);
+    }
+
+    async function saveActive() {
+      const t = openTabs.find(x => x.path === activePath);
+      if (!t || t.kind !== "text") return;
+      try {
+        const r = await fetch("/api/code/save", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ folderPath: ceFolder.path, path: t.path, text: t.model.getValue() })
+        });
+        const d = await r.json();
+        if (d.ok) { t.dirty = false; renderTabs(); }
+      } catch (e) {}
+    }
+  })();
+
+  restoreSession();
+  loadBackups();
+</script>
+
+<!-- Three.js встроена локально (офлайн) -->
+<script type="importmap">
+{ "imports": { "three": "/three.module.js" } }
+</script>
+
+<!-- 3D-модель двигателя (декоративная панель справа) -->
+<script type="module">
+import * as THREE from "three";
+
+const canvas = document.getElementById("engineCanvas");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x14110f);
+scene.fog = new THREE.Fog(0x14110f, 24, 55);
+
+const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
+camera.position.set(9, 5, 12);
+
+// ===== lights =====
+scene.add(new THREE.HemisphereLight(0xffe8d8, 0x201510, 0.5));
+const key = new THREE.DirectionalLight(0xfff0e0, 2.5);
+key.position.set(10, 15, 8);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.left = -16; key.shadow.camera.right = 16;
+key.shadow.camera.top = 16; key.shadow.camera.bottom = -16;
+key.shadow.bias = -0.0004;
+scene.add(key);
+const rim = new THREE.DirectionalLight(0xff4d00, 1.2);
+rim.position.set(-9, 5, -8);
+scene.add(rim);
+const fill = new THREE.DirectionalLight(0x88aaff, 0.4);
+fill.position.set(-5, 3, 10);
+scene.add(fill);
+
+// ===== ground =====
+const ground = new THREE.Mesh(
+  new THREE.CircleGeometry(40, 12),
+  new THREE.MeshStandardMaterial({ color: 0x1b1713, roughness: 1 })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -3.6;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// ===== materials =====
+const M = (c, metal = 0.6, rough = 0.45) =>
+  new THREE.MeshStandardMaterial({ color: c, metalness: metal, roughness: rough, flatShading: true });
+const matBlock   = M(0x444c56, 0.6, 0.5);
+const matBlockHi = M(0x4d5660, 0.6, 0.48);
+const matHead    = M(0x6b7783, 0.55, 0.42);
+const matCover   = M(0xFF4D00, 0.4, 0.55);
+const matCoverHi = M(0xff6a2a, 0.4, 0.55);
+const matCoverLo = M(0xc23a00, 0.4, 0.55);
+const matDark    = M(0x202327, 0.7, 0.6);
+const matChrome  = M(0xc8d0d8, 0.95, 0.16);
+const matSteel   = M(0x8a949e, 0.85, 0.3);
+const matAlu     = M(0xa6aeb6, 0.8, 0.32);
+const matPiston  = M(0xd2d8dd, 0.9, 0.22);
+const matRubber  = M(0x161819, 0.15, 0.88);
+const matCoil    = M(0x18191c, 0.3, 0.7);
+const matRed     = M(0xb02418, 0.35, 0.55);
+const matGold    = M(0xcaa23e, 0.85, 0.3);
+
+const engine = new THREE.Group();
+scene.add(engine);
+
+function makeTextPlate(text, wWorld, hWorld, opts = {}) {
+  const {
+    bg = "#FF4D00", fg = "#ffffff", italic = true,
+    pad = 0.12, font = "Georgia, 'Playfair Display', serif",
+    bevel = "#c23a00"
+  } = opts;
+  const W = 512, H = Math.round(W * hWorld / wWorld);
+  const cv = document.createElement("canvas");
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext("2d");
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = bevel; ctx.lineWidth = W * 0.03;
+  ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, W - ctx.lineWidth, H - ctx.lineWidth);
+  ctx.fillStyle = fg;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  let size = H * 0.6;
+  ctx.font = `${italic ? "italic " : ""}700 ${size}px ${font}`;
+  while (ctx.measureText(text).width > W * (1 - pad*2) && size > 8) {
+    size -= 2;
+    ctx.font = `${italic ? "italic " : ""}700 ${size}px ${font}`;
+  }
+  ctx.fillText(text, W/2, H/2 + size*0.04);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.anisotropy = 8;
+  const mat = new THREE.MeshStandardMaterial({ map: tex, metalness: 0.3, roughness: 0.55, flatShading: true });
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(wWorld, hWorld), mat);
+  m.castShadow = false; m.receiveShadow = true;
+  return m;
+}
+function makeEngraving(text, wWorld, hWorld, fg = "#1a1a1a") {
+  const W = 512, H = Math.round(W * hWorld / wWorld);
+  const cv = document.createElement("canvas");
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext("2d");
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = fg;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  let size = H * 0.62;
+  ctx.font = `italic 700 ${size}px Georgia, serif`;
+  while (ctx.measureText(text).width > W * 0.86 && size > 8) {
+    size -= 2; ctx.font = `italic 700 ${size}px Georgia, serif`;
+  }
+  ctx.fillText(text, W/2, H/2 + size*0.04);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.anisotropy = 8;
+  const mat = new THREE.MeshStandardMaterial({ map: tex, transparent: true, metalness: 0.5, roughness: 0.4 });
+  return new THREE.Mesh(new THREE.PlaneGeometry(wWorld, hWorld), mat);
+}
+
+function mesh(geo, mat, parent = engine) {
+  const m = new THREE.Mesh(geo, mat);
+  m.castShadow = true; m.receiveShadow = true;
+  parent.add(m);
+  return m;
+}
+function box(w, h, d, mat, x = 0, y = 0, z = 0, parent = engine) {
+  const m = mesh(new THREE.BoxGeometry(w, h, d), mat, parent);
+  m.position.set(x, y, z);
+  return m;
+}
+function cyl(rt, rb, h, seg, mat, parent = engine) {
+  return mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat, parent);
+}
+function tube(points, r, seg, mat, parent = engine, closed = false) {
+  const curve = new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(...p)), closed);
+  return mesh(new THREE.TubeGeometry(curve, points.length * 8, r, 8, closed), mat, parent);
+}
+
+const CYLX = [-2.4, -0.8, 0.8, 2.4];
+const BLOCK_W = 6.6;
+
+box(BLOCK_W, 2.6, 2.9, matBlock, 0, -0.4);
+box(BLOCK_W + 0.1, 0.35, 3.0, matBlockHi, 0, 1.0);
+box(BLOCK_W - 0.6, 1.0, 2.4, matBlock, 0, -1.8);
+for (let i = 0; i < 5; i++) box(0.16, 2.2, 0.18, matBlockHi, -2.6 + i * 1.3, -0.4, 1.5);
+CYLX.forEach(x => { const b = cyl(0.34, 0.34, 0.2, 10, matBlockHi); b.rotation.x = Math.PI/2; b.position.set(x, -0.3, -1.5); });
+box(3.2, 0.7, 0.08, matBlockHi, 0, -0.9, 1.49);
+const blockLogo = makeTextPlate("TRADECLOUD®", 3.0, 0.5, { bg: "#1f2429", fg: "#FF4D00", bevel: "#FF4D00", italic: true });
+blockLogo.position.set(0, -0.9, 1.46); engine.add(blockLogo);
+[-1.35, 1.35].forEach(x => { const b = cyl(0.07, 0.07, 0.12, 6, matChrome); b.rotation.x = Math.PI/2; b.position.set(x, -0.9, 1.55); });
+
+box(BLOCK_W - 0.4, 0.25, 2.5, matSteel, -0.2, -2.25);
+box(4.4, 1.3, 2.0, matDark, -0.6, -2.95);
+box(2.0, 0.7, 1.8, matDark, -1.6, -3.5);
+const drain = cyl(0.13, 0.13, 0.22, 6, matChrome); drain.rotation.x = Math.PI/2; drain.position.set(-1.6, -3.85, 0.5);
+
+box(BLOCK_W, 1.1, 2.8, matHead, 0, 1.7);
+for (let i = 0; i < 9; i++) box(0.5, 0.5, 0.12, matHead, -2.8 + i*0.7, 1.7, 1.42);
+CYLX.forEach(x => { [-1.15, 1.15].forEach(z => { const hb = cyl(0.14, 0.14, 0.18, 6, matSteel); hb.position.set(x, 2.32, z); }); });
+
+const cover = new THREE.Group(); engine.add(cover);
+box(5.8, 0.85, 2.5, matCover, 0, 2.55, 0, cover);
+box(5.6, 0.3, 2.3, matCoverHi, 0, 3.0, 0, cover);
+box(5.7, 0.45, 0.7, matCoverHi, 0, 3.05, 0.7, cover);
+box(5.7, 0.45, 0.7, matCoverHi, 0, 3.05, -0.7, cover);
+CYLX.forEach(x => { const hump = cyl(0.42, 0.42, 0.5, 10, matCoverLo, cover); hump.position.set(x, 3.05, 0); });
+for (let i = 0; i < 8; i++) box(0.1, 0.7, 2.5, matCoverLo, -2.7 + i*0.77, 2.55, 0, cover);
+const filler = cyl(0.3, 0.34, 0.4, 10, matDark, cover); filler.position.set(-2.4, 3.3, 0.7);
+const fillerTop = cyl(0.36, 0.3, 0.12, 10, matCoverLo, cover); fillerTop.position.set(-2.4, 3.55, 0.7);
+const coverLogo = makeEngraving("TRADECLOUD", 3.6, 0.62, "#3a0f00");
+coverLogo.position.set(0, 2.5, 1.27); cover.add(coverLogo);
+
+CYLX.forEach(x => {
+  box(0.42, 0.7, 0.42, matCoil, x, 3.4, 0);
+  box(0.5, 0.22, 0.3, matDark, x, 3.65, 0.25);
+  const boltTop = cyl(0.07, 0.07, 0.2, 6, matChrome); boltTop.position.set(x, 3.78, 0);
+});
+tube(CYLX.map(x => [x, 3.55, -0.35]), 0.07, 8, matRed);
+tube([[ -2.4, 3.55, -0.35],[-3.0, 3.2, -0.6],[-3.3, 2.2, -0.8]], 0.06, 6, matRed);
+
+const pistons = [];
+CYLX.forEach((x, i) => {
+  const bore = cyl(0.5, 0.5, 1.5, 12, matDark); bore.position.set(x, 1.0, 0);
+  const piston = cyl(0.45, 0.45, 0.55, 12, matPiston); piston.position.set(x, 1.0, 0);
+  const ring = cyl(0.47, 0.47, 0.08, 12, matChrome); ring.position.set(x, 1.15, 0);
+  const rod = box(0.18, 1.3, 0.18, matChrome, x, 0.1, 0);
+  pistons.push({ piston, ring, rod, phase: i * Math.PI / 2 });
+});
+
+const intake = new THREE.Group(); engine.add(intake);
+const plenum = cyl(0.62, 0.62, 6.0, 14, matAlu, intake); plenum.rotation.z = Math.PI / 2; plenum.position.set(0, 2.7, 2.5);
+[-3.0, 3.0].forEach(x => { const c = cyl(0.63, 0.5, 0.25, 14, matAlu, intake); c.rotation.z = Math.PI/2; c.position.set(x, 2.7, 2.5); });
+const tb = cyl(0.42, 0.42, 0.8, 14, matChrome, intake); tb.rotation.x = Math.PI/2; tb.position.set(2.9, 2.7, 3.3);
+const tbFlange = cyl(0.5, 0.5, 0.16, 14, matDark, intake); tbFlange.rotation.x = Math.PI/2; tbFlange.position.set(2.9, 2.7, 3.75);
+const intakeLogo = makeTextPlate("TRADECLOUD®", 3.4, 0.55);
+intakeLogo.position.set(0, 2.78, 3.13); intakeLogo.rotation.x = -0.18; intake.add(intakeLogo);
+CYLX.forEach(x => {
+  tube([[x, 2.7, 2.5],[x, 2.5, 2.0],[x, 2.0, 1.65],[x, 1.7, 1.45]], 0.2, 8, matAlu, intake);
+  const pf = cyl(0.24, 0.24, 0.12, 8, matSteel, intake); pf.rotation.x = Math.PI/2; pf.position.set(x, 1.7, 1.42);
+});
+
+const exhaust = new THREE.Group(); engine.add(exhaust);
+const COL = [2.0, -1.0, -2.3];
+CYLX.forEach(x => {
+  tube([[x, 1.6, -1.45],[x, 1.2, -1.95],[x, 0.4, -2.2],[(x + COL[0]) / 2, -0.3, -2.25],COL], 0.16, 8, matChrome, exhaust);
+  const fl = cyl(0.22, 0.22, 0.14, 8, matSteel, exhaust); fl.rotation.x = Math.PI/2; fl.position.set(x, 1.62, -1.45);
+});
+const collector = cyl(0.36, 0.3, 0.9, 12, matChrome, exhaust); collector.position.set(COL[0], COL[1] - 0.4, COL[2]);
+
+const drive = new THREE.Group(); engine.add(drive);
+const PX = 3.55;
+box(0.5, 4.2, 2.7, matBlockHi, PX - 0.35, 0.3, 0);
+box(0.3, 3.4, 2.2, matBlock, PX - 0.15, 0.3, 0);
+const timingLogo = makeEngraving("TRADECLOUD", 2.2, 0.4, "#1f242a");
+timingLogo.position.set(PX + 0.01, 1.5, 0); timingLogo.rotation.y = Math.PI / 2; timingLogo.rotation.z = -Math.PI / 2; drive.add(timingLogo);
+const crankPul = new THREE.Group(); drive.add(crankPul); crankPul.position.set(PX, -0.9, 0);
+const cpOuter = cyl(0.92, 0.92, 0.5, 18, matChrome, crankPul); cpOuter.rotation.z = Math.PI/2;
+const cpGroove = cyl(0.78, 0.78, 0.55, 18, matDark, crankPul); cpGroove.rotation.z = Math.PI/2;
+const cpInner = cyl(0.62, 0.62, 0.45, 18, matChrome, crankPul); cpInner.rotation.z = Math.PI/2;
+const cpHub = cyl(0.3, 0.3, 0.6, 10, matCover, crankPul); cpHub.rotation.z = Math.PI/2;
+const cpBolt = cyl(0.1, 0.1, 0.65, 6, matSteel, crankPul); cpBolt.rotation.z = Math.PI/2;
+const altPul = new THREE.Group(); drive.add(altPul); altPul.position.set(PX, 2.3, 0);
+const apOuter = cyl(0.5, 0.5, 0.45, 16, matChrome, altPul); apOuter.rotation.z = Math.PI/2;
+const apGroove = cyl(0.4, 0.4, 0.5, 16, matDark, altPul); apGroove.rotation.z = Math.PI/2;
+const apHub = cyl(0.18, 0.18, 0.55, 8, matSteel, altPul); apHub.rotation.z = Math.PI/2;
+const altBody = cyl(0.6, 0.6, 1.5, 14, matAlu); altBody.rotation.z = Math.PI/2; altBody.position.set(PX + 0.95, 2.3, 0);
+const altEnd = cyl(0.62, 0.46, 0.35, 14, matDark); altEnd.rotation.z = Math.PI/2; altEnd.position.set(PX + 1.78, 2.3, 0);
+for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; const r = cyl(0.035, 0.035, 1.5, 4, matDark); r.rotation.z = Math.PI/2; r.position.set(PX + 0.95, 2.3 + Math.cos(a) * 0.58, Math.sin(a) * 0.58); }
+box(0.35, 1.6, 0.35, matSteel, PX - 0.1, 1.6, -0.5);
+
+const lowerC = { y: -0.9, z: 0, r: 0.9 };
+const upperC = { y: 2.3, z: 0, r: 0.51 };
+function makeBelt() {
+  const dy = upperC.y - lowerC.y, dz = upperC.z - lowerC.z;
+  const L = Math.hypot(dy, dz);
+  const phi = Math.atan2(dz, dy);
+  const alpha = Math.acos((lowerC.r - upperC.r) / L);
+  const pts = []; const N = 30;
+  for (let i = 0; i <= N; i++) { const a = (phi + alpha) + (i / N) * (2 * Math.PI - 2 * alpha); pts.push(new THREE.Vector3(PX, lowerC.y + lowerC.r * Math.cos(a), lowerC.z + lowerC.r * Math.sin(a))); }
+  for (let i = 0; i <= N; i++) { const a = (phi - alpha) + (i / N) * (2 * alpha); pts.push(new THREE.Vector3(PX, upperC.y + upperC.r * Math.cos(a), upperC.z + upperC.r * Math.sin(a))); }
+  return new THREE.CatmullRomCurve3(pts, true);
+}
+const belt = mesh(new THREE.TubeGeometry(makeBelt(), 160, 0.065, 8, true), matRubber, engine);
+
+tube([[-3.3, 1.6, 0.5],[-3.9, 1.4, 0.3],[-4.3, 0.6, 0.1],[-4.3, -0.3, 0.0]], 0.22, 8, matRubber);
+const thermo = cyl(0.3, 0.3, 0.5, 10, matAlu); thermo.position.set(-3.2, 1.6, 0.5); thermo.rotation.z = Math.PI/2;
+const dip = cyl(0.04, 0.04, 1.4, 6, matChrome); dip.position.set(1.4, 0.9, 1.5); dip.rotation.x = 0.25;
+const dipLoop = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.04, 6, 12), matGold);
+dipLoop.position.set(1.4, 1.6, 1.32); dipLoop.castShadow = true; engine.add(dipLoop);
+[-3.0, 2.8].forEach(x => {
+  box(0.6, 0.5, 0.8, matSteel, x, -2.4, 1.2);
+  const bush = cyl(0.28, 0.28, 0.5, 10, matRubber); bush.position.set(x, -2.7, 1.6); bush.rotation.x = Math.PI/2;
+});
+
+// ===== auto-orbit camera =====
+const ORBIT_DIST = 16, ORBIT_HEIGHT_BASE = 1.5;
+
+function resize() {
+  const w = canvas.clientWidth || 1, h = canvas.clientHeight || 1;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(canvas);
+resize();
+
+let t = 0;
+function tick() {
+  requestAnimationFrame(tick);
+  const rpm = 0.45;
+  t += 0.02 + rpm * 0.6;
+
+  const ang = performance.now() * 0.00012;
+  const elev = 0.32 + Math.sin(performance.now() * 0.00007) * 0.12;
+  camera.position.x = Math.sin(ang) * Math.cos(elev) * ORBIT_DIST;
+  camera.position.y = Math.sin(elev) * ORBIT_DIST + ORBIT_HEIGHT_BASE;
+  camera.position.z = Math.cos(ang) * Math.cos(elev) * ORBIT_DIST;
+  camera.lookAt(0, 0.4, 0);
+
+  pistons.forEach(p => {
+    const y = Math.sin(t + p.phase) * 0.55;
+    p.piston.position.y = 1.0 + y;
+    p.ring.position.y = 1.15 + y;
+    p.rod.position.y = 0.1 + y;
+    p.rod.scale.y = 1 - Math.abs(y) * 0.1;
+  });
+  crankPul.rotation.x = t;
+  altPul.rotation.x = -t * (lowerC.r / upperC.r);
+  belt.position.z = Math.sin(t * 4) * 0.006;
+  const v = rpm * 0.016;
+  engine.position.y = Math.sin(t * 6) * v;
+  engine.rotation.z = Math.sin(t * 5.5) * v * 0.3;
+
+  renderer.render(scene, camera);
+}
+tick();
+</script>
+</body>
+</html>
