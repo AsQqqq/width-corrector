@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// редактируемые скалярные параметры мотора (порядок/подписи — на фронте)
+// редактируемые скалярные параметры мотора (порядок/подписи - на фронте)
 var engineScalarKeys = []string{
 	"idleRPM", "maxRPM", "revLimiterRPM", "inertia", "friction", "dynamicFriction",
 	"engineBrakeTorque", "maxTorqueRating", "maxOverTorqueDamage",
@@ -86,7 +86,7 @@ func detectEngines(text string) []EngineInfo {
 		}
 		curve := parseTorqueCurve(me["torque"])
 		if len(curve) == 0 {
-			continue // без кривой момента — не считаем мотором
+			continue // без кривой момента - не считаем мотором
 		}
 		info := EngineInfo{Part: part, Params: map[string]float64{}, TorqueCurve: curve}
 		if inf, ok := pm["information"].(map[string]interface{}); ok {
@@ -132,7 +132,7 @@ func detectEngines(text string) []EngineInfo {
 
 // ---------- запись параметров обратно ----------
 
-// objectSpan: индексы [start,end) объекта { ... }, первый '{' которого — на/после pos.
+// objectSpan: индексы [start,end) объекта { ... }, первый '{' которого - на/после pos.
 // Корректно пропускает строки и комментарии // и /* */.
 func objectSpan(s string, pos int) (int, int, bool) {
 	i := pos
@@ -239,7 +239,7 @@ func (s *server) safeJoin(folder, rel string) (string, bool) {
 	return clean, true
 }
 
-// GET /api/engine?folderPath=...&file=rel  — определить мотор(ы) и параметры
+// GET /api/engine?folderPath=...&file=rel  - определить мотор(ы) и параметры
 func (s *server) handleEngine(w http.ResponseWriter, r *http.Request) {
 	clean, ok := s.safeJoin(r.URL.Query().Get("folderPath"), r.URL.Query().Get("file"))
 	if !ok {
@@ -420,7 +420,7 @@ func setStageCurve(text, part, modKey string, curve [][2]float64) (string, error
 	return text[:ps] + newPart + text[pe:], nil
 }
 
-// POST /api/engine/stage — body {folderPath, file, part, modKey, curve}  (бекап → запись кривой)
+// POST /api/engine/stage - body {folderPath, file, part, modKey, curve}  (бекап → запись кривой)
 func (s *server) handleStageApply(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		FolderPath string       `json:"folderPath"`
@@ -467,7 +467,7 @@ func (s *server) handleStageApply(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]any{"ok": true, "backups": s.listBackups()})
 }
 
-// POST /api/engine/apply  — body {folderPath, file, part, params}  (бекап → запись)
+// POST /api/engine/apply  - body {folderPath, file, part, params}  (бекап → запись)
 func (s *server) handleEngineApply(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		FolderPath string             `json:"folderPath"`
@@ -500,7 +500,7 @@ func (s *server) handleEngineApply(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, map[string]any{"ok": false, "error": err.Error()})
 		return
 	}
-	// базовая кривая момента (если прислана) — пишем тем же механизмом
+	// базовая кривая момента (если прислана) - пишем тем же механизмом
 	if len(body.Torque) > 0 {
 		newText, err = setStageCurve(newText, body.Part, "torque", body.Torque)
 		if err != nil {

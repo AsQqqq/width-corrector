@@ -1,0 +1,283 @@
+<!-- Документация (RU): фрагмент, встраивается в #viewDocs приложения (стили - в основном CSS) -->
+<div class="dg-hero">
+  <div class="dg-kicker">WidthCorrector - Руководство по моддингу</div>
+  <h1>Создание мода машины в BeamNG</h1>
+  <p class="dg-lead">Практическое руководство по тому, как устроена машина в BeamNG: система координат,
+    структура папок, формат файлов JBeam и его секции, система деталей и слотов, модели и материалы,
+    а также частые ошибки и хорошие практики. У каждого раздела есть ссылка на полную официальную
+    документацию с деталями.</p>
+  <a class="dg-full" href="https://documentation.beamng.com/modding/vehicle/" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+    Официальная документация BeamNG
+  </a>
+</div>
+
+<nav class="dg-toc">
+  <a href="#s1">1. Основы soft-body</a>
+  <a href="#s2">2. Система координат</a>
+  <a href="#s3">3. Папки и файлы</a>
+  <a href="#s4">4. Синтаксис JBeam</a>
+  <a href="#s5">5. Детали и слоты</a>
+  <a href="#s6">6. Справочник секций</a>
+  <a href="#s7">7. Модели и материалы</a>
+  <a href="#s8">8. Конфиги и info</a>
+  <a href="#s9">9. Частые ошибки</a>
+  <a href="#s10">10. Советы</a>
+  <a href="#s11">11. Инструменты</a>
+  <a href="#s12">12. Дальше</a>
+</nav>
+
+<section class="dg-sec" id="s1">
+  <h2><span class="n">1</span>Основы soft-body</h2>
+  <p>BeamNG работает на физике <b>мягких тел</b> (soft-body). Машина - это не жёсткий объект, а живая
+    структура из <b>узлов</b> и <b>балок</b>, которая гнётся, деформируется и ломается под реальными силами.</p>
+  <ul>
+    <li><b>Узел (node)</b> - точечная масса. Несёт вес и отвечает за большинство столкновений. Узлы свободно
+      двигаются в пространстве.</li>
+    <li><b>Балка (beam)</b> - пружинный соединитель ровно между двумя узлами. Балки не имеют массы; они задают
+      жёсткость (<code>beamSpring</code>), демпфирование (<code>beamDamp</code>), насколько гнутся до
+      необратимой деформации (<code>beamDeform</code>) и когда рвутся (<code>beamStrength</code>).</li>
+  </ul>
+  <p>Целая машина разбита на множество <b>деталей (parts)</b> (кузов, подвеска, двигатель, панели, колёса...),
+    каждая - в своём файле JBeam. Детали соединяются через систему <b>слотов</b> - именно она делает машину
+    конфигурируемой и тюнингуемой.</p>
+  <p class="dim">Ключевая мысль: простой ящик из балок складывается, потому что балки могут вращаться в узлах.
+    Жёсткость даёт <b>диагональная раскосина</b> - триангулируйте конструкцию.</p>
+  <a class="dg-more" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/" target="_blank" rel="noopener">Полностью: введение в JBeam
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+</section>
+
+<section class="dg-sec" id="s2">
+  <h2><span class="n">2</span>Система координат</h2>
+  <p>BeamNG использует систему <b>Z-вверх</b> в единицах СИ (метры, килограммы). Оси машины не совпадают с
+    привычным соглашением ISO/робототехники, и на этом спотыкается почти каждый новичок:</p>
+  <table>
+    <thead><tr><th>Ось</th><th>Направление</th></tr></thead>
+    <tbody>
+      <tr><td><code>+X</code></td><td>Влево (значит вправо - это <code>-X</code>)</td></tr>
+      <tr><td><code>+Y</code></td><td>Назад (значит <b>вперёд - это <code>-Y</code></b>)</td></tr>
+      <tr><td><code>+Z</code></td><td>Вверх</td></tr>
+    </tbody>
+  </table>
+  <p>Координаты узлов в JBeam - это метры относительно машины. Увеличение X двигает узел влево, увеличение
+    Y - назад, увеличение Z - вверх. Каркас машины привязан к <code>refNodes</code> (обычно рядом с центром
+    кузова, внизу).</p>
+  <p class="dim">Мировое пространство (привязано к карте) и пространство машины (относительно неё) - разные
+    системы; игровые/сенсорные системы принимают обе, поэтому следите, в какой вы находитесь.</p>
+  <a class="dg-more" href="https://documentation.beamng.com/modding/vehicle/coordinate_systems/" target="_blank" rel="noopener">Полностью: системы координат
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+</section>
+
+<section class="dg-sec" id="s3">
+  <h2><span class="n">3</span>Папки и файлы</h2>
+  <p>Распакованные моды лежат в папке игры <code>mods/unpacked/</code>. Добавьте к имени мода свой ник, чтобы
+    оно было уникальным. Файлы машины лежат в <code>vehicles/&lt;имя&gt;/</code>:</p>
+  <pre><code><span class="c">%localappdata%\BeamNG.drive\&lt;версия&gt;\mods\unpacked\</span>
+&#9492;&#9472; <span class="k">username_mymod/</span>
+   &#9492;&#9472; <span class="k">vehicles/</span>
+      &#9492;&#9472; <span class="k">username_mymod/</span>
+         &#9500;&#9472; <span class="s">mymod.jbeam</span>          <span class="c"># корневая деталь (slotType "main")</span>
+         &#9500;&#9472; <span class="s">mymod_engine.jbeam</span>   <span class="c"># другие детали...</span>
+         &#9500;&#9472; <span class="s">mymod.dae</span>            <span class="c"># 3D-модель (меш)</span>
+         &#9500;&#9472; <span class="s">main.materials.json</span>  <span class="c"># материалы / текстуры</span>
+         &#9500;&#9472; <span class="s">info.json</span>            <span class="c"># карточка машины в списке</span>
+         &#9492;&#9472; <span class="s">mymod.pc</span>             <span class="c"># сохранённая конфигурация</span></code></pre>
+  <table>
+    <thead><tr><th>Файл</th><th>Что это</th></tr></thead>
+    <tbody>
+      <tr><td><code>*.jbeam</code></td><td>Структура и физика детали: узлы, балки, слоты, привязка меша. Ядро мода.</td></tr>
+      <tr><td><code>*.pc</code></td><td>Сохранённая конфигурация: какая деталь стоит в каждом слоте, плюс покраска и переменные. Создаётся в игре через Save&amp;Load.</td></tr>
+      <tr><td><code>info.json</code></td><td>Карточка машины в списке выбора: бренд, имя, конфигурация по умолчанию, покраски.</td></tr>
+      <tr><td><code>info_&lt;config&gt;.json</code></td><td>Данные по конфигурации: имя и характеристики (мощность, вес, привод) для фильтра.</td></tr>
+      <tr><td><code>*.dae</code></td><td>3D-модель (Collada), обычно из Blender. Привязывается к узлам через <code>flexbodies</code>.</td></tr>
+      <tr><td><code>*.materials.json</code></td><td>Описания материалов, ссылающиеся на файлы текстур.</td></tr>
+      <tr><td><code>*.dds / *.png</code></td><td>Текстуры, используемые материалами.</td></tr>
+    </tbody>
+  </table>
+  <a class="dg-more" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/" target="_blank" rel="noopener">Полностью: туториал базовой машины
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+</section>
+
+<section class="dg-sec" id="s4">
+  <h2><span class="n">4</span>Синтаксис JBeam</h2>
+  <p>JBeam - это <b>смягчённый JSON</b>. Это JSON, но дружелюбнее: разрешены комментарии <code>//</code> и
+    <code>/* */</code>, а запятые между элементами необязательны. Регистр важен. Файл - это плоский словарь,
+    ключи которого - имена деталей:</p>
+  <pre><code>{
+  <span class="k">"part_name"</span>: {
+    <span class="k">"slotType"</span>: <span class="s">"main"</span>,   <span class="c">// корневую деталь спавнит игра</span>
+    <span class="k">"information"</span>: { <span class="k">"name"</span>: <span class="s">"My Part"</span>, <span class="k">"authors"</span>: <span class="s">"You"</span> },
+    <span class="k">"nodes"</span>: [ ... ],
+    <span class="k">"beams"</span>: [ ... ]
+  }
+}</code></pre>
+  <h3>Таблицы (как в электронной таблице)</h3>
+  <p>Большинство секций - таблицы: первая строка задаёт имена столбцов, следующие строки - данные.</p>
+  <pre><code><span class="k">"nodes"</span>: [
+  [<span class="s">"id"</span>, <span class="s">"posX"</span>, <span class="s">"posY"</span>, <span class="s">"posZ"</span>],   <span class="c">// строка заголовка</span>
+  [<span class="s">"n1"</span>,  0.5, -1.2, 0.3],
+  [<span class="s">"n2"</span>,  0.7, -1.5, 0.2]
+]</code></pre>
+  <p>Имя столбца, оканчивающееся на <code>:</code> - это <b>ссылка на секцию</b>: оно ссылается на id из
+    другой секции (например, балки ссылаются на id узлов):</p>
+  <pre><code><span class="k">"beams"</span>: [
+  [<span class="s">"id1:"</span>, <span class="s">"id2:"</span>],   <span class="c">// ":" значит "это id узлов"</span>
+  [<span class="s">"n1"</span>,   <span class="s">"n2"</span>]
+]</code></pre>
+  <h3>Модификаторы (объекты свойств)</h3>
+  <p>Объект <code>{...}</code>, помещённый среди строк, задаёт свойства для строк <b>после</b> себя, пока вы
+    их не сбросите. Так вы избегаете повторения значений в каждой строке:</p>
+  <pre><code><span class="k">"nodes"</span>: [
+  [<span class="s">"id"</span>, <span class="s">"posX"</span>, <span class="s">"posY"</span>, <span class="s">"posZ"</span>],
+  {<span class="k">"nodeWeight"</span>: 25, <span class="k">"group"</span>: <span class="s">"body"</span>},   <span class="c">// действует ниже</span>
+  [<span class="s">"n1"</span>, 0.0, -1.5, 0.0],
+  [<span class="s">"n2"</span>, 0.37, -0.98, 0.22, {<span class="k">"nodeWeight"</span>: 3}],  <span class="c">// только для этой строки</span>
+  {<span class="k">"group"</span>: <span class="s">""</span>}                             <span class="c">// сброс группы</span>
+]</code></pre>
+  <p class="dim">Словари (обычные объекты ключ/значение) используются для разовых данных, например настроек
+    камеры или двигателя, вместо табличной формы.</p>
+  <a class="dg-more" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamsyntax/" target="_blank" rel="noopener">Полностью: синтаксис JBeam
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+</section>
+
+<section class="dg-sec" id="s5">
+  <h2><span class="n">5</span>Детали и система слотов</h2>
+  <p>Каждая деталь объявляет свой <code>slotType</code>. Родительская деталь задаёт <b>слоты</b>, которые
+    принимают дочерние детали по совпадению <code>slotType</code>, так что слот может занять любая подходящая
+    деталь. Ровно одна деталь имеет <code>slotType = "main"</code>: это корень, загружаемый первым.</p>
+  <pre><code><span class="k">main</span> (корневая деталь)
+&#9500;&#9472; слот <span class="s">"mymod_engine"</span>    &#8594; любая деталь с этим slotType
+&#9500;&#9472; слот <span class="s">"mymod_suspension_F"</span> &#8594; варианты передней подвески
+&#9492;&#9472; слот <span class="s">"mymod_wheels_F"</span>     &#8594; варианты передних колёс</code></pre>
+  <p>Секция <code>slots</code> перечисляет для каждого слота его slotType, деталь по умолчанию и описание для
+    интерфейса. Именно это дерево показывают меню деталей и тюнинга, и именно его записывает файл
+    <code>.pc</code>.</p>
+  <a class="dg-more" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/partslotsystem/" target="_blank" rel="noopener">Полностью: система деталей и слотов
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+</section>
+
+<section class="dg-sec" id="s6">
+  <h2><span class="n">6</span>Справочник секций</h2>
+  <p>Секции, которые встречаются внутри детали чаще всего:</p>
+  <table>
+    <thead><tr><th>Секция</th><th>Назначение</th></tr></thead>
+    <tbody>
+      <tr><td><code>information</code></td><td>Отображаемое имя, авторы, цена детали.</td></tr>
+      <tr><td><code>slotType</code> / <code>slots</code></td><td>Куда встаёт эта деталь и какие дочерние детали принимает.</td></tr>
+      <tr><td><code>nodes</code></td><td>Точечные массы: позиции, вес, столкновения и группировка.</td></tr>
+      <tr><td><code>beams</code></td><td>Соединения между узлами: жёсткость, демпфирование, деформация, прочность.</td></tr>
+      <tr><td><code>triangles</code></td><td>Поверхности из трёх узлов для аэродинамики и столкновений.</td></tr>
+      <tr><td><code>flexbodies</code></td><td>Привязка видимого меша к узлам, чтобы модель деформировалась вместе с каркасом.</td></tr>
+      <tr><td><code>hydros</code></td><td>Балки с изменяемой по команде длиной (руль, актуаторы).</td></tr>
+      <tr><td><code>rails</code> / <code>slidenodes</code></td><td>Узлы, скользящие по рельсе (рулевые рейки, жёсткость).</td></tr>
+      <tr><td><code>torsionbars</code></td><td>Сопротивление вращению между рычагами (стабилизаторы).</td></tr>
+      <tr><td><code>refNodes</code></td><td>Опорные узлы, задающие ориентацию машины и привязку камеры.</td></tr>
+      <tr><td><code>cameras</code></td><td>Позиции камер снаружи и в салоне.</td></tr>
+      <tr><td><code>props</code></td><td>Недеформируемые анимированные меши (приборы, педали, стрелки).</td></tr>
+      <tr><td><code>powertrain</code> / <code>engine</code></td><td>Трансмиссия: кривая момента двигателя, коробка, дифференциалы.</td></tr>
+      <tr><td><code>variables</code></td><td>Настраиваемые значения в интерфейсе (например, жёсткость пружин).</td></tr>
+      <tr><td><code>controller</code> / <code>electrics</code></td><td>Lua-контроллеры и шина электрики (свет, сигналы).</td></tr>
+    </tbody>
+  </table>
+  <a class="dg-more" href="https://documentation.beamng.com/modding/vehicle/sections/" target="_blank" rel="noopener">Полностью: секции файла JBeam
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+</section>
+
+<section class="dg-sec" id="s7">
+  <h2><span class="n">7</span>Модели и материалы</h2>
+  <p>Видимая машина - это 3D-меш (обычно <code>.dae</code> из Blender). Сам по себе он не физический - он
+    привязывается к структуре узлов через секцию <code>flexbodies</code>, чтобы гнуться и ломаться вместе с
+    балками под ним.</p>
+  <ul>
+    <li><b>Важен origin.</b> Экспортируйте меш с origin, выровненным по машине, иначе модель окажется смещена
+      относительно узлов.</li>
+    <li><b>Достаточно узлов.</b> Flexbody нужно минимум 3 неколлинеарных узла, охватывающих меш, иначе будут
+      ошибки "VY node" и плохая деформация.</li>
+    <li><b>Материалы.</b> <code>*.materials.json</code> связывает имена материалов из меша с файлами текстур
+      (<code>.dds</code>/<code>.png</code>) и настройками шейдера.</li>
+  </ul>
+  <a class="dg-more" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/" target="_blank" rel="noopener">Полностью: гайд по моделированию машин
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+</section>
+
+<section class="dg-sec" id="s8">
+  <h2><span class="n">8</span>Конфигурации и info-файлы</h2>
+  <p>Файл <code>.pc</code> - это сохранённый набор машины: выбранная деталь для каждого слота, цвета покраски
+    и значения переменных. Создаётся в игре через Save&amp;Load, кладётся в папку мода как готовый пресет.</p>
+  <ul>
+    <li><code>info.json</code> - главная карточка машины: бренд, имя, доступные покраски и
+      <code>default_pc</code> (какая конфигурация грузится по умолчанию).</li>
+    <li><code>info_&lt;config&gt;.json</code> - по одному на конфигурацию: её отображаемое имя плюс характеристики
+      (мощность, момент, вес, привод, разгон, максималка) для фильтра и информационной панели.</li>
+  </ul>
+  <a class="dg-more" href="https://documentation.beamng.com/modding/vehicle/tutorials/configs/" target="_blank" rel="noopener">Полностью: конфигурации и info-файлы
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+</section>
+
+<section class="dg-sec" id="s9">
+  <h2><span class="n">9</span>Частые ошибки</h2>
+  <ul>
+    <li><b>Пропущенные кавычки</b> вокруг строк (особенно id узлов) ломают разбор - используйте редактор с подсветкой.</li>
+    <li><b>Непарные скобки.</b> Консоль игры укажет файл и примерное место несоответствия.</li>
+    <li><b>Одинаковые имена деталей</b> - вторая тихо перезапишет первую. Держите имена уникальными.</li>
+    <li><b>Смещение flexbody</b> - неверный origin в Blender ставит меш не туда.</li>
+    <li><b>Нет ссылки на меш</b> - опечатка в имени flexbody или отсутствие <code>.dae</code> не даёт модели загрузиться.</li>
+    <li><b>Мало узлов у flexbody</b> - нужно 3+ неколлинеарных узла, охватывающих меш.</li>
+    <li><b>Нет раскосин</b> - деталь без диагональных балок складывается на спавне.</li>
+    <li><b>Разбаланс параметров балок</b> - огромные spring/damp относительно веса узла дают вибрацию и нестабильность.</li>
+    <li><b>Узлы в геометрии на спавне</b> выталкивают панели; сдвиньте узлы или настройте self-collision.</li>
+    <li><b>Ошибки в консоли</b> (дубли балок, битые ссылки) бьют по производительности - проверяйте консоль перед релизом.</li>
+  </ul>
+  <a class="dg-more" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/" target="_blank" rel="noopener">Полностью: частые проблемы JBeam
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+</section>
+
+<section class="dg-sec" id="s10">
+  <h2><span class="n">10</span>Советы и практики</h2>
+  <ul>
+    <li><b>Отступы пробелами</b> и выравнивание id/координат в столбцы - так вертикальные/пакетные правки безопасны и быстры.</li>
+    <li><b>Ограничивайте find/replace</b> выделенными строками, чтобы случайно не задеть модификаторы JBeam в другом месте.</li>
+    <li><b>Отлаживайте визуализацией балок</b> в режиме Deformation, чтобы найти перегруженные балки; отключите
+      гравитацию и трансмиссию, чтобы изолировать проблемы конструкции.</li>
+    <li><b>Следите за стоимостью столкновений</b> - держите структуры с наземным контактом разреженными,
+      используйте NONCOLLIDABLE-треугольники в плотных скоплениях узлов и держите минимум ~3 см между узлами и треугольниками.</li>
+    <li><b>Ломайте рельсы и торсионы</b> через маленькие фиктивные балки между их узлами.</li>
+    <li><b>Начинайте с малого.</b> Простая деталь с малым числом подвижных частей быстрее всего учит процессу.</li>
+  </ul>
+  <a class="dg-more" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/" target="_blank" rel="noopener">Полностью: советы и приёмы JBeam
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+</section>
+
+<section class="dg-sec" id="s11">
+  <h2><span class="n">11</span>Инструменты и процесс</h2>
+  <ul>
+    <li><b>Blender</b> - бесплатное 3D-моделирование для меша и расстановки узлов.</li>
+    <li><b>VS Code</b> + официальное расширение <b>JBeam</b> - редактирование с валидацией и подсветкой.</li>
+    <li><b>Редактор изображений</b> (GIMP / Paint.NET) для текстур.</li>
+    <li><b>Консоль игры и debug-виды</b> - основная обратная связь по ошибкам и напряжениям конструкции.</li>
+  </ul>
+  <p class="dim">Сам WidthCorrector тут помогает: пакетно менять вес узлов и параметры балок по всей папке,
+    смотреть 3D-каркас узлов/балок, править кривые двигателя и редактировать файлы во встроенном редакторе кода.</p>
+  <a class="dg-more" href="https://documentation.beamng.com/modding/vehicle/tutorials/getting_started/" target="_blank" rel="noopener">Полностью: с чего начать
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+</section>
+
+<section class="dg-sec" id="s12">
+  <h2><span class="n">12</span>Дальше</h2>
+  <p>Когда концепции уложились, пройдите полную сборку от начала до конца. Официальные туториалы проводят
+    через целую машину, конфигурации и info-файлы, а также небольшие дополнения вроде номерного знака.</p>
+  <a class="dg-more" href="https://documentation.beamng.com/modding/vehicle/tutorials/" target="_blank" rel="noopener">Полностью: туториалы по машинам
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+</section>
+
+<div class="dg-cta">
+  <h2>Начните с готового шаблона</h2>
+  <p>Сгенерируйте минимальный валидный скелет мода (папки + стартовый JBeam), от которого можно отталкиваться.</p>
+  <button id="createTemplate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v5h5"/><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M12 12v6M9 15h6"/></svg>Создать шаблон</button>
+  <div class="dg-soon" id="dgSoon">Скоро - здесь появится генерация шаблона.</div>
+</div>
+
+<div class="dg-footer">
+  <span>Сжато из официальной документации BeamNG.</span>
+  <a href="https://documentation.beamng.com/modding/vehicle/" target="_blank" rel="noopener">Полная документация BeamNG по моддингу машин</a>
+</div>

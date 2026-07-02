@@ -52,31 +52,95 @@
   }
 
   /* ---------- Header ---------- */
+  /* ---------- Header (toolbar) ---------- */
   .header {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     margin-bottom: 28px;
+    padding: 8px 12px;
+    background: linear-gradient(180deg, var(--bg-2), var(--panel));
+    border: 1px solid var(--stroke);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .28);
   }
-  .logo {
-    width: 54px; height: 54px;
-    border-radius: 14px;
+
+  /* бренд-иконка (без названия) */
+  .brand {
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+    border-radius: 11px;
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
     display: grid; place-items: center;
-    box-shadow: 0 8px 24px var(--accent-glow);
+    box-shadow: 0 6px 18px var(--accent-glow);
+  }
+  .brand svg { width: 22px; height: 22px; display: block; }
+
+  /* навигация (вкладки) */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg);
+    border: 1px solid var(--stroke);
+    border-radius: 12px;
+    padding: 4px;
+  }
+  .tab {
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 15px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #1a1205;
+    box-shadow: 0 3px 12px var(--accent-glow);
+  }
+
+  /* правая группа */
+  .header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-tools { display: flex; gap: 6px; }
+  .header-tool {
+    width: 38px; height: 38px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    border: 1px solid var(--stroke);
+    background: var(--panel-2);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 15px; line-height: 1;
+    transition: background .15s, color .15s, border-color .15s, transform .1s;
+  }
+  .header-tool.code-ico {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 13px; font-weight: 700; letter-spacing: -.5px;
+  }
+  .header-tool:hover { color: var(--text); background: var(--panel); border-color: #3a4454; }
+  .header-tool:active { transform: scale(.94); }
+  .header-tool.active {
+    color: #1a1205; border-color: transparent;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+
+  /* вертикальный разделитель */
+  .header-div {
+    width: 1px; height: 26px;
+    background: var(--stroke);
     flex-shrink: 0;
   }
-  .logo svg { width: 30px; height: 30px; }
-  .header h1 {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: .3px;
-  }
-  .header p {
-    font-size: 13px;
-    color: var(--text-dim);
-    margin-top: 2px;
-  }
+
   .header-credit {
     display: inline-flex;
     align-items: center;
@@ -90,32 +154,18 @@
   .header-credit b { color: #3aa7e8; font-weight: 700; transition: color .15s; }
   .header-credit:hover b { color: #8ad4ff; }
 
-  .tabs {
-    margin-left: auto;
-    display: flex;
-    gap: 6px;
-    background: var(--bg-2);
-    border: 1px solid var(--stroke);
-    border-radius: 11px;
-    padding: 4px;
-  }
-  .tab {
-    border: none;
-    background: transparent;
-    color: var(--text-dim);
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background .15s, color .15s;
-  }
-  .tab:hover { color: var(--text); }
-  .tab.active {
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    color: #1a1205;
-  }
+  /* инлайновые SVG-иконки (вместо эмодзи) */
+  svg.ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+  .btn svg.ico { width: 16px; height: 16px; margin-right: 6px; margin-top: -2px; }
+  .header-tool svg.ico { width: 18px; height: 18px; }
+  .ce-act svg.ico { width: 19px; height: 19px; }
+  .ce-ico svg.ico { width: 14px; height: 14px; }
+  .eng-row-del svg.ico { width: 12px; height: 12px; margin: 0; }
+  .eng-warn svg.ico, #c_valid svg.ico { width: 15px; height: 15px; margin-right: 5px; margin-top: -2px; }
+  .modal-close svg.ico { width: 16px; height: 16px; }
+  .ce-sm svg.ico { width: 13px; height: 13px; margin-right: 5px; margin-top: -1px; }
+  .drawer-toggle .arr svg { width: 14px; height: 14px; display: block; }
+  .ce-tab .ce-x svg.ico { width: 12px; height: 12px; vertical-align: middle; }
 
   /* заглушка пустой страницы */
   .placeholder {
@@ -251,6 +301,8 @@
 
   .eng-actions { display: flex; align-items: center; gap: 12px; justify-content: flex-end; margin-top: 4px; }
   .eng-msg { flex: 1; font-size: 13px; color: var(--text-dim); }
+  .eng-msg.err { color: var(--red); }
+  .eng-msg.ok { color: var(--green); }
 
   .eng-stage {
     display: flex;
@@ -979,6 +1031,113 @@
     .footer-center { display: none; }
   }
 
+  /* ============ страница «Документация» ============ */
+  .docs-loading { padding: 60px 0; text-align: center; color: var(--text-dim); }
+
+  .dg-hero { margin-bottom: 22px; }
+  .dg-kicker { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+  .dg-hero h1 { font-size: 26px; font-weight: 800; margin: 8px 0; letter-spacing: .2px; }
+  .dg-lead { color: var(--text-dim); font-size: 14.5px; max-width: 680px; }
+  .dg-full {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
+    font-size: 13px; font-weight: 600; color: var(--accent-2); text-decoration: none;
+    padding: 8px 14px; border-radius: 9px; border: 1px solid var(--stroke); background: var(--panel);
+  }
+  .dg-full:hover { background: var(--panel-2); }
+  .dg-full svg { width: 14px; height: 14px; }
+
+  .dg-toc { display: flex; flex-wrap: wrap; gap: 7px; margin: 20px 0 6px; }
+  .dg-toc a {
+    font-size: 12.5px; color: var(--text-dim); text-decoration: none;
+    padding: 6px 11px; border-radius: 8px; background: var(--bg-2); border: 1px solid var(--stroke);
+    transition: color .15s, border-color .15s;
+  }
+  .dg-toc a:hover { color: var(--text); border-color: var(--accent); }
+
+  .dg-sec { margin: 26px 0; scroll-margin-top: 16px; }
+  .dg-sec h2 { font-size: 18px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .dg-sec h2 .n {
+    width: 25px; height: 25px; flex-shrink: 0; border-radius: 8px; font-size: 12px; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #1a1205;
+    display: grid; place-items: center;
+  }
+  .dg-sec h3 { font-size: 14.5px; font-weight: 700; margin: 16px 0 6px; color: var(--text); }
+  .dg-sec p { margin-bottom: 10px; color: #cdd3de; font-size: 14px; }
+  .dg-sec p.dim { color: var(--text-dim); font-size: 13px; }
+  .dg-sec b { color: var(--text); }
+  .dg-sec ul { margin: 6px 0 10px 2px; padding-left: 18px; }
+  .dg-sec li { margin-bottom: 6px; color: #cdd3de; font-size: 14px; }
+  #viewDocs code {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    background: #11151c; border: 1px solid var(--stroke); border-radius: 5px;
+    padding: 1px 6px; font-size: 12.5px; color: #ffd9a8;
+  }
+  #viewDocs pre {
+    background: #0c0f14; border: 1px solid var(--stroke); border-radius: 12px;
+    padding: 14px 16px; overflow-x: auto; margin: 10px 0;
+    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.65; color: #b7c0cf;
+  }
+  #viewDocs pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+  #viewDocs pre .c { color: #6b7688; }
+  #viewDocs pre .k { color: var(--accent-2); }
+  #viewDocs pre .s { color: #8fd18f; }
+  #viewDocs table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13.5px; }
+  #viewDocs th, #viewDocs td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--stroke); vertical-align: top; }
+  #viewDocs th { color: var(--text-dim); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; }
+  #viewDocs td code { white-space: nowrap; }
+  .dg-card { background: var(--panel); border: 1px solid var(--stroke); border-radius: 12px; padding: 14px 16px; margin-top: 10px; }
+  .dg-more { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 12.5px; font-weight: 600; color: var(--accent-2); text-decoration: none; }
+  .dg-more:hover { text-decoration: underline; }
+  .dg-more svg { width: 13px; height: 13px; }
+  .dg-cta {
+    margin: 34px 0 12px; padding: 22px; text-align: center;
+    background: linear-gradient(135deg, rgba(255,122,69,.10), rgba(255,179,71,.06));
+    border: 1px solid var(--stroke); border-radius: 16px;
+  }
+  .dg-cta h2 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+  .dg-cta p { color: var(--text-dim); font-size: 13.5px; }
+  #createTemplate {
+    margin-top: 14px; display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 20px; border: none; border-radius: 11px; cursor: pointer;
+    font-family: inherit; font-size: 14.5px; font-weight: 700; color: #1a1205;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 8px 22px rgba(255,122,69,.30); transition: transform .1s;
+  }
+  #createTemplate svg { width: 18px; height: 18px; }
+  #createTemplate:hover { transform: translateY(-1px); }
+  .dg-soon {
+    margin-top: 14px; font-size: 13px; color: var(--green);
+    background: rgba(54,211,153,.08); border: 1px solid rgba(54,211,153,.28);
+    border-radius: 10px; padding: 9px 14px; display: none;
+  }
+  .dg-soon.show { display: inline-block; }
+  .dg-footer {
+    margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--stroke);
+    color: var(--text-dim); font-size: 12.5px;
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center;
+  }
+  .dg-footer a { color: var(--accent-2); text-decoration: none; }
+
+  /* ============ модалка «Создать шаблон мода» ============ */
+  .tpl-body { display: flex; flex-direction: column; gap: 16px; margin-top: 4px; }
+  .tpl-field { display: flex; flex-direction: column; gap: 8px; }
+  .tpl-label { font-size: 12.5px; font-weight: 600; color: var(--text-dim); }
+  .tpl-lang { display: inline-flex; gap: 4px; background: var(--bg); border: 1px solid var(--stroke); border-radius: 11px; padding: 4px; align-self: flex-start; }
+  .tpl-lang button {
+    border: none; background: transparent; color: var(--text-dim); font-family: inherit;
+    font-size: 13px; font-weight: 600; padding: 7px 16px; border-radius: 8px; cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .tpl-lang button:hover { color: var(--text); }
+  .tpl-lang button.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #1a1205; }
+  .tpl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .tpl-folder { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .tpl-folder-status { font-size: 13px; color: var(--text-dim); word-break: break-all; }
+  .tpl-folder-status .tpl-path { color: var(--text); }
+  .tpl-folder-status.ok .tpl-badge { color: var(--green); }
+  .tpl-folder-status.warn .tpl-badge { color: var(--red); }
+  .tpl-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 2px; }
+
   .tc-btn {
     position: relative;
     display: inline-flex;
@@ -1075,7 +1234,7 @@
     fill: #ffffff;
     filter: drop-shadow(0 0 3px rgba(255,255,255,.7));
   }
-  /* инверсионный след — мягкая тающая дымка из хвоста */
+  /* инверсионный след - мягкая тающая дымка из хвоста */
   .tc-plane::after {
     content: "";
     position: absolute;
@@ -1092,7 +1251,7 @@
     pointer-events: none;
   }
   .tc-plane.is-flying { animation: tc-plane-fly 9s linear; }
-  /* падающая звезда — редкое событие, диагональный прочерк */
+  /* падающая звезда - редкое событие, диагональный прочерк */
   .tc-star {
     position: absolute;
     top: -4px;
@@ -1130,7 +1289,7 @@
     opacity: 1;
     transition: opacity .35s ease-in;
   }
-  /* hover: лёгкий «вдох» — буквы чуть разъезжаются, без сдвига соседей */
+  /* hover: лёгкий «вдох» - буквы чуть разъезжаются, без сдвига соседей */
   .tc-btn:hover .tc-glitch {
     letter-spacing: .2px;
     margin-right: -2px;
@@ -1405,7 +1564,6 @@
   .drawer-toggle .arr { transition: transform .28s ease; display: block; }
   .drawer-toggle.open .arr { transform: rotate(180deg); }
   /* ====================== Редактор кода (Monaco) ====================== */
-  .code-open-btn { font-size: 13px; padding: 9px 14px; white-space: nowrap; }
 
   #codeEditor {
     position: fixed; inset: 0; z-index: 500;
@@ -1540,13 +1698,13 @@
   /* скрываем страницу, пока i18n не перевёл её (чтобы не мелькал русский) */
   html.i18n-hidden { visibility: hidden; }
 
-  /* переключатель языка — сегментированный, в стиле вкладок */
+  /* переключатель языка - сегментированный, в стиле вкладок */
   .lang-switch {
     display: flex;
     gap: 4px;
-    background: var(--bg-2);
+    background: var(--bg);
     border: 1px solid var(--stroke);
-    border-radius: 11px;
+    border-radius: 12px;
     padding: 4px;
   }
   .lang-switch button {
@@ -1574,25 +1732,34 @@
 
   <!-- Header -->
   <div class="header">
-    <button class="btn btn-ghost code-open-btn" id="openCodeEditor" title="Полноценный редактор кода под BeamNG-моды">&lt;/&gt; Редактор кода</button>
-    <div>
-      <h1 id="appTitle">Width Corrector</h1>
-      <p id="appSubtitle">Пакетная коррекция параметров .jbeam</p>
+    <div class="brand" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1a1205" stroke-width="2.1" stroke-linecap="round">
+        <line x1="4" y1="7" x2="20" y2="7"/><circle cx="9" cy="7" r="2.4" fill="#fff3e2"/>
+        <line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2.4" fill="#fff3e2"/>
+        <line x1="4" y1="17" x2="20" y2="17"/><circle cx="8" cy="17" r="2.4" fill="#fff3e2"/>
+      </svg>
     </div>
     <div class="tabs">
       <button class="tab active" data-view="main">Переменные</button>
       <button class="tab" data-view="engine">Двигатель</button>
       <button class="tab" data-view="constructor">Конструктор</button>
     </div>
-    <div class="lang-switch" id="langSwitch" role="group" aria-label="Language">
-      <button type="button" data-lang="en">EN</button>
-      <button type="button" data-lang="ru">RU</button>
+    <div class="header-right">
+      <div class="header-tools">
+        <button class="header-tool code-ico" id="openCodeEditor" title="Полноценный редактор кода под BeamNG-моды" aria-label="Редактор кода">&lt;/&gt;</button>
+        <button class="header-tool" id="openDocs" title="Как создать свой мод машины" aria-label="Документация"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></button>
+      </div>
+      <span class="header-div"></span>
+      <div class="lang-switch" id="langSwitch" role="group" aria-label="Language">
+        <button type="button" data-lang="en">EN</button>
+        <button type="button" data-lang="ru">RU</button>
+      </div>
+      <a class="header-credit" href="https://t.me/NSDmods_official" target="_blank" rel="noopener" title="Идея проекта">
+        <span>идея -</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+        <b>NSDmods</b>
+      </a>
     </div>
-    <a class="header-credit" href="https://t.me/NSDmods_official" target="_blank" rel="noopener" title="Идея проекта">
-      <span>идея —</span>
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
-      <b>NSDmods</b>
-    </a>
   </div>
 
   <!-- ===== Страница: Ширина ===== -->
@@ -1633,7 +1800,7 @@
           <h3>Текущие значения параметров</h3>
           <div class="sub" id="viewSub">Только просмотр</div>
         </div>
-        <button class="modal-close" id="viewCloseBtn" aria-label="Закрыть">✕</button>
+        <button class="modal-close" id="viewCloseBtn" aria-label="Закрыть"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <div class="modal-types" id="viewTypes"></div>
       <input class="modal-search" id="viewSearch" type="text" placeholder="Фильтр по имени файла…">
@@ -1649,7 +1816,7 @@
           <h3 id="modelTitle">3D-каркас</h3>
           <div class="sub" id="modelSub">узлы и балки</div>
         </div>
-        <button class="modal-close" id="modelCloseBtn" aria-label="Закрыть">✕</button>
+        <button class="modal-close" id="modelCloseBtn" aria-label="Закрыть"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <div class="model-controls">
         <label class="model-toggle"><input type="checkbox" id="labelsToggle"> Показывать значения</label>
@@ -1668,7 +1835,7 @@
           <div class="model-empty" id="modelEmpty" hidden></div>
         </div>
       </div>
-      <div class="model-hint">ЛКМ — вращать · колесо — зум · ПКМ — сдвиг</div>
+      <div class="model-hint">ЛКМ - вращать · колесо - зум · ПКМ - сдвиг</div>
     </div>
   </div>
 
@@ -1712,13 +1879,13 @@
 
           <div id="engSettings" hidden>
             <div class="eng-summary">
-              <div class="eng-stat"><div class="eng-stat-val" id="engPower">—</div><div class="eng-stat-lbl">пик мощности, л.с.</div></div>
-              <div class="eng-stat"><div class="eng-stat-val" id="engTorque">—</div><div class="eng-stat-lbl">пик момента, Нм</div></div>
+              <div class="eng-stat"><div class="eng-stat-val" id="engPower">-</div><div class="eng-stat-lbl">пик мощности, л.с.</div></div>
+              <div class="eng-stat"><div class="eng-stat-val" id="engTorque">-</div><div class="eng-stat-lbl">пик момента, Нм</div></div>
             </div>
             <canvas id="engCurve" class="eng-curve"></canvas>
             <div class="eng-warn" id="engWarn" hidden></div>
             <div class="eng-basecurve">
-              <div class="eng-stage-hint">Кривая момента задаёт диапазон оборотов: последняя точка = предел раскрутки в игре. Чтобы мотор крутился выше — добавьте точки.</div>
+              <div class="eng-stage-hint">Кривая момента задаёт диапазон оборотов: последняя точка = предел раскрутки в игре. Чтобы мотор крутился выше - добавьте точки.</div>
               <table class="eng-curve-table">
                 <thead><tr><th>RPM</th><th>момент, Нм</th><th></th></tr></thead>
                 <tbody id="engCurveRows"></tbody>
@@ -1727,7 +1894,7 @@
             </div>
             <div class="eng-params" id="engParams"></div>
             <div class="eng-actions">
-              <button class="btn btn-danger" id="engPitBtn">🏁 Пит-стоп</button>
+              <button class="btn btn-danger" id="engPitBtn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22V4"/></svg>Пит-стоп</button>
               <div class="eng-msg" id="engApplyMsg"></div>
               <button class="btn btn-run" id="engApplyBtn">Применить параметры и кривую</button>
             </div>
@@ -1768,7 +1935,7 @@
       <button class="btn btn-run" id="conChooseBtn" style="margin-top:16px">Выбрать тип</button>
     </div>
     <div class="con-typebar" id="conTypeBar" hidden>
-      <span>Тип: <b id="conTypeName">—</b></span>
+      <span>Тип: <b id="conTypeName">-</b></span>
       <button class="btn btn-ghost btn-sm" id="conChangeType">Сменить тип</button>
     </div>
     <div class="con-wrap" hidden>
@@ -1837,7 +2004,7 @@
         </div>
 
         <div class="con-actions">
-          <button class="btn btn-danger" id="c_pit">🏁 Пит-стоп</button>
+          <button class="btn btn-danger" id="c_pit"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22V4"/></svg>Пит-стоп</button>
           <div class="eng-msg" id="c_msg"></div>
           <button class="btn btn-run" id="c_create">Создать .jbeam</button>
         </div>
@@ -1852,6 +2019,11 @@
       </div>
     </div>
   </div>
+
+  <!-- ===== Страница: Документация ===== -->
+  <div id="viewDocs" hidden>
+    <div class="docs-page" id="docsContent"><div class="docs-loading">Загрузка…</div></div>
+  </div>
 </div>
 
 <!-- Модальное окно: выбор типа конструктора -->
@@ -1862,7 +2034,7 @@
         <h3>Что создаём?</h3>
         <div class="sub">Выберите тип jbeam-конфига</div>
       </div>
-      <button class="modal-close" id="conTypeClose" aria-label="Закрыть" hidden>✕</button>
+      <button class="modal-close" id="conTypeClose" aria-label="Закрыть" hidden><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="con-type-grid">
       <button class="con-type-card" data-ctype="engine">
@@ -1871,11 +2043,11 @@
       </button>
       <button class="con-type-card" disabled>
         <b>jbeam под подвеску</b>
-        <span>скоро — пружины, амортизаторы, геометрия</span>
+        <span>скоро - пружины, амортизаторы, геометрия</span>
       </button>
       <button class="con-type-card" disabled>
         <b>jbeam под модель / body</b>
-        <span>скоро — ноды, балки, флексбоди кузова</span>
+        <span>скоро - ноды, балки, флексбоди кузова</span>
       </button>
     </div>
   </div>
@@ -1886,10 +2058,10 @@
   <div class="modal pit-modal" role="dialog" aria-modal="true">
     <div class="modal-head">
       <div>
-        <h3>Пит-стоп — характеристики мотора</h3>
+        <h3>Пит-стоп - характеристики мотора</h3>
         <div class="sub">Свободная раскрутка по физике игры (момент · инерция · трение · отсечка)</div>
       </div>
-      <button class="modal-close" id="pitClose" aria-label="Закрыть">✕</button>
+      <button class="modal-close" id="pitClose" aria-label="Закрыть"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="pit-body">
       <div class="pit-left">
@@ -1903,10 +2075,54 @@
         <canvas id="pitChart" class="eng-curve"></canvas>
       </div>
       <div class="pit-pedal-wrap">
-        <div class="pit-pedal-label">Газ — тяни/жми</div>
+        <div class="pit-pedal-label">Газ - тяни/жми</div>
         <div class="pit-pedal" id="pitPedal"><div class="pit-pedal-fill" id="pitPedalFill"></div></div>
         <button class="btn btn-danger btn-sm" id="pitFloor">В пол (или Пробел)</button>
         <div class="pit-stats" id="pitStats"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно: создать шаблон мода -->
+<div class="modal-overlay" id="templateModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <h3>Создать шаблон мода</h3>
+        <div class="sub">Базовая структура мода BeamNG с комментариями</div>
+      </div>
+      <button class="modal-close" id="tplClose" aria-label="Закрыть"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+
+    <div class="tpl-body">
+      <div class="tpl-field">
+        <label class="tpl-label">Язык описаний и комментариев</label>
+        <div class="tpl-lang" id="tplLang" role="group">
+          <button type="button" data-lang="en" class="active">English</button>
+          <button type="button" data-lang="ru">Русский</button>
+        </div>
+      </div>
+
+      <div class="tpl-grid">
+        <label class="eng-field"><span>Идентификатор мода</span><input id="tplModId" value="my_car" spellcheck="false"></label>
+        <label class="eng-field"><span>Название (в игре)</span><input id="tplName" value="My Car"></label>
+        <label class="eng-field"><span>Автор</span><input id="tplAuthor" placeholder="You"></label>
+      </div>
+
+      <div class="tpl-field">
+        <label class="tpl-label">Папка для мода (пустая, обязательно)</label>
+        <div class="tpl-folder">
+          <button class="btn btn-ghost btn-sm" id="tplPick">Выбрать пустую папку</button>
+          <div class="tpl-folder-status" id="tplFolderStatus">Папка не выбрана</div>
+        </div>
+      </div>
+
+      <div class="eng-msg" id="tplMsg"></div>
+
+      <div class="tpl-actions">
+        <button class="btn btn-ghost" id="tplCancel">Отмена</button>
+        <button class="btn btn-run" id="tplCreate" disabled>Создать мод</button>
       </div>
     </div>
   </div>
@@ -1928,12 +2144,12 @@
       <button class="ce-fs-btn" id="ceFontInc" title="Больше">A+</button>
     </div>
     <span class="ce-hint">Ctrl+S · Ctrl+Shift+F</span>
-    <button class="btn btn-ghost ce-sm" id="ceClose">✕ Закрыть</button>
+    <button class="btn btn-ghost ce-sm" id="ceClose"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>Закрыть</button>
   </div>
   <div class="ce-body">
     <div class="ce-activitybar">
-      <button class="ce-act active" id="ceActExplorer" title="Проводник">&#9783;</button>
-      <button class="ce-act" id="ceActSearch" title="Поиск (Ctrl+Shift+F)">&#128269;</button>
+      <button class="ce-act active" id="ceActExplorer" title="Проводник"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2z"/></svg></button>
+      <button class="ce-act" id="ceActSearch" title="Поиск (Ctrl+Shift+F)"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
     </div>
     <div class="ce-sidebar">
       <div class="ce-view" id="ceExplorer">
@@ -1960,10 +2176,10 @@
             <div class="ce-welcome-logo">&lt;/&gt;</div>
             <div class="ce-welcome-title">Редактор кода</div>
             <div class="ce-welcome-sub">Откройте папку с модом BeamNG, чтобы редактировать файлы</div>
-            <button class="btn btn-primary ce-welcome-open" id="cePick">📁 Открыть папку мода</button>
+            <button class="btn btn-primary ce-welcome-open" id="cePick"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2z"/></svg>Открыть папку мода</button>
             <div class="ce-welcome-keys">
-              <div><kbd>Ctrl</kbd>+<kbd>S</kbd> — сохранить</div>
-              <div><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> — глобальный поиск</div>
+              <div><kbd>Ctrl</kbd>+<kbd>S</kbd> - сохранить</div>
+              <div><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> - глобальный поиск</div>
             </div>
           </div>
         </div>
@@ -1973,7 +2189,7 @@
 </div>
 
 <!-- Выдвижная панель выбора файлов -->
-<button class="drawer-toggle" id="drawerToggle" title="Файлы для редактирования"><span class="arr">❮</span></button>
+<button class="drawer-toggle" id="drawerToggle" title="Файлы для редактирования"><span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span></button>
 <aside class="drawer" id="drawer">
   <div class="drawer-head">
     <h3>Файлы для редактирования</h3>
@@ -1989,7 +2205,7 @@
   </div>
 </aside>
 
-<!-- источники: слева — соцсети, справа — проект -->
+<!-- источники: слева - соцсети, справа - проект -->
 <div class="tc-socials">
   <a class="tg-btn" href="https://t.me/+4rwZR2jqABUyZDli" target="_blank" rel="noopener">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
@@ -2003,8 +2219,8 @@
 
 <!-- нижний центр: версия проекта + ссылка на GitHub -->
 <div class="footer-center">
-  <span class="app-version" id="appVersion">v1.0.0</span>
-  <a class="gh-btn" href="https://github.com/AsQqqq/width-corrector" target="_blank" rel="noopener" title="GitHub — width-corrector">
+  <span class="app-version" id="appVersion">v1.0.1</span>
+  <a class="gh-btn" href="https://github.com/AsQqqq/width-corrector" target="_blank" rel="noopener" title="GitHub - width-corrector">
     <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.02-1.49-2.01.44-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 012-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
     <span>GitHub</span>
   </a>
@@ -2033,7 +2249,7 @@
     const rand = (min, max) => Math.random() * (max - min) + min;
     const clouds = btn.querySelector('.tc-clouds');
 
-    /* лёгкий параллакс облаков за курсором — от центра экрана */
+    /* лёгкий параллакс облаков за курсором - от центра экрана */
     document.addEventListener('mousemove', (e) => {
       if (reduce.matches || !clouds) return;
       const dx = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
@@ -2043,7 +2259,7 @@
       clouds.style.setProperty('--py', (clamp(dy) * 1).toFixed(2) + 'px');
     });
 
-    /* самолёт — редкое событие */
+    /* самолёт - редкое событие */
     function flyPlane() {
       if (!plane) return;
       plane.style.setProperty('--y-start', rand(-7, 7).toFixed(1) + 'px');
@@ -2062,7 +2278,7 @@
       })(true);
     }
 
-    /* падающая звезда — частое, но мимолётное событие */
+    /* падающая звезда - частое, но мимолётное событие */
     function fallStar() {
       if (!star) return;
       star.style.setProperty('--sx', rand(55, 95).toFixed(0) + '%');
@@ -2084,20 +2300,20 @@
 
 <script>
   // ============================================================
-  //  i18n — перевод интерфейса RU → EN
-  //  Источник (разметка/строки в коде) — на русском; при языке EN
+  //  i18n - перевод интерфейса RU → EN
+  //  Источник (разметка/строки в коде) - на русском; при языке EN
   //  весь видимый текст переводится по словарю прямо в DOM, включая
   //  контент, который скрипты добавляют динамически (через
   //  MutationObserver). Русский = исходник (перевод не применяется).
-  //  Язык по умолчанию — английский; выбор хранится в configs/app.json.
+  //  Язык по умолчанию - английский; выбор хранится в configs/app.json.
   // ============================================================
   (function () {
     var lsRaw = null;
     try { lsRaw = localStorage.getItem('wc_lang'); } catch (e) {}
     var hadLS = (lsRaw === 'ru' || lsRaw === 'en'); // есть ли локальный выбор
-    var LANG = hadLS ? lsRaw : 'en';                 // по умолчанию — английский
+    var LANG = hadLS ? lsRaw : 'en';                 // по умолчанию - английский
 
-    // Словарь точных строк (обрезанных по краям). Ключ — русский, значение — английский.
+    // Словарь точных строк (обрезанных по краям). Ключ - русский, значение - английский.
     var DICT = {
       // --- шапка / вкладки ---
       "Полноценный редактор кода под BeamNG-моды": "Full-featured code editor for BeamNG mods",
@@ -2108,8 +2324,22 @@
       "Двигатель": "Engine",
       "Конструктор": "Constructor",
       "Идея проекта": "Project idea",
-      "идея —": "idea —",
+      "идея -": "idea -",
       "Сообщество": "Community",
+      // --- документация ---
+      "Документация": "Documentation",
+      "Как создать свой мод машины": "How to make your own car mod",
+      "Документация - как создать мод машины": "Documentation - making a car mod",
+      "Создать шаблон мода": "Create mod template",
+      "Базовая структура мода BeamNG с комментариями": "Basic BeamNG mod structure with comments",
+      "Язык описаний и комментариев": "Language of descriptions & comments",
+      "Идентификатор мода": "Mod ID",
+      "Автор": "Author",
+      "Папка для мода (пустая, обязательно)": "Mod folder (empty, required)",
+      "Выбрать пустую папку": "Choose empty folder",
+      "Отмена": "Cancel",
+      "Создать мод": "Create mod",
+      "Пусто": "Empty",
       // --- страница «Переменные» ---
       "Рабочая папка": "Working folder",
       "Папка не выбрана": "No folder selected",
@@ -2134,7 +2364,7 @@
       "Детали": "Parts",
       "вкл/выкл все": "toggle all",
       "нет деталей": "no parts",
-      "ЛКМ — вращать · колесо — зум · ПКМ — сдвиг": "LMB — rotate · wheel — zoom · RMB — pan",
+      "ЛКМ - вращать · колесо - зум · ПКМ - сдвиг": "LMB - rotate · wheel - zoom · RMB - pan",
       "Показать 3D-каркас": "Show 3D wireframe",
       "В файле нет узлов с координатами.": "The file has no nodes with coordinates.",
       // --- бекапы / подсказки ---
@@ -2155,7 +2385,7 @@
       "Создаю бекап…": "Creating backup…",
       "Создаю бекап и применяю…": "Creating backup and applying…",
       "Обрабатываю файлы…": "Processing files…",
-      "Все параметры 100% — изменять нечего.": "All parameters are 100% — nothing to change.",
+      "Все параметры 100% - изменять нечего.": "All parameters are 100% - nothing to change.",
       "Готово": "Done",
       "Загрузка…": "Loading…",
       "Сканирую…": "Scanning…",
@@ -2173,22 +2403,22 @@
       "пик момента, Нм": "peak torque, Nm",
       "мощность, л.с.": "power, hp",
       "момент, Нм": "torque, Nm",
-      "Кривая момента задаёт диапазон оборотов: последняя точка = предел раскрутки в игре. Чтобы мотор крутился выше — добавьте точки.": "The torque curve sets the RPM range: the last point = the rev limiter in the game. To make the engine rev higher — add points.",
+      "Кривая момента задаёт диапазон оборотов: последняя точка = предел раскрутки в игре. Чтобы мотор крутился выше - добавьте точки.": "The torque curve sets the RPM range: the last point = the rev limiter in the game. To make the engine rev higher - add points.",
       "+ точка": "+ point",
-      "🏁 Пит-стоп": "🏁 Pit stop",
+      "Пит-стоп": "Pit stop",
       "Применить параметры и кривую": "Apply parameters and curve",
       "Тюнинг / стейдж (превью «база + стейдж»)": "Tuning / stage (preview \"base + stage\")",
       "прибавка, Нм": "gain, Nm",
       "Применить тюнинг": "Apply tuning",
       "Настройка двигателя": "Engine setup",
       "Параметры двигателя (.jbeam)": "Engine parameters (.jbeam)",
-      "— сначала выберите папку на вкладке «Переменные» —": "— first select a folder on the «Variables» tab —",
+      "- сначала выберите папку на вкладке «Переменные» -": "- first select a folder on the «Variables» tab -",
       "Папка не выбрана.": "Folder not selected.",
       "нет .jbeam файлов": "no .jbeam files",
-      "— выберите файл —": "— select a file —",
-      "Это не jbeam мотора — в файле нет двигателя с кривой момента.": "This is not an engine jbeam — the file has no engine with a torque curve.",
-      "⚠ Кривая момента заканчивается на": "⚠ The torque curve ends at",
-      "об/мин, а отсечка/макс. —": "RPM, but the rev limiter/max is",
+      "- выберите файл -": "- select a file -",
+      "Это не jbeam мотора - в файле нет двигателя с кривой момента.": "This is not an engine jbeam - the file has no engine with a torque curve.",
+      "Кривая момента заканчивается на": "The torque curve ends at",
+      "об/мин, а отсечка/макс. -": "RPM, but the rev limiter/max is",
       "Пик мощности:": "Peak power:",
       "Пик момента:": "Peak torque:",
       "Холостые:": "Idle:",
@@ -2221,12 +2451,12 @@
       "удалить": "delete",
       "Бекап и запись…": "Backup and write…",
       // --- пит-стоп ---
-      "Пит-стоп — характеристики мотора": "Pit stop — engine characteristics",
+      "Пит-стоп - характеристики мотора": "Pit stop - engine characteristics",
       "Свободная раскрутка по физике игры (момент · инерция · трение · отсечка)": "Free rev-up using the game's physics (torque · inertia · friction · rev limiter)",
       "л.с. сейчас": "hp now",
       "Нм сейчас": "Nm now",
       "% газа": "% throttle",
-      "Газ — тяни/жми": "Throttle — pull/press",
+      "Газ - тяни/жми": "Throttle - pull/press",
       "В пол (или Пробел)": "Floor it (or Space)",
       // --- конструктор ---
       "Конструктор jbeam": "jbeam Constructor",
@@ -2267,12 +2497,12 @@
       "jbeam под двигатель": "jbeam for engine",
       "мотор: кривая момента, параметры, тюнинг, пит-стоп": "engine: torque curve, parameters, tuning, pit stop",
       "jbeam под подвеску": "jbeam for suspension",
-      "скоро — пружины, амортизаторы, геометрия": "coming soon — springs, dampers, geometry",
+      "скоро - пружины, амортизаторы, геометрия": "coming soon - springs, dampers, geometry",
       "jbeam под модель / body": "jbeam for model / body",
-      "скоро — ноды, балки, флексбоди кузова": "coming soon — nodes, beams, body flexbodies",
+      "скоро - ноды, балки, флексбоди кузова": "coming soon - nodes, beams, body flexbodies",
       "Создание jbeam-конфига двигателя": "Creating an engine jbeam config",
-      "✓ валидный мотор": "✓ valid engine",
-      "⚠ не распознан как мотор": "⚠ not recognized as engine",
+      "валидный мотор": "valid engine",
+      "не распознан как мотор": "not recognized as engine",
       "Укажите имя файла.": "Enter a file name.",
       "Создаю…": "Creating…",
       "Сначала задайте кривую момента.": "First set the torque curve.",
@@ -2284,7 +2514,6 @@
       "Шрифт": "Font",
       "Меньше": "Smaller",
       "Больше": "Larger",
-      "✕ Закрыть": "✕ Close",
       "Проводник": "Explorer",
       "Поиск (Ctrl+Shift+F)": "Search (Ctrl+Shift+F)",
       "Открыть папку": "Open folder",
@@ -2294,9 +2523,9 @@
       "Введите запрос": "Enter a query",
       "Поиск…": "Searching…",
       "Откройте папку с модом BeamNG, чтобы редактировать файлы": "Open a folder with a BeamNG mod to edit files",
-      "📁 Открыть папку мода": "📁 Open mod folder",
-      "— сохранить": "— save",
-      "— глобальный поиск": "— global search",
+      "Открыть папку мода": "Open mod folder",
+      "- сохранить": "- save",
+      "- глобальный поиск": "- global search",
       "Файлы для редактирования": "Files for editing",
       "Выберите папку": "Select a folder",
       "Выделить все": "Select all",
@@ -2306,7 +2535,7 @@
     };
 
     // Строки с подстановками (числа/имена файлов). Проверяются, если точного совпадения нет.
-    // Порядок важен: более специфичные — выше.
+    // Порядок важен: более специфичные - выше.
     var PATTERNS = [
       [/^Ошибка выбора папки: (.+)$/, "Folder selection error: $1"],
       [/^Нет связи с сервером: (.+)$/, "No connection to server: $1"],
@@ -2314,12 +2543,12 @@
       [/^Сохранено: (.+)$/, "Saved: $1"],
       [/^Ошибка сохранения: (.+)$/, "Save error: $1"],
       [/^Не удалось открыть папку: (.+)$/, "Failed to open folder: $1"],
-      [/^Обработано (\d+) \/ (\d+) — (.+)$/, "Processed $1 / $2 — $3"],
+      [/^Обработано (\d+) \/ (\d+) - (.+)$/, "Processed $1 / $2 - $3"],
       [/^Обработано (\d+) \/ (\d+)$/, "Processed $1 / $2"],
       [/^Готово\. Ошибок: (\d+)\.$/, "Done. Errors: $1."],
       [/^Ошибка: (.+)$/, "Error: $1"],
       [/^Выбрано (\d+) из (\d+)$/, "Selected $1 of $2"],
-      [/^(.+) — файлов: (\d+), всего значений: (\d+)$/, "$1 — files: $2, total values: $3"],
+      [/^(.+) - файлов: (\d+), всего значений: (\d+)$/, "$1 - files: $2, total values: $3"],
       [/^(\d+) узлов · (\d+) балок$/, "$1 nodes · $2 beams"],
       [/^(\d+) \.jbeam файлов$/, "$1 .jbeam files"],
       [/^Пик мощности: (\d+) л\.с\. @ (\d+)$/, "Peak power: $1 hp @ $2"],
@@ -2331,16 +2560,18 @@
       [/^\. В игре мотор обрежется по кривой и не раскрутится выше (\d+)\. Добавьте точки в кривую до (\d+)\.$/, ". In-game the engine will be clipped by the curve and won't rev above $1. Add points to the curve up to $2."],
       [/^(\d+) л\.с\.$/, "$1 hp"],
       [/^(\d+) Нм$/, "$1 Nm"],
-      [/^Готово — создан (.+)$/, "Done — created $1"],
-      [/^Бинарный файл — (\d+) байт\. Не редактируется в текстовом виде\.$/, "Binary file — $1 bytes. Not editable as text."],
+      [/^Готово - создан (.+)$/, "Done - created $1"],
+      [/^Бинарный файл - (\d+) байт\. Не редактируется в текстовом виде\.$/, "Binary file - $1 bytes. Not editable as text."],
       [/^Показаны первые результаты…$/, "Showing first results…"],
-      [/^— тюнинг-деталей в файле нет —$/, "— no tuning parts in the file —"],
-      [/^— без тюнинга \(только база\) —$/, "— no tuning (base only) —"],
-      [/^(.+) не найден\.$/, "$1 not found."]
+      [/^- тюнинг-деталей в файле нет -$/, "- no tuning parts in the file -"],
+      [/^- без тюнинга \(только база\) -$/, "- no tuning (base only) -"],
+      [/^(.+) не найден\.$/, "$1 not found."],
+      [/^Не пусто: (\d+)$/, "Not empty: $1"],
+      [/^Готово - файлов: (\d+)$/, "Done - files: $1"]
     ];
 
     // Зоны, где переводить нельзя: код-редакторы, textarea, пользовательский контент.
-    var SKIP_SEL = "script,style,textarea,pre,code,noscript,.monaco-editor,#ceMonaco,.code-editor";
+    var SKIP_SEL = "script,style,textarea,pre,code,noscript,.monaco-editor,#ceMonaco,.code-editor,#viewDocs";
     function inSkip(el) { return !el || (el.closest && el.closest(SKIP_SEL)); }
 
     function trStr(raw) {
@@ -2362,7 +2593,7 @@
       // сохраняем ведущие/хвостовые пробелы исходного узла
       var lead = raw.match(/^\s*/)[0], tail = raw.match(/\s*$/)[0];
       var next = lead + out + tail;
-      if (next !== raw) node.nodeValue = next;
+      if (next !== raw) { node.__ru = raw; node.nodeValue = next; } // храним оригинал для обратного переключения
     }
 
     var ATTRS = ["title", "placeholder", "aria-label"];
@@ -2372,7 +2603,7 @@
         var v = el.getAttribute(ATTRS[i]);
         if (!v || !/[А-Яа-яЁё]/.test(v)) continue;
         var out = trStr(v);
-        if (out != null && out !== v) el.setAttribute(ATTRS[i], out);
+        if (out != null && out !== v) { el.setAttribute("data-ru-" + ATTRS[i], v); el.setAttribute(ATTRS[i], out); }
       }
     }
 
@@ -2397,30 +2628,92 @@
       for (var j = 0; j < batch.length; j++) translateTextNode(batch[j]);
     }
 
+    // ------- вернуть оригинальный русский текст (динамический EN -> RU) -------
+    function untranslate(root) {
+      if (!root) return;
+      var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+      var batch = [], n;
+      while ((n = walker.nextNode())) if (n.__ru != null) batch.push(n);
+      for (var i = 0; i < batch.length; i++) { batch[i].nodeValue = batch[i].__ru; batch[i].__ru = null; }
+      var els = root.querySelectorAll ? root.querySelectorAll("[data-ru-title],[data-ru-placeholder],[data-ru-aria-label]") : [];
+      for (var j = 0; j < els.length; j++) {
+        for (var k = 0; k < ATTRS.length; k++) {
+          var d = "data-ru-" + ATTRS[k];
+          if (els[j].hasAttribute(d)) { els[j].setAttribute(ATTRS[k], els[j].getAttribute(d)); els[j].removeAttribute(d); }
+        }
+      }
+    }
+
+    // единый observer для динамического контента (создаётся один раз)
+    var observer = null;
+    function ensureObserver() {
+      if (observer) return observer;
+      observer = new MutationObserver(function (muts) {
+        for (var i = 0; i < muts.length; i++) {
+          var m = muts[i];
+          if (m.type === "characterData") {
+            if (!inSkip(m.target.parentElement)) translateTextNode(m.target);
+          } else if (m.type === "attributes") {
+            if (m.target.nodeType === 1) translateAttrs(m.target);
+          } else {
+            for (var k = 0; k < m.addedNodes.length; k++) {
+              var node = m.addedNodes[k];
+              if (node.nodeType === 3) { if (!inSkip(node.parentElement)) translateTextNode(node); }
+              else if (node.nodeType === 1) translateTree(node);
+            }
+          }
+        }
+      });
+      return observer;
+    }
+    function enableEn() {
+      try { translateTree(document.body); } catch (e) {}
+      ensureObserver().observe(document.body, {
+        childList: true, subtree: true, characterData: true,
+        attributes: true, attributeFilter: ATTRS
+      });
+    }
+    function disableEn() {
+      if (observer) observer.disconnect();
+      try { untranslate(document.body); } catch (e) {}
+    }
+
     // --- переключатель языка (кнопка в шапке) ---
+    function updateSwitchActive() {
+      var box = document.getElementById("langSwitch");
+      if (!box) return;
+      var btns = box.querySelectorAll("button");
+      for (var i = 0; i < btns.length; i++) btns[i].classList.toggle("active", btns[i].getAttribute("data-lang") === LANG);
+    }
     function wireSwitch() {
       var box = document.getElementById("langSwitch");
       if (!box) return;
       var btns = box.querySelectorAll("button");
       for (var i = 0; i < btns.length; i++) {
-        var b = btns[i];
-        b.classList.toggle("active", b.getAttribute("data-lang") === LANG);
-        b.addEventListener("click", function () {
-          var l = this.getAttribute("data-lang");
-          if (l === LANG) return;
-          setLang(l);
-        });
+        btns[i].addEventListener("click", function () { setLang(this.getAttribute("data-lang")); });
       }
+      updateSwitchActive();
     }
 
+    // Смена языка ДИНАМИЧЕСКИ, без перезагрузки: текущая вкладка и всё состояние сохраняются.
     function setLang(l) {
+      if ((l !== "ru" && l !== "en") || l === LANG) return;
       try { localStorage.setItem("wc_lang", l); } catch (e) {}
-      // сохраняем выбор в config-файле на сервере, затем перезагружаемся
       fetch("/api/app-config", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lang: l })
-      }).then(function () { location.reload(); }, function () { location.reload(); });
+      }).catch(function () {}); // сохраняем в config-файл, БЕЗ reload
+      LANG = l;
+      if (l === "en") enableEn(); else disableEn();
+      document.documentElement.setAttribute("data-lang", l);
+      document.documentElement.setAttribute("lang", l);
+      updateSwitchActive();
+      // документация - отдельный фрагмент на своём языке: перезагружаем при открытой странице
+      try { window.docsLoadedLang = null; } catch (e) {}
+      if (typeof window.loadDocs === "function") {
+        var vd = document.getElementById("viewDocs");
+        if (vd && !vd.hidden) window.loadDocs();
+      }
     }
 
     function reveal() { document.documentElement.classList.remove("i18n-hidden"); }
@@ -2428,36 +2721,13 @@
     // --- запуск ---
     function start() {
       wireSwitch();
-      if (LANG === "en") {
-        try { translateTree(document.body); } catch (e) {}
-        // динамический контент, который скрипты добавят позже
-        var obs = new MutationObserver(function (muts) {
-          for (var i = 0; i < muts.length; i++) {
-            var m = muts[i];
-            if (m.type === "characterData") {
-              if (!inSkip(m.target.parentElement)) translateTextNode(m.target);
-            } else if (m.type === "attributes") {
-              if (m.target.nodeType === 1) translateAttrs(m.target);
-            } else {
-              for (var k = 0; k < m.addedNodes.length; k++) {
-                var node = m.addedNodes[k];
-                if (node.nodeType === 3) { if (!inSkip(node.parentElement)) translateTextNode(node); }
-                else if (node.nodeType === 1) translateTree(node);
-              }
-            }
-          }
-        });
-        obs.observe(document.body, {
-          childList: true, subtree: true, characterData: true,
-          attributes: true, attributeFilter: ATTRS
-        });
-      }
+      if (LANG === "en") enableEn();
       reveal();
     }
 
     // Сверяем язык с config-файлом сервера.
-    // Первый визит в браузере (нет локального выбора) — принимаем язык из файла.
-    // Есть локальный выбор — он приоритетен, синхронизируем файл под него (без отката).
+    // Первый визит в браузере (нет локального выбора) - принимаем язык из файла.
+    // Есть локальный выбор - он приоритетен, синхронизируем файл под него (без отката).
     fetch("/api/app-config").then(function (r) { return r.json(); }).then(function (d) {
       if (!d || !d.ok) return;
       var srv = (d.lang === "ru" || d.lang === "en") ? d.lang : "en";
@@ -2475,7 +2745,7 @@
       }
     }).catch(function () {});
 
-    // тело уже разобрано (скрипт в конце документа) — переводим сразу
+    // тело уже разобрано (скрипт в конце документа) - переводим сразу
     if (document.body) start();
     else document.addEventListener("DOMContentLoaded", start);
     // страховка: раскрываем страницу, даже если что-то пошло не так
@@ -2659,7 +2929,7 @@
     loadFiles();
   }
 
-  // выбор папки — нативный диалог открывает Go
+  // выбор папки - нативный диалог открывает Go
   document.getElementById("pickBtn").addEventListener("click", async () => {
     try {
       const r = await fetch("/api/pick-folder", { method: "POST" });
@@ -2698,7 +2968,7 @@
   async function saveConfig() {
     if (!currentFolder) return;
     const snapshot = JSON.stringify({ folderPath: currentFolder.path, ...state });
-    if (snapshot === lastSaved) return;       // ничего не менялось — не пишем
+    if (snapshot === lastSaved) return;       // ничего не менялось - не пишем
     try {
       const r = await fetch("/api/config", {
         method: "POST",
@@ -2755,7 +3025,7 @@
       const r = await fetch("/api/backups");
       const data = await r.json();
       if (data.ok) renderBackups(data.backups);
-    } catch (e) { /* сервер недоступен — игнорируем */ }
+    } catch (e) { /* сервер недоступен - игнорируем */ }
   }
 
   async function openBackup(id) {
@@ -2846,7 +3116,7 @@
         const pct = ev.total ? Math.round(ev.done / ev.total * 100) : 0;
         progressFill.style.width = pct + "%";
         progressText.textContent = `Обработано ${ev.done} / ${ev.total}`
-          + (ev.file ? ` — ${ev.file}` : "");
+          + (ev.file ? ` - ${ev.file}` : "");
         break;
       }
       case "done": {
@@ -2854,7 +3124,7 @@
         finishApply();
         renderBackups(ev.backups || []);
         if (ev.skipped) {
-          setStatus("Все параметры 100% — изменять нечего.", "var(--accent-2)");
+          setStatus("Все параметры 100% - изменять нечего.", "var(--accent-2)");
         } else {
           let msg = "Готово";
           const hasErr = ev.errors && ev.errors.length;
@@ -3014,7 +3284,7 @@
         return;
       }
       document.getElementById("viewSub").textContent =
-        `${viewParam} — файлов: ${d.totalFiles}, всего значений: ${d.totalPoints}`;
+        `${viewParam} - файлов: ${d.totalFiles}, всего значений: ${d.totalPoints}`;
       scanFiles = d.files || [];
       renderViewList("");
     } catch (e) {
@@ -3302,22 +3572,17 @@
   // ============================================================
   //  Переключение страниц (вкладки в шапке)
   // ============================================================
-  const VIEW_TITLES = {
-    main: ["Width Corrector", "Пакетная коррекция параметров .jbeam"],
-    engine: ["Настройка двигателя", "Параметры двигателя (.jbeam)"],
-    constructor: ["Конструктор", "Создание jbeam-конфига двигателя"]
-  };
-
   function showView(view) {
     document.getElementById("viewMain").hidden = view !== "main";
     document.getElementById("viewEngine").hidden = view !== "engine";
     document.getElementById("viewConstructor").hidden = view !== "constructor";
+    document.getElementById("viewDocs").hidden = view !== "docs";
     document.querySelectorAll(".tab").forEach(t =>
       t.classList.toggle("active", t.dataset.view === view));
-    document.getElementById("appTitle").textContent = VIEW_TITLES[view][0];
-    document.getElementById("appSubtitle").textContent = VIEW_TITLES[view][1];
+    document.getElementById("openDocs").classList.toggle("active", view === "docs");
+    if (view === "docs") loadDocs();
 
-    // панель файлов — только на странице «Переменные»
+    // панель файлов - только на странице «Переменные»
     const dt = document.getElementById("drawerToggle");
     if (dt) dt.style.display = view === "main" ? "" : "none";
     if (view !== "main") {
@@ -3363,7 +3628,7 @@
 
   function populateEngineFiles() {
     if (!currentFolder) {
-      engFileSelect.innerHTML = '<option value="">— сначала выберите папку на вкладке «Переменные» —</option>';
+      engFileSelect.innerHTML = '<option value="">- сначала выберите папку на вкладке «Переменные» -</option>';
       engStatus.textContent = "Папка не выбрана.";
       engStatus.className = "eng-status";
       engSettings.hidden = true;
@@ -3374,7 +3639,7 @@
       return;
     }
     const cur = engFileSelect.value;
-    engFileSelect.innerHTML = '<option value="">— выберите файл —</option>' +
+    engFileSelect.innerHTML = '<option value="">- выберите файл -</option>' +
       allFiles.map(f => `<option value="${escapeHtml(f.file)}">${escapeHtml(f.file)}</option>`).join("");
     if (cur) engFileSelect.value = cur;
   }
@@ -3394,7 +3659,7 @@
       const d = await r.json();
       if (!d.ok) { engStatus.textContent = "Ошибка: " + d.error; engStatus.className = "eng-status err"; return; }
       if (!d.isEngine || !d.engines.length) {
-        engStatus.textContent = "Это не jbeam мотора — в файле нет двигателя с кривой момента.";
+        engStatus.textContent = "Это не jbeam мотора - в файле нет двигателя с кривой момента.";
         engStatus.className = "eng-status err";
         return;
       }
@@ -3432,7 +3697,7 @@
   function engCurveRow(rpm, t) {
     return `<tr><td><input type="number" step="any" class="ec-rpm" value="${rpm}"></td>
       <td><input type="number" step="any" class="ec-val" value="${t}"></td>
-      <td><button class="eng-row-del" data-rm>✕</button></td></tr>`;
+      <td><button class="eng-row-del" data-rm><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></td></tr>`;
   }
   function renderEngineCurveTable(curve) {
     const tb = document.getElementById("engCurveRows");
@@ -3532,7 +3797,7 @@
     const warn = document.getElementById("engWarn");
     if (isFinite(reqMax) && reqMax > curveMax + 1) {
       warn.hidden = false;
-      warn.innerHTML = `⚠ Кривая момента заканчивается на <b>${Math.round(curveMax)}</b> об/мин, а отсечка/макс. — <b>${Math.round(reqMax)}</b>. ` +
+      warn.innerHTML = `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Кривая момента заканчивается на <b>${Math.round(curveMax)}</b> об/мин, а отсечка/макс. - <b>${Math.round(reqMax)}</b>. ` +
         `В игре мотор обрежется по кривой и не раскрутится выше ${Math.round(curveMax)}. Добавьте точки в кривую до ${Math.round(reqMax)}.`;
     } else {
       warn.hidden = true;
@@ -3547,13 +3812,13 @@
 
   function populateStageSelect() {
     if (!engState.stages || !engState.stages.length) {
-      engStageSelect.innerHTML = '<option value="-1">— тюнинг-деталей в файле нет —</option>';
+      engStageSelect.innerHTML = '<option value="-1">- тюнинг-деталей в файле нет -</option>';
       document.getElementById("engStageEditor").hidden = true;
       return;
     }
-    engStageSelect.innerHTML = '<option value="-1">— без тюнинга (только база) —</option>' +
+    engStageSelect.innerHTML = '<option value="-1">- без тюнинга (только база) -</option>' +
       engState.stages.map((s, i) =>
-        `<option value="${i}">${escapeHtml(s.name)} — ${STAGE_TYPE[s.modType] || s.modType}</option>`).join("");
+        `<option value="${i}">${escapeHtml(s.name)} - ${STAGE_TYPE[s.modType] || s.modType}</option>`).join("");
     document.getElementById("engStageEditor").hidden = true;
   }
 
@@ -3585,7 +3850,7 @@
     return `<tr>
       <td><input type="number" step="any" class="eng-rpm" value="${rpm}"></td>
       <td><input type="number" step="any" class="eng-val" value="${val}"></td>
-      <td><button class="eng-row-del" title="удалить">✕</button></td>
+      <td><button class="eng-row-del" title="удалить"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></td>
     </tr>`;
   }
   function bindStageRows() {
@@ -3709,7 +3974,7 @@
   // живой пересчёт графика при изменении любого параметра (файлы не трогаем)
   document.getElementById("engParams").addEventListener("input", recomputeEngine);
 
-  // пит-стоп из вкладки «Двигатель» — по текущей кривой/параметрам
+  // пит-стоп из вкладки «Двигатель» - по текущей кривой/параметрам
   document.getElementById("engPitBtn").addEventListener("click", () => {
     const curve = getEngineCurveFromTable();
     const params = {};
@@ -3802,18 +4067,18 @@
   function conCurveRow(rpm, t) {
     return `<tr><td><input type="number" step="any" class="c-rpm" value="${rpm}"></td>
       <td><input type="number" step="any" class="c-val" value="${t}"></td>
-      <td><button class="eng-row-del" data-rm>✕</button></td></tr>`;
+      <td><button class="eng-row-del" data-rm><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></td></tr>`;
   }
   function conSlotRow(a, b, c) {
     return `<tr><td><input class="c-s0" value="${escapeHtml(a)}"></td>
       <td><input class="c-s1" value="${escapeHtml(b)}"></td>
       <td><input class="c-s2" value="${escapeHtml(c)}"></td>
-      <td><button class="eng-row-del" data-rm>✕</button></td></tr>`;
+      <td><button class="eng-row-del" data-rm><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></td></tr>`;
   }
   function conFlexRow(m, g) {
     return `<tr><td><input class="c-f0" value="${escapeHtml(m)}"></td>
       <td><input class="c-f1" value="${escapeHtml(g)}"></td>
-      <td><button class="eng-row-del" data-rm>✕</button></td></tr>`;
+      <td><button class="eng-row-del" data-rm><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></td></tr>`;
   }
   function conNodeRow(name, x, y, z, wt) {
     return `<tr><td><input class="c-nn" value="${name}" readonly style="opacity:.65"></td>
@@ -3869,13 +4134,13 @@
   async function saveConstructorDraft() {
     if (!conInited) return;
     const snap = JSON.stringify(collectConfig());
-    if (snap === lastDraft) return;          // не менялось — не пишем
+    if (snap === lastDraft) return;          // не менялось - не пишем
     try {
       await fetch("/api/constructor/draft", {
         method: "POST", headers: { "Content-Type": "application/json" }, body: snap
       });
       lastDraft = snap;
-    } catch (e) { /* нет связи — игнор */ }
+    } catch (e) { /* нет связи - игнор */ }
   }
 
   async function loadConstructorDraft() {
@@ -3886,7 +4151,7 @@
         applyConfigToForm(cfg);
         lastDraft = JSON.stringify(collectConfig());
       }
-    } catch (e) { /* нет черновика — игнор */ }
+    } catch (e) { /* нет черновика - игнор */ }
     updateConPreview();
   }
 
@@ -3965,7 +4230,9 @@
 
   function setConValid(valid) {
     const v = document.getElementById("c_valid");
-    v.textContent = valid ? "✓ валидный мотор" : "⚠ не распознан как мотор";
+    const okIco = `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+    const warnIco = `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`;
+    v.innerHTML = valid ? okIco + "валидный мотор" : warnIco + "не распознан как мотор";
     v.style.color = valid ? "var(--green)" : "var(--red)";
   }
 
@@ -4011,7 +4278,7 @@
       const d = await r.json();
       setConValid(d.valid);
       if (d.valid && d.config) applyConfigToForm(d.config);
-    } catch (e) { /* нет связи — игнор */ }
+    } catch (e) { /* нет связи - игнор */ }
   }
 
   function applyConfigToForm(c) {  // код → форма (программно, без срабатывания input)
@@ -4083,7 +4350,7 @@
       });
       const d = await r.json();
       if (d.ok) {
-        conMsg("Готово — создан " + d.file, "var(--green)");
+        conMsg("Готово - создан " + d.file, "var(--green)");
         renderBackups(d.backups || []);
         loadFiles();
       } else conMsg("Ошибка: " + d.error, "var(--red)");
@@ -4166,7 +4433,7 @@
       const accel = net / Math.max(cf.inertia, 0.001);   // рад/с²
       let newRpm = (av + accel * h) * AV_TO_RPM;
       if (newRpm < cf.idle) newRpm = cf.idle;             // холостые держатся
-      const ceil = cf.hasRev ? cf.rev * 1.06 : cf.maxPhysical; // без отсечки — крутит до физ. потолка
+      const ceil = cf.hasRev ? cf.rev * 1.06 : cf.maxPhysical; // без отсечки - крутит до физ. потолка
       if (newRpm > ceil) newRpm = ceil;
       pit.rpm = newRpm;
     }
@@ -4213,7 +4480,7 @@
     const ctx = cv.getContext("2d"); const W = cv.width, H = cv.height;
     ctx.clearRect(0, 0, W, H);
     const curve = cf.curve, pad = 28 * dpr;
-    // ось подстраивается под параметры: с отсечкой — до неё (+отскок), без отсечки — до физ. потолка
+    // ось подстраивается под параметры: с отсечкой - до неё (+отскок), без отсечки - до физ. потолка
     const axisEnd = cf.hasRev ? Math.max(cf.maxRpm, cf.rev * 1.06) : cf.maxPhysical;
     const rpmMax = Math.max(axisEnd, ...curve.map(p => p[0])) || 1;
     const tqMax = Math.max(...curve.map(p => p[1]), 1);
@@ -4312,7 +4579,7 @@
         };
         window.require(["vs/editor/editor.main"], () => {
           monaco = window.monaco;
-          // jbeam/pc/json часто с комментариями — отключаем валидацию json
+          // jbeam/pc/json часто с комментариями - отключаем валидацию json
           monaco.languages.json.jsonDefaults.setDiagnosticsOptions({ validate: false, allowComments: true });
           editor = monaco.editor.create(document.getElementById("ceMonaco"), {
             theme: "vs-dark", automaticLayout: true, fontSize: fontSize,
@@ -4471,12 +4738,12 @@
     }
     function fileIcon(name) {
       const e = extOf(name);
-      if (e === "lua") return "🌙";
-      if (e === "jbeam" || e === "pc") return "🔧";
-      if (e === "json" || e === "materials") return "{}";
-      if (["png", "jpg", "jpeg", "dds", "gif", "bmp", "webp", "ico"].includes(e)) return "🖼";
-      if (e === "dae" || e === "cdae") return "🧊";
-      return "📄";
+      if (e === "lua") return `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9l-3 3 3 3M16 9l3 3-3 3"/></svg>`;
+      if (e === "jbeam" || e === "pc") return `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/><circle cx="9" cy="8" r="2"/><circle cx="15" cy="16" r="2"/></svg>`;
+      if (e === "json" || e === "materials") return `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2 2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h1M16 3h1a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2 2 2 0 0 0-2 2v4a2 2 0 0 1-2 2h-1"/></svg>`;
+      if (["png", "jpg", "jpeg", "dds", "gif", "bmp", "webp", "ico"].includes(e)) return `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.8"/><path d="M21 15l-5-5L5 21"/></svg>`;
+      if (e === "dae" || e === "cdae") return `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>`;
+      return `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v5h5"/><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>`;
     }
     function renderEntries(container, entries, depth) {
       const pad = 8 + depth * 14;
@@ -4485,7 +4752,7 @@
         row.className = "ce-row";
         row.style.paddingLeft = pad + "px";
         row.innerHTML = e.dir
-          ? `<span class="ce-arrow">▶</span><span class="ce-ico">📁</span><span class="ce-label">${escapeHtml(e.name)}</span>`
+          ? `<span class="ce-arrow">▶</span><span class="ce-ico"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2z"/></svg></span><span class="ce-label">${escapeHtml(e.name)}</span>`
           : `<span class="ce-arrow" style="visibility:hidden">▶</span><span class="ce-ico">${fileIcon(e.name)}</span><span class="ce-label">${escapeHtml(e.name)}</span>`;
         container.appendChild(row);
         if (e.dir) {
@@ -4517,10 +4784,11 @@
     // ---- табы ----
     function renderTabs() {
       const tabs = document.getElementById("ceTabs");
+      const xIco = "<svg class='ico' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round'><path d='M6 6l12 12M18 6L6 18'/></svg>";
       tabs.innerHTML = openTabs.map(t => `
         <div class="ce-tab ${t.path === activePath ? "active" : ""}" data-path="${escapeHtml(t.path)}">
           <span class="ce-label">${escapeHtml(t.name)}</span>
-          <span class="ce-x ${t.dirty ? "ce-dirty" : ""}" data-close="${escapeHtml(t.path)}">${t.dirty ? "●" : "✕"}</span>
+          <span class="ce-x ${t.dirty ? "ce-dirty" : ""}" data-close="${escapeHtml(t.path)}">${t.dirty ? "●" : xIco}</span>
         </div>`).join("");
       tabs.querySelectorAll(".ce-tab").forEach(el => {
         el.addEventListener("click", (ev) => {
@@ -4542,7 +4810,7 @@
           `<img src="/api/code/raw?folderPath=${encodeURIComponent(ceFolder.path)}&path=${encodeURIComponent(path)}">`;
       } else {
         showPane("binary");
-        document.getElementById("ceBinary").textContent = `Бинарный файл — ${t.size} байт. Не редактируется в текстовом виде.`;
+        document.getElementById("ceBinary").textContent = `Бинарный файл - ${t.size} байт. Не редактируется в текстовом виде.`;
       }
     }
     function closeTab(path) {
@@ -4599,6 +4867,114 @@
 
   restoreSession();
   loadBackups();
+</script>
+
+<!-- Документация: встроенная страница (тот же header приложения) -->
+<script>
+  // кнопка «Документация» в шапке -> обычная страница приложения
+  document.getElementById("openDocs").addEventListener("click", function () { showView("docs"); });
+
+  // ленивая подгрузка контента доки (фрагмент из /docs/<lang>/) в страницу
+  var docsLoadedLang = null;
+  function loadDocs() {
+    var lang = document.documentElement.getAttribute("data-lang") === "ru" ? "ru" : "en";
+    if (docsLoadedLang === lang) return;
+    var box = document.getElementById("docsContent");
+    box.innerHTML = '<div class="docs-loading">Загрузка…</div>';
+    fetch("/docs/" + lang + "/index.html")
+      .then(function (r) { return r.text(); })
+      .then(function (html) { box.innerHTML = html; docsLoadedLang = lang; })
+      .catch(function () { box.innerHTML = '<div class="docs-loading">Ошибка загрузки документации.</div>'; });
+  }
+
+</script>
+
+<!-- Создание шаблона мода (модалка) -->
+<script>
+  (function () {
+    var modal = document.getElementById("templateModal");
+    if (!modal) return;
+    var pickBtn = document.getElementById("tplPick");
+    var createBtn = document.getElementById("tplCreate");
+    var statusEl = document.getElementById("tplFolderStatus");
+    var msgEl = document.getElementById("tplMsg");
+    var langBox = document.getElementById("tplLang");
+    var chosenFolder = null, folderEmpty = false;
+
+    function modLang() {
+      var a = langBox.querySelector("button.active");
+      return a && a.getAttribute("data-lang") === "ru" ? "ru" : "en";
+    }
+    function setLangBtn(l) {
+      langBox.querySelectorAll("button").forEach(function (b) {
+        b.classList.toggle("active", b.getAttribute("data-lang") === l);
+      });
+    }
+    function openModal() {
+      setLangBtn(document.documentElement.getAttribute("data-lang") === "ru" ? "ru" : "en");
+      chosenFolder = null; folderEmpty = false;
+      statusEl.textContent = "Папка не выбрана"; statusEl.className = "tpl-folder-status";
+      msgEl.textContent = ""; msgEl.className = "eng-msg";
+      createBtn.disabled = true;
+      modal.hidden = false;
+    }
+    function closeModal() { modal.hidden = true; }
+
+    langBox.querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () { setLangBtn(b.getAttribute("data-lang")); });
+    });
+
+    pickBtn.addEventListener("click", function () {
+      fetch("/api/template/pick-folder", { method: "POST" })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d.ok) {
+            if (d.error && d.error !== "cancelled") { msgEl.textContent = d.error; msgEl.className = "eng-msg err"; }
+            return;
+          }
+          chosenFolder = d.path; folderEmpty = !!d.empty;
+          statusEl.className = "tpl-folder-status " + (d.empty ? "ok" : "warn");
+          statusEl.innerHTML = '<span class="tpl-path"></span> <span class="tpl-badge"></span>';
+          statusEl.querySelector(".tpl-path").textContent = d.path;
+          statusEl.querySelector(".tpl-badge").textContent = d.empty ? "Пусто" : ("Не пусто: " + d.count);
+          createBtn.disabled = !folderEmpty;
+          msgEl.textContent = ""; msgEl.className = "eng-msg";
+        })
+        .catch(function () { msgEl.textContent = "Нет связи с сервером."; msgEl.className = "eng-msg err"; });
+    });
+
+    createBtn.addEventListener("click", function () {
+      if (!chosenFolder || !folderEmpty) return;
+      createBtn.disabled = true;
+      msgEl.textContent = "Создаю…"; msgEl.className = "eng-msg";
+      fetch("/api/template/create", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          folderPath: chosenFolder, lang: modLang(),
+          modId: document.getElementById("tplModId").value,
+          name: document.getElementById("tplName").value,
+          author: document.getElementById("tplAuthor").value
+        })
+      }).then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d.ok) { msgEl.textContent = d.error; msgEl.className = "eng-msg err"; createBtn.disabled = false; return; }
+          msgEl.textContent = "Готово - файлов: " + d.files.length; msgEl.className = "eng-msg ok";
+          folderEmpty = false; // папка больше не пустая - повторное создание запрещаем
+          statusEl.className = "tpl-folder-status warn";
+        })
+        .catch(function () { msgEl.textContent = "Нет связи с сервером."; msgEl.className = "eng-msg err"; createBtn.disabled = false; });
+    });
+
+    document.getElementById("tplClose").addEventListener("click", closeModal);
+    document.getElementById("tplCancel").addEventListener("click", closeModal);
+    modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+    document.addEventListener("keydown", function (e) { if (!modal.hidden && e.key === "Escape") closeModal(); });
+
+    // кнопка «Создать шаблон» в документации открывает модалку (делегированно)
+    document.getElementById("viewDocs").addEventListener("click", function (e) {
+      if (e.target.closest("#createTemplate")) openModal();
+    });
+  })();
 </script>
 
 <!-- Three.js встроена локально (офлайн) -->

@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// GET/POST /api/constructor/draft — авто-черновик конструктора (configs/constructor_draft.json)
+// GET/POST /api/constructor/draft - авто-черновик конструктора (configs/constructor_draft.json)
 func (s *server) handleConstructorDraft(w http.ResponseWriter, r *http.Request) {
 	path := filepath.Join(s.configsDir, "constructor_draft.json")
 	if r.Method == http.MethodPost {
@@ -26,7 +26,7 @@ func (s *server) handleConstructorDraft(w http.ResponseWriter, r *http.Request) 
 		writeJSON(w, map[string]any{"ok": true})
 		return
 	}
-	// GET — отдаём сохранённый конфиг как есть, или null
+	// GET - отдаём сохранённый конфиг как есть, или null
 	data, err := os.ReadFile(path)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	if err != nil {
@@ -108,7 +108,7 @@ func def(s, fallback string) string {
 	return s
 }
 
-// генерирует ПОЛНЫЙ jbeam движка (структура нод/балок — проверенный шаблон)
+// генерирует ПОЛНЫЙ jbeam движка (структура нод/балок - проверенный шаблон)
 func genEngineJbeam(c EngineConfig) string {
 	if c.NodeGroup == "" {
 		c.NodeGroup = "2107nsd_engine"
@@ -238,7 +238,7 @@ func genEngineJbeam(c EngineConfig) string {
 	}
 	w("    ],\n")
 
-	// beams + triangles — проверенный шаблон (структура движка)
+	// beams + triangles - проверенный шаблон (структура движка)
 	w(engineBeamsTemplate)
 
 	w("},\n\n}\n")
@@ -329,7 +329,7 @@ const engineBeamsTemplate = `    "beams": [
 
 // ---------- HTTP ----------
 
-// POST /api/engine/preview — body: EngineConfig → текст jbeam (без сохранения)
+// POST /api/engine/preview - body: EngineConfig → текст jbeam (без сохранения)
 func (s *server) handleEnginePreview(w http.ResponseWriter, r *http.Request) {
 	var cfg EngineConfig
 	if err := json.NewDecoder(r.Body).Decode(&cfg); err != nil {
@@ -540,7 +540,7 @@ func parseEngineConfig(text string) (*EngineConfig, bool) {
 	return nil, false
 }
 
-// POST /api/engine/parse — body {text} → конфиг (код редактора → форма)
+// POST /api/engine/parse - body {text} → конфиг (код редактора → форма)
 func (s *server) handleEngineParse(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Text string `json:"text"`
@@ -553,7 +553,7 @@ func (s *server) handleEngineParse(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]any{"ok": true, "valid": valid, "config": cfg})
 }
 
-// POST /api/engine/create — body: {folderPath, fileName, config}
+// POST /api/engine/create - body: {folderPath, fileName, config}
 func (s *server) handleEngineCreate(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		FolderPath string       `json:"folderPath"`
@@ -582,13 +582,13 @@ func (s *server) handleEngineCreate(w http.ResponseWriter, r *http.Request) {
 	text := genEngineJbeam(body.Config)
 	// предохранитель: сгенерированное должно распознаваться как мотор
 	if len(detectEngines(text)) == 0 {
-		writeJSON(w, map[string]any{"ok": false, "error": "сгенерированный файл не распознаётся как мотор — проверьте кривую момента и параметры"})
+		writeJSON(w, map[string]any{"ok": false, "error": "сгенерированный файл не распознаётся как мотор - проверьте кривую момента и параметры"})
 		return
 	}
 
 	dest := filepath.Join(filepath.Clean(body.FolderPath), name)
 	if _, err := os.Stat(dest); err == nil {
-		// файл уже есть — бекапим папку перед перезаписью
+		// файл уже есть - бекапим папку перед перезаписью
 		if _, err := s.createBackup(body.FolderPath); err != nil {
 			writeJSON(w, map[string]any{"ok": false, "error": "бекап перед перезаписью не удался: " + err.Error()})
 			return

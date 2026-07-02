@@ -1,6 +1,6 @@
 <div align="center">
 
-### [🇬🇧 English](#-english) · [🇷🇺 Русский](#-русский)
+### [English](#-english) · [Русский](#-русский)
 
 </div>
 
@@ -16,7 +16,7 @@ settings in the `configs/` folder next to the executable.
   so the output is **a single file** `.exe` - nothing extra to carry around.
 - On the first save, a `configs/` folder is created next to the `.exe`.
 - For each working folder, its own file `configs/<name>_<hash>.json` is created.
-- `configs/last.json` remembers the last selected folder — on startup the session
+- `configs/last.json` remembers the last selected folder - on startup the session
   is restored automatically.
 - The folder is selected via the **native OS dialog**, so the real path is preserved.
 ## Requirements
@@ -60,7 +60,7 @@ Go-бэкенд поднимает локальный сервер, отдаёт
   поэтому на выходе **один файл** `.exe` - ничего рядом таскать не нужно.
 - При первом сохранении рядом с `.exe` создаётся папка `configs/`.
 - Для каждой рабочей папки создаётся свой файл `configs/<имя>_<хэш>.json`.
-- `configs/last.json` помнит последнюю выбранную папку — при запуске сессия
+- `configs/last.json` помнит последнюю выбранную папку - при запуске сессия
   восстанавливается автоматически.
 - Папка выбирается **нативным диалогом ОС**, поэтому сохраняется реальный путь.
 

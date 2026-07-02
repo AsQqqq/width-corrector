@@ -40,10 +40,15 @@ var faviconICO []byte
 //go:embed assets/three.module.min.js.gz
 var threeJsGz []byte
 
-// Monaco editor (движок VS Code) — встроен целиком, отдаётся офлайн на /vs/
+// Monaco editor (движок VS Code) - встроен целиком, отдаётся офлайн на /vs/
 //
 //go:embed all:assets/vs
 var monacoFS embed.FS
+
+// Документация (как создать мод машины) - встроена, отдаётся на /docs/
+//
+//go:embed all:assets/docs
+var docsFS embed.FS
 
 // распакованный HTML (заполняется в init)
 var indexHTML []byte
@@ -60,7 +65,7 @@ func init() {
 	}
 }
 
-// Config — то, что хранится в configs/<hash>.json
+// Config - то, что хранится в configs/<hash>.json
 type Config struct {
 	FolderPath string             `json:"folderPath"`
 	FolderName string             `json:"folderName"`
@@ -68,12 +73,12 @@ type Config struct {
 	SavedAt    string             `json:"savedAt"`
 }
 
-// last.json — указатель на последнюю выбранную папку
+// last.json - указатель на последнюю выбранную папку
 type Last struct {
 	FolderPath string `json:"folderPath"`
 }
 
-// AppConfig — глобальные настройки приложения (configs/app.json).
+// AppConfig - глобальные настройки приложения (configs/app.json).
 // Язык интерфейса: "en" (по умолчанию) или "ru".
 type AppConfig struct {
 	Lang string `json:"lang"`
@@ -98,9 +103,13 @@ func main() {
 	mux.HandleFunc("/", srv.handleIndex)
 	mux.HandleFunc("/favicon.ico", srv.handleFavicon)
 	mux.HandleFunc("/three.module.js", srv.handleThree)
-	// Monaco editor (VS Code) — статика из встроенной FS на /vs/
+	// Monaco editor (VS Code) - статика из встроенной FS на /vs/
 	if monacoSub, err := fs.Sub(monacoFS, "assets/vs"); err == nil {
 		mux.Handle("/vs/", monacoContentType(http.StripPrefix("/vs/", http.FileServer(http.FS(monacoSub)))))
+	}
+	// Документация - статика из встроенной FS на /docs/
+	if docsSub, err := fs.Sub(docsFS, "assets/docs"); err == nil {
+		mux.Handle("/docs/", http.StripPrefix("/docs/", http.FileServer(http.FS(docsSub))))
 	}
 	mux.HandleFunc("/api/pick-folder", srv.handlePickFolder)
 	mux.HandleFunc("/api/config", srv.handleConfig)
@@ -118,6 +127,8 @@ func main() {
 	mux.HandleFunc("/api/engine/create", srv.handleEngineCreate)
 	mux.HandleFunc("/api/engine/parse", srv.handleEngineParse)
 	mux.HandleFunc("/api/constructor/draft", srv.handleConstructorDraft)
+	mux.HandleFunc("/api/template/pick-folder", srv.handleTemplatePickFolder)
+	mux.HandleFunc("/api/template/create", srv.handleTemplateCreate)
 	mux.HandleFunc("/api/code/pick-folder", srv.handleCodePickFolder)
 	mux.HandleFunc("/api/code/tree", srv.handleCodeTree)
 	mux.HandleFunc("/api/code/file", srv.handleCodeFile)
@@ -128,7 +139,7 @@ func main() {
 
 	addr := strings.TrimPrefix(appURL, "http://")
 
-	// занимаем порт сразу — если занят, показываем диалог вместо тихого падения
+	// занимаем порт сразу - если занят, показываем диалог вместо тихого падения
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
 		zenity.Error(srv.tr(
@@ -233,7 +244,7 @@ func (s *server) handleThree(w http.ResponseWriter, r *http.Request) {
 	w.Write(threeJsGz)
 }
 
-// POST /api/pick-folder — нативный диалог выбора папки
+// POST /api/pick-folder - нативный диалог выбора папки
 func (s *server) handlePickFolder(w http.ResponseWriter, r *http.Request) {
 	path, err := zenity.SelectFile(
 		zenity.Directory(),
@@ -269,8 +280,8 @@ func (s *server) handlePickFolder(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GET  /api/config  — восстановить последнюю сессию
-// POST /api/config  — сохранить настройки текущей папки
+// GET  /api/config  - восстановить последнюю сессию
+// POST /api/config  - сохранить настройки текущей папки
 func (s *server) handleConfig(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -360,8 +371,8 @@ func (s *server) tr(en, ru string) string {
 	return en
 }
 
-// GET  /api/app-config — текущий язык интерфейса
-// POST /api/app-config — сохранить выбранный язык (body: {lang})
+// GET  /api/app-config - текущий язык интерфейса
+// POST /api/app-config - сохранить выбранный язык (body: {lang})
 func (s *server) handleAppConfig(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -409,8 +420,8 @@ func (s *server) backupsDir() string {
 	return filepath.Join(s.configsDir, "backups")
 }
 
-// GET  /api/backups — список бекапов
-// POST /api/backups — создать бекап (body: {folderPath})
+// GET  /api/backups - список бекапов
+// POST /api/backups - создать бекап (body: {folderPath})
 func (s *server) handleBackups(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -441,7 +452,7 @@ func (s *server) handleBackups(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// POST /api/backups/open — открыть папку бекапа (body: {id}) или корень бекапов
+// POST /api/backups/open - открыть папку бекапа (body: {id}) или корень бекапов
 func (s *server) handleOpenBackup(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		ID string `json:"id"`

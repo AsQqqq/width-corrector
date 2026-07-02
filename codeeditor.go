@@ -19,7 +19,7 @@ var codeImageExts = map[string]bool{
 	".bmp": true, ".webp": true, ".ico": true,
 }
 
-const codeMaxTextSize = 6 << 20 // 6 МБ — выше считаем «слишком большой для редактора»
+const codeMaxTextSize = 6 << 20 // 6 МБ - выше считаем «слишком большой для редактора»
 
 // safeReal = safeJoin + разрешение симлинков и повторное удержание внутри папки.
 // Для ещё не существующего файла (новое сохранение) проверяет родительскую папку.
@@ -59,7 +59,7 @@ func hasNullByte(data []byte) bool {
 	return false
 }
 
-// POST /api/code/pick-folder — нативный диалог выбора папки мода (независимо от рабочей папки)
+// POST /api/code/pick-folder - нативный диалог выбора папки мода (независимо от рабочей папки)
 func (s *server) handleCodePickFolder(w http.ResponseWriter, r *http.Request) {
 	path, err := zenity.SelectFile(
 		zenity.Directory(),
@@ -83,7 +83,7 @@ type codeEntry struct {
 	Size int64  `json:"size"`
 }
 
-// GET /api/code/tree?folderPath=...&sub=...  — ленивый список содержимого подпапки
+// GET /api/code/tree?folderPath=...&sub=...  - ленивый список содержимого подпапки
 func (s *server) handleCodeTree(w http.ResponseWriter, r *http.Request) {
 	folder := r.URL.Query().Get("folderPath")
 	sub := r.URL.Query().Get("sub")
@@ -116,7 +116,7 @@ func (s *server) handleCodeTree(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]any{"ok": true, "entries": entries})
 }
 
-// GET /api/code/file?folderPath=...&path=...  — содержимое (text) / тип (image/binary)
+// GET /api/code/file?folderPath=...&path=...  - содержимое (text) / тип (image/binary)
 func (s *server) handleCodeFile(w http.ResponseWriter, r *http.Request) {
 	clean, ok := s.safeReal(r.URL.Query().Get("folderPath"), r.URL.Query().Get("path"))
 	if !ok {
@@ -149,7 +149,7 @@ func (s *server) handleCodeFile(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]any{"ok": true, "kind": "text", "text": string(data), "size": fi.Size()})
 }
 
-// GET /api/code/raw?folderPath=...&path=...  — сырые байты (для <img>)
+// GET /api/code/raw?folderPath=...&path=...  - сырые байты (для <img>)
 func (s *server) handleCodeRaw(w http.ResponseWriter, r *http.Request) {
 	clean, ok := s.safeReal(r.URL.Query().Get("folderPath"), r.URL.Query().Get("path"))
 	if !ok {
@@ -163,7 +163,7 @@ func (s *server) handleCodeRaw(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, clean) // content-type по расширению, поддержка range
 }
 
-// GET/POST /api/code/config — настройки редактора (папка + автосохранение), configs/editor.json
+// GET/POST /api/code/config - настройки редактора (папка + автосохранение), configs/editor.json
 func (s *server) handleCodeConfig(w http.ResponseWriter, r *http.Request) {
 	path := filepath.Join(s.configsDir, "editor.json")
 	if r.Method == http.MethodPost {
@@ -185,11 +185,11 @@ func (s *server) handleCodeConfig(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-// расширения, которые точно бинарные — пропускаем при поиске
+// расширения, которые точно бинарные - пропускаем при поиске
 var codeBinaryExts = map[string]bool{
 	".dds": true, ".cdae": true, ".png": true, ".jpg": true, ".jpeg": true,
 	".gif": true, ".bmp": true, ".webp": true, ".ico": true, ".ogg": true,
-	".wav": true, ".mp3": true, ".zip": true, ".dae": false, // dae — текст (xml)
+	".wav": true, ".mp3": true, ".zip": true, ".dae": false, // dae - текст (xml)
 }
 
 type searchHit struct {
@@ -198,7 +198,7 @@ type searchHit struct {
 	Text string `json:"text"`
 }
 
-// GET /api/code/search?folderPath=...&q=...  — глобальный поиск по тексту файлов
+// GET /api/code/search?folderPath=...&q=...  - глобальный поиск по тексту файлов
 func (s *server) handleCodeSearch(w http.ResponseWriter, r *http.Request) {
 	folder := r.URL.Query().Get("folderPath")
 	q := r.URL.Query().Get("q")
@@ -252,7 +252,7 @@ func (s *server) handleCodeSearch(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]any{"ok": true, "results": hits, "capped": capped})
 }
 
-// POST /api/code/save  — body {folderPath, path, text}
+// POST /api/code/save  - body {folderPath, path, text}
 func (s *server) handleCodeSave(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		FolderPath string `json:"folderPath"`

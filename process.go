@@ -20,7 +20,7 @@ var paramKeys = []string{"nodeWeight", "beamDeform", "beamSpring", "beamDamp", "
 
 // "<param>": <число>
 // Группы: 1 = префикс ("key": с пробелами), 2 = имя параметра, 3 = число.
-// Значения в кавычках (FLT_MAX, $spring_F, "2000") НЕ совпадают — они пропускаются.
+// Значения в кавычках (FLT_MAX, $spring_F, "2000") НЕ совпадают - они пропускаются.
 var paramRe = regexp.MustCompile(
 	`("(nodeWeight|beamDeform|beamSpring|beamDamp|beamStrength)"\s*:\s*)(-?\d+(?:\.\d+)?)`)
 
@@ -74,7 +74,7 @@ func processLine(line string, factors map[string]float64) (string, map[string]in
 		key := sub[2]
 		f, ok := factors[key]
 		if !ok || f == 1.0 {
-			return m // нет множителя или 100% — не трогаем
+			return m // нет множителя или 100% - не трогаем
 		}
 		val, err := strconv.ParseFloat(sub[3], 64)
 		if err != nil {
@@ -213,8 +213,8 @@ func scanParam(folder, param string) (files []FileWeights, totalPoints int) {
 
 // ---------- HTTP-обработчики ----------
 
-// POST /api/apply  — body {folderPath, settings:{param:pct}, excluded:[relpaths]}
-// Ответ — поток NDJSON (по одному JSON-событию в строке): phase/backup/progress/done/error
+// POST /api/apply  - body {folderPath, settings:{param:pct}, excluded:[relpaths]}
+// Ответ - поток NDJSON (по одному JSON-событию в строке): phase/backup/progress/done/error
 func (s *server) handleApply(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		FolderPath string             `json:"folderPath"`
@@ -297,7 +297,7 @@ func (s *server) handleApply(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GET /api/files?folderPath=...  — список .jbeam с размерами (для панели выбора)
+// GET /api/files?folderPath=...  - список .jbeam с размерами (для панели выбора)
 type FileEntry struct {
 	File string `json:"file"`
 	Size int64  `json:"size"`
@@ -320,7 +320,7 @@ func (s *server) handleFiles(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]any{"ok": true, "files": files, "total": len(files)})
 }
 
-// GET /api/scan?folderPath=...&param=beamSpring  — текущие значения параметра
+// GET /api/scan?folderPath=...&param=beamSpring  - текущие значения параметра
 func (s *server) handleScan(w http.ResponseWriter, r *http.Request) {
 	folder := r.URL.Query().Get("folderPath")
 	param := r.URL.Query().Get("param")
