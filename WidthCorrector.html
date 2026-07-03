@@ -1627,6 +1627,78 @@
   .drawer-toggle.open { right: 380px; }
   .drawer-toggle .arr { transition: transform .28s ease; display: block; }
   .drawer-toggle.open .arr { transform: rotate(180deg); }
+  /* ====================== Тутор первого запуска ====================== */
+  #tutOverlay {
+    position: fixed; inset: 0;
+    z-index: 100000;          /* поверх ВСЕГО (редактор кода/доки = 500) */
+    pointer-events: none;      /* сам оверлей клики не ловит - блокировка точечная */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  #tutOverlay[hidden] { display: none; }
+  #tutMask, #tutArrows {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  /* прозрачные заглушки поверх подсвеченных кнопок - гасят клики (кнопки некликабельны) */
+  .tut-block { position: absolute; pointer-events: auto; background: transparent; cursor: default; }
+  /* светящаяся рамка вокруг выделенной кнопки */
+  .tut-ring {
+    position: absolute; pointer-events: none; border-radius: 10px;
+    box-shadow: 0 0 0 2px rgba(255,160,60,.9), 0 0 18px 4px rgba(255,150,40,.45);
+  }
+  .tut-ring.lang {
+    box-shadow: 0 0 0 2px rgba(90,180,255,.95), 0 0 22px 6px rgba(80,170,255,.6);
+    animation: tutPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes tutPulse {
+    0%,100% { box-shadow: 0 0 0 2px rgba(90,180,255,.95), 0 0 16px 4px rgba(80,170,255,.45); }
+    50%     { box-shadow: 0 0 0 2px rgba(120,200,255,1),  0 0 28px 9px rgba(90,180,255,.75); }
+  }
+  .tut-card {
+    position: absolute; pointer-events: none;
+    width: 210px; max-width: 46vw;
+    background: linear-gradient(180deg, #1c2430, #141a24);
+    border: 1px solid #33404f; border-radius: 12px;
+    padding: 11px 13px; box-shadow: 0 10px 30px rgba(0,0,0,.55);
+    animation: tutIn .35s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes tutIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .tut-card .tut-t {
+    font-size: 13.5px; font-weight: 700; color: #ffb057;
+    margin: 0 0 4px; letter-spacing: .2px;
+  }
+  .tut-card .tut-d { font-size: 12px; line-height: 1.45; color: #c4cdd8; margin: 0; }
+  .tut-intro {
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    pointer-events: none;
+    background: rgba(20,26,36,.92); border: 1px solid #33404f; border-radius: 999px;
+    padding: 7px 16px; font-size: 12.5px; font-weight: 600; color: #e6ecf3;
+    box-shadow: 0 6px 20px rgba(0,0,0,.5);
+  }
+  #tutFinishWrap {
+    position: absolute; right: 20px; bottom: 20px;
+    pointer-events: auto;
+  }
+  #tutFinish {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 20px; border-radius: 12px;
+    border: 1px solid #3a4454; background: #232c38; color: #8a95a3;
+    font-size: 13.5px; font-weight: 700; cursor: not-allowed;
+    box-shadow: 0 8px 26px rgba(0,0,0,.5); transition: all .2s ease;
+  }
+  #tutFinish .tut-count {
+    min-width: 22px; text-align: center;
+    background: #141a24; border-radius: 7px; padding: 2px 6px;
+    font-variant-numeric: tabular-nums; color: #ffb057;
+  }
+  #tutFinish:not(:disabled) {
+    cursor: pointer; color: #1a1205;
+    background: linear-gradient(180deg, #ffb457, #ff9422);
+    border-color: #ff9422;
+  }
+  #tutFinish:not(:disabled):hover { filter: brightness(1.06); }
+  #tutFinish:not(:disabled):active { transform: scale(.97); }
+
   /* ====================== Редактор кода (Monaco) ====================== */
 
   #codeEditor {
@@ -2308,7 +2380,7 @@
 
 <!-- нижний центр: версия проекта + ссылка на GitHub -->
 <div class="footer-center">
-  <span class="app-version" id="appVersion">v1.0.2</span>
+  <span class="app-version" id="appVersion">v1.0.3</span>
   <a class="gh-btn" href="https://github.com/AsQqqq/width-corrector" target="_blank" rel="noopener" title="GitHub - width-corrector">
     <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.02-1.49-2.01.44-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 012-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
     <span>GitHub</span>
@@ -2660,7 +2732,7 @@
     ];
 
     // Зоны, где переводить нельзя: код-редакторы, textarea, пользовательский контент.
-    var SKIP_SEL = "script,style,textarea,pre,code,noscript,.monaco-editor,#ceMonaco,.code-editor,#viewDocs";
+    var SKIP_SEL = "script,style,textarea,pre,code,noscript,.monaco-editor,#ceMonaco,.code-editor,#viewDocs,#tutOverlay";
     function inSkip(el) { return !el || (el.closest && el.closest(SKIP_SEL)); }
 
     function trStr(raw) {
@@ -2818,7 +2890,11 @@
     // Первый визит в браузере (нет локального выбора) - принимаем язык из файла.
     // Есть локальный выбор - он приоритетен, синхронизируем файл под него (без отката).
     fetch("/api/app-config").then(function (r) { return r.json(); }).then(function (d) {
-      if (!d || !d.ok) return;
+      if (!d || !d.ok) { try { window.__wcFirstRun = false; } catch (e) {} return; }
+      // Захватываем firstRun из ЭТОГО (самого раннего) GET - ДО того, как реконсиляция
+      // языка ниже сделает POST и создаст конфиг. Тутор читает этот флаг (без своего GET),
+      // иначе он бы получил уже созданный конфиг и не показался.
+      try { window.__wcFirstRun = !!d.firstRun; } catch (e) {}
       var srv = (d.lang === "ru" || d.lang === "en") ? d.lang : "en";
       if (!hadLS) {
         if (srv !== LANG) {
@@ -2832,7 +2908,7 @@
           body: JSON.stringify({ lang: LANG })
         }).catch(function () {});
       }
-    }).catch(function () {});
+    }).catch(function () { try { window.__wcFirstRun = false; } catch (e) {} });
 
     // тело уже разобрано (скрипт в конце документа) - переводим сразу
     if (document.body) start();
@@ -5578,6 +5654,230 @@ function tick() {
   renderer.render(scene, camera);
 }
 tick();
+</script>
+
+<!-- ============================================================
+     Тутор первого запуска: краткие подсказки по кнопкам.
+     Показывается ТОЛЬКО когда конфига ещё нет рядом (firstRun);
+     при запуске конфиг создаётся (POST), поэтому больше не появится.
+     Оверлей поверх всего (z 100000): затемняет всё, кроме кнопок
+     со стрелками (они некликабельны) и переключателя языка (кликабелен,
+     подсвечен). Внизу справа кнопка «Завершить» с обратным отсчётом 10с.
+     ============================================================ -->
+<script>
+(function () {
+  var SECS = 10;
+  var NS = "http://www.w3.org/2000/svg";
+
+  function curLang() {
+    return document.documentElement.getAttribute("data-lang") === "ru" ? "ru" : "en";
+  }
+
+  // Шаги: селектор кнопки + краткое пояснение (ru/en).
+  var STEPS = [
+    { sel: '.tab[data-view="main"]',
+      ru: { t: "Переменные", d: "Пакетная правка параметров .jbeam (вес, упругость, демпфирование, прочность) сразу во всех файлах папки." },
+      en: { t: "Variables", d: "Batch-edit .jbeam parameters (weight, spring, damping, strength) across every file in the folder at once." } },
+    { sel: '.tab[data-view="engine"]',
+      ru: { t: "Двигатель", d: "Настройка мотора: кривая момента, обороты, мощность и стейджи тюнинга с живым графиком." },
+      en: { t: "Engine", d: "Tune the engine: torque curve, RPM, power and tuning stages with a live chart." } },
+    { sel: '.tab[data-view="constructor"]',
+      ru: { t: "Конструктор", d: "Генерация нового двигателя .jbeam с нуля по готовому шаблону." },
+      en: { t: "Constructor", d: "Generate a brand-new engine .jbeam from scratch using a ready template." } },
+    { sel: '#openCodeEditor',
+      ru: { t: "Редактор", d: "Полноценный редактор кода (в стиле VS Code) для всех файлов мода." },
+      en: { t: "Editor", d: "Full-featured code editor (VS Code style) for all mod files." } },
+    { sel: '#openDocs',
+      ru: { t: "Документация", d: "Полная офлайн-документация по созданию модов BeamNG и генератор шаблона мода." },
+      en: { t: "Documentation", d: "Full offline BeamNG modding docs and a mod template generator." } }
+  ];
+
+  var STR = {
+    intro: { ru: "Краткое руководство по программе", en: "Quick tour of the app" },
+    finish: { ru: "Завершить", en: "Finish" }
+  };
+
+  var overlay, mask, arrows, intro, finishBtn, finishLbl, finishCnt, cards = [], rings = [], blocks = [];
+  var timer = null, left = SECS, active = false;
+
+  function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
+  function rect(sel) {
+    var n = document.querySelector(sel);
+    if (!n) return null;
+    var r = n.getBoundingClientRect();
+    if (!r.width && !r.height) return null;
+    return r;
+  }
+
+  function build() {
+    overlay = el("div"); overlay.id = "tutOverlay";
+
+    mask = document.createElementNS(NS, "svg"); mask.id = "tutMask";
+    arrows = document.createElementNS(NS, "svg"); arrows.id = "tutArrows";
+    overlay.appendChild(mask); overlay.appendChild(arrows);
+
+    intro = el("div", "tut-intro"); overlay.appendChild(intro);
+
+    // рамка вокруг переключателя языка (кликабелен, поэтому только рамка, без заглушки)
+    var langRing = el("div", "tut-ring lang"); overlay.appendChild(langRing); rings.langSwitch = langRing;
+
+    STEPS.forEach(function (s) {
+      var ring = el("div", "tut-ring"); overlay.appendChild(ring); rings[s.sel] = ring;
+      var block = el("div", "tut-block"); overlay.appendChild(block); blocks[s.sel] = block;
+      var card = el("div", "tut-card");
+      var t = el("p", "tut-t"), d = el("p", "tut-d");
+      card.appendChild(t); card.appendChild(d);
+      overlay.appendChild(card);
+      cards.push({ node: card, t: t, d: d, sel: s.sel, step: s });
+    });
+
+    var wrap = el("div"); wrap.id = "tutFinishWrap";
+    finishBtn = el("button"); finishBtn.id = "tutFinish"; finishBtn.disabled = true;
+    finishLbl = el("span"); finishLbl.className = "tut-lbl";
+    finishCnt = el("span"); finishCnt.className = "tut-count";
+    finishBtn.appendChild(finishLbl); finishBtn.appendChild(finishCnt);
+    finishBtn.addEventListener("click", function () { if (!finishBtn.disabled) close(); });
+    wrap.appendChild(finishBtn); overlay.appendChild(wrap);
+
+    document.body.appendChild(overlay);
+  }
+
+  function updateText() {
+    var L = curLang();
+    intro.textContent = STR.intro[L];
+    finishLbl.textContent = STR.finish[L];
+    cards.forEach(function (c) {
+      c.t.textContent = c.step[L].t;
+      c.d.textContent = c.step[L].d;
+    });
+  }
+
+  function layout() {
+    if (!active) return;
+    var vw = window.innerWidth, vh = window.innerHeight, PAD = 6;
+
+    // цели: кнопки шагов + переключатель языка
+    var targets = STEPS.map(function (s) { return { sel: s.sel, r: rect(s.sel) }; });
+    var langR = rect("#langSwitch");
+
+    // --- затемняющая маска с «дырами» под кнопками ---
+    var holes = "";
+    targets.forEach(function (tg) {
+      if (!tg.r) return;
+      holes += '<rect x="' + (tg.r.left - PAD) + '" y="' + (tg.r.top - PAD) +
+        '" width="' + (tg.r.width + PAD * 2) + '" height="' + (tg.r.height + PAD * 2) + '" rx="9" fill="#000"/>';
+    });
+    if (langR) {
+      holes += '<rect x="' + (langR.left - PAD) + '" y="' + (langR.top - PAD) +
+        '" width="' + (langR.width + PAD * 2) + '" height="' + (langR.height + PAD * 2) + '" rx="9" fill="#000"/>';
+    }
+    mask.setAttribute("width", vw); mask.setAttribute("height", vh);
+    mask.innerHTML =
+      '<defs><mask id="tutHoleMask">' +
+      '<rect x="0" y="0" width="' + vw + '" height="' + vh + '" fill="#fff"/>' + holes +
+      '</mask></defs>' +
+      '<rect x="0" y="0" width="' + vw + '" height="' + vh + '" fill="rgba(6,10,16,.82)" mask="url(#tutHoleMask)"/>';
+
+    // --- рамки/заглушки ---
+    function place(node, r, pad) {
+      if (!r) { node.style.display = "none"; return; }
+      node.style.display = "";
+      node.style.left = (r.left - pad) + "px";
+      node.style.top = (r.top - pad) + "px";
+      node.style.width = (r.width + pad * 2) + "px";
+      node.style.height = (r.height + pad * 2) + "px";
+    }
+    if (langR) place(rings.langSwitch, langR, 4); else rings.langSwitch.style.display = "none";
+    targets.forEach(function (tg) {
+      place(rings[tg.sel], tg.r, 5);
+      place(blocks[tg.sel], tg.r, 2);
+    });
+
+    // --- карточки-подсказки: равномерно по низу шапки, стрелка вверх к кнопке ---
+    var maxBottom = 0;
+    targets.forEach(function (tg) { if (tg.r) maxBottom = Math.max(maxBottom, tg.r.bottom); });
+    var cardTop = maxBottom + 84;
+    var slotW = vw / cards.length;
+    var lines = "";
+    cards.forEach(function (c, i) {
+      var tg = targets[i];
+      var cw = c.node.offsetWidth || 210;
+      var centerX = (i + 0.5) * slotW;
+      var cardLeft = Math.max(8, Math.min(vw - cw - 8, centerX - cw / 2));
+      c.node.style.left = cardLeft + "px";
+      c.node.style.top = cardTop + "px";
+      if (tg && tg.r) {
+        var x1 = cardLeft + cw / 2, y1 = cardTop - 4;
+        var x2 = tg.r.left + tg.r.width / 2, y2 = tg.r.bottom + 4;
+        lines += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 +
+          '" stroke="#ffb057" stroke-width="2" marker-end="url(#tutAh)"/>';
+      }
+    });
+    arrows.setAttribute("width", vw); arrows.setAttribute("height", vh);
+    arrows.innerHTML =
+      '<defs><marker id="tutAh" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto">' +
+      '<path d="M0,0 L7,3 L0,6 Z" fill="#ffb057"/></marker></defs>' + lines;
+  }
+
+  function tickTimer() {
+    left--;
+    if (left <= 0) {
+      left = 0;
+      finishCnt.style.display = "none";
+      finishBtn.disabled = false;
+      clearInterval(timer); timer = null;
+    } else {
+      finishCnt.textContent = left;
+    }
+  }
+
+  function close() {
+    active = false;
+    if (timer) { clearInterval(timer); timer = null; }
+    window.removeEventListener("resize", layout);
+    window.removeEventListener("scroll", layout, true);
+    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+  }
+
+  function start() {
+    build();
+    active = true;
+    updateText();
+    finishCnt.textContent = left;
+    layout();
+    // повторные раскладки: перевод/шрифты могут менять ширину кнопок после старта
+    setTimeout(layout, 120); setTimeout(layout, 450); setTimeout(layout, 1000);
+    window.addEventListener("resize", layout);
+    window.addEventListener("scroll", layout, true);
+    // смена языка меняет текст/ширину кнопок - обновляем
+    new MutationObserver(function () { if (active) { updateText(); layout(); } })
+      .observe(document.documentElement, { attributes: true, attributeFilter: ["data-lang"] });
+    timer = setInterval(tickTimer, 1000);
+  }
+
+  function boot() {
+    // Ждём флаг firstRun, захваченный ранним GET в i18n-скрипте (window.__wcFirstRun).
+    var waited = 0;
+    (function poll() {
+      if (typeof window.__wcFirstRun === "boolean") {
+        if (!window.__wcFirstRun) return;
+        // помечаем показанным: создаём конфиг рядом, чтобы тутор больше не появлялся
+        fetch("/api/app-config", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lang: curLang() })
+        }).catch(function () {});
+        start();
+        return;
+      }
+      if (waited > 5000) return;   // страховка: флаг так и не пришёл
+      waited += 100;
+      setTimeout(poll, 100);
+    })();
+  }
+
+  if (document.readyState === "complete") boot();
+  else window.addEventListener("load", boot);
+})();
 </script>
 </body>
 </html>

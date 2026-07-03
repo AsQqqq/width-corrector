@@ -402,7 +402,10 @@ func (s *server) tr(en, ru string) string {
 func (s *server) handleAppConfig(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		writeJSON(w, map[string]any{"ok": true, "lang": s.loadAppConfig().Lang})
+		// firstRun = конфига ещё нет рядом (первый запуск) - показываем тутор-подсказки.
+		// Чтение без побочек: файл создаётся при первом POST (в т.ч. когда тутор помечает себя показанным).
+		_, statErr := os.Stat(s.appConfigPath())
+		writeJSON(w, map[string]any{"ok": true, "lang": s.loadAppConfig().Lang, "firstRun": os.IsNotExist(statErr)})
 
 	case http.MethodPost:
 		var body struct {
