@@ -1,0 +1,132 @@
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/programming/lua_console.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/programming/lua_console.png"/>
+</span></a></p>
+<p>You can run <code>Bin64/console.x64.exe</code> as nice little (interactive) lua console.</p>
+
+<pre tabindex="0"><code>console.x64.exe cmd &lt;lua string to execute&gt;
+console.x64.exe &lt;lua file to execute&gt;
+</code></pre><p>For example to execute a lua string:</p>
+<pre tabindex="0"><code>console.x64.exe cmd "print(1+1)"
+</code></pre><p>For example to execute a lua file:</p>
+<pre tabindex="0"><code>console.x64.exe test.lua
+</code></pre><p>For an interactive shell start without arguments:</p>
+<pre tabindex="0"><code>console.x64.exe
+</code></pre><p>Below is a short documentation of its very simplistic API</p>
+<h1 class="anchored">
+
+  BeamNG console Lua API Documentation
+</h1>
+<h2 id="classes">
+
+  Classes
+</h2>
+<h3 id="highperftimer">
+
+  HighPerfTimer
+</h3>
+<p>High-performance timer for accurate time measurements.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">timer</span> <span class="o">=</span> <span class="n">HighPerfTimer</span><span class="p">()</span>
+</span></span></code></pre></div>
+<h4 id="methods">
+
+  Methods
+</h4>
+<ul>
+<li><code>reset()</code> - Resets the timer to zero</li>
+<li><code>elapsed()</code> - Returns elapsed time in seconds since creation or last reset</li>
+<li><code>stopAndReset()</code> - Returns elapsed time and resets timer</li>
+<li><code>stop()</code> - Alias for elapsed() (deprecated)</li>
+</ul>
+<h3 id="beamengine">
+
+  BeamEngine
+</h3>
+<p>Main engine interface.</p>
+<h4 id="methods-1">
+
+  Methods
+</h4>
+<ul>
+<li><code>update(dtReal, dtSim)</code> - Updates the engine simulation</li>
+<li><code>spawnObject2(...)</code> - Spawns an object in the simulation</li>
+<li><code>deleteAllObjects()</code> - Removes all objects from the simulation</li>
+<li><code>setDynamicCollisionEnabled(enabled)</code> - Enables/disables dynamic collision</li>
+<li><code>instabilityDetected()</code> - Checks if instability was detected in simulation</li>
+</ul>
+<h3 id="beamobject">
+
+  BeamObject
+</h3>
+<p>Represents a physical object in the simulation.</p>
+<h4 id="methods-2">
+
+  Methods
+</h4>
+<ul>
+<li><code>getNodeCount()</code> - Returns the number of nodes in the object</li>
+<li><code>getBeamCount()</code> - Returns the number of beams in the object</li>
+</ul>
+<h3 id="vfs">
+
+  VFS
+</h3>
+<p>Virtual file system interface.</p>
+<p>the VFS can be accessed with the global variable <code>FS</code></p>
+<h4 id="methods-3">
+
+  Methods
+</h4>
+<ul>
+<li><code>fileSize(filename)</code> - Returns size of file in bytes</li>
+<li><code>fileExists(filename)</code> - Checks if file exists</li>
+<li><code>directoryExists(directory)</code> - Checks if directory exists</li>
+<li><code>getFileRealPath(virtualPath)</code> - Gets real filesystem path from virtual path</li>
+<li><code>getGamePath()</code> - Gets root game path</li>
+<li><code>openFile(filename, mode)</code> - Opens a file</li>
+<li><code>copyFile(src, dst)</code> - Copies a file</li>
+<li><code>directoryCreate(name, recursive)</code> - Creates a directory</li>
+<li><code>findFiles(path, pattern, recursiveLevels, multiMatch, includeDirs)</code> - Finds files matching pattern</li>
+<li><code>hashFile(filename)</code> - Gets file hash</li>
+<li><code>hashFileSHA1(filename)</code> - Gets file SHA1 hash</li>
+<li><code>stat(filename)</code> - Gets file stats</li>
+<li><code>removeFile(filename)</code> - Deletes a file</li>
+<li><code>renameFile(oldName, newName)</code> - Renames a file</li>
+<li><code>mount(source, target, priority)</code> - Mounts a directory or archive</li>
+<li><code>mountList(mountList)</code> - Mounts multiple paths</li>
+<li><code>unmount(path)</code> - Unmounts a path</li>
+<li><code>isMounted(path)</code> - Checks if path is mounted</li>
+</ul>
+<h2 id="global-functions">
+
+  Global Functions
+</h2>
+<ul>
+<li><code>initBeamEngine(steps)</code> - Initializes the BeamNG engine</li>
+<li><code>destroyBeamEngine()</code> - Shuts down the BeamNG engine</li>
+<li><code>reloadLua()</code> - Reloads the Lua environment</li>
+<li><code>log(level, origin, msg)</code> - Logs a message
+<ul>
+<li><code>level</code>: Log level (I=Info, W=Warning, E=Error, D=Debug)</li>
+<li><code>origin</code>: Source of the log</li>
+<li><code>msg</code>: Message to log</li>
+</ul>
+</li>
+<li><code>updateLuaCore()</code> - Updates the Lua core system</li>
+<li><code>profilerPushEvent(name)</code> - Starts profiling an event</li>
+<li><code>profilerPopEvent()</code> - Ends profiling the current event</li>
+<li><code>setPowerPlanMaxPerformance()</code> - Sets system power plan to maximum performance</li>
+<li><code>restorePowerPlan()</code> - Restores original power plan</li>
+</ul>
+<h2 id="global-variables">
+
+  Global Variables
+</h2>
+<ul>
+<li><code>hw</code> - Table with hardware information
+<ul>
+<li><code>hw.bits</code> - CPU architecture (32 or 64 bit)</li>
+</ul>
+</li>
+<li><code>args</code> - Command line arguments</li>
+<li><code>beamng_platform</code> - Current platform (“windows”, “linux”, etc)</li>
+</ul>

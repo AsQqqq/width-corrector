@@ -1,0 +1,79 @@
+<hr/>
+<h3 id="understanding-flow">
+
+  Understanding Flow
+</h3>
+<p>Flow is the energy pulsating through the links of your flowgraph, bringing it to life.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/flow/1.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/flow/1_hu0dcced160ca4c04d8c87ddbff49c4aae_107899_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>As already explained in the “Node” section of the <a data-doc="flowgraph/introduction-to-flowgraph/elements" href="/docs/flowgraph/introduction-to-flowgraph/elements">Elements</a>
+ page, most nodes need flow to function in any way. Only basic nodes like the “<em>Number</em>” node provide an output even without flow.<br/>
+A flowgraph that does not have any kind of incoming flow, will have no functioning nodes and therefore nothing will occur, when running it.<br/>
+Here is some crucial information on flow:</p>
+<ul>
+<li>Flow only exists in flowgraphs and not in stategraphs.</li>
+<li>The starting point for flow is the “<em>on Update</em>” node. It will only provide flow if the flowgraph is an active state.</li>
+<li>Most nodes have an flow input pin, for being activated, and a flow output pin, for passing the flow to the next node.</li>
+<li>Some nodes have additional flow output pins, that are only triggered, when the node completed its task.</li>
+</ul>
+<br/>
+<h4 id="constant-flow-vs-impulse-flow">
+
+  Constant Flow vs. Impulse Flow
+</h4>
+<p>The main source of flow in your flowgraph is the flow-output pin “<em>onUpdate</em>” node. It is activated every frame and gives flow to all the nodes in your graph.<br/>
+But of course there are some things that you do not want to happen constantly, like displaying a message to the player or resetting a node.<br/>
+The easiest solution for this is the “<em>Once</em>” node, that only passes constant flow once, or on a more technical level, only for one frame:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/flow/5.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/flow/5.png"/>
+</span></a></p>
+<p>You can see that the flow-output pin and the reset pin of the “<em>Once</em>” node look different, than the usual flow pin. It is what we call an “<strong>impulse</strong>” pin.<br/>
+There are two ways of understanding impulse pins in Flowgraph:</p>
+<ul>
+<li><strong>Output:</strong><br/>
+The idea of an output-impulse pin is simple. It puts out flow only once not constantly.</li>
+<li><strong>Input:</strong><br/>
+The idea of an input-impulse pin is a bit more abstract.<br/>
+It should only receive one frame of flow. If the pin would receive constant flow the node would not work properly.</li>
+</ul>
+<p>Another good example for impulse behaviour is the “<em>Countdown</em>” node:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/flow/6.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/flow/6_hu1dc1803546ead0f86794a8789077e4c2_47928_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<br/>
+<ul>
+<li><strong>“finished” Output</strong><br/>
+The “finished” output-impulse pin only passes flow once, when the node is finished. This is useful for triggering events after the countdown is finished.</li>
+<li><strong>“reset” Input</strong><br/>
+The “reset” input-impulse pin could theoretically receive constant flow, but constantly resetting the countdown would make the node nonsensical. Therefore it should only receive flow once, to reset the node, when needed.</li>
+</ul>
+<h3 id="working-with-flow">
+
+  Working with Flow
+</h3>
+<p>The general idea for flowgraph is to build it from left to right and pass flow from the “on Update” node through the whole graph.<br/>
+This concept naturally leads to the idea of daisy chaining your nodes from left to right, which provides you with a linear and well readable structure for your flowgraph:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/flow/2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/flow/2.png"/>
+</span></a></p>
+<p>It is also possible to branch out your graph, since there is no limit to the links connected to a pin.<br/>
+This makes especially sense, for things that logically are happening at the same time.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/flow/3.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/flow/3_hu5ef936183bfe963ba597148e15dca17c_65055_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Please beware that when building these kind of branching structures, that there is no guarantee for the order of execution for the different nodes.<br/>
+Another thing to be mindful about is that when setting a <a data-doc="flowgraph/introduction-to-flowgraph/variables" href="/docs/flowgraph/introduction-to-flowgraph/variables">variable</a>
+, that the new value won’t be set until the next frame.</p>
+<br/>
+<h3 id="debugging-flow">
+
+  Debugging Flow
+</h3>
+<p>To understand how flow is propagated throughout your flowgraph, you can view it during runtime.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/flow/4.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/flow/4.gif"/>
+</span></a></p>
+<p>This visualizes all active links, that are providing some kind of output.<br/>
+If you want a better feeling for which nodes are currently active in your flowgraph, feel free to switch the view mode to “Heatmap”. You can read more about this feature on the <a data-doc="flowgraph/editor/windows" href="/docs/flowgraph/editor/windows">Windows</a>
+ page.</p>

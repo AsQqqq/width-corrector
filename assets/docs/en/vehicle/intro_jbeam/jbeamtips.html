@@ -1,0 +1,347 @@
+<p>This is a collection of tips and tricks discovered over the years by the developers. Following them can improve the quality of your Jbeam structures. These are meant for experienced modders who already know how to make a full vehicle, however they can be useful for beginners as well.</p>
+<h2 id="ide">
+
+  IDE
+</h2>
+<p>This refers to the software you choose to edit your Jbeam files in, such as 
+    <a class="link-ext" href="https://code.visualstudio.com/download" rel="noopener" target="_blank">Visual Studio Code</a>
+ or 
+    <a class="link-ext" href="https://cursor.com/" rel="noopener" target="_blank">Cursor</a>
+.</p>
+<h3 id="indentation-using-spaces">
+
+  Indentation using spaces
+</h3>
+<p>Consider using a setting, command or macro that makes it so the indentation in your Jbeam files is done with spaces rather than tabs. This way, the indentation will stay exactly the same if you or someone else happens to open the file via another editor.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/tabsToSpaces.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/tabsToSpaces.png"/>
+</span></a></p>
+<h3 id="vertical-selection">
+
+  Vertical selection
+</h3>
+<p>It is best to indent your Jbeam in a way that the node names and coordinates are aligned in columns.</p>
+<p>This way, whenever you need to change a value in many rows at once, you can use vertical selection (<kbd>SHIFT + ALT + LMB</kbd> or use middle mouse button instead of left one in VS Code and related programs).
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/verticalSelection.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/verticalSelection_hub497e8476d7d0cae93165af1d17311e3_12157_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="batch-replace-in-selection">
+
+  Batch replace in selection
+</h3>
+<p>When doing a batch rename/replace job in a Jbeam file, always make sure to limit it to the currently selected lines, to prevent messing up the syntax in Jbeam modifiers.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/replaceInSelection2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/replaceInSelection2_hufe953bd8e4f8a233a75fd1d60bc1fcc4_9872_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="cursor-ai">
+
+  Cursor AI
+</h3>
+<p>If you use Cursor instead of Visual Studio Code to edit your Jbeam files, you can get help from the built-in AI. While it cannot design Jbeam structures for you, it is useful for long, boring, precise tasks, such as tweaking the positions of many of slidenodes to align with their rails.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/ai1.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/ai1.png"/>
+</span></a>
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/ai2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/ai2_hu8df461abf8a25e65dc8000e6a1381ab4_1511386_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h2 id="nodes-beams-triangles">
+
+  Nodes, Beams, Triangles
+</h2>
+<p>Here you will find some tips related to the structural pieces of Jbeam.</p>
+<h3 id="jbeam-collision-system">
+
+  Jbeam collision system
+</h3>
+<p>Here’s all the information about Jbeam collision from various parts of the documentation, condensed into a single list. You can refer to it when debugging collision issues.</p>
+<ul>
+<li>There are 3 types of collision. Heightmap collision, static collision, and dynamic collision. They are all exclusive to nodes in Jbeam.</li>
+<li>Static collision has a bigger performance impact than heightmap collision.</li>
+<li>Heightmap and static collision is controlled by <code>staticCollision</code> parameter in Jbeam, which by default will be the same as <code>collision</code> parameter unless explicitly defined for a node.</li>
+<li>Heightmap collision has some ‘depth’ that helps tires roll smoother.</li>
+<li>Dynamic collision has higher priority than static collision.</li>
+<li>Dynamic collision separates into <code>collision</code> (inter-vehicle) and <code>selfCollision</code> (between parts of the same vehicle) in Jbeam.</li>
+<li>If <code>collision</code> is false then <code>selfCollision</code> will be disabled even if set to true.</li>
+<li>If a node is <code>fixed</code> then <code>collision</code> and <code>selfCollision</code> are disabled but <code>staticCollision</code> can still be enabled.</li>
+<li>If a node is a standard or advanced <code>coupler</code> then <code>selfCollision</code> is temporarily disabled on it while it’s coupled.</li>
+<li><code>SelfCollision</code> won’t apply between a node and a triangle made of nodes with the same <code>group</code> as that node (in case of multiple <code>groups</code> it’s the first one). This can and should be abused if you want specific nodes and triangles to not collide but still generally want <code>selfCollision</code> there.</li>
+<li>Triangles have “thickness” of 2.5 cm, which is how far from the green side triangle surface a node can be before collision applies. In debug tools, this is visualised when on default settings the node and triangle are touching.</li>
+<li>Triangle thickness can be changed with <code>externalCollisionBias</code> parameter if you have clipping issues that can’t be fixed in other ways.</li>
+<li>Triangles have not only collision, but also anticlip system. That decides on which side of the triangle a node will end up after collision.</li>
+<li><code>NONCOLLIDABLE</code> triangles still have anticlip, but are way better for performance.</li>
+<li>It’s important that each node with <code>selfCollision</code> has at least <code>NONCOLLIDABLE</code> triangles on the surface that can collide with things the easiest. This is why exhaust pipes have <code>NONCOLLIDABLE</code> triangles for example.</li>
+</ul>
+<h3 id="breakgroup-as-a-table">
+
+  BreakGroup as a table
+</h3>
+<p><code>BreakGroup</code> can be a table, and with <code>breakGroupType</code> set to 1, it means the beam will break when either of the 2 <code>breakGroups</code> is triggered.
+This can help a lot with support beams. For example, if you have a front and rear door with support beams between them, and you want them to break when either door breaks off.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/breakGroup.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/breakGroup_hu89bec07fdc2999e0139b13c6a5c53b7a_27409_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="breaking-rails-and-torsionbars">
+
+  Breaking rails and torsionbars
+</h3>
+<p>Rails and torsionbars don’t support <code>breakGroups</code> the way you may expect them to. To properly break a link of a rail, you need to break the beam that goes between the nodes of the link. To break a torsionbar, you have to break a beam that goes between two of its consecutive nodes.</p>
+<p>It is often the best to set up a dummy beam, with no spring or damp, max deform and strength, with <code>disableMeshBreaking</code> and <code>disableTriangleBreaking</code> properties, with the breakGoup (or multiple of them) you want to be linked to the rail/torsionbar, positioned between 2 of its nodes, and <code>breakGroupType</code> set to 1. This beam will exist purely to break the rail/torsionbar and won’t have any side effects.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/torsionbarBreaker.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/torsionbarBreaker.png"/>
+</span></a></p>
+<h3 id="collision-slidenodes">
+
+  Collision slidenodes
+</h3>
+<p>Sometimes, you might want to increase the density of nodes along the edges of a structure, for example to prevent things from clipping into the edge when they fall directly on it. You can do it without messing up the deformation of the structure, using rails and slidenodes.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/collisionSlidenodes.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/collisionSlidenodes_hu0acf365f4b45d5039e20fb40382d8da7_1050944_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>This is an algorithm of adding the collision slidenodes in a way that is optimal for deformation and performance:</p>
+<ol>
+<li>Make all the nodes on the part have 2 groups. Group 1 for collision, group 2 being the same as on the mesh.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode1.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode1_hu44805ed5fd53021bb8aaaabff6ab8fe0_29875_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Add rails between all the nodes on the edges where you want more collision points.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode2.png"/>
+</span></a></li>
+<li>Add nodes that will act as slidenodes on those rails. They should have selfCollision enabled, and should only belong to group 1. This way, they won’t collide with the triangles they are on, but will collide with other parts of the vehicle. If 2 edges are close to each other, stagger the nodes on them for better performance.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode3.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode3_huc1d84682a86a0b7774e1b3de962fd252_26403_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Define the slidenodes on their rails. Now the collision nodes will be locked on their rails, but will still be able to slide along them.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode4.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode4_hu37c15fdeaad2a62b6775839f2699f6d2_69676_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Attach each node to the structural nodes along the rail in both directions by beams. Now the collision nodes are fully locked.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode5.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode5_huafb4d9b09a2207c7d3a8ffd23a315d97_36032_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>The slidenodes are not stable yet because the rails lack damping. Test in which directions the collision nodes shake when pulled with nodegrabber. Use the node forces debug.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode6.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode6_huf047c93642d0bdf078be727d060a8f33_322720_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Add beams in the direction of vibration, between the collision nodes an other structural nodes of the part. Repeat previous and this point until the shaking can’t be replicated anymore.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode7.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode7_hu7fd2cde8959cf74c151ea3743000bbeb_14625_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Add <code>NONCOLLIDABLE</code> triangles on top of the triangles that are already in the part, between the collision slidenodes and the structural nodes, as if you were Jbeaming it normally without the triangles of the structural nodes existing. This way, the anticlip system will work for the collision slidenodes, preventing them from getting stuck, without the performance cost of adding more collidable triangles.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode8.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode8_hubed4436b986681ce6bf85986417860e7_15275_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+Adding said triangles is easier with the structural triangles temporarily removed, so you can see what you are doing with the debug visualization.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode9.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode9_hude550c0b601a91e172c5d757cc82b2af_660090_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+</ol>
+<h2 id="flexbodies-and-props">
+
+  Flexbodies and Props
+</h2>
+<p>This section contains some tips about positioning visual vehicle parts in Jbeam.</p>
+<h3 id="global-arguments">
+
+  Global arguments
+</h3>
+<p>For spotlight and pointlight props, it is usually better to use the <code>baseTranslationGlobal</code> optional argument instead of the default <code>baseTranslation</code>. Similarly, <code>baseRotationGlobal</code> instead of <code>baseRotation</code>. These use the same coordinate system as Blender, so you can line them up with the 3D model without any guesswork.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"props"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"func"</span><span class="p">,</span> <span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"idRef:"</span><span class="p">,</span> <span class="s2">"idX:"</span><span class="p">,</span> <span class="s2">"idY:"</span><span class="p">,</span> <span class="s2">"baseRotation"</span><span class="p">,</span> <span class="s2">"rotation"</span><span class="p">,</span> <span class="s2">"translation"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"multiplier"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lightInnerAngle"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lightOuterAngle"</span><span class="o">:</span><span class="mi">120</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lightRange"</span><span class="o">:</span><span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lightColor"</span><span class="o">:</span><span class="p">{</span><span class="s2">"r"</span><span class="o">:</span><span class="mi">255</span><span class="p">,</span> <span class="s2">"g"</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">"b"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"a"</span><span class="o">:</span><span class="mi">255</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lightAttenuation"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lightCastShadows"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"flareName"</span><span class="o">:</span><span class="s2">"vehicleBrakeLightFlare"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"flareScale"</span><span class="o">:</span><span class="mf">0.012</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lightBrightness"</span><span class="o">:</span><span class="mf">0.08</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"brakelights"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"t4r"</span><span class="p">,</span> <span class="s2">"t4"</span><span class="p">,</span> <span class="s2">"t3l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="s2">"baseTranslationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.22</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">2.44</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">1.07</span><span class="p">},</span><span class="s2">"baseRotationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"reverselight_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"brakelights"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"t4r"</span><span class="p">,</span> <span class="s2">"t4"</span><span class="p">,</span> <span class="s2">"t3l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="s2">"baseTranslationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.13</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">2.44</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">1.07</span><span class="p">},</span><span class="s2">"baseRotationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"reverselight_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"brakelights"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"t4r"</span><span class="p">,</span> <span class="s2">"t4"</span><span class="p">,</span> <span class="s2">"t3l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="s2">"baseTranslationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.04</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">2.44</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">1.07</span><span class="p">},</span><span class="s2">"baseRotationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"reverselight_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"brakelights"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"t4r"</span><span class="p">,</span> <span class="s2">"t4"</span><span class="p">,</span> <span class="s2">"t3l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="s2">"baseTranslationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mf">0.04</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">2.44</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">1.07</span><span class="p">},</span><span class="s2">"baseRotationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"reverselight_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"brakelights"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"t4r"</span><span class="p">,</span> <span class="s2">"t4"</span><span class="p">,</span> <span class="s2">"t3l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="s2">"baseTranslationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mf">0.13</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">2.44</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">1.07</span><span class="p">},</span><span class="s2">"baseRotationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"reverselight_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"brakelights"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"t4r"</span><span class="p">,</span> <span class="s2">"t4"</span><span class="p">,</span> <span class="s2">"t3l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="s2">"baseTranslationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mf">0.22</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">2.44</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">1.07</span><span class="p">},</span><span class="s2">"baseRotationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"reverselight_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>
+<h3 id="flexbody-rotation-setup-in-blender">
+
+  Flexbody rotation setup in Blender
+</h3>
+<p>When using generic common flexbodies, such as offroad lights, you often need to rotate them by several axis at once to align with the rest of the 3D model.</p>
+<p>You can set up the rotation in Blender. Import the part you want to use, position it, set the rotation system as <code>ZXY Euler</code>, rotate the mesh, and copypaste the result to Jbeam.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/rotationBlender.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/rotationBlender_hu451e4f0d89f97e950cf0c01cb6bf6a2c_57357_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h2 id="troubleshooting">
+
+  Troubleshooting
+</h2>
+<p>This section is for finding and fixing common issues.</p>
+<h3 id="checking-for-deformed-beams">
+
+  Checking for deformed beams
+</h3>
+<p>It is often useful to check for any beams that have deformed at all. To do this, in the Debug tab in the Vehicle Configurator:</p>
+<ul>
+<li>set the Beam Visualization mode to <code>Deformation</code></li>
+<li>untick the switch next to the <code>Range Max</code> input</li>
+<li>uncheck <code>Use Inclusive Range</code> below</li>
+<li>leave the other settings at default.</li>
+</ul>
+<p>This will highlight all deformed beams and print the information about them in console.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/deformationCheck.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/deformationCheck_hu73aabd12483886324736ea05807fad25_41878_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="stress-checking">
+
+  Stress checking
+</h3>
+<p>Excessive beam stress is an early sign of structural issues, such as node-triangle clipping, misaligned slidenodes, or beam precompression issues. To properly check for the stress levels on a car:</p>
+<ol>
+<li>Set gravity to zero in the Environment menu.</li>
+<li>After the car has risen from the ground, reload it with <kbd>CTRL + R</kbd> to zero out the inertia.</li>
+<li>Turn the engine off via the UI or the <kbd>V</kbd> key, to relax the drivetrain and hydraulics.</li>
+<li>Using the Debug tab in the Vehicle Configurator, or <kbd>CTRL + NUMPADMINUS</kbd> combo, reduce the mesh visibility of the car.</li>
+<li>Set the Beam Visualization mode to “Stress” via the debug tab, or by cycling <kbd>CTRL + B</kbd>.</li>
+<li>You might want to wait for a few seconds to make sure everything is stable.</li>
+</ol>
+<p>On a stable Jbeam structure, the result will look similar to this. There should be few stressed beams, and they will be parts of suspension, tires, and openable panel latches.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/stressDebugNormal.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/stressDebugNormal_hudebbb09a58f521aac57adf3e861c240b_272258_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>On an unstable structure, you will clearly see some areas having bigger stress than others. This is a sign that something around these areas needs fixing. You can turn on the node names visualization to see which exact node is problematic. Check for:</p>
+<ul>
+<li>nodes colliding with triangles on spawn (tip: use the <a data-doc="vehicle/intro_jbeam/debugtools" data-frag="live-editor-apps" href="/docs/vehicle/intro_jbeam/debugtools#live-editor-apps">Node Triangle Self Collision Detector</a>
+)</li>
+<li>slidenodes not being correctly aligned with their rails in the Jbeam file</li>
+<li>leaking beamPrecompression modifiers.</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/stressDebugBig.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/stressDebugBig_hu3b4e073190f81bbc21ec5e7961ab1aee_538362_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="unstable-vibrations">
+
+  Unstable vibrations
+</h3>
+<p>When a flexbody is vibrating on spawn, it’s usually a sign of too high spring and/or damp values per node weight somewhere. To narrow down the specific spot where the issue is happening, you can use node force debug visualization. The areas with most/biggest unstable forces are the most likely to be problematic. Stable forces (those that aren’t rapidly changing the size/direction) can be ignored as they are caused by couplers.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/unstableForces.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/unstableForces_hu9e7eee24d818e8289a8380210d8dd5f0_468816_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Note that while it is possible to use beam stress debug and node forces debug interchangably in most cases, they will provide very different results for very heavy and stiff vehicles, as the forces scale with the node weight, unlike the stress.
+On a heavy and stiff vehicle, using node forces debug can produce lots of false positives around heavy, load bearing nodes.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/heavyForces.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/heavyForces_huf5f896d9e8c1e159c6d10784018cf1db_266578_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Meanwhile, beam stress debug will behave closer to how it does on a normal vehicle - the difference being that naturally stressed beams, such as those on tires, will appear a lot more pronounced, making it harder to notice actual issues.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/heavyStress.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/heavyStress_hu189f943854f8928839f317cc2ae13678_237417_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Therefore, on such vehicles it is best to check both modes to make sure there aren’t any actual issues.</p>
+<h3 id="long-structure-wobble">
+
+  Long structure wobble
+</h3>
+<p>Some long structures with most of the mass at the end, like a school bus crossover mirror with a long arm, have inherent wobbling issues that are hard to fix. This is a tip how to combat that:</p>
+<ul>
+<li>Add beams purely for damping, going to some other part that isn’t directly connected to your part, so that you have more leverage.</li>
+<li>Set up a breakGroup for those beams as a table: include every breakGroup of the chain of parts between the 2 nodes of the beam, so the damping beams break when any link of the chain gets destroyed.</li>
+<li>Set breakGroupType to 1, so that breaking off your part doesn’t affect the other parts. Also set beamStrength to max so the beams don’t break from excessive forces.</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/breakGroupChain.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/breakGroupChain_hu11d3c18b984195db8ca557d7673416c4_31800_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h2 id="performance-optimization">
+
+  Performance optimization
+</h2>
+<p>Refer to this section if your Jbeam has performance issues on the CPU side.</p>
+<h3 id="large-tires">
+
+  Large tires
+</h3>
+<p>Large tires need a balance between having good enough collision to be able to drive over a vehicle/prop without clipping, and having relatively good CPU performance, as they can easily end up being the most performance intensive part of the entire car.
+There are many tire parameters to play around with to achieve a good balance, for example:</p>
+<ul>
+<li><code>selfCollision</code>, if we are fine with the wheels not colliding with the rest of the vehicle</li>
+<li><code>numRays</code> for the node density on the tire. Less rays means better performance, but higher rolling resistance and chance of clipping</li>
+<li><code>wheelAngle</code> for dually tires - with the right setting, <code>numRays</code> can be lowered</li>
+<li><code>triangleCollision</code> - should be enabled when your tire is big enough to drive over another vehicle, but it’s very costly</li>
+<li><code>hubSide1TriangleCollision</code>, <code>hubSide2TriangleCollision</code> - should be disabled if on your vehicle the tire is more likely to get hit than the wheel; can also be enabled on 1 side only if needed, and/or for inner dually tires</li>
+<li><code>enableTireLbeams</code> - disabling it can help with performance if the vehicle has many wheels, but it will increase rolling resistance in a hard to conquer way</li>
+</ul>
+<p>A good compromise is often <code>selfCollision</code> enabled, <code>numRays</code> lower on dually wheels, <code>hubSide1TriangleCollision</code> and <code>hubSide2TriangleCollision</code> off, other parameters adjusted specifically for the vehicle.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/tires.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/tires_huf53bbe8bb5601c1db59d6cca1851d790_1065989_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Dually wheels can also be built as a single wide wheel. This offers a massive performance gain, but has many disadvantages, so it should only be done on truck trailers, where the wheels aren’t powered and don’t directly collide with anything in front of them.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/dually.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/dually_hudb11c86d9130c5a7b207c883f06e973a_568766_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="triangle-sleep-mode">
+
+  Triangle sleep mode
+</h3>
+<p>If a triangle has no nodes that can potentially collide with it (no <code>selfCollision</code>, different <code>group</code>, no <code>coupler</code>, etc.) within 10cm of either side, it will enter “sleep mode”, improving performance a bit. The gain can be big with lots of triangles like that.
+This is good to keep in mind when optimizing big enclosed structures like upfit/trailer interiors. For example, on the dry van trailer, the loads hover above the floor to make use of this.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/sleepmode.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/sleepmode_hu329946a8bed7e44bfc04aa1cfb829589_3352037_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="noncollidable-triangles">
+
+  Noncollidable triangles
+</h3>
+<p>Tiny structures with dense nodes, like offroad lights, should ideally use <code>NONCOLLIDABLE</code> triangles instead of <code>NORMALTYPE</code> ones.
+This is because a collidable triangle has no extra performance impact when it has no nodes within 50cm of its surface, but each node within this range adds extra performance impact. It can get pretty bad with lots of nodes per triangle, so in dense areas, triangles should be <code>NONCOLLIDABLE</code>.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/noncollidable.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/noncollidable_hu378d1553f64f022d91991e225c0db521_1379122_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p><code>NONCOLLIDABLE</code> triangles can also be used on parts like railings, where you have big collision gaps, so that collision is done via nodes only, and the triangles exist just for anticlip.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/railing.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/railing_hu36aa7459084364364c6b802a61d7045f_563295_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="jbeam-clipping">
+
+  Jbeam clipping
+</h3>
+<p>If a node is clipping with a triangle while driving (is within 2.5cm of it and collides with it), it will constantly generate collision events. If you have many nodes like that on the car, it will start getting hard on performance.
+Generally the minimum distance between nodes and triangles should be 3cm, maybe 3.5 for particularly flexible parts, to have some extra margin of safety. Use the <a data-doc="vehicle/intro_jbeam/debugtools" data-frag="live-editor-apps" href="/docs/vehicle/intro_jbeam/debugtools#live-editor-apps">Node Triangle Self Collision Detector</a>
+ to find nodes like that.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/collisionDetector.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/collisionDetector_hu451087a0c869188affcfea219620df9b_301103_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="deformgroups">
+
+  DeformGroups
+</h3>
+<p>When using <code>deformGroups</code>, remember that <code>deformationTriggerRatio</code> is the performance intensive property, not <code>deformGroup</code> itself. Always make sure you aren’t leaking the <code>deformationTriggerRatio</code> property anywhere! You can check it via the beam debug modes.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/deformationTriggerRatio.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/deformationTriggerRatio_hu44847085723022fdbd44f6fe4f4e0a1f_620755_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+Keep in mind that <code>deformGroups</code> will also trigger when beams break, not just when they reach the ratio. So you can set up <code>deformGroups</code> to activate at beam breaking where possible, and that will be easier on performance.</p>
+<h3 id="ground-collision">
+
+  Ground collision
+</h3>
+<p>Static collision has a bigger performance impact for map objects than for heightmap collision. So for a vehicle that will be often driving over map assets like rocks rather than a normal decal road, it is more important to have less nodes on the bottom. This is why skidplates on rock crawlers don’t have too big node density.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/skidplate.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/skidplate_hu36f97d1c08ebc5666b6593c3280b2f35_558721_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="separate-static-and-dynamic-collision">
+
+  Separate static and dynamic collision
+</h3>
+<p>Some structures are too thick for flat plane Jbeam, but too thin to justify full three-dimensional dynamic collision for performance reasons (see Noncollidable Triangles above), for example flat rectangular mirrors on a truck. If you want them to have accurate collision with the ground but you are not concerned with dynamic collision, you can have some nodes with <code>collision</code> and <code>selfCollision</code> disabled, but <code>staticCollision</code> enabled, and no triangles going to them. This will help performance, especially if they are close to triangles of another part.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/thinStructure.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/thinStructure_hu4da430dc5394b98a85dc22c88bc6ad2e_265345_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>

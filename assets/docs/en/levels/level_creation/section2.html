@@ -1,0 +1,263 @@
+<p>This section shows how terrain is represented, sourced, authored, and organized for a level, with quality and performance considerations.</p>
+<h3 id="21-core-concepts">
+
+  2.1 Core concepts
+</h3>
+<p>Terrain is a heightfield. Elevation is driven by a 16‑bit grayscale heightmap image.</p>
+<p>Terrain materials are different from asset materials and have a specific setup. Terrain materials are used to paint the terrain mesh.</p>
+<p>Water is mainly represented with water planes. The tools used to place water objects are: Water block, River editor and Water plane</p>
+<h4 id="terrain">
+
+<strong>Terrain</strong>
+</h4>
+<p>The terrain is composed by different square tiles and is automatically optimized by the system.</p>
+<p>Heightmaps must be 16‑bit PNG to preserve elevation details. Choose a heightmap resolution coherent with the world size</p>
+<p>Shown below are the main parameters to check when placing a terrain for the first time.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section2/terraininspector.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Terrain block parameters in the Inspector" loading="lazy" src="/docassets/img/modding/levels/level_creation/section2/terraininspector_hu1b44a3fc625eafd6682686c057255bc2_52843_0x300_resize_q85_bgfff_box.jpeg"/>
+</span><span class="text" style="text-align: left;">Terrain block parameters in the Inspector</span></a></p>
+<p><strong>position</strong>: determines the position of the terrain block in the world based on the lower left angle</p>
+<p><strong>rotationEuler</strong>: adjust these values to rotate your terrain block</p>
+<p><strong>terrainFile</strong>: shows the file path of your saved terrain block</p>
+<p><strong>minimapImage</strong>: used to set up the mini map image which shows roads</p>
+<p><strong>materialTextureSet</strong>: this is the .json file used by the map to determine the base, detail and macro texture size of the textures which the terrain uses.</p>
+<p><strong>CastShadows</strong>: ON by default. When active. the Terrain block will cast shadows</p>
+<p><strong>squareSize</strong>: this parameter defines the smallest square dimension specified in mt/pixel</p>
+<p><strong>maxHeight</strong>: this parameter controls the total height of the terrain block</p>
+<p><strong>baseTexSize</strong>: the size of the terrain base texture, expressed per meter. This is not the heightmap resolution</p>
+<p><strong>lightMapSize</strong>: lightmap dimensions in pixels (legacy terrain lightmap; has no effect under the current deferred lighting)</p>
+<p>World scale uses meters with Z-up. Terrain size and height range should match intended outcome.</p>
+<p>Terrain material textures should be in PNG format. Naming conventions used for normal materials can be ignored for terrain.</p>
+<p>Relative path for terrain textures is usually located in: <code>YourMap/art/terrains</code></p>
+<p>Always keep the number of painted layers manageable to avoid memory overload and favor clear material separation (e.g., soil, rock, grass, sand).</p>
+<p><strong>See also:</strong> <a data-doc="levels/level_classes/terrainblock" href="/docs/levels/level_classes/terrainblock">TerrainBlock class</a>
+, <a data-doc="levels/level_classes/water" href="/docs/levels/level_classes/water">Water class</a>
+.</p>
+<h3 id="22-authoring-considerations">
+
+  2.2 Authoring considerations
+</h3>
+<p>When generating or editing heightmaps externally, maintain 16‑bit precision and avoid resampling artifacts or the terrain will be visibly affected.</p>
+<p>When using in-editor sculpting tools try to emphasize broad forms first, then local variations. Favor gentle slopes for general driveability. Using meshroad tool can help to sculpt terrain on it to obtain nice and polished slopes.</p>
+<p>In BeamNG.drive terrain depth map is very important to properly simulate terrain behavior. Gravel has a very different depth compared to mud.</p>
+<p>Depth map are greyscale .png images that defines the terrain depths compared to material used on terrain. Values goes from white (0 or no depth) to black (1 or full depth)</p>
+<ul>
+<li>Image must be 8bit</li>
+<li>Image must be greyscale</li>
+<li>Image must exactly match terrain resolution</li>
+<li>Careful consideration must be made for the materials, asphalt and other zero-depth type materials should never have depth or it will cause issues</li>
+<li>The depth map should be made in a procedural/automated way to reduce workload and inconsistencies</li>
+</ul>
+<h4 id="hole-map">
+
+<strong>Hole map</strong>
+</h4>
+<p>A hole map (<code>theTerrain_holemap.png</code>) lets you cut holes in the terrain surface, which is useful for caves, tunnel entrances, basements, or anywhere geometry needs to pass through the ground. It is a mask that matches the terrain resolution: masked areas remove the terrain surface (and its collision) so other meshes can show through. Holes can be painted directly with the Terrain Editor hole brush or supplied as an image during terrain import.</p>
+<h3 id="23-terrain-and-terrain-materials">
+
+  2.3 Terrain and terrain materials
+</h3>
+<h4 id="workflow-to-setup-your-new-map-terrain">
+
+<strong>Workflow to setup your new map terrain</strong>
+</h4>
+<ul>
+<li>Open Template map</li>
+<li>Open WE &gt; F11</li>
+<li>Go to File &gt; New Level
+<ul>
+<li>Rename the level with a proper name and place it in /levels/ folder</li>
+<li>Press Open</li>
+</ul>
+</li>
+<li>In the new created map open WE</li>
+<li>Go to Terrain tools &gt; Terrain Painter and press Terrain Material library in the new open window
+<ul>
+<li>Press Upgrade Terrain Materials</li>
+<li>Disclaimer warns player about new terrain material system will be used</li>
+<li>Click Upgrade &gt; Close the window</li>
+</ul>
+</li>
+<li>First thing you need to do is set the TerrainMaterialTextureSet
+<ul>
+<li>You are requested to set the Base texture, Macro texture and Detail texture size. Those are the main 3 textures used by the terrain material</li>
+</ul>
+</li>
+</ul>
+<div class="bng-notice note">The terrain layers resolution must be the same as the heightmap.</div>
+<p>Time to import the terrain heightmap</p>
+<p>Go to Terrain tools and click on Import terrain icon</p>
+<ul>
+<li>To have a working terrain you have to setup the minimum necessary elements needed.
+<ul>
+<li>Terrain name: should stay as it is <code>theTerrain</code></li>
+<li>Meters per Pixel: if you already know the mt/px of the chosen heightmap you can set it up. Can be changed later.</li>
+<li>Max Height: if you already know the max elevation in meters of the chosen heightmap you can set it up. Can be changed later.</li>
+<li>Select the heightmap image</li>
+<li>Hole map and texture maps can be added later</li>
+<li>Select a position on xy axis of your terrain</li>
+<li>Click Import when ready</li>
+</ul>
+</li>
+</ul>
+<p>After clicking on Import you should see your terrain in place</p>
+<p>Right now you will see black terrain. Let’s fix this.</p>
+<ul>
+<li>Go to Terrain tools &gt; Terrain Painter</li>
+<li>Click on Terrain Material Library button</li>
+<li>Click on the <code>+</code> sign beside Material Library to add a new terrain material</li>
+</ul>
+<p>Terrain system works with a combination of 3 material type: Base texture, Macro texture and Detail texture</p>
+<ul>
+<li>Base texture
+<ul>
+<li>This should always match the heightmap resolution</li>
+</ul>
+</li>
+<li>Macro texture
+<ul>
+<li>Used to render middle to far distance by giving subtle variations of colors, normals and roughness</li>
+</ul>
+</li>
+</ul>
+<div class="bng-notice note">To easily set the render of  terrain texture it’s suggested to make the macro color map not too contrasted or saturated. Avoid to blend very different colors.</div>
+<ul>
+<li>Detail texture
+<ul>
+<li>Used to render close distance terrain</li>
+</ul>
+</li>
+</ul>
+<div class="bng-notice note">To easily set the render of detail terrain it’s suggested to avoid the blending of very different colors for the detail color map</div>
+<div class="bng-notice tip"><p><strong>Base Material (BeamNG specific workflow)</strong></p>
+<ul>
+<li>This material match the whole size of the map and is visible from close to far distance, the render should look like a satellite view</li>
+<li>It influences the render of all other terrain material types for colors, normals and roughness</li>
+<li>Texture size can be 0.5k, 1k, 2k, 4k, dependent on the map size</li>
+<li>Material export format is 8bit</li>
+<li>Normal map must be in tangent space and not include any heightmap information</li>
+</ul>
+</div>
+<div class="bng-notice note">To easily set the render of terrain is suggested to avoid very dark or very bright colors for the base color map. The best workflow is trying to lay down colors with quite similar values of saturation and lightness and avoid too much contrast between them</div>
+<h4 id="terrain-textures-parameters-explained">
+
+<strong>Terrain textures parameters explained</strong>
+</h4>
+<h4 id="base-color">
+
+  Base color:
+</h4>
+<ul>
+<li>Base mapping scale: resolution must matches the size of the map</li>
+<li>Macro mapping scale: can range between a min value of 30 up to 120 as max value but basic values are between 60 and 80, it really depends on the desired rendering</li>
+<li>Macro strength: first value is the intensity of near render, second value is the intensity of far render. Basically can be used from 0.1 to 0.2 for high contrast textures, and around 0.4/0.5 for low contrast textures</li>
+<li>Detail mapping scale: matches the resolution of terrain based on a 512px texel density
+Eg. for a terrain with a size of 1 meters/pixel, a detail texture of 1024*1024 resolution that needs to match to 2 meters will be: 2m/1m.pxl = 2 as Detail Mapping Scale value
+Eg. for a terrain with a size of 0.5 meters/pixel, a detail texture of 1024*1024 resolution that needs to match to 2 meters will be: 2m/0.5m.pxl = 4 as Detail Mapping Scale value</li>
+<li>Detail strength: first value is intensity of near render, second value the intensity of far render. For a good visual first value need to stay between 0.2 and 0.3. The second value should be 0, for a better fade at max distance</li>
+</ul>
+<h4 id="normal">
+
+  Normal:
+</h4>
+<ul>
+<li>Base mapping scale: resolution must matches the size of the map</li>
+<li>Macro mapping scale: can range between a min value of 30 up to 120 as max value but basic values are between 60 and 80, it really depends on the desired rendering</li>
+<li>Macro strength: first value determines near distance relief intensity, second value far distance relief intensity. Values should be between 0.5 and 1</li>
+<li>Detail mapping scale: matches the resolution of terrain based on a 512px texel density</li>
+<li>Detail strength: first value is intensity of near render, second value the intensity of far render. For a good visual first value need to stay between 0.2 and 0.3. The second value should be 0, for a better fade at max distance</li>
+</ul>
+<div class="bng-notice warning"><p>Too much difference of normal values or normal textures intensity between each terrain material creates a bad fade and really noticeable transitions between terrain materials</p>
+<p>Normals are not additives between macro and detail. A higher macro normal value than detail normal value will reduce the normal intensity of detail</p>
+</div>
+<h4 id="roughness">
+
+  Roughness:
+</h4>
+<ul>
+<li>Base mapping scale: resolution must matches the size of the map</li>
+<li>Macro mapping scale: can range between a min value of 30 up to 120 as max value but basic values are between 60 and 80, it really depends on the desired rendering</li>
+<li>Macro strength: first value determines the roughness intensity at near distance, second value at far distance. Values should be between 0 and 1</li>
+<li>Detail mapping scale: matches the resolution of terrain based on a 512px texel density</li>
+<li>Detail strength: first value is intensity of near render, second value the intensity of far render. For a good visual first value need to stay between 0.2 and 0.3. The second value should be 0, for a better fade at max distance</li>
+</ul>
+<div class="bng-notice warning"><p>Terrain global roughness is very intense. The base terrain roughness influences a lot the intensity of macro and detail roughness. Middle values of gray for base terrain roughness makes terrain render very shiny
+For instance, dirt and grass areas of base terrain need to have gray values close to white. Asphalt should have middle values of gray and darker gray values are for wet areas like wet sand, mud, etc.</p>
+<p>Roughness map are not additives between macro and detail. A higher macro roughness value than detail roughness value will reduce the roughness intensity of detail</p>
+</div>
+<h4 id="ambient-occlusion">
+
+  Ambient occlusion:
+</h4>
+<ul>
+<li>Base mapping scale: resolution must matches the size of the map</li>
+<li>Macro mapping scale: can range between a min value of 30 up to 120 as max value but basic values are between 60 and 80, it really depends on the desired rendering</li>
+<li>Macro strength: first value determines the AO intensity at near distance, second value at far distance. Values should be between 0 and 1</li>
+<li>Detail mapping scale: matches the resolution of terrain based on a 512px texel density</li>
+<li>Detail strength: first value is intensity of near render, second value the intensity of far render. Values should be between 0 to 1</li>
+</ul>
+<h4 id="height">
+
+  Height:
+</h4>
+<ul>
+<li>Base mapping scale: resolution must matches the size of the map</li>
+<li>Macro mapping scale: can range between a min value of 30 up to 120 as max value but basic values are between 60 and 80, it really depends on the desired rendering</li>
+<li>Macro strength: better to keep both values to 1. Lowering them will result in lowering the quality of fade between terrain materials</li>
+<li>Detail mapping scale: matches the resolution of terrain based on a 512px texel density</li>
+<li>Detail strength: better to keep both values to 1. Lowering them will result in lowering the quality of fade between terrain materials</li>
+</ul>
+<hr/>
+<h4 id="some-suggestions-about-terrain-paint">
+
+<strong>Some suggestions about terrain paint</strong>
+</h4>
+<ul>
+<li>Blend materials to avoid harsh seams. Use macro/micro variation to reduce visible tiling.</li>
+<li>Keep color and roughness behavior coherent across materials to maintain a believable look.</li>
+<li>For a believable transition between very different materials like grass/dirt &gt; asphalt use decalroad edges to fake road edges that blends toward grass/dirt terrain material</li>
+</ul>
+<h3 id="24-water">
+
+  2.4 Water
+</h3>
+<p>The game uses water planes to simulate lakes, reservoirs, pond and river surfaces as well as ocean you see in different legacy map of BeamNG.drive</p>
+<p>There are 3 different tools to simulate water objects.</p>
+<h4 id="river-editor">
+
+<strong>River editor</strong>
+</h4>
+<p>The best choice to create rivers/creeks. Placement of river object works like decalroads placement, just press <code>ALT+click</code> to place nodes of the river spline. Mind that the spline grid indicates the water flow direction with an arrow.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section2/rivereditor.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="River editor spline placement" loading="lazy" src="/docassets/img/modding/levels/level_creation/section2/rivereditor_hude22569f9b813295007d3baaa6a11700_136325_0x300_resize_q85_bgfff_box.jpeg"/>
+</span><span class="text" style="text-align: left;">River editor spline placement</span></a></p>
+<p>Ensure edges integrate with banks to blend them with terrain in a believable way.</p>
+<h4 id="water-plane">
+
+<strong>Water plane</strong>
+</h4>
+<p>Represents a large body of water that stretches to the horizon in all directions. Best suited to oceans and sea-level water. Reflections are typically driven by a cubemap (see Materials, section 6.2).</p>
+<h4 id="water-block">
+
+<strong>Water block</strong>
+</h4>
+<p>A box-shaped water volume defined by a 3D scale and orientation. Best suited to bounded/contained water such as pools, reservoirs and tanks. The <code>gridElementSize</code> parameter controls the tessellation of the water surface.</p>
+<h3 id="25-data-locations">
+
+  2.5 Data locations
+</h3>
+<p>Terrain data and settings are stored in YourMap/ (<code>theTerrain.ter</code>, <code>theTerrain.terrain.json</code>), together with the generated map images: <code>theTerrain_heightmap.png</code>, <code>theTerrain_holemap.png</code> and the per-layer <code>theTerrain_layerMap_*.png</code> files.</p>
+<!-- TODO: confirm the terrain depth-map filename. The previously documented "theTerrain.ter.depth.png" could not be verified against the engine, the terrain editor Lua, or any shipped level. -->
+<p>Terrain materials and textures are stored in <code>YourMap/art/terrains</code></p>
+<h3 id="26-common-issues">
+
+  2.6 Common issues
+</h3>
+<ul>
+<li>Banding from 8‑bit sources (use 16‑bit PNG).</li>
+<li>Scale mismatches after import (verify meters and vertical range).</li>
+<li>Noticeable tiling from single-scale textures (introduce macro variation).</li>
+</ul>
+<p><strong>See also:</strong> <a data-doc="levels/level_formats/terrain" href="/docs/levels/level_formats/terrain">Terrain format</a>
+, <a data-doc="levels/level_formats/groundmodels" href="/docs/levels/level_formats/groundmodels">Groundmodels</a>
+.</p>

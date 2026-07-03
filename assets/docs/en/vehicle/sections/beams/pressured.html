@@ -1,0 +1,170 @@
+<p>Pressured beams are used to simulate a progressive air spring, which gets stiffer as it compresses. They are mostly used for the sidewalls of tires along with specialized suspension.</p>
+<p>They can be imagined as a virtual air cylinder, with a piston of a defined surface. The pressure in the air cylinder varies based on the change in volume of the air cylinder, which purely depends on the length of the beam. Compressing the beam to half it’s length will cause the volume to be reduced by half, and the pressure to multiply by 2, and therefore the force as well.</p>
+<p>The resulting force curve looks like this, with pressure trending toward infinity as the beam is compressed down to nul length.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/beams/pressured/PressuredBeam.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/beams/pressured/PressuredBeam_hu45afab42357446da370bdc285ad566fe_9427_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Keep in mind that if the force gets too high, it will cause instability issues. There are 3 ways to work around this:</p>
+<ul>
+<li>Using limiters to keep the beam from being compressed to that point</li>
+<li>Using maxPressure or maxPressurePSI parameter to cause the beam to break before becoming unstable</li>
+<li>Using pressureLimit or pressureLimitPSI parameter to cap the maximum allowed pressure to a stable value</li>
+</ul>
+<p>The volume coefficient parameter changes the the length of the virtual air cylinder compared to the beam’s length. A value of 2 means the virtual air cylinder is half of the beam’s length, causing the pressure to rise earlier. Values of less than 1 mean the pressure won’t ever reach infinity, with a value of 0 meaning the pressure will never change.</p>
+<p>Here is what the force curves will look like with various volume coefficients.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/beams/pressured/VolumeCoef.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/beams/pressured/VolumeCoef_huca04a97f477cfd97053f097b53daa3f2_22240_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>In extension, the resulting force will be a combination of both the beamSpring parameter, and the resulting pressure force. This is to help limit the beam’s extension.</p>
+<h3 id="required-arguments">
+
+  Required arguments
+</h3>
+<p>See the <a data-doc="vehicle/sections/beams" href="/docs/vehicle/sections/beams">beams page</a>
+.</p>
+<p>In extension, the resulting force will be a combination of both the beamSpring parameter, and the resulting pressure force.</p>
+<h3 id="optional-arguments">
+
+  Optional arguments
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Initial pressure (Pa) of the virtual air cylinder used to create the pressure beam.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Initial pressure (PSI) of the virtual air cylinder used to create the pressure beam.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">You should either use this or standard pressure, not both.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Surface of the virtual air cylinder (m²) used to create the pressure beam.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Larger values will result in higher forces for the same pressure.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Affects the progressiveness of the pressured beam by changing the size of the virtual air cylinder.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Larger values will cause the pressure the rise earlier. Keep in mind that with values above 1, the pressure will reach infinity at some point, which can cause instability.</div>
+</div>
+</div>
+<p>Below are the pressure limiting arguments - you should always use only one of those at once, not multiple, depending on the expected result. Keep in mind that pressure in the pressured beam rises as it compresses, so maximum pressures close to the initial pressure can cause the beam to break under standard use.</p>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Maximum pressure (Pa) beyond which the pressured beam will break.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Maximum pressure (PSI) beyond which the pressured beam will break.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Maximum pressure (Pa) beyond which the pressure won’t increase anymore.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Maximum pressure (PSI) beyond which the pressure won’t increase anymore.</div>
+</div>
+</div>
+<p>Pressured beams also support the same optional arguments as <a data-doc="vehicle/sections/beams" data-frag="optional-arguments" href="/docs/vehicle/sections/beams#optional-arguments">standard beams</a>
+.</p>
+<h3 id="simple-examples">
+
+  Simple Examples
+</h3>
+<p>Pressured beams being used for part of a bus suspension system.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|PRESSURED"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">100</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">100000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="mi">250000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ab1l"</span><span class="p">,</span><span class="s2">"ab3l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"pressurePSI"</span><span class="o">:</span><span class="mi">60</span><span class="p">,</span><span class="s2">"surface"</span><span class="o">:</span><span class="mf">0.05</span><span class="p">,</span><span class="s2">"volumeCoef"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"name"</span><span class="o">:</span><span class="s2">"airbag_RL"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ab1r"</span><span class="p">,</span><span class="s2">"ab3r"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"pressurePSI"</span><span class="o">:</span><span class="mi">60</span><span class="p">,</span><span class="s2">"surface"</span><span class="o">:</span><span class="mf">0.05</span><span class="p">,</span><span class="s2">"volumeCoef"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"name"</span><span class="o">:</span><span class="s2">"airbag_RR"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span></code></pre></div>

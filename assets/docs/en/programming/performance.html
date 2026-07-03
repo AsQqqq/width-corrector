@@ -1,0 +1,245 @@
+<p>As a programmer, you should keep in mind the performance implications of your code.</p>
+<p>This is not just about optimizing code, but also about consciously choosing code architectures that favour performance.</p>
+<p><strong>Important</strong>: it doesn’t matter if things work “<em>fine</em>” in your computer. Your code could end up running in wildly different computers, where the performance patterns may not match those of your computer. Even if you develop using a slow computer, its slowness is not necessarily a good reference that you can use: a different combination of mods, a different combination of hardware, of drivers, OS updates, etc can all lead to a worse performance than what your low-spec computer exhibits.</p>
+
+<p>This document assumes you already have basic knowledge of optimization. Some examples:</p>
+<ul>
+<li>Knowing how optimization is done in general: <strong>measure, then tweak, then measure</strong> again to evaluate the validity of your tweaks.</li>
+<li>Never assuming you know how your code will behave. Always measure. Measure as many times as needed to ensure validity of the numbers. Dedicate explicit effort to <strong>determine if your measurements are reliable</strong> or if, on the contrary, they are incorrectly biased by external factors (hot vs cold caches, external programs, thermal throttling, etc).</li>
+<li>Knowing <strong>basic optimization techniques</strong>: what big O notation means and how its used. What are cache systems and knowing their possible tradeoffs (such as memory vs cpu use). Taking advantage of data locality to use the available RAM bandwidth more efficiently. Knowing when the bottleneck is I/O (such as storage or networks) and how to best work around those limitations. Etc.</li>
+</ul>
+<p>If you don’t already have basic optimization knowledge, it’s advisable that you first dedicate some time to learning about it. The rest of this document is a collection of some of optimization techniques that are specific to BeamNG software, or which are harder to find information about elsewhere.</p>
+<div class="alert alert-warning" role="alert">
+<p><strong>IMPORTANT</strong>: Do not blindly assume you know which part of code is the main bottleneck, <strong>always measure</strong> to identify where your optimization efforts can be the most efficient.</p>
+<p><em>For example, there’s no point shaving 0.25 milliseconds in a function, if you are not planning to optimize the next function which is bleeding 3 milliseconds per frame with an avoidable O(N^2) loop.</em></p>
+</div>
+<h1 class="anchored">
+
+  LuaJIT optimization: BeamNG tips
+</h1>
+<p>As part of the BeamNG Lua ecosystem, we use a few tools to do measurements. As a mod programmer, these will be helpful for you too:</p>
+<ul>
+<li><code>timeprobe()</code> function: measures the time between 2 consecutive runs.</li>
+<li><code>gcprobe()</code> function: measures the increase in GC workload between 2 consecutive runs (see <a data-doc="programming/performance" data-frag="avoid-garbage-collection" href="/docs/programming/performance#avoid-garbage-collection">Avoid garbage collection</a>
+ section below).</li>
+<li><code>lua/common/luaProfiler.lua</code> class: allows you to split your code into multiple sections, including sections inside repeated executions (such as loops), and measure both GC load and time on each.</li>
+<li><code>lua/common/luaProfiler.lua</code> class: also allows to detect performance spikes (stutter) and show the GC load and time measurements that led to it.</li>
+<li><code>getPlayerVehicle()</code>, <code>getAllVehicles()</code>, <code>vehiclesIterator()</code>, <code>activeVehiclesIterator()</code> functions in <a data-doc="programming/virtualmachines" data-frag="introduction" href="/docs/programming/virtualmachines#introduction">GELUA side</a>
+: retrieves vehicle objects with zero GC overhead. Prefer this over <code>be:getPlayerVehicle()</code> and  similar calls, which will reduce the framerate (since they need to retrieve data all the way into C++ territory and then back to LUA, and in addition they also increase the GC workload).</li>
+</ul>
+<h1 class="anchored">
+
+  LuaJIT optimization: Generic tips
+</h1>
+<p>In addition to those BeamNG-specific tips, there’s also generic Lua and LuaJIT optimizations you should try to follow.</p>
+<h4 id="luajit-loops">
+
+  LuaJIT: Loops
+</h4>
+<p>As a general rule, <code>for i,n</code> loops will be faster than <code>ipairs()</code> loops, which in turn are faster than <code>pairs()</code> loops.</p>
+<p>Always pick the faster loop type if you have no good reason to pick a slower variant. If you can trivially (re)design your code to work with arrays, instead of arbitrary key-value tables,  then that will allow the use of <code>ipairs()</code>, which will be faster than <code>pairs()</code>, all else being equal.</p>
+<p>As usual, if you are unsure or don’t have a lot of practice doing optimizations, you probably want to verify by measuring the improvements instead of assuming your changes are okay.</p>
+<h4 id="luajit-local-symbols">
+
+  LuaJIT: Local symbols
+</h4>
+<p>The location where a function or variable is defined has a performance impact.</p>
+<p>Accessing a variable that’s nested deep inside some table structure will be slow, for example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="c1">-- very slow access, AVOID THIS:</span>
+</span></span><span class="line"><span class="cl"><span class="n">foo</span><span class="p">(</span><span class="n">myTable</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="s2">"foobar"</span><span class="p">][</span><span class="n">myIndex</span><span class="p">][</span><span class="mi">50</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">bar</span><span class="p">(</span><span class="n">myTable</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="s2">"foobar"</span><span class="p">][</span><span class="n">myIndex</span><span class="p">][</span><span class="mi">50</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">baz</span><span class="p">(</span><span class="n">myTable</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="s2">"foobar"</span><span class="p">][</span><span class="n">myIndex</span><span class="p">][</span><span class="mi">50</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">-- faster access with a cache, DO THIS:</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">myVar</span> <span class="o">=</span> <span class="n">myTable</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="s2">"foobar"</span><span class="p">][</span><span class="n">myIndex</span><span class="p">][</span><span class="mi">50</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">foo</span><span class="p">(</span><span class="n">myVar</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">bar</span><span class="p">(</span><span class="n">myVar</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">baz</span><span class="p">(</span><span class="n">myVar</span><span class="p">)</span>
+</span></span></code></pre></div><p>In the same way, the scope of a variable can have the same performance effects. This makes sense once you know that a file-local symbol is stored in a file-specific Lua table. And that a global symbol is contained in a global Lua table of variables.</p>
+<p>Whenever you use some symbol, the LuaJIT interpreter will begin by checking that local table, then the parent table, until reaching the global table of symbols. Each of those table accesses cost performance. So from the point of view of pure performance, local variables are preferable to global variables.</p>
+<p><strong>For example</strong>: this is why the <a data-doc="programming/extensions" href="/docs/programming/extensions">BeamNG LUA Extensions</a>
+ system will make your extension available as <code>myMod_myExtension</code>, rather than as <code>myMod.myExtension</code> (saving one or more table accesses). It’s also why you’ll find <code>local max = math.max</code> in several official BeamNG files, as it saves one table access. Etc.</p>
+<p>The gains may not be huge, and any impact in code maintainability/readability is always something to consider. Sometimes it’s better to have readable code than a slightly faster code. In other cases, such as very commonly used libraries or functions, and which rarely are modified, performance will probably take a front seat, sacrificing code maintainability in the name of framerate.</p>
+<h4 id="luajit-references">
+
+  LuaJIT: References
+</h4>
+<p>Here’s an assorted list of links with information about how the LuaJIT interpreter works, as well as numerous optimization tips:</p>
+<ul>
+<li>
+<a class="link-ext" href="https://raw.githubusercontent.com/MethodicalAcceleratorDesign/MADdocs/master/luajit/luajit-doc.pdf" rel="noopener" target="_blank">https://raw.githubusercontent.com/MethodicalAcceleratorDesign/MADdocs/master/luajit/luajit-doc.pdf</a>
+</li>
+<li>
+<a class="link-ext" href="https://0xbigshaq.github.io/2022/08/22/lua-jit-intro/" rel="noopener" target="_blank">https://0xbigshaq.github.io/2022/08/22/lua-jit-intro/</a>
+</li>
+<li>
+<a class="link-ext" href="https://nickcano.com/hooking-luajit/" rel="noopener" target="_blank">https://nickcano.com/hooking-luajit/</a>
+</li>
+<li>
+<a class="link-ext" href="https://mrale.ph/talks/vmss16/#/" rel="noopener" target="_blank">https://mrale.ph/talks/vmss16/#/</a>
+</li>
+<li>
+<a class="link-ext" href="https://gitspartv.github.io/LuaJIT-Benchmarks/" rel="noopener" target="_blank">https://gitspartv.github.io/LuaJIT-Benchmarks/</a>
+</li>
+<li>
+<a class="link-ext" href="https://percona.community/blog/2020/04/29/the-anatomy-of-luajit-tables-and-whats-special-about-them/" rel="noopener" target="_blank">https://percona.community/blog/2020/04/29/the-anatomy-of-luajit-tables-and-whats-special-about-them/</a>
+</li>
+<li>
+<a class="link-ext" href="https://kipp.ly/jits-impls/" rel="noopener" target="_blank">https://kipp.ly/jits-impls/</a>
+</li>
+<li>
+<a class="link-ext" href="https://www.freelists.org/post/luajit/How-to-call-functions-from-a-static-library-in-Luajit,13" rel="noopener" target="_blank">https://www.freelists.org/post/luajit/How-to-call-functions-from-a-static-library-in-Luajit,13</a>
+</li>
+<li>
+<a class="link-ext" href="https://www.freelists.org/post/luajit/Few-questions-about-LuaJIT-internals-on-64-bit,6" rel="noopener" target="_blank">https://www.freelists.org/post/luajit/Few-questions-about-LuaJIT-internals-on-64-bit,6</a>
+</li>
+<li>
+<a class="link-ext" href="http://brrt-to-the-future.blogspot.com/2019/03/reverse-linear-scan-allocation-is.html" rel="noopener" target="_blank">http://brrt-to-the-future.blogspot.com/2019/03/reverse-linear-scan-allocation-is.html</a>
+</li>
+<li>
+<a class="link-ext" href="https://piotrduperas.com/posts/nan-boxing" rel="noopener" target="_blank">https://piotrduperas.com/posts/nan-boxing</a>
+</li>
+<li>
+<a class="link-ext" href="https://pwparchive.wordpress.com/2012/10/16/peeking-inside-luajit/" rel="noopener" target="_blank">https://pwparchive.wordpress.com/2012/10/16/peeking-inside-luajit/</a>
+</li>
+</ul>
+<h1 class="anchored">
+
+  Load-time vs run-time performance
+</h1>
+<p>When following various optimization techniques, you may find yourself having to choose between making the mod faster to start up, versus making the framerate higher once the mod has loaded.</p>
+<p>You should use common sense when choosing this balance. Normally the choice is to move complexity to the loading times, if you can then get better performance afterwards.</p>
+<p><em>For example, a high GC load (see <a data-doc="programming/performance" data-frag="avoid-garbage-collection" href="/docs/programming/performance#avoid-garbage-collection">Avoid garbage collection</a>
+ section below) during startup is acceptable if you can later manage to have zero GC load while the simulator is running. On the other hand, if certain optimization makes the loading time 5min longer while gaining only a 0.5% of framerate in exchange, that might not be a worthwhile tradeoff.</em></p>
+<h1 class="anchored">
+
+  Update rate
+</h1>
+<p>When writing your code, you’ll need to think about <strong>how often your code will run</strong>. Should it run once per graphics frame? Maybe once per physics tick? Once per User Interface refresh? Maybe a fixed rate of 15Hz? Etc.</p>
+<p><strong>Note: To learn more about the fundamental update rates available, please check the <a data-doc="programming/virtualmachines" data-frag="update-rate" href="/docs/programming/virtualmachines#update-rate">Virtual Machine’s Update Rate</a>
+ section.</strong></p>
+<p>While picking a high update rate for your code is easy from a developer perspective, this will not only have a negative impact on frame rates, but it will also lead to greater chances of stutter and of unstable frame rates.</p>
+<p>The rule of thumb here is to <strong>pick the lowest possible rate that you can get away with</strong>, while still making sense for your particular application.</p>
+<p>For most “gameplay” purposes (such as keeping track of a score, or other similar high level concepts), following the User Interface update rate is probably enough. Or alternatively, following the graphics update rate.</p>
+<p>Only in <strong>extremely rare</strong> cases will you need to resort to a physics update rate. Any code that is run at physics update rate will need to be written extremely carefully to avoid a heavy impact in framerate for people running a computer with the minimum hardware specs. You’ll need to apply all the knowledge included in this document, and more. You’ll also want to include only the absolute minimum code in the physics update, moving everything that’s non-essential to the graphics update.</p>
+<p>You may notice that our official code only uses physics rates as our very last resort, when nothing else can possibly work from the point of view of mathematics.</p>
+<p>You will also notice that, unlike what many game development guides advice, at BeamNG we <strong>avoid fixed rate calculations</strong> as much as possible. We understand that fixed rate updates can make your life easier as a programmer: it’s easier to write stable math for a stable rate, than to write stable math for a constantly variable rate. However, the downside is that a fixed rate workload will not scale up nor down according to the available computer resources. A fixed rate means that you’ll need to settle with a suboptimal compromise, where low-end hardware will suffer an unnecessarily high computing cost, while the high-end hardware will be unnecessarily missing the extra detail that it could be calculating. With that in mind, running on a variable rate (such as graphics framerate or user-interface rate) means that you can provide higher fidelity in high-end computers, while also being friendly to low-end computers.</p>
+<p><em>Note: Writing math that can work under extreme rate variations is hard: for this reason, the reported graphics “update rate” is guaranteed to be a minimum of <strong>20 Hz</strong>. When the computer is unable to reach 20 FPS, then the simulation will slow down as needed. This is a guarantee that helps you to program your math with a safe baseline rate.</em></p>
+<p>A useful tool you should use when writing code that works on a variable update rate, is the <code>Options</code> &gt; <code>Display</code> &gt; <code>Limit framerate</code> slider. You can set it to 20 FPS to test your math under the conditions of a worst-case-scenario (20 Hz updates, if your code is hooked to graphics updates), and you can disable this limiter together with <code>Options</code> &gt; <code>Graphics</code> &gt; <code>Lowest</code> to try to reach as high a framerate as possible. A good place to achieve a high framerate is the <code>Grid, Small, Pure</code> level while using no traffic vehicles.</p>
+<h1 class="anchored">
+
+  Avoid garbage collection
+</h1>
+<p>If you are a programmer of a language featuring garbage collection (such as Lua or Javascript), and you are not familiar with what a garbage collector (<strong>GC</strong>) is, then please search the internet for information and learn the basics about them before continuing.</p>
+<p>GC is a convenient feature that some high-level languages provide, but they can have a large impact when used in a performance-intensive environment, such as real time simulators. The GC will hide new/delete from you, but in exchange it will take a toll in two ways:</p>
+<ul>
+<li>Lower framerate: the GC has to run to do its work, and this garbage bookkeeping workload is going to rob some framerate.</li>
+<li>Variable framerate: the GC workload may not be evenly spread over time, but might be bunched up cyclically. This can lead to both <strong>stutter</strong> (negative spikes in framerate), as well as <strong>rubber banding</strong> (the framerate being high for a second, low for another second, then high again, etc) which will lead to an undesirable effect of slowmotion/fastmotion.</li>
+</ul>
+<p>To reduce the GC load, first you need to be able to measure it. In the case of Lua, we offer some features for this:</p>
+<ul>
+<li><code>gcprobe()</code> function: run it before/after a piece of code, and it will tell how many bytes of garbage that code has generated.</li>
+<li><code>lua/common/luaProfiler.lua</code> profiler, which measures not only timing information, but also garbage generation amounts.</li>
+<li><kbd>ctrl-shift-f</kbd> &gt; <code>Tools</code> menu &gt; <code>Log gelua profile</code>: this will log how many bytes of garbage each GELUA extension has generated (use <kbd>~</kbd> to see the logs) during the last graphics frame.</li>
+</ul>
+<p>Once you know how much GC load your code is generating, you need to find ways to reduce it. As a general rule, this means avoiding the creation (the allocation) of new objects.</p>
+<ul>
+<li>
+<p>Try to re-use objects across multiple consecutive calls to your extension hooks. For example, you might want to have a parent-scope Lua variable that gets reused, rather than generating a new object from scratch on each function call.</p>
+</li>
+<li>
+<p>Use APIs that reduce the GC load. For example, you can reassign <code>myVector = vec3(5,4,2)</code> with the zero-garbage alternative <code>myVector:set(5,4,2)</code>. Same goes for favouring <code>setAdd</code> and similar APIs that we offer with this exact purpose of GC reduction.</p>
+</li>
+<li>
+<p>Use APIs that fully eliminate the GC load. For example, favour using X,Y,Z tuples (such as our functions that end in <code>....XYZ()</code>) instead of vec3.</p>
+</li>
+<li>
+<p>Use the <code>getTmpVec3()</code> / <code>resetTmpVec3()</code> API to obtain reusable temporary vectors without allocating new <code>vec3()</code> objects every frame. Declare an empty pool table at module level:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">poolVec3</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span></code></pre></div><p>At the top of updateGFX, reset the pool to reclaim all slots from the previous frame. The hook name is just an example — reset once at the top of whichever update method owns that pool.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="kr">function</span> <span class="nf">updateGFX</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">resetTmpVec3</span><span class="p">(</span><span class="n">poolVec3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="kr">end</span>
+</span></span></code></pre></div><p>Then, anywhere within that frame, request a slot from the pool:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">myVec3</span> <span class="o">=</span> <span class="n">getTmpVec3</span><span class="p">(</span><span class="n">poolVec3</span><span class="p">)</span>
+</span></span></code></pre></div><p>Each call returns the next available vec3 in the pool, creating it only on first use. The slot counter is zeroed by <code>resetTmpVec3</code> at the start of every frame, so the same objects are reused across frames with no garbage generated.
+To do a correct usage of this API some important rules are listed below:</p>
+<ul>
+<li>Call <code>resetTmpVec3()</code> exactly once per frame, at the very top of your frame entry point (updateGFX, etc.). Never call it inside a helper.</li>
+<li>Use a separate pool for each update entry point (e.g. one for <code>updateGFX</code>, another for <code>updatePhysics</code>). Do not share a pool across different hooks.</li>
+<li>Call <code>getTmpVec3()</code> freely inside helpers — they share the same pool with their caller.</li>
+<li>A tmp vec is valid only until the next <code>resetTmpVec3()</code> (i.e. until next frame). Helpers may return tmp vecs to their callers, but callers must not store them past the current frame.</li>
+<li>Allocate before loops, not inside them. If the loop body needs a single scratch vec, allocate one slot before the loop and overwrite it each iteration. Allocating inside the loop grows the pool (one permanent slot per iteration count).</li>
+</ul>
+<p>An application example can be found in the <code>ai.lua</code> module.</p>
+</li>
+<li>
+<p>Etc.</p>
+</li>
+</ul>
+<p>There’s no fixed rule about this, and many optimizations are a tradeof between performance versus code maintainability/readability. Sometimes you may want to sacrifice short-term performance in favour of making the code easier to work with (which might in turn enable higher-level optimizations in the longer-term, thanks to the code being more understandable).</p>
+<h1 class="anchored">
+
+  Avoid trigonometry
+</h1>
+<p>Working in terms of angles typically leads to using <code>sin()</code>, <code>cos()</code>, <code>tan()</code> and all variants of such functions. These functions can be really slow, and should be avoided when possible.</p>
+<p>Instead, consider the use of <strong>dot product</strong>, <strong>cross product</strong> and other basic vector operations. These simpler math tools can often simplify your code, completely eliminating the need for explicit use of “angles”.</p>
+<p>It’s relatively common for programmers to be very familiar with angles, but unfamiliar with dot/cross products. So the appeal of traditional trigonometry is understandable, but it doesn’t mean it’s the best approach from a performance coding perspective.</p>
+<p>Trigonometry functions are typically used to transform geometric concepts into angles, so the programer can then operate in angles; only to eventually transforming it all back to vectors or quaternions. Therefore, if you learn to work with vectors directly, you can skip those unnecessary back-and-forth conversions. Which typically leads to simpler code, and faster too.</p>
+<h1 class="anchored">
+
+  Avoid euler angles
+</h1>
+<p>Very often, euler angles are used as an intermediate format, before eventually being converted back into quaternions or matrices (for consumption by the core engine). It’s advisable to avoid euler angles completely, and use quaternions or matrices.</p>
+<p>Doing so means you can skip those back-and-forth conversions of rotations into (and then out of) euler format. This simplifies your code, and as a bonus makes it faster too.</p>
+<p>In addition to the performance cost of such temporary conversions, they can also lead to bugs (such as losing numerical precision due to unnecessary operations), and lead to less maintainable/readable code (for example, there’s many variants of euler angles, and you might not be sure which exact euler format is accepted by each function).</p>
+<p>The only exception where Euler angles might be acceptable, is for display to end-users, for example in a level editor UI, or similar content-creation tools:</p>
+<ul>
+<li>If you need to show angles to an artist/modder in the UI, always operate with quaternions, and convert to euler only at the very end of your data pipeline, at the exact moment you need to render values on the screen.</li>
+<li>If you can, show the euler values as a read-only values, not an editable text field. Consider offering an interactive 3D gizmo to apply rotations with the mouse/keyboard (and which will not be using euler internally, but quaternions), rather than offering a text field with 3 numbers that the user can type into.</li>
+<li>If you absolutely, truly need to show a read-write text field with Euler angles on your editing tool UI, review your code under the scenario of multiple consecutive saves: do the Euler angles slowly drift away from the original value without the user editing the value? If so, you need to review your code pipeline to find out the source of numerical drift, and find a solution for it.</li>
+</ul>
+<h1 class="anchored">
+
+  Avoid communication between virtual machines
+</h1>
+<p><a data-doc="programming/virtualmachines" data-frag="communication" href="/docs/programming/virtualmachines#communication">Sending data between virtual machines</a>
+ can negatively affect performance, particularly in the form of latency, lower framerate, and unnecessarily varying framerate. The combination of which is typically called “lag” by end-users nowadays (even if it’s not limited to latency).</p>
+<p>Some advice to preserve performance as much as possible:</p>
+<ul>
+<li><strong>Avoid communication</strong> between VMs altogether if you can.</li>
+<li><strong>Use <a data-doc="programming/virtualmachines" data-frag="communication" href="/docs/programming/virtualmachines#communication">VLUA mailboxes</a>
+</strong> if that fits your requirements.</li>
+<li><strong>Reduce the frequency</strong> of communications to the minimum. Sending data each gfx frame is really bad, consider sending pre-computed data once per-event, or once-per-minute, etc if that’s possible.</li>
+</ul>
+<h4 id="example-of-vm-communication-optimization">
+
+  Example of VM communication optimization
+</h4>
+<p>Let’s assume you are writing a mod that rates how good your burnout is. This will analyze the wheelspinning patterns, and show an amount of points in the UI.</p>
+<p>In your initial implementation, you are sending the wheelspin information from VLUA to GELUA each graphics frame using <code>obj:queueGameEngineLua()</code>. Once in GELUA, all the data is analyzed, and you generate a numeric rating value. You then send this rating to the UI on each frame using <code>guihook.trigger()</code>.</p>
+<p>While this approach works, it’s pretty bad in terms of performance, and there’s plenty of margin for improvement:</p>
+<p>First of all, don’t compute the burnout rating in GELUA. Instead calculate it in VLUA, where the data already exists. This avoids sending all that physics information from VLUA to GELUA.</p>
+<p>Then, consider if you want to show a burnout only at the end-screen:</p>
+<ul>
+<li>Only at end-screen? Then you only need to communicate between virtual machines a single time, at the end of the burnout.</li>
+<li>As a real-time indicator in the UI?
+<ul>
+<li>Then you may want to only update this indicator (to communicate between VMs) <strong>if</strong> it has changed since the last time.</li>
+<li>And depending on the visual indicator, you will want to optimize further:
+<ul>
+<li>Is it progress bar? Then on top of that, you may want to send it only on UI update frames <code>onGuiUpdate()</code> rather than on graphics frames <code>onUpdate()</code>.</li>
+<li>Is it a text label showing a numeric value? Then on top of that, you may want to only update this value once per second (so the user can actually read the text before it changes again)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="programming-documentation-feedback">
+
+  Programming documentation feedback
+</h5>
+<p><em>If you feel this <strong>programming documentation</strong> is too high level, too low level, is missing important topics, is erroneous anywhere, etc, please write a 
+    <a class="link-ext" href="https://www.beamng.com/threads/new-beamng-drive-documentation.77939/" rel="noopener" target="_blank">post at this thread</a>
+ and ping me personally by typing <code>@stenyak</code> so I will get notified.</em></p>

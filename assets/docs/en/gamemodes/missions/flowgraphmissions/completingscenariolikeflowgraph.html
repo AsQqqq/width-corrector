@@ -1,0 +1,83 @@
+<p>The “ScenarioLike” flowgraph mission template is the most complete of the available templates, and represents a gameplay loop similar to the previously existing scenarios, with an intro, gameplay phase, and an outro, along with a reset loop allowing the player to restart the mission at any point.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/FlowgraphScenarioLike.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/FlowgraphScenarioLike_hu53a3a52ecf3493987b38a8fcbf1a907c_68832_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>We won’t be going into the detail of every single element, but at least give you a decent explanation of what each section does and why it does it so you can apply those principles to your own missions.</p>
+<h3 id="loading">
+
+  Loading
+</h3>
+<p>The first state is the loading state, where things are set-up on the first time the mission is loaded.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/Loading.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/Loading_hu7291a882554a6adcd48e7195e0fdd305_132982_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>The two section blocks multiple input actions like slowmotion and vehicle recovery, and switches to the scenario UI layout, blocking access to some menus like the part selector.</p>
+<p>The second section loads the prefab whose name matches the string node “myPrefab”. To add a prefab, you need to add a prefab file with the already defined file name inside the mission’s folder.</p>
+<p>Once this is done, the mission transitions to the next state.</p>
+<h3 id="intro">
+
+  Intro
+</h3>
+<p>The intro state gets loaded up both on first load, and every time the player resets the vehicle.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/Intro.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/Intro_hu8b3d6b93ca16f06f106b1adc1d9ce8e1_179982_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>On the first frame when entering the state, all the actions in the upper block happen, namely reseting the prefab, the player vehicle, and freezing the player vehicle. All of the single use nodes in the state also get reset at the same time.</p>
+<p>While that is happening, the intro sequence also starts, fading from black, displaying the start screen and then the countdown.</p>
+<p>Once the countdown is complete, we transition out of this state, and as that happens the player vehicle gets unfrozen by the bottom node.</p>
+<h3 id="gameplay">
+
+  Gameplay
+</h3>
+<p>The gameplay is defined as a group state made out of 3 states that run in parallel.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/GameplayState.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/GameplayState_hu242bd4bdb061858201b7c021498e9282_147023_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>The transition to the next state will happen whenever one of the 3 states fills out it’s transition parameter, locking out the other 2. This means for example that you won’t be able to complete the “arrive” state if the time limit has been reached.</p>
+<h4 id="arrive">
+
+  Arrive
+</h4>
+<p>The Arrive state represents the main objective of this mission, which by default is set-up as a “drive to” mission.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/ArriveState.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/ArriveState_hu556afbde7554a9805255e7a3e7f1b13d_163124_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>It consists of a custom trigger alogn with it’s parameters, and a transition to the next state once the trigger is “entered” by the player’s vehicle.</p>
+<p>You can move the target area by clicking on the transform node and then moving it in the world editor.</p>
+<p>You can see a boolean node next to the transition, which sets the “failure” variable to “false”. The same principle can also be used to add conditions which fail the player, in which case the “failure” variable would be set to “true”</p>
+<h4 id="time-limit">
+
+  Time Limit
+</h4>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/TimeLimitState.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/TimeLimitState_hua7eaccec986fca7cbc8743d9eccd09fb_147319_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="retry-detector">
+
+  Retry Detector
+</h4>
+<p>The retry detector waits for the player to use the input to reset their car (<kbd>R</kbd> by default), and transitions to the “retry” state when that happens.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/RetryDetectorState.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/RetryDetectorState.png"/>
+</span></a></p>
+<p>It is used as the trigger to reset the mission when the player resets the car, as happens with scenarios.</p>
+<h3 id="reset-fade">
+
+  Reset fade
+</h3>
+<p>The reset fade state fades back to black when the player resets, before heading back to the intro state, which will reset the prefab and the player’s car, and then fade from black.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/ResetFadeState.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/ResetFadeState_hu8c65f604d889f169badeb94dd28eaf1a_52838_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="outro">
+
+  Outro
+</h3>
+<p>The outro state displays the end screen and then allows the player to continue or reset.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/OutroState.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/OutroState_hu10bdfb46b8142a449b8c091696191a2d_123034_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>The first section enables bullet time, slowing down the game.</p>
+<p>Then the end screen is displayed, showing the failure or success message.</p>
+<p>If the player continues, we fade to black and finish the mission, at which point the prefabs are automatically unloaded. If the player resets, the flowgraph transitions to the reset Fade state.</p>
+<p>In both cases, as we transition out of this state, bullet time is deactivated as we exit the state.</p>

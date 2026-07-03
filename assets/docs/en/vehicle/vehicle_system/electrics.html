@@ -1,0 +1,664 @@
+<p>Electrics refer to all the information that is created by the vehicle’s systems for use by other systems and the jbeam itself, notably for things like <a data-doc="vehicle/sections/hydros" href="/docs/vehicle/sections/hydros">hydros</a>
+ and <a data-doc="vehicle/sections/props" href="/docs/vehicle/sections/props">props</a>
+.</p>
+<p>It includes mostly information about the vehicle’s status, things like the speed, the status of lights, engine information, etc. You can think of it as the network of sensors and switches that are connected to the car’s ECU.</p>
+<p>You can see the current state of a vehicle’s electrics by choosing the current vehicle in the console and entering “dump(electrics)”</p>
+<p>As electrics can have multiple sources, there is no definitive list of all the electrics. The main ones are available here, along with the <a data-doc="vehicle/vehicle_system/controller/main/vehiclecontroller" href="/docs/vehicle/vehicle_system/controller/main/vehiclecontroller">vehicle controller</a>
+ page.</p>
+<div class="bng-notice note">Most electrics are defined in base SI units, and will often need to be converted when using them for gauges and displays.</div>
+<hr/>
+<h3 id="electrics">
+
+  Electrics
+</h3>
+<p>These are the electrics which are managed by vehicleLua and not tied to specific controllers or drivetrain elements.</p>
+<h4 id="vehicle-controls">
+
+  Vehicle controls
+</h4>
+<div class="bng-table" id="table-1783007355320664914"><div class="bng-table-header"><div>Name</div><div>Units/Values</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">brake_input</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Brake input.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">clutch</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Clutch output.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">clutch_input</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Clutch input.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">horn</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates the horn is active.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">parkingbrake</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Parking brake output.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">parkingbrake_input</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Parking brake input.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">reverse</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates a reverse gear is selected.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">steering</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">Degrees</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Angle of the steering wheel accounting for the in-game assists.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">steeringUnassisted</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">Degrees</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Angle of the steering wheel.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">steering_input</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">-1 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Steering input.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">throttle_input</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Throttle input.</div>
+</div></div></div>
+<h4 id="lights">
+
+  Lights
+</h4>
+<div class="bng-table" id="table-1783007355321024256"><div class="bng-table-header"><div>Name</div><div>Units/Values</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">brakelight_signal_R</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Combines the brake electrics with the signal_R electric. Lights up if either of those are on. Used for american style indicator/lights.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">brakelight_signal_L</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Combines the brake electrics with the signal_L electric. Lights up if either of those are on. Used for american style indicator/lights.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">brakelights</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Brake output with account for ABS flashing.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">fog</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates the fog lights are turned on.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">hazard</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Flashing function when hazards are on.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">hazard_enabled</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates the hazards have been turned on.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">highbeam</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Tells if the high beams are turned on.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">highbeam_wigwag_R</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Right police wigwag headlight. Controlled by normal highbeam values if lightbar is off, and if it’s on, only the wigwag signal has control.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">highbeam_wigwag_L</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Left police wigwag headlight. Controlled by normal highbeam values if lightbar is off, and if it’s on, only the wigwag signal has control.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">lightbar</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0, 1 or 2</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates the current police flashing/beacon lights mode (0 is off, 1 is lights, 2 is lights + siren).</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">lights</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0, 1 or 2</div>
+</div><div>
+<div style="">Description</div>
+<div style="">index of the current light mode (0 is off, 1 is lowbeams, 2 is highbeams).</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">lights_state</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0, 1 or 2</div>
+</div><div>
+<div style="">Description</div>
+<div style="">index of the current light mode (0 is off, 1 is lowbeams, 2 is highbeams).</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">lowbeam</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Tells if the low beams are turned on.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">lowhighbeam</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Tells if either the low or high beams are turned on.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">lowhighbeam_signal_R</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Combines the lowhighbeam electrics with the signal_R electric. Lights up if either of those are on. Used for american style indicator/lights.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">lowhighbeam_signal_L</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Combines the lowhighbeam electrics with the signal_L electric. Lights up if either of those are on. Used for american style indicator/lights.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">parking</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Currently unused</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">parkingbrakelight</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Parking brake output with account for ABS flashing.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">reverse</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates a reverse gear is selected.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">reverse_wigwag_R</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Right police wigwag reverse light. Controlled by wigwag signals in forward and neutral gears and reverse lights in reverse gears.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">reverse_wigwag_L</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Left police wigwag reverse light. Controlled by wigwag signals in forward and neutral gears and reverse lights in reverse gears.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">signal_L</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Flashes if the left turn signal or hazards are turned on.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">signal_R</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Flashes if the right turn signal or hazards are turned on.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">signal_left_input</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates the left indicator is selected.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">signal_right_input</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates the right indicator is selected.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">turnsignal</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0, 1 or -1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Varies depending on which turn signal is selected (right is 1, left is -1)</div>
+</div></div></div>
+<h4 id="vehicle-status">
+
+  Vehicle status
+</h4>
+<div class="bng-table" id="table-1783007355321782418"><div class="bng-table-header"><div>Name</div><div>Units/Values</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">accXSmooth</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">m/s^2 (meters per second squared)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Acceleration of the vehicle on the X axis.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">accYSmooth</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">m/s^2 (meters per second squared)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Acceleration of the vehicle on the Y axis.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">accZSmooth</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">m/s^2 (meters per second squared)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Acceleration of the vehicle on the Z axis.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">airflowspeed</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">m/s (meters per second)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Speed of the vehicle compared to the airflow, taking into account wind.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">airspeed</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">m/s (meters per second)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Speed of the vehicle compared to the world.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">altitude</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">meters</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Altitude of the vehicle.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">avgWheelAV</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">rad/s (radians per second)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Average angular velocity of the vehicle’s wheels.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">boost</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">PSI</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Current forced ignition boost.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">boostMax</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">PSI</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Maximum achievable forced ignition boost.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">electricalLoadCoef</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Electrical load used by things like the starter.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">fuel</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Ratio of fuel left to max fuel.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">gear</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">string</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Displayed gear.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">gearIndex</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">number</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Engaged gear, reverse gears are negative numbers and neutral is 0.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">gearboxMode</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">string</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Selected gearbox mode.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">hasABS</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">true or false</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Whether the vehicle is equipped with an anti-lock braking system.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">ignitionLevel</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0, 1, 2 or 3</div>
+</div><div>
+<div style="">Description</div>
+<div style="">0 = ignition off, 1 = accessory only, 2 = ignition on (engine running or not), 3 = starter running.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">lowfuel</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates the vehicle is running on less than 10% of its max fuel.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">lowpressure</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates a tire is deflated.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">odometer</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">meters</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Vehicle odometer level.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">oil</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 or 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates the oil temperature is greater than 130°C.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">rpmTacho</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">rpm</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Smoothed engine speed value for use with tachometers.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">rpmspin</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">Degrees</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Spin function based on engine RPM. Used for spinning pulley props.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">running</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0, 1 or false</div>
+</div><div>
+<div style="">Description</div>
+<div style="">0 = ignition off, 1 = ignition on, false = vehicle has no ignition system.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">trip</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">meters</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Vehicle trip counter level.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">wheelspeed</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">m/s (meters per second)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Speed of the car measured at the wheels.</div>
+</div></div></div>
+<h4 id="other">
+
+  Other
+</h4>
+<div class="bng-table" id="table-1783007355322492864"><div class="bng-table-header"><div>Name</div><div>Units/Values</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">nop</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Always equals 0.</div>
+</div></div></div>

@@ -1,0 +1,1024 @@
+<p><code>GroundCover</code> procedurally covers terrain with many small foliage/detail elements such as grass, flowers, weeds, reeds, rocks, shrubs, and other low-cost environmental clutter.</p>
+<p>A <code>GroundCover</code> object does not place every element as an individual scene object. Instead, it generates and renders cells around the camera at runtime.</p>
+<p>Ground cover elements can be rendered as:</p>
+<ul>
+<li><strong>Billboards</strong> using a shared foliage material/texture atlas.</li>
+<li><strong>Instanced TS shapes</strong> using <code>shapeFilename</code> entries.</li>
+</ul>
+<p><code>GroundCover</code> is terrain-based. It places elements on <code>TerrainBlock</code> surfaces and can filter placement by terrain material layer, elevation, and slope.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Basic example
+</h2>
+<p>A simple grass/flower ground cover object:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"GroundCover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"grass_groundcover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"grass_atlas"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dissolveRadius"</span><span class="p">:</span> <span class="mi">65</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElements"</span><span class="p">:</span> <span class="mi">12000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"zOffset"</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"seed"</span><span class="p">:</span> <span class="mi">12345</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"billboardUVs"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMin"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMax"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxSlope"</span><span class="p">:</span> <span class="p">[</span><span class="mi">35</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"minElevation"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-99999</span><span class="p">,</span> <span class="mi">-99999</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElevation"</span><span class="p">:</span> <span class="p">[</span><span class="mi">99999</span><span class="p">,</span> <span class="mi">99999</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"minClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpRadius"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"windDirection"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windGustLength"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windGustFrequency"</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windGustStrength"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windTurbulenceFrequency"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windTurbulenceStrength"</span><span class="p">:</span> <span class="mf">0.05</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="how-groundcover-works">
+
+  How GroundCover works
+</h2>
+<p><code>GroundCover</code> maintains a square grid of cells around the camera.</p>
+<p>For each active cell, it:</p>
+<ol>
+<li>Chooses random placement points.</li>
+<li>Samples the terrain height and normal.</li>
+<li>Checks terrain material layer filters.</li>
+<li>Checks elevation and slope limits.</li>
+<li>Chooses element type using per-type probabilities.</li>
+<li>Applies random size, rotation, clumping, wind scale, and lightmap color.</li>
+<li>Builds billboard buffers and/or shape instance data.</li>
+<li>Renders only visible cells.</li>
+</ol>
+<p>As the camera moves, cells are shifted and recycled. New cells are generated at the edge of the grid.</p>
+<hr/>
+<h2 id="important-fields">
+
+  Important fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>"GroundCover"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Scene object name.</td>
+</tr>
+<tr>
+<td><code>material</code></td>
+<td>string</td>
+<td>Material used for billboard ground cover.</td>
+</tr>
+<tr>
+<td><code>radius</code></td>
+<td>number</td>
+<td>Outer generation/render radius from the camera.</td>
+</tr>
+<tr>
+<td><code>dissolveRadius</code></td>
+<td>number</td>
+<td>Distance where billboard fading begins. Should be less than or equal to <code>radius</code>.</td>
+</tr>
+<tr>
+<td><code>reflectScale</code></td>
+<td>number</td>
+<td>Scales culling radius in reflection passes. Use <code>0</code> to skip reflections.</td>
+</tr>
+<tr>
+<td><code>gridSize</code></td>
+<td>integer</td>
+<td>Number of ground cover cells per axis.</td>
+</tr>
+<tr>
+<td><code>zOffset</code></td>
+<td>number</td>
+<td>Vertical offset added to placed elements.</td>
+</tr>
+<tr>
+<td><code>seed</code></td>
+<td>integer</td>
+<td>Random seed used for deterministic placement.</td>
+</tr>
+<tr>
+<td><code>maxElements</code></td>
+<td>integer</td>
+<td>Maximum approximate number of generated elements across the active grid.</td>
+</tr>
+<tr>
+<td><code>maxBillboardTiltAngle</code></td>
+<td>number</td>
+<td>Maximum angle billboards may tilt down toward the camera.</td>
+</tr>
+<tr>
+<td><code>shapeCullRadius</code></td>
+<td>number</td>
+<td>Distance at which shape-based elements are culled.</td>
+</tr>
+<tr>
+<td><code>shapesCastShadows</code></td>
+<td>bool</td>
+<td>Whether TS shape elements render in shadow passes.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="per-type-fields">
+
+  Per-type fields
+</h2>
+<p>Ground cover supports multiple cover types. Each type has its own billboard UVs, shape, probability, size range, layer filters, and placement settings.</p>
+<p>In JSON, these fields are commonly represented as arrays. Index <code>0</code> describes type 0, index <code>1</code> describes type 1, and so on.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>billboardUVs</code></td>
+<td>array</td>
+<td>UV rectangle in the ground cover material atlas for each billboard type.</td>
+</tr>
+<tr>
+<td><code>useWorldRandomYaw</code></td>
+<td>array[bool]</td>
+<td>Uses random world-space yaw for billboard orientation where supported.</td>
+</tr>
+<tr>
+<td><code>shapeFilename</code></td>
+<td>array[string]</td>
+<td>Optional shape file for this type. If set, the type renders as instanced shapes instead of billboards.</td>
+</tr>
+<tr>
+<td><code>layer</code></td>
+<td>array[string]</td>
+<td>Terrain material internal name to restrict placement to. Empty means any terrain layer.</td>
+</tr>
+<tr>
+<td><code>invertLayer</code></td>
+<td>array[bool]</td>
+<td>Treats <code>layer</code> as an exclusion mask instead of an inclusion mask.</td>
+</tr>
+<tr>
+<td><code>probability</code></td>
+<td>array[number]</td>
+<td>Relative probability of each type. Values are normalized internally.</td>
+</tr>
+<tr>
+<td><code>sizeMin</code></td>
+<td>array[number]</td>
+<td>Minimum random size/scale.</td>
+</tr>
+<tr>
+<td><code>sizeMax</code></td>
+<td>array[number]</td>
+<td>Maximum random size/scale.</td>
+</tr>
+<tr>
+<td><code>sizeExponent</code></td>
+<td>array[number]</td>
+<td>Bias exponent for random size selection.</td>
+</tr>
+<tr>
+<td><code>windScale</code></td>
+<td>array[number]</td>
+<td>Per-type wind displacement multiplier.</td>
+</tr>
+<tr>
+<td><code>maxSlope</code></td>
+<td>array[number]</td>
+<td>Maximum terrain slope in degrees. <code>0</code> disables slope limiting.</td>
+</tr>
+<tr>
+<td><code>minElevation</code></td>
+<td>array[number]</td>
+<td>Minimum world-space elevation for placement.</td>
+</tr>
+<tr>
+<td><code>maxElevation</code></td>
+<td>array[number]</td>
+<td>Maximum world-space elevation for placement.</td>
+</tr>
+<tr>
+<td><code>minClumpCount</code></td>
+<td>array[integer]</td>
+<td>Minimum number of elements in a clump.</td>
+</tr>
+<tr>
+<td><code>maxClumpCount</code></td>
+<td>array[integer]</td>
+<td>Maximum number of elements in a clump.</td>
+</tr>
+<tr>
+<td><code>clumpExponent</code></td>
+<td>array[number]</td>
+<td>Bias exponent for clump size/count.</td>
+</tr>
+<tr>
+<td><code>clumpRadius</code></td>
+<td>array[number]</td>
+<td>Maximum radius of a clump.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="billboard-types">
+
+  Billboard types
+</h2>
+<p>Billboard ground cover uses the <code>material</code> field and <code>billboardUVs</code>.</p>
+<p>Example with two billboard types in one texture atlas:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"GroundCover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"meadow_grass"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"meadow_grass_atlas"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dissolveRadius"</span><span class="p">:</span> <span class="mi">75</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElements"</span><span class="p">:</span> <span class="mi">16000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"billboardUVs"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMin"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMax"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Each <code>billboardUVs</code> entry is a rectangle in the material texture atlas:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[u, v, width, height]
+</span></span></code></pre></div><p>The engine uses the material’s diffuse texture dimensions to calculate billboard aspect ratio from the UV rectangle.</p>
+<hr/>
+<h2 id="shape-types">
+
+  Shape types
+</h2>
+<p>If <code>shapeFilename</code> is set for a type, that type renders as instanced TS shape geometry instead of a billboard.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"GroundCover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"rocks_and_grass"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"grass_atlas"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dissolveRadius"</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElements"</span><span class="p">:</span> <span class="mi">8000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeCullRadius"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapesCastShadows"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"billboardUVs"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeFilename"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">""</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"/levels/example/art/shapes/rocks/small_rock.dae"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMin"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMax"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Here:</p>
+<ul>
+<li>Type <code>0</code> is billboard grass.</li>
+<li>Type <code>1</code> is an instanced rock shape.</li>
+</ul>
+<div class="bng-notice info">Shape-based ground cover is more expensive than billboard ground cover. Use it sparingly for rocks, shrubs, small plants, or detail props.</div>
+<hr/>
+<h2 id="material-requirements">
+
+  Material requirements
+</h2>
+<p><code>GroundCover</code> billboard rendering uses a foliage material feature internally.</p>
+<p>The billboard material should generally be authored as a foliage/alpha material with:</p>
+<ul>
+<li>Diffuse/albedo texture atlas</li>
+<li>Alpha channel or opacity for cutout foliage</li>
+<li>Good mipmaps</li>
+<li>Correct texture atlas layout for <code>billboardUVs</code></li>
+<li>Optional normal/roughness maps where supported by the material setup</li>
+</ul>
+<p>If the material cannot be found, <code>GroundCover</code> falls back to a warning material.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"material"</span><span class="err">:</span> <span class="s2">"grass_atlas"</span>
+</span></span></code></pre></div><hr/>
+<h2 id="terrain-layer-filtering">
+
+  Terrain layer filtering
+</h2>
+<p>Use <code>layer</code> to restrict a type to a terrain material.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"layer"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"grass"</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"probability"</span><span class="err">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span>
+</span></span></code></pre></div><p>This places the type only on terrain areas using the <code>grass</code> terrain material.</p>
+<p>Use <code>invertLayer</code> to exclude a terrain material:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"layer"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"rock"</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"invertLayer"</span><span class="err">:</span> <span class="p">[</span><span class="kc">true</span><span class="p">]</span>
+</span></span></code></pre></div><p>This places the type everywhere except on the <code>rock</code> terrain material.</p>
+<div class="bng-notice warning">The <code>layer</code> value should match the terrain material internal name, not necessarily the displayed material label.</div>
+<hr/>
+<h2 id="elevation-filtering">
+
+  Elevation filtering
+</h2>
+<p>Use <code>minElevation</code> and <code>maxElevation</code> to restrict placement by world-space height.</p>
+<p>Example: only place alpine grass above 500 meters:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"minElevation"</span><span class="err">:</span> <span class="p">[</span><span class="mi">500</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"maxElevation"</span><span class="err">:</span> <span class="p">[</span><span class="mi">99999</span><span class="p">]</span>
+</span></span></code></pre></div><p>Example: only place beach grass below 8 meters:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"minElevation"</span><span class="err">:</span> <span class="p">[</span><span class="mi">-99999</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"maxElevation"</span><span class="err">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+</span></span></code></pre></div><hr/>
+<h2 id="slope-filtering">
+
+  Slope filtering
+</h2>
+<p>Use <code>maxSlope</code> to restrict placement to flatter terrain.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"maxSlope"</span><span class="err">:</span> <span class="p">[</span><span class="mi">35</span><span class="p">]</span>
+</span></span></code></pre></div><p>This allows placement only where terrain slope is up to about 35 degrees.</p>
+<p>A value of <code>0</code> disables slope filtering:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"maxSlope"</span><span class="err">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span></code></pre></div><hr/>
+<h2 id="size-settings">
+
+  Size settings
+</h2>
+<p>Each type can have randomized size:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"sizeMin"</span><span class="err">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"sizeMax"</span><span class="err">:</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"sizeExponent"</span><span class="err">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">]</span>
+</span></span></code></pre></div><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sizeMin</code></td>
+<td>Smallest possible size.</td>
+</tr>
+<tr>
+<td><code>sizeMax</code></td>
+<td>Largest possible size.</td>
+</tr>
+<tr>
+<td><code>sizeExponent</code></td>
+<td>Bias between min and max.</td>
+</tr>
+</tbody>
+</table>
+<p>Higher <code>sizeExponent</code> values bias more placements toward the smaller end of the range.</p>
+<hr/>
+<h2 id="probability">
+
+  Probability
+</h2>
+<p><code>probability</code> controls the relative distribution of types.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"probability"</span><span class="err">:</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]</span>
+</span></span></code></pre></div><p>The values are normalized internally, so these are equivalent in ratio to:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"probability"</span><span class="err">:</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre></div><p>Types with no valid billboard UV/aspect and no valid <code>shapeFilename</code> are ignored.</p>
+<hr/>
+<h2 id="clumping">
+
+  Clumping
+</h2>
+<p>Clumping controls whether elements appear uniformly scattered or grouped in patches.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"minClumpCount"</span><span class="err">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"maxClumpCount"</span><span class="err">:</span> <span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"clumpExponent"</span><span class="err">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"clumpRadius"</span><span class="err">:</span> <span class="p">[</span><span class="mf">2.5</span><span class="p">]</span>
+</span></span></code></pre></div><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>minClumpCount</code></td>
+<td>Minimum number of elements in a clump.</td>
+</tr>
+<tr>
+<td><code>maxClumpCount</code></td>
+<td>Maximum number of elements in a clump.</td>
+</tr>
+<tr>
+<td><code>clumpExponent</code></td>
+<td>Bias for clump count distribution.</td>
+</tr>
+<tr>
+<td><code>clumpRadius</code></td>
+<td>Radius around the clump center where elements may appear.</td>
+</tr>
+</tbody>
+</table>
+<p>Use clumping for:</p>
+<ul>
+<li>Grass tufts</li>
+<li>Flowers in patches</li>
+<li>Reeds near water</li>
+<li>Rock scatter groups</li>
+<li>Bush clusters</li>
+</ul>
+<p>Use lower clump counts and larger radius for more even distribution.</p>
+<hr/>
+
+<p>Ground cover billboards support wind animation.</p>
+<h2 id="wind-fields">
+
+  Wind fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>windDirection</code></td>
+<td>array[2]</td>
+<td>2D wind direction.</td>
+</tr>
+<tr>
+<td><code>windGustLength</code></td>
+<td>number</td>
+<td>Distance in meters between gust peaks.</td>
+</tr>
+<tr>
+<td><code>windGustFrequency</code></td>
+<td>number</td>
+<td>How often gust peaks occur per second.</td>
+</tr>
+<tr>
+<td><code>windGustStrength</code></td>
+<td>number</td>
+<td>Maximum gust displacement in meters.</td>
+</tr>
+<tr>
+<td><code>windTurbulenceFrequency</code></td>
+<td>number</td>
+<td>Frequency/rapidity of turbulence.</td>
+</tr>
+<tr>
+<td><code>windTurbulenceStrength</code></td>
+<td>number</td>
+<td>Maximum turbulence displacement in meters.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"windDirection"</span><span class="err">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"windGustLength"</span><span class="err">:</span> <span class="mi">25</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"windGustFrequency"</span><span class="err">:</span> <span class="mf">0.12</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"windGustStrength"</span><span class="err">:</span> <span class="mf">0.25</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"windTurbulenceFrequency"</span><span class="err">:</span> <span class="mf">1.2</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"windTurbulenceStrength"</span><span class="err">:</span> <span class="mf">0.05</span>
+</span></span></code></pre></div><p>Per-type <code>windScale</code> multiplies the wind effect:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"windScale"</span><span class="err">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+</span></span></code></pre></div><p>Use <code>0</code> for objects that should not sway, such as rocks.</p>
+<hr/>
+<h1 class="anchored">
+
+  Grid, radius, and density
+</h1>
+<h2 id="radius">
+
+  radius
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"radius"</span><span class="err">:</span> <span class="mi">80</span>
+</span></span></code></pre></div><p><code>radius</code> is the outer area around the camera where ground cover is generated and rendered.</p>
+<p>Larger values show foliage farther away but require more cells/elements.</p>
+<hr/>
+<h2 id="dissolveradius">
+
+  dissolveRadius
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"dissolveRadius"</span><span class="err">:</span> <span class="mi">65</span>
+</span></span></code></pre></div><p><code>dissolveRadius</code> controls where billboards begin fading out.</p>
+<p>The fade range is roughly:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">dissolveRadius -&gt; radius
+</span></span></code></pre></div><p>For example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"radius"</span><span class="err">:</span> <span class="mi">80</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"dissolveRadius"</span><span class="err">:</span> <span class="mi">65</span>
+</span></span></code></pre></div><p>means elements are fully visible up to about 65 meters and fade out by 80 meters.</p>
+<hr/>
+<h2 id="gridsize">
+
+  gridSize
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gridSize"</span><span class="err">:</span> <span class="mi">7</span>
+</span></span></code></pre></div><p><code>gridSize</code> is the number of cells per axis.</p>
+<p>Total active cells:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">gridSize * gridSize
+</span></span></code></pre></div><p>Examples:</p>
+<table>
+<thead>
+<tr>
+<th align="right"><code>gridSize</code></th>
+<th align="right">Cells</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right"><code>5</code></td>
+<td align="right">25</td>
+</tr>
+<tr>
+<td align="right"><code>7</code></td>
+<td align="right">49</td>
+</tr>
+<tr>
+<td align="right"><code>9</code></td>
+<td align="right">81</td>
+</tr>
+</tbody>
+</table>
+<p>Increasing <code>gridSize</code> creates smaller cells and can reduce per-cell billboard limits, but more cells must be managed.</p>
+<hr/>
+<h2 id="maxelements">
+
+  maxElements
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"maxElements"</span><span class="err">:</span> <span class="mi">12000</span>
+</span></span></code></pre></div><p><code>maxElements</code> is the approximate maximum number of elements distributed across the active grid.</p>
+<p>Per-cell placement count is roughly:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">maxElements / (gridSize * gridSize)
+</span></span></code></pre></div><p>modified by global density scaling.</p>
+<div class="bng-notice warning">If a cell has too many billboards, the engine may warn that the object has too many elements. Decrease <code>maxElements</code> or increase <code>gridSize</code>.</div>
+<hr/>
+<h2 id="global-density-scale">
+
+  Global density scale
+</h2>
+<p>Ground cover density is also affected by the global preference variable:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">$pref::GroundCover::densityScale
+</span></span></code></pre></div><p>This scales placement density globally.</p>
+<p>The engine also exposes runtime stats:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">$GroundCover::renderedCells
+</span></span><span class="line"><span class="cl">$GroundCover::renderedBillboards
+</span></span><span class="line"><span class="cl">$GroundCover::renderedBatches
+</span></span><span class="line"><span class="cl">$GroundCover::renderedShapes
+</span></span></code></pre></div><p>These are useful for debugging and performance tuning.</p>
+<hr/>
+<h1 class="anchored">
+
+  Reflections and shadows
+</h1>
+<h2 id="reflectscale">
+
+  reflectScale
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"reflectScale"</span><span class="err">:</span> <span class="mf">0.5</span>
+</span></span></code></pre></div><p><code>reflectScale</code> scales the render/culling radius when rendering reflection passes, typically for water reflections.</p>
+<p>Use lower values to reduce reflection cost.</p>
+<p>Set to <code>0</code> to skip ground cover in reflections:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"reflectScale"</span><span class="err">:</span> <span class="mi">0</span>
+</span></span></code></pre></div><hr/>
+<h2 id="shapescastshadows">
+
+  shapesCastShadows
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"shapesCastShadows"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>Controls whether shape-based ground cover renders during shadow passes.</p>
+<p>Billboards are not submitted to shadow passes by this code path.</p>
+<p>For performance, leave this disabled unless the shapes are important enough to cast visible shadows.</p>
+<hr/>
+<h1 class="anchored">
+
+  Debug fields
+</h1>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lockFrustum</code></td>
+<td>bool</td>
+<td>Freezes culling/generation frustum for debugging.</td>
+</tr>
+<tr>
+<td><code>renderCells</code></td>
+<td>bool</td>
+<td>Draws debug boxes for active render cells.</td>
+</tr>
+<tr>
+<td><code>noBillboards</code></td>
+<td>bool</td>
+<td>Disables billboard rendering.</td>
+</tr>
+<tr>
+<td><code>noShapes</code></td>
+<td>bool</td>
+<td>Disables shape rendering.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"renderCells"</span><span class="err">:</span> <span class="kc">true</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"noShapes"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>Use these fields to inspect placement cells and isolate billboard vs shape cost.</p>
+<hr/>
+<h1 class="anchored">
+
+  Terrain dependency
+</h1>
+<p><code>GroundCover</code> requires terrain.</p>
+<p>It queries active <code>TerrainBlock</code> objects and samples:</p>
+<ul>
+<li>Terrain height</li>
+<li>Terrain normal</li>
+<li>Terrain material layer</li>
+<li>Terrain lightmap color</li>
+<li>Terrain layer texture/height data for newer placement paths</li>
+</ul>
+<p>If there is no terrain, ground cover cells cannot generate.</p>
+<div class="bng-notice warning"><code>GroundCover</code> is intended for terrain surfaces. It does not project onto arbitrary static meshes like <code>DecalRoad</code> with <code>overObjects</code>.</div>
+<hr/>
+<h1 class="anchored">
+
+  Terrain updates
+</h1>
+<p><code>GroundCover</code> listens for terrain updates.</p>
+<p>When terrain changes:</p>
+<table>
+<thead>
+<tr>
+<th>Terrain update</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lightmap update</td>
+<td>Frees/regenerates all cells.</td>
+</tr>
+<tr>
+<td>Heightmap update</td>
+<td>Frees cells overlapping the changed area.</td>
+</tr>
+<tr>
+<td>Layer update</td>
+<td>Frees cells overlapping the changed area.</td>
+</tr>
+<tr>
+<td>Empty/update marker</td>
+<td>Frees cells overlapping the changed area where supported.</td>
+</tr>
+</tbody>
+</table>
+<p>This allows ground cover to regenerate after terrain sculpting, painting, or lighting changes.</p>
+<hr/>
+<h1 class="anchored">
+
+  Full examples
+</h1>
+<h2 id="grass-on-one-terrain-layer">
+
+  Grass on one terrain layer
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"GroundCover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"grass_only_groundcover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"grass_atlas"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">75</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dissolveRadius"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElements"</span><span class="p">:</span> <span class="mi">14000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"zOffset"</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"seed"</span><span class="p">:</span> <span class="mi">1001</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"billboardUVs"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"layer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"grass"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMin"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.45</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMax"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.15</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.6</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxSlope"</span><span class="p">:</span> <span class="p">[</span><span class="mi">35</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"minClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">9</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpRadius"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"windDirection"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windGustLength"</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windGustFrequency"</span><span class="p">:</span> <span class="mf">0.12</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windGustStrength"</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windTurbulenceFrequency"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windTurbulenceStrength"</span><span class="p">:</span> <span class="mf">0.04</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="mixed-grass-and-flowers">
+
+  Mixed grass and flowers
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"GroundCover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"meadow_groundcover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"meadow_foliage_atlas"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dissolveRadius"</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElements"</span><span class="p">:</span> <span class="mi">18000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"zOffset"</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"seed"</span><span class="p">:</span> <span class="mi">4321</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"billboardUVs"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"layer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"grass"</span><span class="p">,</span> <span class="s2">"grass"</span><span class="p">,</span> <span class="s2">"grass"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMin"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMax"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxSlope"</span><span class="p">:</span> <span class="p">[</span><span class="mi">35</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"minClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpRadius"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="reeds-near-low-elevation">
+
+  Reeds near low elevation
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"GroundCover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"shore_reeds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"reed_atlas"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dissolveRadius"</span><span class="p">:</span> <span class="mi">48</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElements"</span><span class="p">:</span> <span class="mi">6000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"zOffset"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"seed"</span><span class="p">:</span> <span class="mi">777</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"billboardUVs"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"layer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"mud"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMin"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMax"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxSlope"</span><span class="p">:</span> <span class="p">[</span><span class="mi">15</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"minElevation"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElevation"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"minClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">20</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpRadius"</span><span class="p">:</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="rocks-as-shape-ground-cover">
+
+  Rocks as shape ground cover
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"GroundCover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"small_rocks_groundcover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"groundcover_dummy_atlas"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dissolveRadius"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElements"</span><span class="p">:</span> <span class="mi">3000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeCullRadius"</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapesCastShadows"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"seed"</span><span class="p">:</span> <span class="mi">2468</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeFilename"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"/levels/example/art/shapes/rocks/small_rock_a.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"/levels/example/art/shapes/rocks/small_rock_b.dae"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"layer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rock"</span><span class="p">,</span> <span class="s2">"rock"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMin"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMax"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.4</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.8</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxSlope"</span><span class="p">:</span> <span class="p">[</span><span class="mi">45</span><span class="p">,</span> <span class="mi">45</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"minClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpRadius"</span><span class="p">:</span> <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h1 class="anchored">
+
+  Performance guidelines
+</h1>
+<p>Ground cover can render many elements, so tuning matters.</p>
+<h2 id="main-cost-drivers">
+
+  Main cost drivers
+</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Performance impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>maxElements</code></td>
+<td>Higher values generate/render more instances.</td>
+</tr>
+<tr>
+<td><code>radius</code></td>
+<td>Larger radius increases visible cells/elements.</td>
+</tr>
+<tr>
+<td><code>gridSize</code></td>
+<td>More cells to manage; smaller per-cell batches.</td>
+</tr>
+<tr>
+<td>Shape types</td>
+<td>More expensive than billboards.</td>
+</tr>
+<tr>
+<td><code>shapeCullRadius</code></td>
+<td>Larger value renders shapes farther away.</td>
+</tr>
+<tr>
+<td><code>shapesCastShadows</code></td>
+<td>Shape shadows add shadow-pass cost.</td>
+</tr>
+<tr>
+<td>Reflection rendering</td>
+<td>Controlled by <code>reflectScale</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="recommended-tuning">
+
+  Recommended tuning
+</h2>
+<ul>
+<li>Prefer billboards for grass and small plants.</li>
+<li>Use shapes only for sparse objects such as rocks or shrubs.</li>
+<li>Keep <code>radius</code> modest; use <code>dissolveRadius</code> to hide pop-in.</li>
+<li>Increase <code>gridSize</code> if per-cell element warnings appear.</li>
+<li>Reduce <code>maxElements</code> on lower-end maps or dense scenes.</li>
+<li>Set <code>reflectScale</code> to <code>0</code> or a small value unless reflected foliage is important.</li>
+<li>Disable <code>shapesCastShadows</code> unless shape shadows are visually necessary.</li>
+<li>Use terrain <code>layer</code> filters to avoid wasting placement on unsuitable areas.</li>
+<li>Use <code>maxSlope</code> and elevation limits to reduce unwanted placements.</li>
+</ul>
+<hr/>
+<h1 class="anchored">
+
+  Common issues
+</h1>
+<h2 id="groundcover-does-not-appear">
+
+  GroundCover does not appear
+</h2>
+<p>Possible causes:</p>
+<ul>
+<li>No <code>TerrainBlock</code> exists.</li>
+<li><code>maxElements</code> is <code>0</code>.</li>
+<li><code>probability</code> values are all <code>0</code>.</li>
+<li>No valid <code>billboardUVs</code> and no valid <code>shapeFilename</code>.</li>
+<li>Material is missing or invalid.</li>
+<li><code>layer</code> does not match the terrain material internal name.</li>
+<li><code>minElevation</code> / <code>maxElevation</code> excludes the terrain.</li>
+<li><code>maxSlope</code> is too restrictive.</li>
+<li>Global density scale is <code>0</code>.</li>
+</ul>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">$pref::GroundCover::densityScale
+</span></span></code></pre></div><hr/>
+<h2 id="foliage-appears-on-the-wrong-terrain-material">
+
+  Foliage appears on the wrong terrain material
+</h2>
+<p>Check that <code>layer</code> uses the terrain material internal name.</p>
+<p>Also check <code>invertLayer</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"invertLayer"</span><span class="err">:</span> <span class="p">[</span><span class="kc">false</span><span class="p">]</span>
+</span></span></code></pre></div><p>If <code>invertLayer</code> is <code>true</code>, the selected layer is excluded instead of included.</p>
+<hr/>
+<h2 id="foliage-floats-or-clips-into-terrain">
+
+  Foliage floats or clips into terrain
+</h2>
+<p>Adjust:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"zOffset"</span><span class="err">:</span> <span class="mf">0.02</span>
+</span></span></code></pre></div><p>Use small values. Too much offset makes grass float.</p>
+<hr/>
+<h2 id="too-many-elements-warning">
+
+  Too many elements warning
+</h2>
+<p>The per-cell billboard count is too high.</p>
+<p>Fix by reducing:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"maxElements"</span><span class="err">:</span> <span class="mi">8000</span>
+</span></span></code></pre></div><p>or increasing:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gridSize"</span><span class="err">:</span> <span class="mi">9</span>
+</span></span></code></pre></div><p>Increasing <code>gridSize</code> spreads the same overall element budget across more cells.</p>
+<hr/>
+<h2 id="ground-cover-pops-in-or-fades-too-close">
+
+  Ground cover pops in or fades too close
+</h2>
+<p>Increase the render radius and fade range:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"radius"</span><span class="err">:</span> <span class="mi">100</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"dissolveRadius"</span><span class="err">:</span> <span class="mi">80</span>
+</span></span></code></pre></div><p>Keep in mind that larger radii cost more.</p>
+<hr/>
+<h2 id="shape-ground-cover-is-expensive">
+
+  Shape ground cover is expensive
+</h2>
+<p>Try:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"shapeCullRadius"</span><span class="err">:</span> <span class="mi">35</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"shapesCastShadows"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre></div><p>Also lower the shape type’s <code>probability</code> or split large/detail-heavy shapes into simpler assets.</p>
+<hr/>
+<h2 id="grass-appears-on-steep-cliffs">
+
+  Grass appears on steep cliffs
+</h2>
+<p>Set <code>maxSlope</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"maxSlope"</span><span class="err">:</span> <span class="p">[</span><span class="mi">30</span><span class="p">]</span>
+</span></span></code></pre></div><p>A value of <code>0</code> disables slope filtering, so use a positive angle to restrict placement.</p>
+<hr/>
+<h2 id="wind-is-too-strong">
+
+  Wind is too strong
+</h2>
+<p>Lower global wind fields:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"windGustStrength"</span><span class="err">:</span> <span class="mf">0.1</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"windTurbulenceStrength"</span><span class="err">:</span> <span class="mf">0.02</span>
+</span></span></code></pre></div><p>or lower per-type wind:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"windScale"</span><span class="err">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">]</span>
+</span></span></code></pre></div><hr/>
+<h1 class="anchored">
+
+  Summary
+</h1>
+<p><code>GroundCover</code> is the main terrain foliage/detail scatter object.</p>
+<p>It procedurally generates camera-local cells of billboard and/or instanced shape elements. Placement can be controlled by terrain layer, probability, size range, clumping, elevation, slope, and random seed. It supports wind animation for billboards, runtime density scaling, reflection scaling, and debug visualization.</p>
+<p>Use it for dense terrain details like grass and flowers, and use shape types sparingly for small rocks, shrubs, and other sparse clutter.</p>

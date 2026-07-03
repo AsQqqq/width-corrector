@@ -1,0 +1,675 @@
+<p>Rotators are used to transfer power from the powertrain to a physical structure. They work in a way similar to <a data-doc="vehicle/sections/wheels" href="/docs/vehicle/sections/wheels">pressureWheels</a>
+, but without the tire and wheel generation system.</p>
+<p>This is mostly used in cases where your vehicle is powered by something other than wheels. Examples include propellers, paddle wheels, train wheels and track sprockets.</p>
+<p>They can also be used for continuously rotating objects like the spinner and roller props.</p>
+<p>As with wheels, any rotator structure should be built around an axle defined with 2 nodes, which needs to be solidly attached to the rest of the vehicle.</p>
+<h3 id="required-arguments">
+
+  Required arguments
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The name of the wheel</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This will be used when referring to the rotator in other sections, like the powertrain.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The nodegroup of the structure’s nodes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This identifies the nodes that will be driven by the rotator.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The first axle node.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The second axle node</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Name of the stabilizing node</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Each node from the hub will attach to this node with a beam. It’s mostly legacy and not generally used. Putting 9999 in will disable it.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Along with nodeCoupling, this node will be used to apply braking counter torque to the suspension and body.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">NodeArm should should located roughly where the brake caliper should be. Keep in mind that this node needs to be far enough from the nodeCoupling, and heavy enough. A node that is too close, or too light for the set braking torque can cause instability in the braking system, resulting in poor braking performance and brakes that overheat when the parking brake is applied.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The direction that drive torque is applied.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">The correct value (1 or -1) depends on which order you define the axle nodes.</div>
+</div>
+</div>
+<h3 id="optional-arguments">
+
+  Optional arguments
+</h3>
+<h4 id="basic-settings-and-dimensions">
+
+  Basic settings and dimensions
+</h4>
+<p>These arguments define the size and position of the wheel, along with some basic structural parameter</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Object radius in meters</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>This is used when the rotator has a speedometer enabled, to give a dimension to calculate the speed.</p>
+<p>For tracked vehicles and trains this can be changed to any value with the goal of getting an accurate speed reading.</p>
+</div>
+</div>
+</div>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Defines if the wheel will be used when calculating speedometer speed.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Should only be used for rotators whose rotation speed has a direct correlation with ground speed.</p>
+<p>Should be turned off for boat and plane propellers.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Along with nodeArm, this creates a lever that will apply braking torque to the suspension or body.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>If this is not defined, the inner axle node will be used.</p>
+<p>It should be located in the center of the wheel, where the center of the brake disc would be located. It should be heavy enough for the desired braking power.</p>
+</div>
+</div>
+</div>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Along with torqueArm and torqueArm2 forms a set of nodes that will be used to apply counter torque to the suspension or body.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>The torqueCoupling node should be defined either at the differential, or differential output node.</p>
+<p>As with nodeArm/Coupling, nodes that are heavier and further apart will allow for more torque to be transmitted before running into stability issues.</p>
+<p>If torqueCoupling or torqueArm are not defined, the game will default to not generating drivetrain torque reactions.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Along with torqueCoupling and torqueArm2, forms a set of nodes that will be used to apply counter torque to the suspension or body.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>This node should be located on the same structure as the torqueCoupling, and not move compared to it during typical driving. The engine itself, axle, or suspension subframes can be decent choices depending on the suspension and powertrain layout.</p>
+<p>As with nodeArm/Coupling, nodes that are heavier and further apart will allow for more torque to be transmitted before running into stability issues.</p>
+<p>If torqueCoupling or torqueArm is not defined, the game will default to not generating drivetrain torque reactions.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Along with torqueCoupling and torqueArm, forms a set of nodes that will be used to apply counter torque to the suspension or body.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Will default to one of the axle nodes if not defined.</p>
+<p>Should be part of the same structure as torqueCoupling and torqueArm, and not move compared to them during typical driving. The engine itself, axle, or suspension subframes can be decent choices depending on the suspension and powertrain layout.</p>
+<p>As with nodeArm/Coupling, nodes that are heavier and further apart will allow for more torque to be transmitted before running into stability issues.</p>
+<p>This node should also not form a line between it, torqueArm2 and torqueCoupling.</p>
+</div>
+</div>
+</div>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The top node of the steering axis.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This is mostly used by the advanced suspension UI tool to calculate caster.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The bottom node of the steering axis.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This is mostly used by the advanced suspension UI tool to calculate caster.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Defines beams which, when broken, disable drive torque to the wheel.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">These beams should be the beams representing the half-shafts, which transfer power from the differential to the wheels.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">A value of 0 disables drive torque, a value of 1 allows engine torque to drive the wheel.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This is deprecated and has been replaced with the powertrain system. Should be left at 0.</div>
+</div>
+</div>
+<h3 id="brakes-arguments">
+
+  Brakes arguments
+</h3>
+<p>These settings affect the parameters that apply to the brakes on this wheel.</p>
+<p>Most parameters are related to the brake thermals system, which calculates the amount of energy heating up the rotor, and how quickly it cools.</p>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The braking torque when using the service brake (Nm).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The braking torque when using the parking brake (Nm).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">10<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The flexibility of the braking torque (Nm/rad).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This is mostly used for stability purposes, with the brake torque having some level of flexibility to avoid running into instability problems in the wheels and suspension.
+This value should be proportional to the weight of the wheels and reaction nodes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Enables thermals for the brakes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.35<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The diameter of the rotor at the pad contact point. (Meters)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Used for the thermals calculations.</p>
+<p>Defines the cooling area of the brakes.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">10<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The mass of the rotor (kg)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Used for the thermals calculations.</p>
+<p>Affects the thermal inertia of the brakes. Heavier rotors will heat up and cool down more slowly.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">vented-disc<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The type of rotor</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Used by the thermals calculations, and affects how quickly the rotors cool down.</p>
+<p>The available options are “vented-disc, disc and drum”</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">steel<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The material of the brake rotor</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Used by the thermals calculations, and affects the heat capacity of the rotors, their maximum operating temperature, along with how quickly they cool down.</p>
+<p>The available options are “steel, aluminum, aluminium, carbon-ceramic and godmode”</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">How much aeration the brakes are getting</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Simulates the effect of brake ducts and other similar systems on the brake cooling.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">basic<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The material of the brake pad.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Affects the braking force vs temperature curves.</p>
+<p>The available options are “basic, premium, sport, semi-race, full-race.”</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Percentage of brake input at which the brakeSplitCoef will apply.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Should be between 0 and 1. Allows to have a point at which braking force rises slower, to have progressive or digressive brakes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Braking curve when brake input is above brakeInputSplit.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Values below 1 will result in a digressive braking curve. Values above 1 will result in a progressive curve.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The inherent level of brake squeal generated by the brakes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Should be 0 for modern brakes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The inherent level of brake squeal generated by the brakes at low speeds.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Should be 0 for modern road brakes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The level of brake squeal generated by glazed brake pads.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Indicates if the brakes have ABS enabled.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.18<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The target slip ratio to be achieved by ABS under braking.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">100<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Vibration frequency of the ABS</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">ABS works by pulsing the brakes. This parameter changes the pulsation frequency.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.05<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Smoother to replicate delay when pressing the brakes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Mostly relevant with air brakes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Smoother to replicate delay when releasing the brakes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Mostly relevant with air brakes.</div>
+</div>
+</div>
+<h3 id="example">
+
+  Example
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"rotators"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span><span class="s2">"[group]:"</span><span class="p">,</span><span class="s2">"node1:"</span><span class="p">,</span><span class="s2">"node2:"</span><span class="p">,</span><span class="s2">"nodeArm:"</span><span class="p">,</span><span class="s2">"wheelDir"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"radius"</span><span class="o">:</span><span class="mf">1.000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeTorque"</span><span class="o">:</span><span class="mi">100000</span><span class="p">,</span> <span class="s2">"brakeSpring"</span><span class="o">:</span><span class="mi">10000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"rotatorType"</span><span class="o">:</span><span class="s2">"rotator"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"roller_D"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"roller_D"</span><span class="p">],</span> <span class="s2">"roller_D_L_6"</span><span class="p">,</span> <span class="s2">"roller_D_R_6"</span><span class="p">,</span> <span class="s2">"support_L_8"</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"roller_U"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"roller_U"</span><span class="p">],</span> <span class="s2">"roller_U_L_6"</span><span class="p">,</span> <span class="s2">"roller_U_R_6"</span><span class="p">,</span> <span class="s2">"support_L_8"</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>

@@ -1,0 +1,82 @@
+<h2 id="brief-jbeam-overview">
+
+  Brief JBeam Overview
+</h2>
+<p>JBeam is BeamNG’s “language” for building cars.</p>
+<p>It is based on the concept of defining physical points in space based on coordinates (the nodes) that are linked together with beams which have physical properties like spring, damping, deform strength and break strength (these are the beams form which the game gets its name).</p>
+<p>It goes much deeper than that, but in essence this is the basic concept behind our vehicles and is important to have a rough idea of in order to make 3D models for it.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/final-mesh-splitting/1.png"/>
+</span></div>
+<p>To visually represent the vehicles, we place meshes over the top of these and bind each mesh to a specific group (or groups) of nodes that represent that part. When the beams deform and the shape of the structure changes, the mesh is deformed to follow the nodes it is bound to.</p>
+<div class="line-inner-small"></div>
+<h2 id="mesh-conventions">
+
+  Mesh Conventions
+</h2>
+<h3 id="mesh-splitting-conventions">
+
+  Mesh Splitting Conventions
+</h3>
+<p>Generally, any mesh that will form a vehicle part that is detachable or removable in-game will need to be a separate object.</p>
+<p>For example, bumpers, hoods, doors, engines, subframes, and so on, must detach, therefore they are separate to the body. Some parts like badging and lettering are not detachable but can be exchanged or removed and also have to be separate.</p>
+<p>Some meshes may be required to dynamically swap materials in-game, for example, glass and lights for visual damage. We define groups of beams in a particular area, and if any of them are deformed, the group is “triggered” and the material for the defined meshes is swapped.</p>
+<p>To do this, they need to have only one material to the mesh, so they have to be a separate mesh even though they might not be removable or detachable. In the case of glass, we use a different material for the outside than the inside, so the faces of the glass facing outward are a separate object to the faces facing inward.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/final-mesh-splitting/2.png"/>
+</span></div>
+<p>Both of these objects will be switched to the same <code>legran_glass_dmg</code> material when their deform group is triggered, but since they need different materials in their un-damaged state (interior glass material is much clearer and less reflective) they have to be separate objects.</p>
+<hr/>
+<p>Another example is the headlights of most vehicles:</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/final-mesh-splitting/3.png"/>
+</span></div>
+<p>The headlight frame is part of the body material, and does not contain any materials that need to be swapped for damage purposes.</p>
+<p>The headlight glass contains only the vehicles <code>"glass"</code> material, so when the headlight is broken in-game it can be swapped to the glass damage texture</p>
+<p>The headlight itself is a bit more complicated. It has multiple materials, one for each light function (high beam, low beam, left turn signal, etc.; this is explained more in the material naming section below) but all of these materials are mapped to the same <code>"lights"</code> texture, so when the deform group is triggered, all of these materials are swapped for the lights damage material.</p>
+<p>Meshes that use the deformation system to move, such as suspension arms, steering tie rods and suspension struts need to be separate also. Generally, we separate any symmetrical parts left to right for more freedom when it comes to binding these meshes to node groups when implementing the vehicle into the game.</p>
+<p>Try not to over-split objects. For example, the various parts, pipes, etc., in a vehicles engine bay can all be combined together into <code>"vehiclename_enginebay"</code>. This makes adding and keeping track of objects much easier when it comes to implementing the vehicle into the game.</p>
+<div class="line-inner-small"></div>
+<h3 id="mesh-naming-conventions">
+
+  Mesh Naming Conventions
+</h3>
+<p>Mesh names are all in the same case, words separated by underscores. All letters are underscores except for position identifiers (explained shortly). Don’t use any special characters other than underscores as many of these do not export properly.</p>
+<p>For any vehicle, every object name begins with the internal name of the vehicle, followed by the name of the part and a position identifier if needed. For example, <code>"wendover_door_FR"</code></p>
+<p>Generally, we stick to American dialect for part names: hood, trunk, fender, muffler, etc., instead of bonnet, boot, wing, silencer</p>
+<p>For any part that may have a front, rear, left or right version we use an identifier in the object name. These are always in capitals to make them easier to read at a glance.</p>
+<p>Generally, these are:</p>
+<ul>
+<li><code>F</code> = Front</li>
+<li><code>R</code> = Rear</li>
+<li><code>FR</code> = Front Right</li>
+<li><code>FL</code> = Front Left</li>
+<li><code>RR</code> = Rear Right</li>
+<li><code>RL</code> = Rear Left</li>
+</ul>
+<p>Some examples would be <code>sunburst_fender_FR</code>, <code>hatch_sideglass_RR</code> or <code>pickup_bumper_F</code>.</p>
+<hr/>
+<p>You might need to deviate from this in some case, for example, you may need to use RRL for Rear Rear Left on a truck that has 3 axles (<code>semi_brakedrum_RRL</code>), or use just R and L for left and right if applicable (for example, the doors of a two-door car).</p>
+<p>For parts that have similar variations intended to fill the same position, such as different options for a bumper, we use a, b, c and d, etc., to identify them, such as <code>"wendover_fascia_F_a"</code> and <code>"wendover_fascia_F_b"</code>. For more unique options, like a different body style, engine or suspension configuration we use more descriptive part names such as <code>"legran_body_wagon"</code>, <code>"vivace_engine_i5"</code> or <code>"miramar_axle_R_wide"</code></p>
+<p>In some cases, you might need to use more than one part name, a good example would be trim pieces that are fitted all around a vehicle. Order the names with the most relevant first, so they are easily found when the mesh is imported.</p>
+<p>For example:</p>
+<ul>
+<li><code>"pickup_trim_fender_FR_a"</code></li>
+<li><code>"pickup_trim_fender_FL_a"</code></li>
+<li><code>"pickup_trim_door_FR_a"</code></li>
+<li><code>"pickup_trim_door_FL_a"</code></li>
+<li><code>"pickup_trim_bed_a"</code></li>
+</ul>
+<hr/>
+<p>All things considered, this is not a completely set-in-stone system. If you find yourself stopped thinking about how exactly to fit a certain object into the described naming system, then it most likely doesn’t fit and you can just come up with your own name as long as it mostly resembles the system we use.</p>
+<div class="line-inner-small"></div>
+<h3 id="mesh-sorting-conventions">
+
+  Mesh Sorting Conventions
+</h3>
+<p>While not critical to JBeam specifically, it does help to sort objects into relevant collections to ease exporting and testing. This is important because after final mesh splitting, there are a lot of parts.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/final-mesh-splitting/4.png"/>
+</span></div>
+<p>Organize things where being able to hide all of a certain set of objects at once would be helpful. For example, if a vehicle has multiple engine options each with their own set of addon parts like intakes and exhausts, those should be individually grouped.</p>
+<p>If a car has a set of alternate facelift panels, those should also be grouped separately of other panels. This is mostly up to preference, but at least some organization is expected.</p>

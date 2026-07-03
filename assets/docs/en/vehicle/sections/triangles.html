@@ -1,0 +1,321 @@
+<p>Triangles, also known as coltris, are surfaces that fill-in the space between nodes. They are essential to allow for collisions between vehicles, and are also used to define the aerodynamic properties of objects.</p>
+<p>Triangles are defined by 3 nodes, chosen in a counter clockwise order.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/triangles/Coltri_example.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/triangles/Coltri_example_hu6f259982fbff5480e2c15369bdc6378c_16381_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="collisions">
+
+  Collisions
+</h4>
+<p>The primary function of triangles is to allow for collisions between jbeamed objects (cars and props). It should be noted that coltris will only collide with nodes. This will not collide with other coltris or with static world objects.</p>
+<p>Triangles have sides, shown as green and purple in the triangle view debug, for the front and back respectively. While both sides have collisions and aero properties, it is preferable to have the front end of the triangle be exposed, as it is less prone to objects phasing through in case of very hard impacts. You can flip a triangle by swapping any 2 of it’s nodes.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/triangles/trisides.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/triangles/trisides_huaf69d2207f9fc768feda5a724541504f_696429_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="aero">
+
+  Aero
+</h4>
+<p>The aero system in beamNG works by calculating drag on all triangles based purely on the speed of the airflow, the surface area and drag properties of the triangles. The drag and lift forces are then applied on the adjacent nodes. Triangles are not affected by other triangles, meaning that triangle in the back of your vehicle will still create the full drag.</p>
+<p>Because of this, you might need to fine tune the drag coefficient of your various components based on how exposed to airflow they are. This also lets you add surfaces to simulate ground effect, or fine tune the lift distribution on your vehicle.</p>
+<p>The system simulates lift based on the angle of attack of the triangle compared to the airflow, meaning a triangle tilted upward will create lift, while a triangle tilted downward will create downforce. A larger angle will create more lift, as long as you don’t go past the stalling angle, at which point the lift will start going down with added angle.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/triangles/DragLiftSchematic.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/triangles/DragLiftSchematic_hu3222ee6fd08c4fba85b9a7c181c4ec7b_50311_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="pressure-simulation">
+
+  Pressure simulation
+</h4>
+<p>An enclosed volume can also be used to do pressure simulation. This is used to make objects float, as well as for tires and balloon like objects like the mattress.</p>
+<p>When using the pressure simulation system, make sure that the enclosed volume has a regular shape with no missing surfaces or concave surfaces, to avoid ghost forces.</p>
+<h3 id="required-arguments">
+
+  Required arguments
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"triangles"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span><span class="s2">"id2:"</span><span class="p">,</span><span class="s2">"id3:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The id of the first node that defines the triangle</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The id of the second node that defines the triangle</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The id of the third node that defines the triangle</div>
+</div>
+</div>
+<h3 id="optional-arguments">
+
+  Optional arguments
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">100<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Drag coefficient of the triangle as a percentage of a flat plate of the same size.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Typical values are around 10 for most exposed body panels.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Skin drag coefficient of the triangle as a percentage of a flat plate of the same size.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Additional drag coefficient defined along the triangle surface rather than across. Used to simulate paddle-like treads in mud tires. Usually not used otherwise.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">dragCoef<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Lift coefficient of the triangle as a percentage of a flat plate of the same size.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Values between 80 and 120 are commonly used for spoilers.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.58<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Angle of attack in radian at which the triangle will start to stall and produce less lift.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">NORMALTYPE<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField"></div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>The available triangle types are :</p>
+<p>“NORMALTYPE” : Used for most applications</p>
+<p>“NONCOLLIDABLE” : Have no collisions, only anticlip. Used to keep the anticlip system working with nodes that have collisions but no triangles like suspension and exhaust.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Defines a group of triangles as being a pressure volume. Used for flotation and pressure simulation.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Sets the pressureGroup pressure in PSI</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Sets the pressureGroup pressure in Pascal</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string/table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Used to allow triangles to break when triggered by beams in the same break group.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Normally, a triangle breaks when one of the beams that form its sides breaks. BreakGroups allow for extending this behavior to other beams from outside of the triangle. This is useful for breaking triangles between two large vehicle parts, such as the body and the frame.</p>
+<p>When the argument is a string, the triangle belongs to a single specified breakGroup. This is the usual case.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span><span class="s2">"b"</span><span class="p">,</span><span class="s2">"c"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">"group_1"</span><span class="p">}],</span>
+</span></span></code></pre></div><p>When the argument is a table, the triangle belongs to all the specified breakGroups. It means it gets automatically broken when any beam in any of these breakGroups breaks. This is very rarely used in practice, and is not supported by the beam visualization debug modes.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span><span class="s2">"b"</span><span class="p">,</span><span class="s2">"c"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="p">[</span><span class="s2">"group_1"</span><span class="p">,</span><span class="s2">"group_2"</span><span class="p">]}],</span>
+</span></span></code></pre></div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Deactivates errors when one of the triangle’s nodes is missing.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This is used for cases where one of the nodes that make up the triangle is located in an optional component.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">asphalt<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Ground model of the triangle. Determines friction behavior.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>As of version <code>0.38.5.0</code> the following physics materials are available:<br/><code>METAL</code>, <code>PLASTIC</code>, <code>RUBBER</code>, <code>GLASS</code>, <code>WOOD</code>, <code>FOLIAGE</code>, <code>CLOTH</code>, <code>WATER</code>, <code>ASPHALT</code>, <code>ASPHALT_WET</code>, <code>SLIPPERY</code>, <code>ROCK</code>, <code>DIRT_DUSTY</code>, <code>DIRT</code>, <code>SAND</code>, <code>SANDY_ROAD</code>, <code>MUD</code>, <code>GRAVEL</code>, <code>GRASS</code>, <code>ICE</code>, <code>SNOW</code>, <code>FIRESMALL</code>, <code>FIREMEDIUM</code>, <code>FIRELARGE</code>, <code>SMOKESMALLBLACK</code>, <code>SMOKEMEDIUMBLACK</code>, <code>STEAM</code>, <code>RUMBLE_STRIP</code>, <code>COBBLESTONE</code>, <code>FOLIAGE_THIN</code>, <code>SPIKE_STRIP</code></p>
+<p>Triangles use lowercase names for the groundModels. <a data-doc="materials/physics_materials" href="/docs/materials/physics_materials">The parameters are explained here.</a>
+</p>
+<p>The spike_strip groundModel is special: if a node of a vehicle tire touches this groundModel, the tire will be deflated.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Biases one side of the collision detection system.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>The allowed values are “in” and “out”, leaving the argument empty will result in no bias. On the biased side, collision triangles will be physically ’thicker’ than on the other, with the collision being detected earlier. Thicker collision means less chance of clipping through on high speed impacts, thinner means the structures can be positioned closer to each other on spawn.</p>
+<p>This is useful for very small objects that will typically only collide with things from one side.</p>
+</div>
+</div>
+</div>
+<h3 id="simple-example">
+
+  Simple Example
+</h3>
+<p>There’s a triangle between nodes a, b and c</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"triangles"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span><span class="s2">"id2:"</span><span class="p">,</span><span class="s2">"id3:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>There’s a triangle between nodes a, b and c with a drag coefficient of 45.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"triangles"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span><span class="s2">"id2:"</span><span class="p">,</span><span class="s2">"id3:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"dragCoef"</span><span class="o">:</span><span class="mi">45</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>
+<h3 id="advanced-example">
+
+  Advanced Example
+</h3>
+<p>Typical spoiler set-up with defined lift coefficient and stall angle.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl">    <span class="s2">"triangles"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span><span class="s2">"id2:"</span><span class="p">,</span><span class="s2">"id3:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"dragCoef"</span><span class="o">:</span><span class="mi">35</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"groundModel"</span><span class="o">:</span><span class="s2">"plastic"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"wing3ll"</span><span class="p">,</span><span class="s2">"wing2ll"</span><span class="p">,</span><span class="s2">"wing1l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"liftCoef"</span><span class="o">:</span><span class="mi">90</span><span class="p">,</span> <span class="s2">"stallAngle"</span><span class="o">:</span><span class="mf">0.55</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"wing2ll"</span><span class="p">,</span><span class="s2">"wing2l"</span><span class="p">,</span><span class="s2">"wing1l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"liftCoef"</span><span class="o">:</span><span class="mi">90</span><span class="p">,</span> <span class="s2">"stallAngle"</span><span class="o">:</span><span class="mf">0.55</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"wing1l"</span><span class="p">,</span><span class="s2">"wing2l"</span><span class="p">,</span><span class="s2">"wing2"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"liftCoef"</span><span class="o">:</span><span class="mi">90</span><span class="p">,</span> <span class="s2">"stallAngle"</span><span class="o">:</span><span class="mf">0.55</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"wing1l"</span><span class="p">,</span><span class="s2">"wing2"</span><span class="p">,</span><span class="s2">"wing1"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"liftCoef"</span><span class="o">:</span><span class="mi">90</span><span class="p">,</span> <span class="s2">"stallAngle"</span><span class="o">:</span><span class="mf">0.55</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span></code></pre></div>

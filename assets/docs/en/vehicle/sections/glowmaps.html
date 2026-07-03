@@ -1,0 +1,256 @@
+<p></p><div class="bng-notice info">Most of this section was written by a community member 
+    <a class="link-ext" href="https://www.beamng.com/members/daddelzeit.352746/" rel="noopener" target="_blank">DaddelZeit</a>
+. Thanks for your cooperation! ♡</div>
+<br/>
+<p>Glow maps (glowMaps) allow you to switch between multiple <a data-doc="materials" href="/docs/materials">materials</a>
+ based on a number value.</p>
+<p><video autoplay="" controls="" src="GlowmapVideo.mp4"></video></p>
+<p>The most common use case of glow maps is vehicle lights, hence the name. This includes headlights, taillights, gauge lights, etc. In those cases they are used for changing the light materials to emissive variants of themselves. <a data-doc="materials/vehicle/typicalmaterials" data-frag="emissive-materials" href="/docs/materials/vehicle/typicalmaterials#emissive-materials">Check this page for more information about light materials.</a>
+ However, they can be used for any kind of application that involves changing a material on the fly.</p>
+<h3 id="syntax">
+
+  Syntax
+</h3>
+<p>Unlike most other Jbeam sections, the glowMap section is not a table but rather a dictionary. The key is the name of the associated material as set in the modelling software, while the value is another dictionary. It can contain multiple different dictionaries inside of it which will be described later, along with 3 values referred to as “material slots”, under the keys “off”, “on” and “on_intense”. Their values are different materials the part will be using based on the resulting value of simpleFunction or advancedFunction.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"glowMap"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"taillights"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"simpleFunction"</span><span class="o">:</span><span class="p">{</span><span class="s2">"lowhighbeam"</span><span class="o">:</span><span class="mf">0.49</span><span class="p">,</span><span class="s2">"brake"</span><span class="o">:</span><span class="mf">0.49</span><span class="p">},</span> <span class="s2">"off"</span><span class="o">:</span><span class="s2">"lights"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"lights_on"</span><span class="p">,</span> <span class="s2">"on_intense"</span><span class="o">:</span><span class="s2">"lights_on_intense"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>While glowMaps support applying a material with the same name as their own key, it is recommended to avoid this, to prevent possible unwanted behaviour due to changes within the game. The material defined as the glowMap key does not need to be added to the vehicle’s materials.json files as it is generated automatically for each vehicle - however, for materials present in the “common” folder it is still necessary as they are not assigned to a single vehicle but shared between all of them. For this purpose, <a data-doc="materials/vehicle/typicalmaterials" data-frag="dummy-materials" href="/docs/materials/vehicle/typicalmaterials#dummy-materials">dummy materials</a>
+ are used.</p>
+<h3 id="available-material-slots">
+
+  Available material slots
+</h3>
+<p>Each glow map offers the possibility for 3 different switchable materials, referred to as “off”, “on” and “on_intense”. The switch between modes works by adding together a few inputs using multipliers. If the total value is less than 0.0001, the glowMap will be “off”, between 0.0001 and 0.5 will be “on”, and above will be “on_intense”. The function result can be greater than 1.</p>
+<p></p><div class="bng-table" id="table-1783007351466751580"><div class="bng-table-header"><div>State</div><div>Requirement</div></div>
+<div class="bng-table-row"><div>
+<div style="">State</div>
+<div style="">off</div>
+</div><div>
+<div style="">Requirement</div>
+<div style="">value is 0.0001 or lower</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">State</div>
+<div style="">on</div>
+</div><div>
+<div style="">Requirement</div>
+<div style="">value is above 0.0001 and below 0.5</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">State</div>
+<div style="">on_intense</div>
+</div><div>
+<div style="">Requirement</div>
+<div style="">value is 0.5 or larger</div>
+</div></div></div>
+<em>“on_intense” is only cared about when it is specified. Otherwise, “on” will be used.</em>
+<h3 id="glowmap-value-calculation">
+
+  Glowmap Value Calculation
+</h3>
+<p>A typical vehicle glowMap section looks like this:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"glowMap"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">//exterior lights
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="s2">"signal_L"</span><span class="o">:</span> <span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="p">{</span><span class="s2">"signal_L"</span><span class="o">:</span><span class="mf">0.49</span><span class="p">},</span>             <span class="s2">"off"</span><span class="o">:</span><span class="s2">"light"</span><span class="p">,</span><span class="s2">"on"</span><span class="o">:</span><span class="s2">"light_on"</span><span class="p">,</span><span class="s2">"on_intense"</span><span class="o">:</span><span class="s2">"light_on_intense"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"signal_R"</span><span class="o">:</span> <span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="p">{</span><span class="s2">"signal_R"</span><span class="o">:</span><span class="mf">0.49</span><span class="p">},</span>             <span class="s2">"off"</span><span class="o">:</span><span class="s2">"light"</span><span class="p">,</span><span class="s2">"on"</span><span class="o">:</span><span class="s2">"light_on"</span><span class="p">,</span><span class="s2">"on_intense"</span><span class="o">:</span><span class="s2">"light_on_intense"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"taillight"</span><span class="o">:</span><span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="p">{</span><span class="s2">"lowhighbeam"</span><span class="o">:</span><span class="mf">0.49</span><span class="p">,</span><span class="s2">"brake"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span><span class="s2">"off"</span><span class="o">:</span><span class="s2">"light"</span><span class="p">,</span><span class="s2">"on"</span><span class="o">:</span><span class="s2">"light_on"</span><span class="p">,</span><span class="s2">"on_intense"</span><span class="o">:</span><span class="s2">"light_on_intense"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"chmsl"</span><span class="o">:</span>    <span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="p">{</span><span class="s2">"brake"</span><span class="o">:</span><span class="mi">100</span><span class="p">},</span>                 <span class="s2">"off"</span><span class="o">:</span><span class="s2">"light"</span><span class="p">,</span><span class="s2">"on"</span><span class="o">:</span><span class="s2">"light_on"</span><span class="p">,</span><span class="s2">"on_intense"</span><span class="o">:</span><span class="s2">"light_on_intense"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"foglight"</span><span class="o">:</span> <span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="p">{</span><span class="s2">"fog"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>                     <span class="s2">"off"</span><span class="o">:</span><span class="s2">"light"</span><span class="p">,</span><span class="s2">"on"</span><span class="o">:</span><span class="s2">"light_on"</span><span class="p">,</span><span class="s2">"on_intense"</span><span class="o">:</span><span class="s2">"light_on_intense"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"headlight"</span><span class="o">:</span><span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="p">{</span><span class="s2">"lowbeam"</span><span class="o">:</span><span class="mf">0.49</span><span class="p">,</span><span class="s2">"highbeam"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span> <span class="s2">"off"</span><span class="o">:</span><span class="s2">"light"</span><span class="p">,</span><span class="s2">"on"</span><span class="o">:</span><span class="s2">"light_on"</span><span class="p">,</span><span class="s2">"on_intense"</span><span class="o">:</span><span class="s2">"light_on_intense"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"reverse"</span><span class="o">:</span>  <span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="p">{</span><span class="s2">"reverse"</span><span class="o">:</span><span class="mf">0.49</span><span class="p">},</span>              <span class="s2">"off"</span><span class="o">:</span><span class="s2">"light"</span><span class="p">,</span><span class="s2">"on"</span><span class="o">:</span><span class="s2">"light_on"</span><span class="p">,</span><span class="s2">"on_intense"</span><span class="o">:</span><span class="s2">"light_on_intense"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">//gauge faces and needles
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="s2">"gauges"</span><span class="o">:</span> <span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="p">{</span><span class="s2">"lowhighbeam"</span><span class="o">:</span><span class="mf">0.6</span><span class="p">},</span> <span class="s2">"off"</span><span class="o">:</span><span class="s2">"gauges"</span><span class="p">,</span><span class="s2">"on"</span><span class="o">:</span><span class="s2">"gauges_on"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">//gauge lights
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="s2">"signal_L"</span><span class="o">:</span>    <span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="s2">"signal_L"</span><span class="p">,</span>     <span class="s2">"off"</span><span class="o">:</span><span class="s2">"invis"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"decals_gauges"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"signal_R"</span><span class="o">:</span>    <span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="s2">"signal_R"</span><span class="p">,</span>     <span class="s2">"off"</span><span class="o">:</span><span class="s2">"invis"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"decals_gauges"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"checkengine"</span><span class="o">:</span> <span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="s2">"checkengine"</span><span class="p">,</span>  <span class="s2">"off"</span><span class="o">:</span><span class="s2">"invis"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"decals_gauges"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"hazard"</span><span class="o">:</span>      <span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="s2">"hazard"</span><span class="p">,</span>       <span class="s2">"off"</span><span class="o">:</span><span class="s2">"invis"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"decals_gauges"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"battery"</span><span class="o">:</span>     <span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="s2">"battery"</span><span class="p">,</span>      <span class="s2">"off"</span><span class="o">:</span><span class="s2">"invis"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"decals_gauges"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"highbeam"</span><span class="o">:</span>    <span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="s2">"highbeam"</span><span class="p">,</span>     <span class="s2">"off"</span><span class="o">:</span><span class="s2">"invis"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"decals_gauges"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"parkingbrake"</span><span class="o">:</span><span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="s2">"parkingbrake"</span><span class="p">,</span> <span class="s2">"off"</span><span class="o">:</span><span class="s2">"invis"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"decals_gauges"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"lowfuel"</span><span class="o">:</span>     <span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="s2">"lowfuel"</span><span class="p">,</span>      <span class="s2">"off"</span><span class="o">:</span><span class="s2">"invis"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"decals_gauges"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"abs"</span><span class="o">:</span>         <span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="s2">"abs"</span><span class="p">,</span>          <span class="s2">"off"</span><span class="o">:</span><span class="s2">"invis"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"decals_gauges"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The entire glowMap functionality depends on Vehicle Lua electrics values. See <a data-doc="vehicle/vehicle_system/electrics" href="/docs/vehicle/vehicle_system/electrics">here</a>
+ for a list of available defaults. It should be noted that while most of the values will always be 0 or 1, some of them can return inbetween numbers. For example “brake” is equal to the braking input, meaning the value can be anywhere between 0 and 1. Keep this in mind when defining the weight of the various functions to make sure they work as expected.</p>
+<p>The value can be calculated in 3 different ways based on those values:</p>
+<ul>
+<li>Directly taken from a single electrics value, via the binary variant of simpleFunction</li>
+<li>Summed up from multiple electrics values with multipliers, via the complex variant of simpleFunction</li>
+<li>Calculated from a Lua code snipped, provided inside advancedFunction</li>
+</ul>
+<h4 id="binary-simplefunction">
+
+  Binary simpleFunction
+</h4>
+<p>If the “simpleFunction” argument is provided and is a string, it is expected to be the name of an electrics value. This sets the glowmap value to exactly this electrics value without any modifications or calculations. For example, this glowMap will use the “off” material when the brake is not in use. As soon as the brake is enabled, the “on” state is used.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"glowMap"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"brakelights"</span><span class="o">:</span><span class="p">{</span><span class="s2">"simpleFunction"</span><span class="o">:</span><span class="s2">"brake"</span><span class="p">,</span> <span class="s2">"off"</span><span class="o">:</span><span class="s2">"lights"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"lights_on"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h4 id="complex-simplefunction">
+
+  Complex simpleFunction
+</h4>
+<p>The “simpleFunction” argument may also be a dictionary containing the names of electrics values, each assigned to a multiplier they add to the glowmap value. Negative modifiers are supported and the total result can be greater than 1. This is the most common method of calculating the glowmap value. For example, this glowmap will use the “off” material when the lights are off and the brake is not in use. As soon as either are enabled, the “on” state is used. When both are enabled, the “on_intense” state is used. If this state is not defined, the “on” state will replace it.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"glowMap"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"taillights"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"simpleFunction"</span><span class="o">:</span><span class="p">{</span><span class="s2">"lowhighbeam"</span><span class="o">:</span><span class="mf">0.49</span><span class="p">,</span><span class="s2">"brake"</span><span class="o">:</span><span class="mf">0.49</span><span class="p">},</span> <span class="s2">"off"</span><span class="o">:</span><span class="s2">"lights"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"lights_on"</span><span class="p">,</span> <span class="s2">"on_intense"</span><span class="o">:</span><span class="s2">"lights_on_intense"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>It should be noted in that specific case that while lowhighbeam will always be 0 or 1, brake is equal to the braking input, meaning the value can be anywhere between 0 and 1.</p>
+<h5 id="advanced-example">
+
+  Advanced Example
+</h5>
+<p>This simpleFunction creates a combined DRL/signal glowmap value.</p>
+<p>When the engine is enabled, “running” is set to true. This adds 0.49 to the glowmap and switches the state to “on”.<br/>
+When the right signal is activated, “signal_right_input” is set to true and 1 is subtracted from the glowmap value, making it use the “off” material despite “running” being true.<br/>
+“signal_R” is activated and deactivated based on a timer to achieve a blink effect. When it is active, it adds 2 to the glowMap value, resulting in a value higher than 0.5.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"glowMap"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"running_signal_R"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"simpleFunction"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"signal_right_input"</span><span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"running"</span><span class="o">:</span> <span class="mf">0.49</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"signal_R"</span><span class="o">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"off"</span><span class="o">:</span><span class="s2">"lights"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"lights_on"</span><span class="p">,</span> <span class="s2">"on_intense"</span><span class="o">:</span><span class="s2">"lights_on_intense"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h4 id="advancedfunction">
+
+  advancedFunction
+</h4>
+<p>advancedFunction supports using a straight Lua code snippet to calculate its value. This gives you direct control over the glowmap without requiring an external Lua module. This feature is not often used, the simplest use case is for a gear display. This method requires a dictionary with the following keys:
+
+
+
+
+
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">table/dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">List of all electrics values used in the following lua function</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>The table syntax can be used in case of a single value:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"triggers"</span><span class="o">:</span><span class="p">[</span><span class="s2">"gear"</span><span class="p">],</span>
+</span></span></code></pre></div><p>The dictionary syntax is used with multiple values. Each of them needs a unique key per advancedFunction section, however the names of the keys don’t matter as they are disregarded in processing.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"triggers"</span><span class="o">:</span><span class="p">{</span><span class="s2">"1"</span><span class="o">:</span><span class="s2">"gear"</span><span class="p">,</span><span class="s2">"2"</span><span class="o">:</span><span class="s2">"gearIndex"</span><span class="p">},</span>
+</span></span></code></pre></div><p>With a single value you can also omit the key by setting it to an empty string:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"triggers"</span><span class="o">:</span><span class="p">{</span><span class="s2">""</span><span class="o">:</span><span class="s2">"gear"</span><span class="p">},</span>
+</span></span></code></pre></div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Lua code to execute using the provided values</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>This is encased in a return statement and needs to always amount to a number. You may need to use Lua’s 
+    <a class="link-ext" href="https://riptutorial.com/lua/example/26503/emulating-ternary-operator-with--and---or--logical-operators-" rel="noopener" target="_blank">ternary operators</a>
+ to convert booleans.</p>
+<p>Check the <a data-doc="vehicle/intro_jbeam/jbeamsyntax" href="/docs/vehicle/intro_jbeam/jbeamsyntax">syntax page</a>
+ for more information regarding the <a data-doc="vehicle/intro_jbeam/jbeamsyntax" data-frag="operators" href="/docs/vehicle/intro_jbeam/jbeamsyntax#operators">allowed operators</a>
+ and  <a data-doc="vehicle/intro_jbeam/jbeamsyntax" data-frag="built-in-functions" href="/docs/vehicle/intro_jbeam/jbeamsyntax#built-in-functions">built-in functions</a>
+.</p>
+</div>
+</div>
+</div>
+<p>For example, this advancedFunction switches to “on” when the park gear is selected.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"glowMap"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"citybus_transmission_DSP_P"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"advancedFunction"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"triggers"</span><span class="o">:</span><span class="p">{</span><span class="s2">""</span><span class="o">:</span><span class="s2">"gear"</span><span class="p">},</span> <span class="s2">"cmd"</span><span class="o">:</span><span class="s2">"gear=='P' and 1 or 0"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"off"</span><span class="o">:</span><span class="s2">"invis""on"</span><span class="o">:</span><span class="s2">"citybus_transmission_DSP"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>And this one switches to “on” when the transmission is in 2nd gear.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"glowMap"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"citybus_transmission_DSP_2"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"advancedFunction"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"triggers"</span><span class="o">:</span><span class="p">{</span><span class="s2">""</span><span class="o">:</span><span class="s2">"gearIndex"</span><span class="p">},</span> <span class="s2">"cmd"</span><span class="o">:</span><span class="s2">"gearIndex==2 and 1 or 0"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"off"</span><span class="o">:</span><span class="s2">"invis"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"citybus_transmission_DSP"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h5 id="advanced-example-1">
+
+  Advanced Example
+</h5>
+<p>This advancedFunction emulates the behaviour of the combined DRL/signal simpleFunction showcased in the advanced example above.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"glowMap"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"running_signal_R"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"advancedFunction"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"triggers"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"1"</span><span class="o">:</span> <span class="s2">"signal_right_input"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"2"</span><span class="o">:</span> <span class="s2">"engineRunning"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"3"</span><span class="o">:</span> <span class="s2">"signal_R"</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"cmd"</span><span class="o">:</span> <span class="s2">"engineRunning*0.49 + signal_R*2 - signal_right_input"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="material-transitions">
+
+  Material transitions
+</h3>
+<p>For the purpose of realistic halogen and sealed beam lights, it is possible to define transitions between the states of the lights.</p>
+<p><video autoplay="" controls="" src="GlowmapVideo2.mp4"></video></p>
+<p>This works by modifying the <a data-doc="materials/vehicle/typicalmaterials" data-frag="emissive-materials" href="/docs/materials/vehicle/typicalmaterials#emissive-materials">emissiveFactor</a>
+ of the glowing light materials via a <a data-doc="vehicle/sections/electrics" data-frag="smootherType" href="/docs/vehicle/sections/electrics#smootherType">smoother</a>
+. In the glowMap section, this is achieved by using special <a data-doc="vehicle/vehicle_system/electrics" href="/docs/vehicle/vehicle_system/electrics">electrics values</a>
+ defined in the <a data-doc="vehicle/sections/electrics" href="/docs/vehicle/sections/electrics">electrics</a>
+ section, and specifying its threshold value where the emissiveFactor of the “on” material is at its maximum value, which is done in the “materialEmissiveScaling” argument.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"glowMap"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"sealedbeam_auxlight"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"simpleFunction"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"foglight_filament"</span><span class="o">:</span><span class="mf">0.49</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span> 
+</span></span><span class="line"><span class="cl">    <span class="s2">"off"</span><span class="o">:</span><span class="s2">"sealedbeam"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"sealedbeam_on"</span><span class="p">,</span> <span class="s2">"materialEmissiveScaling"</span><span class="o">:</span><span class="p">{</span><span class="s2">"on_max"</span><span class="o">:</span><span class="mf">0.49</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"sealedbeam_auxlightglass"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"simpleFunction"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"foglight_filament"</span><span class="o">:</span><span class="mf">0.49</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span> 
+</span></span><span class="line"><span class="cl">    <span class="s2">"off"</span><span class="o">:</span><span class="s2">"sealedbeam_glass"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"sealedbeam_glass_on"</span><span class="p">,</span> <span class="s2">"materialEmissiveScaling"</span><span class="o">:</span><span class="p">{</span><span class="s2">"on_max"</span><span class="o">:</span><span class="mf">0.49</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Multiple input values are also possible the same way as they are used with standard electrics functions. Thanks to the dynamic emissiveFactor of the material, the “on_intense” state of the lights is not needed here - “on” will be used as the maximum value, and the middle state will be the transition between “off” and “on”.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"glowMap"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"sealedbeam_headlight"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"simpleFunction"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lowbeam_filament"</span><span class="o">:</span><span class="mf">0.49</span><span class="p">,</span><span class="s2">"highbeam_filament"</span><span class="o">:</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span> 
+</span></span><span class="line"><span class="cl">    <span class="s2">"off"</span><span class="o">:</span><span class="s2">"sealedbeam"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"sealedbeam_on_intense"</span><span class="p">,</span> <span class="s2">"materialEmissiveScaling"</span><span class="o">:</span><span class="p">{</span><span class="s2">"on_max"</span><span class="o">:</span><span class="mi">1</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"sealedbeam_headlightglass"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"simpleFunction"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lowbeam_filament"</span><span class="o">:</span><span class="mf">0.49</span><span class="p">,</span><span class="s2">"highbeam_filament"</span><span class="o">:</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span> 
+</span></span><span class="line"><span class="cl">    <span class="s2">"off"</span><span class="o">:</span><span class="s2">"sealedbeam_glass"</span><span class="p">,</span> <span class="s2">"on"</span><span class="o">:</span><span class="s2">"sealedbeam_glass_on_intense"</span><span class="p">,</span> <span class="s2">"materialEmissiveScaling"</span><span class="o">:</span><span class="p">{</span><span class="s2">"on_max"</span><span class="o">:</span><span class="mi">1</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>

@@ -1,0 +1,389 @@
+<h2 id="version-31-0x001f">
+
+  version <code>31</code> / <code>0x001F</code>
+</h2>
+<p>This document describes the <strong>v31</strong> BeamNG <em>cached Collada</em> (<code>.cdae</code>) shape file format produced inside the BeamNG codebase. The data is serialized in 
+    <a class="link-ext" href="https://msgpack.org/" rel="noopener" target="_blank">MessagePack</a>
+ format, with possible 
+    <a class="link-ext" href="https://facebook.github.io/zstd/" rel="noopener" target="_blank">Zstandard</a>
+ compression.
+Use this information to build or debug your own tools for reading the file.</p>
+<h3 id="why-use-a-binary-format-for-speed-and-efficiency">
+
+  Why Use a Binary Format for Speed and Efficiency
+</h3>
+<p>The <code>.cdae</code> file stores shape data in a binary format for several reasons:</p>
+<ol>
+<li><strong>Reduced Size</strong>: Binary data has less overhead than text-based formats, lowering disk space usage and download times.</li>
+<li><strong>Faster Parsing</strong>: Tools and the engine can more quickly read integers, floats, and other elements in binary form than by parsing them from text.</li>
+<li><strong>Streamlined Workflow</strong>: With binary, the data layout (e.g., floats, ints, vectors) maps more closely to memory structures, minimizing conversions.</li>
+<li><strong>Consistent Representation</strong>: Binary ensures there’s no ambiguity in formatting, making read/write operations more reliable.</li>
+</ol>
+<p>This consistent and compact method ultimately boosts performance when loading shapes, especially at scale.</p>
+<hr/>
+<h3 id="overview-of-the-cdae-file-content-v31">
+
+  Overview of the .cdae File Content (v31)
+</h3>
+<p>The v31 format introduces a more structured approach with a separate header and body, along with optional compression:</p>
+<p><strong>Rough Pseudo-Code Table of the v31 .cdae File Content</strong> </p>
+<table>
+<thead>
+<tr>
+<th align="right">Step</th>
+<th align="left">Content</th>
+<th align="left">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">1</td>
+<td align="left"><em>File header</em> (32-bit integer, version).</td>
+<td align="left">Check <code>version &amp; 0xFF == 31</code> to verify it’s v31.</td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td align="left"><em>Header size</em> (32-bit unsigned integer).</td>
+<td align="left">Size of the following header data in bytes.</td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td align="left"><em>MsgPack header</em> (dictionary with metadata)</td>
+<td align="left">Contains info like compression flag, body size, etc.</td>
+</tr>
+<tr>
+<td align="right">4</td>
+<td align="left"><em>Body data</em> (possibly compressed)</td>
+<td align="left">If compressed, use Zstandard to decompress. Contains the shape data.</td>
+</tr>
+</tbody>
+</table>
+<p>The header is a MsgPack dictionary containing metadata about the file, including whether the body is compressed.
+The body contains the actual shape data, also in MsgPack format.</p>
+<hr/>
+<h3 id="using-cdae-dump-infopy">
+
+  Using <code>cdae_dump_info.py</code>
+</h3>
+<p>For an additional way to inspect or debug <code>.cdae</code> files, you can use the
+<a href="https://documentation.beamng.com/modding/file_formats/cdae/cdae_dump_info.py" rel="noopener" target="_blank">cdae_dump_info.py</a>
+ script. For instance, run the following command
+in your console/terminal:</p>
+<pre tabindex="0"><code>&gt;python cdae_dump_info.py vehicles\pickup\pickup.cdae
+</code></pre>
+<h3 id="file-structure-header-and-body">
+
+  File Structure: Header and Body
+</h3>
+<p>At the <strong>start</strong> of the file, the format begins with:</p>
+<ol>
+<li>
+<p><strong>32-bit integer</strong> <code>version</code>:</p>
+<pre tabindex="0"><code>version = (smVersion | (mExporterVersion &lt;&lt; 16))
+</code></pre><p>where <strong><code>smVersion</code></strong> is set to <code>31</code> for this format and <strong><code>exporter_version</code></strong> is a separate 16-bit value in the upper bits.</p>
+<p>Readers should check <code>(version &amp; 0xFF) == 31</code> to confirm it’s a <em>v31</em> shape.</p>
+</li>
+<li>
+<p><strong>32-bit unsigned integer</strong> <code>headerSize</code>:
+This indicates the size of the MsgPack header data that follows.</p>
+</li>
+<li>
+<p><strong>MsgPack header</strong>:
+A dictionary containing metadata about the file, such as:</p>
+<ul>
+<li><code>compression</code>: Boolean indicating if the body is compressed with Zstandard</li>
+<li><code>bodysize</code>: Size of the body data (in bytes)</li>
+<li>Other potential metadata</li>
+</ul>
+</li>
+<li>
+<p><strong>Body data</strong>:</p>
+<ul>
+<li>If <code>compression</code> is true, the body is compressed with Zstandard and needs to be decompressed</li>
+<li>Once decompressed (if needed), the body contains the actual shape data in MsgPack format</li>
+</ul>
+</li>
+</ol>
+<hr/>
+<h3 id="overview-of-the-msgpack-body-data">
+
+  Overview of the MsgPack Body Data
+</h3>
+<p>After reading and (if necessary) decompressing the body data, you can parse the MsgPack objects in a specific order:</p>
+<ol>
+<li>
+<p><strong>Shape Information</strong>:</p>
+<ul>
+<li><code>mSmallestVisibleSize</code> (float)</li>
+<li><code>mSmallestVisibleDL</code> (int32)</li>
+<li><code>radius</code> (float)</li>
+<li><code>tubeRadius</code> (float)</li>
+<li><code>center</code> (Point3F - 3 floats)</li>
+<li><code>bounds</code> (Box3F - 6 floats)</li>
+</ul>
+</li>
+<li>
+<p><strong>Multiple Vectors (pack_vector)</strong>, each stored as:</p>
+<ul>
+<li>A 32-bit signed integer for the vector length</li>
+<li>A 32-bit signed integer for the element size in bytes</li>
+<li>A raw binary block (MsgPack “bin”) of length <code>vector.size * elementSize</code>.</li>
+</ul>
+<p>The code reads these in order:</p>
+<ul>
+<li>
+<p><code>nodes</code></p>
+</li>
+<li>
+<p><code>objects</code></p>
+</li>
+<li>
+<p><code>subShapeFirstNode</code></p>
+</li>
+<li>
+<p><code>subShapeFirstObject</code></p>
+</li>
+<li>
+<p><code>subShapeNumNodes</code></p>
+</li>
+<li>
+<p><code>subShapeNumObjects</code></p>
+</li>
+<li>
+<p><code>defaultRotations</code></p>
+</li>
+<li>
+<p><code>defaultTranslations</code></p>
+</li>
+<li>
+<p><code>nodeRotations</code></p>
+</li>
+<li>
+<p><code>nodeTranslations</code></p>
+</li>
+<li>
+<p><code>nodeUniformScales</code></p>
+</li>
+<li>
+<p><code>nodeAlignedScales</code></p>
+</li>
+<li>
+<p><code>nodeArbitraryScaleFactors</code></p>
+</li>
+<li>
+<p><code>nodeArbitraryScaleRots</code></p>
+</li>
+<li>
+<p><code>groundTranslations</code></p>
+</li>
+<li>
+<p><code>groundRotations</code></p>
+</li>
+<li>
+<p><code>objectStates</code></p>
+</li>
+<li>
+<p><code>triggers</code></p>
+</li>
+<li>
+<p><code>details</code></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Strings Array</strong></p>
+<ul>
+<li>A <code>uint32</code> for the number of shape names.</li>
+<li>Each name is a MsgPack string.</li>
+</ul>
+</li>
+<li>
+<p><strong>Meshes</strong></p>
+<ul>
+<li>A <code>uint32</code> “total meshes” count.</li>
+<li>Each mesh contains:
+<ul>
+<li>
+<p><code>uint32 meshType</code>:</p>
+<ul>
+<li><code>0</code> → StandardMesh</li>
+<li><code>1</code> → SkinMesh</li>
+<li><code>2</code> → DecalMesh (deprecated)</li>
+<li><code>3</code> → SortedMesh</li>
+<li><code>4</code> → NullMesh</li>
+</ul>
+</li>
+<li>
+<p>For non-null meshes:</p>
+<ul>
+<li><code>int32 numFrames</code></li>
+<li><code>int32 numMatFrames</code></li>
+<li><code>int32 parentMesh</code></li>
+<li><code>Box3F mBounds</code> (6 floats)</li>
+<li><code>Point3F mCenter</code> (3 floats)</li>
+<li><code>float mRadius</code></li>
+</ul>
+<p>Then additional <code>pack_vector</code> calls for:</p>
+<ul>
+<li><code>verts</code></li>
+<li><code>tverts</code></li>
+<li><code>tverts2</code></li>
+<li><code>colors</code></li>
+<li><code>norms</code></li>
+<li><code>encodedNorms</code></li>
+<li><code>primitives</code></li>
+<li><code>indices</code></li>
+<li><code>tangents</code></li>
+</ul>
+<p>And finally:</p>
+<ul>
+<li><code>int32 vertsPerFrame</code></li>
+<li><code>uint32 meshFlags</code></li>
+</ul>
+</li>
+<li>
+<p><strong>For SkinMesh types (type 1), additional data is read:</strong></p>
+<ul>
+<li>First, determine if it’s a parent mesh (<code>parentMesh &lt; 0</code>)</li>
+<li>For parent meshes:
+<ul>
+<li><code>skinMesh.initialVerts</code> vector</li>
+<li><code>skinMesh.initialNorms</code> vector</li>
+</ul>
+</li>
+<li>For all SkinMesh types:
+<ul>
+<li><code>skinMesh.initialTransforms</code> vector</li>
+</ul>
+</li>
+<li>For parent meshes:
+<ul>
+<li><code>skinMesh.vertexIndex</code> vector</li>
+<li><code>skinMesh.boneIndex</code> vector</li>
+<li><code>skinMesh.weight</code> vector</li>
+<li><code>skinMesh.nodeIndex</code> vector</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Sequences</strong></p>
+<ul>
+<li>A <code>uint32 numSequences</code>.</li>
+<li>For each sequence:
+<ul>
+<li><code>int32 nameIndex</code></li>
+<li><code>uint32 flags</code></li>
+<li><code>int32 numKeyframes</code></li>
+<li><code>float duration</code></li>
+<li><code>int32 priority</code></li>
+<li><code>int32 firstGroundFrame</code></li>
+<li><code>int32 numGroundFrames</code></li>
+<li><code>int32 baseRotation</code></li>
+<li><code>int32 baseTranslation</code></li>
+<li><code>int32 baseScale</code></li>
+<li><code>int32 baseObjectState</code></li>
+<li><code>int32 baseDecalState</code></li>
+<li><code>int32 firstTrigger</code></li>
+<li><code>int32 numTriggers</code></li>
+<li><code>float toolBegin</code></li>
+<li><code>TSIntegerSet rotationMatters</code></li>
+<li><code>TSIntegerSet translationMatters</code></li>
+<li><code>TSIntegerSet scaleMatters</code></li>
+<li><code>TSIntegerSet visMatters</code></li>
+<li><code>TSIntegerSet frameMatters</code></li>
+<li><code>TSIntegerSet matFrameMatters</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Material List</strong> (Optional)</p>
+<ul>
+<li>A <code>uint32 materialCount</code>.</li>
+<li>For each material:
+<ul>
+<li><code>string name</code></li>
+<li><code>uint32 flags</code></li>
+<li><code>uint32 reflectanceMap</code></li>
+<li><code>uint32 bumpMap</code></li>
+<li><code>uint32 detailMap</code></li>
+<li><code>float detailScale</code></li>
+<li><code>float reflectionAmount</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>This completes the data. Brief definitions:</p>
+<ul>
+<li><code>Point3F</code>: 3 floats <code>[x, y, z]</code>.</li>
+<li><code>Box3F</code>: min &amp; max corners =&gt; 6 floats total.</li>
+<li><code>TSIntegerSet</code>: specialized bitset for node/element flags.</li>
+</ul>
+<hr/>
+<h3 id="reading-strategy-pseudocode">
+
+  Reading Strategy (Pseudocode)
+</h3>
+<ol>
+<li>
+<p><strong>Read</strong> the first 4 bytes (32-bit integer) → <code>version</code>.</p>
+<ul>
+<li>Check <code>version &amp; 0xFF == 31</code>.</li>
+<li>Extract <code>exporter_version = version &gt;&gt; 16</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Read</strong> the next 4 bytes (32-bit unsigned integer) → <code>headerSize</code>.</p>
+</li>
+<li>
+<p><strong>Read</strong> <code>headerSize</code> bytes and parse as MsgPack → <code>header_info</code>.</p>
+<ul>
+<li>Check if <code>header_info['compression']</code> is true.</li>
+<li>Note the <code>bodysize</code> value.</li>
+</ul>
+</li>
+<li>
+<p><strong>Read</strong> the remaining bytes → <code>body_data</code>.</p>
+<ul>
+<li>If compression is enabled, decompress with Zstandard.</li>
+</ul>
+</li>
+<li>
+<p><strong>Pass</strong> the decompressed body into a MsgPack parser.</p>
+</li>
+<li>
+<p><strong>Read</strong> shape information:</p>
+<ul>
+<li><code>mSmallestVisibleSize</code> (float)</li>
+<li><code>mSmallestVisibleDL</code> (int32)</li>
+<li><code>radius</code> (float)</li>
+<li><code>tubeRadius</code> (float)</li>
+<li><code>center</code> (3 floats)</li>
+<li><code>bounds</code> (6 floats)</li>
+</ul>
+</li>
+<li>
+<p><strong>Read</strong> multiple vectors in the exact order outlined above.</p>
+</li>
+<li>
+<p><strong>Read</strong> names array: count (uint32) followed by that many strings.</p>
+</li>
+<li>
+<p><strong>Read</strong> meshes: total count (uint32), then each mesh’s data.</p>
+<ul>
+<li>For SkinMesh types, handle parent and child meshes differently with additional vectors.</li>
+</ul>
+</li>
+<li>
+<p><strong>Read</strong> sequences: count (uint32), then each sequence’s data.</p>
+</li>
+<li>
+<p><strong>Read</strong> materials list (if present): count (uint32), then each material’s data.</p>
+</li>
+</ol>

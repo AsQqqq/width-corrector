@@ -1,0 +1,331 @@
+<p>Level gameplay data is the layer that connects a level’s scene, roads, sites, traffic, missions, POIs, and map UI. Most of these systems already have dedicated format or class pages. This page is a high-level integration guide: use it to understand which systems depend on each other and where to continue reading.</p>
+<p>For field-level reference, use the dedicated pages instead of this overview:</p>
+<ul>
+<li><a data-doc="levels/level_formats/info" href="/docs/levels/level_formats/info">Level metadata (<code>info.json</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/sites" href="/docs/levels/level_formats/sites">Sites (<code>.sites.json</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/map" href="/docs/levels/level_formats/map">Navigation map (<code>map.json</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/signals" href="/docs/levels/level_formats/signals">Traffic signals (<code>signals.json</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/buslines" href="/docs/levels/level_formats/buslines">Bus lines (<code>*.buslines.json</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/facilities" href="/docs/levels/level_formats/facilities">Facilities (<code>*.facilities.json</code>)</a>
+</li>
+<li><a data-doc="file_formats/vehicle_groups" href="/docs/file_formats/vehicle_groups">Vehicle groups (<code>*.vehGroup.json</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/driftspots" href="/docs/levels/level_formats/driftspots">Drift spots (<code>driftSpots/</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/crawls" href="/docs/levels/level_formats/crawls">Crawls (<code>crawls/</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/dragstrips" href="/docs/levels/level_formats/dragstrips">Drag strips (<code>dragstrips/</code>)</a>
+</li>
+<li><a data-doc="levels/level_classes/decalorad" href="/docs/levels/level_classes/decalorad">DecalRoad</a>
+</li>
+<li><a data-doc="levels/level_classes/beamngwaypoint" href="/docs/levels/level_classes/beamngwaypoint">BeamNGWaypoint</a>
+</li>
+<li><a data-doc="levels/level_classes/beamngtrigger" href="/docs/levels/level_classes/beamngtrigger">BeamNGTrigger</a>
+</li>
+<li><a data-doc="levels/level_classes/gameplayareas" href="/docs/levels/level_classes/gameplayareas">Gameplay Areas and Points of Interest</a>
+</li>
+<li><a data-doc="levels/speedtraps" href="/docs/levels/speedtraps">Speedtraps</a>
+</li>
+<li><a data-doc="levels/fuelstations" href="/docs/levels/fuelstations">Fuel Stations</a>
+</li>
+</ul>
+<div class="bng-notice info">Most gameplay data depends on stable names. If a site, waypoint, road, trigger, POI, facility, or mission path is renamed, update every system that references it.</div>
+<h2 id="how-the-pieces-fit">
+
+  How the pieces fit
+</h2>
+<p>Gameplay features usually combine several kinds of data:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Owns</th>
+<th>Used by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>info.json</code></td>
+<td>Level metadata, spawns, traffic support, road rules, minimap layer references</td>
+<td>Level selector, spawn UI, big map, minimap, traffic, regional gameplay</td>
+</tr>
+<tr>
+<td>Scene objects</td>
+<td>Roads, waypoints, triggers, gameplay areas, POIs, spawn spheres</td>
+<td>Navgraph, traffic, missions, facilities, speedtraps, bus stops</td>
+</tr>
+<tr>
+<td><code>.sites.json</code> files</td>
+<td>Locations, zones, parking spots, boundaries</td>
+<td>Facilities, parking, traffic, missions, career/freeroam features</td>
+</tr>
+<tr>
+<td><code>map.json</code></td>
+<td>Manual navgraph corrections and special links</td>
+<td>AI, traffic, navigation, route UI, minimap/big map routes</td>
+</tr>
+<tr>
+<td><code>signals.json</code></td>
+<td>Traffic signal logic</td>
+<td>Traffic AI, red-light cameras, intersection behavior</td>
+</tr>
+<tr>
+<td>Feature folders</td>
+<td>Bus routes, drag strips, drift spots, crawls, quickrace, scenarios</td>
+<td>Feature-specific Lua systems and editor tools</td>
+</tr>
+<tr>
+<td><code>gameplay/missions/</code></td>
+<td>Modern mission definitions</td>
+<td>Mission manager, mission type constructors, Flowgraph</td>
+</tr>
+</tbody>
+</table>
+<p>Treat these as connected data, not independent files. A mission may start from <code>gameplay/missions/</code>, use path data from <code>race.race.json</code>, query sites from the level, route over the navgraph, show a marker through the POI system, and depend on scene triggers or waypoints.</p>
+<h2 id="common-level-side-feature-folders">
+
+  Common level-side feature folders
+</h2>
+<p>A gameplay-heavy level may include some of these folders or files:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/
+</span></span><span class="line"><span class="cl">+-- buslines/
+</span></span><span class="line"><span class="cl">+-- crawls/
+</span></span><span class="line"><span class="cl">+-- dragstrips/
+</span></span><span class="line"><span class="cl">+-- driftSpots/
+</span></span><span class="line"><span class="cl">+-- facilities/
+</span></span><span class="line"><span class="cl">+-- quickrace/
+</span></span><span class="line"><span class="cl">+-- scenarios/
+</span></span><span class="line"><span class="cl">+-- camPaths/
+</span></span><span class="line"><span class="cl">+-- city.sites.json
+</span></span><span class="line"><span class="cl">+-- facilities.sites.json
+</span></span><span class="line"><span class="cl">+-- map.json
+</span></span><span class="line"><span class="cl">+-- signals.json
+</span></span><span class="line"><span class="cl">+-- triggers.json
+</span></span><span class="line"><span class="cl">+-- *.vehGroup.json
+</span></span></code></pre></div><p>Not every level needs all of them. Small sandbox or test levels may only need <code>info.json</code>, a scene tree, spawn points, and simple road/navgraph data.</p>
+<h2 id="facilities-and-sites">
+
+  Facilities and sites
+</h2>
+<p>Facilities give gameplay meaning to places such as garages, gas stations, dealerships, computers, delivery providers, private sellers, and drag strips. Their spatial data is usually supplied by sites and scene objects rather than being duplicated in the facility entry.</p>
+<p>Use the existing pages for details:</p>
+<ul>
+<li><a data-doc="levels/level_formats/facilities" href="/docs/levels/level_formats/facilities">Facilities (<code>*.facilities.json</code>)</a>
+ for the general facility file format.</li>
+<li><a data-doc="levels/level_formats/sites" href="/docs/levels/level_formats/sites">Sites (<code>.sites.json</code>)</a>
+ for zones, parking spots, boundaries, and named locations.</li>
+<li><a data-doc="levels/fuelstations" href="/docs/levels/fuelstations">Fuel Stations</a>
+ for gas station and charging station setup.</li>
+<li><a data-doc="levels/level_classes/gameplayareas" href="/docs/levels/level_classes/gameplayareas">Gameplay Areas and Points of Interest</a>
+ for interaction areas and POI objects.</li>
+</ul>
+<p>When something facility-related does not appear in freeroam, career, or the big map, check the chain in this order: facility entry, referenced sites file, referenced zone/parking names, referenced scene objects, and POI provider behavior.</p>
+<h2 id="bus-routes">
+
+  Bus routes
+</h2>
+<p>Bus route data lives in <code>buslines/</code>, but the route usually depends on more than the JSON file. A route may require scene bus stop objects or triggers, valid stop ids, route helper nodes, and a connected navgraph.</p>
+<p>Keep bus route names, stop ids, and waypoint names stable after missions or UI reference them. For format details, see <a data-doc="levels/level_formats/buslines" href="/docs/levels/level_formats/buslines">Bus Lines (<code>*.buslines.json</code>)</a>
+. For trigger object behavior, see <a data-doc="levels/level_classes/beamngtrigger" href="/docs/levels/level_classes/beamngtrigger">BeamNGTrigger</a>
+.</p>
+<h2 id="drift-crawl-and-drag-gameplay">
+
+  Drift, crawl, and drag gameplay
+</h2>
+<p>These feature folders are level-local gameplay data. They often pair feature-specific files with shared systems such as sites, navgraph routes, scene markers, facilities, and missions.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Typical level folder</th>
+<th>Usually depends on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Drift spots</td>
+<td><code>driftSpots/&lt;spotName&gt;/</code></td>
+<td>Drift metadata, route/path data, boundary sites, marker scene objects, big map POIs</td>
+</tr>
+<tr>
+<td>Crawls</td>
+<td><code>crawls/</code></td>
+<td>Path/trail data, boundaries, starting positions, sites, mission-local data where applicable</td>
+</tr>
+<tr>
+<td>Drag strips</td>
+<td><code>dragstrips/</code></td>
+<td>Strip data, timing/staging data, lane waypoints, prefabs, facilities, scene objects</td>
+</tr>
+</tbody>
+</table>
+<p>See <a data-doc="levels/level_formats/driftspots" href="/docs/levels/level_formats/driftspots">Drift Spots</a>
+, <a data-doc="levels/level_formats/crawls" href="/docs/levels/level_formats/crawls">Crawls</a>
+, and <a data-doc="levels/level_formats/dragstrips" href="/docs/levels/level_formats/dragstrips">Drag Strips</a>
+ for the folder/file references.</p>
+<h2 id="traffic-authoring">
+
+  Traffic authoring
+</h2>
+<p>Traffic is a combined result of:</p>
+<ul>
+<li>Level metadata such as traffic support, region, and road rules in <code>info.json</code></li>
+<li>Drivable roads and waypoints in the scene</li>
+<li>Manual navgraph corrections in <code>map.json</code></li>
+<li>Parking and zone data in <code>.sites.json</code></li>
+<li>Traffic signal data in <code>signals.json</code></li>
+<li>Optional level vehicle groups such as <code>traffic.vehGroup.json</code> or <code>police.vehGroup.json</code></li>
+<li>Feature objects such as speed traps or red-light camera triggers</li>
+</ul>
+<p>Use <a data-doc="levels/level_formats/map" href="/docs/levels/level_formats/map">Navigation map (<code>map.json</code>)</a>
+ for graph corrections, <a data-doc="levels/level_formats/signals" href="/docs/levels/level_formats/signals">Traffic Signals (<code>signals.json</code>)</a>
+ for signal data, <a data-doc="levels/level_classes/decalorad" href="/docs/levels/level_classes/decalorad">DecalRoad</a>
+ for road fields, and <a data-doc="levels/speedtraps" href="/docs/levels/speedtraps">Speedtraps</a>
+ for camera setup.</p>
+<p>Use <a data-doc="file_formats/vehicle_groups" href="/docs/file_formats/vehicle_groups">Vehicle Groups (<code>*.vehGroup.json</code>)</a>
+ for shared, level-specific, or mission-specific vehicle pools.</p>
+<p>After editing roads, waypoints, map segments, signals, or traffic-related sites, reload the navgraph and test with live traffic. The same graph is also used by route previews, missions, bus routes, and map UI, so traffic problems often point to a shared graph issue.</p>
+<h2 id="missions-and-flowgraph">
+
+  Missions and Flowgraph
+</h2>
+<p>Modern missions usually live outside the level folder:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">gameplay/missions/&lt;levelName&gt;/&lt;missionType&gt;/&lt;missionName&gt;/
+</span></span></code></pre></div><p>Mission folders commonly connect to level data:</p>
+<table>
+<thead>
+<tr>
+<th>Mission data</th>
+<th>Connects to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mission <code>info.json</code></td>
+<td>Mission type, UI metadata, unlocks, rewards, start data</td>
+</tr>
+<tr>
+<td><code>race.race.json</code> or feature path files</td>
+<td>Checkpoints, route paths, start positions, recovery points</td>
+</tr>
+<tr>
+<td><code>*.flow.json</code></td>
+<td>Flowgraph mission logic and custom behavior</td>
+</tr>
+<tr>
+<td><code>bounds.sites.json</code> or other sites</td>
+<td>Boundaries, zones, and mission areas</td>
+</tr>
+<tr>
+<td>Level scene objects</td>
+<td>Triggers, waypoints, markers, POIs, barriers</td>
+</tr>
+<tr>
+<td>Level systems</td>
+<td>Navgraph, facilities, bus routes, drag strips, traffic, parking</td>
+</tr>
+</tbody>
+</table>
+<p>Mission types such as <code>busMode</code>, <code>crawl</code>, <code>drift</code>, <code>dragStripRace</code>, <code>delivery</code>, <code>garageToGarage</code>, <code>timeTrial</code>, <code>aiRace</code>, <code>rallyStage</code>, and <code>flowgraph</code> each consume different combinations of this data. When a mission appears in the UI but behaves incorrectly, check the mission folder first, then the level systems it references.</p>
+<p>Legacy content under <code>levels/&lt;levelName&gt;/scenarios/</code> is separate from modern <code>gameplay/missions/</code>. Some levels still contain both.</p>
+<h2 id="pois-and-map-ui">
+
+  POIs and map UI
+</h2>
+<p>POIs are not owned by one required level file. The big map aggregates POIs from spawn metadata, missions, facilities, gas stations, drift spots, crawls, drag strips, parking/sites, and scene <code>BeamNGPointOfInterest</code> objects.</p>
+<p>The optional <code>levels/&lt;levelName&gt;/pois/</code> folder may be used by tools, but it is not the only POI source. When a marker is missing, identify the owning feature first, then check that feature’s references.</p>
+<p>The minimap and big map also use the navgraph. A minimap image layer can be valid while route generation is broken, and route generation can work while a minimap image is missing. Check <code>info.json</code> minimap references separately from roads, waypoints, and <code>map.json</code>.</p>
+<h2 id="other-level-gameplay-and-presentation-data">
+
+  Other level gameplay and presentation data
+</h2>
+<p>Some level folders are feature-specific and should stay out of the main file-format pages unless they get a dedicated schema reference:</p>
+<table>
+<thead>
+<tr>
+<th>Folder or file</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>quickrace/</code></td>
+<td>Level-local quickrace tracks and generated race content.</td>
+</tr>
+<tr>
+<td><code>camPaths/</code></td>
+<td>Camera path files used by tools, missions, scenarios, or presentation.</td>
+</tr>
+<tr>
+<td><code>triggers.json</code></td>
+<td>Freeroam or level-specific trigger wiring.</td>
+</tr>
+<tr>
+<td><code>*.vehGroup.json</code></td>
+<td>Optional traffic, police, or mission vehicle pools.</td>
+</tr>
+</tbody>
+</table>
+<p>Use these as integration points. If a feature has its own authoring page, keep detailed setup there and link to it from this overview.</p>
+<h2 id="clean-authoring-order">
+
+  Clean authoring order
+</h2>
+<p>For a new gameplay-heavy level, this order keeps dependencies manageable:</p>
+<ol>
+<li>Create roads, waypoints, spawns, and required scene objects.</li>
+<li>Set up <code>info.json</code> metadata, spawn entries, traffic support, road rules, and minimap references.</li>
+<li>Build and test the navgraph with roads, waypoints, and <code>map.json</code>.</li>
+<li>Add sites for parking, zones, facilities, boundaries, and named locations.</li>
+<li>Add facilities, POIs, bus routes, drift/crawl/drag data, quickrace, or other feature folders.</li>
+<li>Add missions and connect them to paths, sites, Flowgraphs, and scene objects.</li>
+<li>Add traffic signals, speed traps, vehicle groups, and traffic tuning.</li>
+<li>Test in freeroam, traffic, mission UI, big map, minimap, and any feature-specific editor.</li>
+</ol>
+<h2 id="validation-checklist">
+
+  Validation checklist
+</h2>
+<p>Before shipping level gameplay data, check:</p>
+<ul>
+<li>Referenced object, site, waypoint, route, trigger, POI, and facility names exist.</li>
+<li>JSON files load without parse errors.</li>
+<li>The navgraph is reloaded after road, waypoint, <code>map.json</code>, signal, or site edits.</li>
+<li>Traffic can spawn, route, and respond to signals where expected.</li>
+<li>Bus routes, missions, and quickrace content can resolve their path and stop references.</li>
+<li>Facilities resolve their sites, parking spots, gameplay areas, and POIs.</li>
+<li>Speed traps and red-light cameras are validated through the dedicated speedtrap workflow.</li>
+<li>The minimap and big map show expected routes, POIs, and spawn points.</li>
+<li>Legacy scenarios and modern missions are not confused for each other.</li>
+</ul>
+<h2 id="related-pages">
+
+  Related pages
+</h2>
+<ul>
+<li><a data-doc="levels/level_formats" href="/docs/levels/level_formats">Level File Formats</a>
+</li>
+<li><a data-doc="levels/level_classes" href="/docs/levels/level_classes">Level Object Classes</a>
+</li>
+<li><a href="https://documentation.beamng.com/world_editor/" rel="noopener" target="_blank">World Editor</a>
+</li>
+<li><a data-doc="levels/level_formats/facilities" href="/docs/levels/level_formats/facilities">Facilities</a>
+</li>
+<li><a data-doc="file_formats/vehicle_groups" href="/docs/file_formats/vehicle_groups">Vehicle Groups</a>
+</li>
+<li><a data-doc="levels/level_formats/driftspots" href="/docs/levels/level_formats/driftspots">Drift Spots</a>
+</li>
+<li><a data-doc="levels/level_formats/crawls" href="/docs/levels/level_formats/crawls">Crawls</a>
+</li>
+<li><a data-doc="levels/level_formats/dragstrips" href="/docs/levels/level_formats/dragstrips">Drag Strips</a>
+</li>
+<li><a data-doc="levels/fuelstations" href="/docs/levels/fuelstations">Fuel Stations</a>
+</li>
+<li><a data-doc="levels/speedtraps" href="/docs/levels/speedtraps">Speedtraps</a>
+</li>
+</ul>

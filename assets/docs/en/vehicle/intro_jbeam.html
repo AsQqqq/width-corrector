@@ -1,0 +1,94 @@
+<p>Unlike most games, which use “RigidBody” physics simulation, BeamNG is a “SoftBody” physics simulator. In short, this means that physics objects (such as cars) are deformable. This is achieved through “Node and Beam” structures. You can think of these structures as being like skeletons, or those magnetic toys that were popular in the early 2000’s.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/NodeDiagram.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/NodeDiagram_hu4e0af2fb630b8d10750989a2ab5dfc83_456621_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>To use the above image as an example, these structures are made up of…</p>
+<h4 id="nodes-the-chrome-balls">
+
+  Nodes (The Chrome Balls)
+</h4>
+<pre><code>Nodes can be thought of as particles, each node has mass, and can move freely in space.
+</code></pre>
+<h4 id="beams-the-blue-sticks">
+
+  Beams (The blue sticks)
+</h4>
+<pre><code>Beams hold nodes together in a structure. Beams have no mass, and always have a node at each end. They behave as springs (more on that later).
+They are allowed to rotate freely around nodes, and only serve to keep two nodes at a set distance from each other.
+ No other forces (such as twisting) are transmitted through them, and they cannot be bent.
+</code></pre>
+<p>When building a node-beam structure, it’s important to keep in mind that a box with no cross braces will fall over as the beams can pivot around the nodes. Adding diagonal braces between the edges will make the box into a rigid structure.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/800px-Crossbraces.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/800px-Crossbraces_hu8f0bae173d1c9cb2be21c637cebdc9d2_58384_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>With enough nodes and beams, it is possible to build complex structures like cars, with node-beam structures simulating the chassis, suspension, wheels, and many other components.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/800px-CarIllustration.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/800px-CarIllustration.png"/>
+</span></a></p>
+<h3 id="basic-properties-of-node-beam-structures">
+
+  Basic properties of node-beam structures
+</h3>
+<h4 id="beamspring">
+
+  BeamSpring
+</h4>
+<p>The BeamSpring value defines how “stiff” a spring is, and represents the amount of force required to compress the spring by a set amount.</p>
+<p>Higher values will be used to represent typically rigid structures like the chassis, while lower values will be used for less rigid structures and materials like springs or rubber.</p>
+<p>Spring/stiffness should not be confused with deformation. While a beam with a low spring value will compress easily, it is elastic deformation, meaning it will spring back to its original length after compressing. Meanwhile a beam with a low deformation value will compress and not spring back afterwards.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/SpringStiffness.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/SpringStiffness.gif"/>
+</span></a>
+Left: Soft Spring | Right: Stiff Spring</p>
+<h4 id="beamdamp">
+
+  BeamDamp
+</h4>
+<p>Damping is the resistance to movement.</p>
+<p>In a frictionless vacuum, a spring with no damping will tend to oscillate indefinitely. To avoid this, we need to have some damping, which will resist movement with a force inversely proportional to speed.</p>
+<p>The main effect of damping will be to prevent oscillations, although damping will also have an effect in absorbing some energy from deformation, reducing the strength of the rebound.</p>
+<p>In real life, most objects, including springs, will have at least a little bit of inherent damping.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/Damping.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/Damping.gif"/>
+</span></a>
+Left: No Damping | Right: Some Damping</p>
+<h4 id="typical-values-for-spring-and-damp">
+
+  Typical values for Spring and Damp
+</h4>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">40000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="c1">//Suspension springs
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">4500</span><span class="p">},</span> <span class="c1">//Suspension dampers
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">8000000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">125</span><span class="p">},</span> <span class="c1">//Structural vehicle components, such as suspension arms
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">14001000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">250</span><span class="p">},</span> <span class="c1">//Steering rack, it needs to be super stiff to keep wheels pointing in the right direction
+</span></span></span></code></pre></div>
+<h4 id="beam-deform">
+
+  Beam Deform
+</h4>
+<p>Beam deform sets the amount of force required before a beam permanently deforms. Once deformed, the beam will no longer return back to its original shape. This is central to creating vehicles that deform accurately.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/Deformation.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/Deformation.gif"/>
+</span></a>
+Left: Low deformation value (5000) | Right: Practically infinite deformation value</p>
+<h4 id="beam-strength">
+
+  Beam Strength
+</h4>
+<p>Beam strength sets the amount of force required to break a beam. A broken beam acts as if it has been snapped in half, this means it no longer connects two nodes together. This is useful for allowing components to fall off a vehicle. For example, a bumper can be made to fall off a car, by making the beams connecting it to the chassis break easily.</p>
+<p>As shown in the following image, breaking beams will also result in the visible mesh being destroyed too.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/Strength.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/Strength.gif"/>
+</span></a>
+Left: Low Strength | Right: High Strength</p>
+<h4 id="node-weight">
+
+  Node Weight
+</h4>
+<p>Node weight can be used to adjust how heavy each individual point of vehicle is.</p>
+<p>However, if the overall stiffness of all connected beams are too high, it will begin to vibrate, and may even explode. To prevent this vibration, you either need to make the node heavier, or the beams less stiff. To make things even more complicated: Beams will also start to vibrate and explode if your beamDamp is too high.</p>
+<p>Left: Low node weight (6kg) | Right: Correct node weight (7kg)</p>
+<p>This image shows the effect of node weight on a vehicle, the weight values for 4 nodes connecting the red beams were changed.</p>
+<p>As can be seen, the vehicle on the right is totally stable due to having the correct node weights, while the vehicle on the left is vibrating badly.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/BadVibrations.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/BadVibrations.gif"/>
+</span></a></p>

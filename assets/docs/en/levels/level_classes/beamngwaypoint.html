@@ -1,0 +1,363 @@
+<p><code>BeamNGWaypoint</code> is a lightweight scene object used as a named point in the level. It is commonly used by AI/navigation systems, missions, triggers, races, checkpoints, and manual navigation graph setup.</p>
+<p>Waypoints are not visible during normal gameplay unless debug drawing is enabled or the object is selected in the World Editor.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Basic example
+</h2>
+<p>Example <code>BeamNGWaypoint</code> in <code>items.level.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"BeamNGWaypoint"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"wp_tunnel_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drawDebug"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"directionalWaypoint"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"excludeFromMap"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="important-fields">
+
+  Important fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>"BeamNGWaypoint"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Waypoint name. Important for references from missions, scripts, and <code>map.json</code>.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>World position.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Object rotation as a 3×3 matrix. Mainly relevant for directional waypoints.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Waypoint radius/size. Internally treated as uniform.</td>
+</tr>
+<tr>
+<td><code>drawDebug</code></td>
+<td>bool</td>
+<td>Draws a debug sphere at the waypoint position.</td>
+</tr>
+<tr>
+<td><code>directionalWaypoint</code></td>
+<td>bool</td>
+<td>Makes the waypoint directional, using a half-space/flat plane style detection instead of a simple sphere.</td>
+</tr>
+<tr>
+<td><code>excludeFromMap</code></td>
+<td>bool</td>
+<td>Excludes this waypoint from AI/navigation map generation.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="name">
+
+  Name
+</h2>
+<p>The <code>name</code> field is very important.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"name"</span><span class="err">:</span> <span class="s2">"tunnel_A_01"</span>
+</span></span></code></pre></div><p>Waypoint names are used by:</p>
+<ul>
+<li><code>map.json</code> manual navigation segments</li>
+<li>Mission logic</li>
+<li>Checkpoints</li>
+<li>AI paths</li>
+<li>Lua scripts</li>
+<li>Editor tools</li>
+</ul>
+<p>Use stable, descriptive names. Avoid renaming waypoints after other files already reference them.</p>
+<p>Good examples:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">wp_city_start
+</span></span><span class="line"><span class="cl">tunnel_A_01
+</span></span><span class="line"><span class="cl">bridge_exit_02
+</span></span><span class="line"><span class="cl">race_checkpoint_05
+</span></span></code></pre></div><p>Avoid:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Waypoint1
+</span></span><span class="line"><span class="cl">test
+</span></span><span class="line"><span class="cl">new
+</span></span><span class="line"><span class="cl">abc
+</span></span></code></pre></div><hr/>
+<h2 id="position">
+
+  Position
+</h2>
+<p><code>position</code> defines the waypoint center in world space.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"position"</span><span class="err">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span></span></code></pre></div><p>For navigation and route tools, place the waypoint near the center of the intended path or road.</p>
+<p>For checkpoints, place it where the vehicle should pass through.</p>
+<hr/>
+<h2 id="scale-radius">
+
+  Scale / radius
+</h2>
+<p>Waypoints use scale as their effective radius/size.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span></span></code></pre></div><p>The engine treats waypoint scaling as uniform. If one axis changes, the waypoint applies that value uniformly.</p>
+<p>For example, setting:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre></div><p>will effectively behave as a uniform radius/scale change rather than a true non-uniform volume.</p>
+<div class="bng-notice info">Use uniform scale values for waypoints. Non-uniform scaling is not meaningful for normal waypoint behavior.</div>
+<hr/>
+<h2 id="drawdebug">
+
+  drawDebug
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"drawDebug"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>When enabled, the waypoint draws a debug sphere in the editor/viewport.</p>
+<p>Waypoints are also drawn when:</p>
+<ul>
+<li>The object is selected</li>
+<li>Global waypoint debug drawing is enabled</li>
+<li>The editor visualization setting requests it</li>
+</ul>
+<p>This is useful for checking waypoint position and size.</p>
+<hr/>
+<h2 id="directionalwaypoint">
+
+  directionalWaypoint
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"directionalWaypoint"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>A directional waypoint behaves differently from a simple spherical waypoint.</p>
+<p>When enabled, the waypoint is cut by a directional plane, giving it a directional/flat detection surface. This is useful for checkpoints where direction matters.</p>
+<p>Directional waypoints are commonly useful for:</p>
+<ul>
+<li>Race checkpoints</li>
+<li>One-way checkpoint gates</li>
+<li>Route validation</li>
+<li>Mission triggers where crossing direction matters</li>
+</ul>
+<p>The waypoint orientation comes from its transform/rotation.</p>
+<hr/>
+<h2 id="excludefrommap">
+
+  excludeFromMap
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"excludeFromMap"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>When enabled, the waypoint is ignored by the AI/navigation map system.</p>
+<p>Use this for waypoints that are only meant for missions or scripts and should not become navigation nodes.</p>
+<p>Example use cases:</p>
+<ul>
+<li>Mission-only markers</li>
+<li>Visual/debug waypoints</li>
+<li>Checkpoints not intended for AI routing</li>
+<li>Helper points used by scripts</li>
+</ul>
+<p>If <code>excludeFromMap</code> is false, the waypoint may be included as a manual navigation node.</p>
+<hr/>
+<h2 id="relationship-with-mapjson">
+
+  Relationship with map.json
+</h2>
+<p><code>BeamNGWaypoint</code> is often used together with <code>map.json</code>.</p>
+<p>Example waypoint:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"BeamNGWaypoint"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Bridge1_A"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"excludeFromMap"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Example <code>map.json</code> segment referencing it:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"bridge1"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Bridge1_A"</span><span class="p">,</span> <span class="s2">"Bridge1_B"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>If a waypoint referenced by <code>map.json</code> does not exist, the segment cannot be linked correctly.</p>
+<div class="bng-notice warning">Do not set <code>excludeFromMap</code> to true for waypoints that are referenced by <code>map.json</code> as navigation nodes.</div>
+<hr/>
+<h2 id="navigation-graph-updates">
+
+  Navigation graph updates
+</h2>
+<p>When a waypoint is added, removed, moved, or edited, the engine notifies the Lua map system.</p>
+<p>This allows the navigation graph to be refreshed when editing waypoints.</p>
+<p>Events include:</p>
+<ul>
+<li>Waypoint added</li>
+<li>Waypoint removed</li>
+<li>Waypoint modified</li>
+<li>Transform changed</li>
+</ul>
+<p>In editor workflows, map reloads may be delayed slightly to avoid rebuilding the navigation graph every frame while an object is being moved.</p>
+<hr/>
+<h2 id="relationship-with-missions-and-checkpoints">
+
+  Relationship with missions and checkpoints
+</h2>
+<p>Waypoints are commonly used by gameplay and mission systems.</p>
+<p>Examples:</p>
+<ul>
+<li>Race checkpoints</li>
+<li>Time trial path nodes</li>
+<li>Recovery/checkpoint positions</li>
+<li>Mission trigger points</li>
+<li>AI target points</li>
+<li>Spawn/reference points</li>
+</ul>
+<p>For checkpoint-like use, set an appropriate scale so the waypoint is large enough for vehicles to pass through reliably.</p>
+<p>For directional checkpoints, use <code>directionalWaypoint</code>.</p>
+<hr/>
+<h2 id="debug-visualization">
+
+  Debug visualization
+</h2>
+<p>When drawn, a waypoint appears as a translucent orange sphere.</p>
+<p>If <code>directionalWaypoint</code> is enabled, additional debug visualization is drawn:</p>
+<ul>
+<li>Direction arrow</li>
+<li>Directional plane/grid</li>
+</ul>
+<p>This helps verify the waypoint direction and trigger/checkpoint behavior.</p>
+<hr/>
+<h2 id="minimal-navigation-waypoint">
+
+  Minimal navigation waypoint
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"BeamNGWaypoint"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"road_node_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"excludeFromMap"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Use this for navigation graph nodes or <code>map.json</code> references.</p>
+<hr/>
+<h2 id="mission-only-waypoint">
+
+  Mission-only waypoint
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"BeamNGWaypoint"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"mission_marker_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drawDebug"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"excludeFromMap"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Use this for mission/script references that should not affect AI navigation.</p>
+<hr/>
+<h2 id="directional-checkpoint-waypoint">
+
+  Directional checkpoint waypoint
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"BeamNGWaypoint"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"checkpoint_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">-1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"directionalWaypoint"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"excludeFromMap"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Use this for checkpoint-style logic where passing direction matters.</p>
+<hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Use clear, stable waypoint names.</li>
+<li>Use uniform scale values.</li>
+<li>Use <code>excludeFromMap: true</code> for mission-only waypoints.</li>
+<li>Leave <code>excludeFromMap: false</code> for waypoints used by <code>map.json</code>.</li>
+<li>Use <code>directionalWaypoint</code> for directional checkpoints.</li>
+<li>Keep waypoints centered on the intended path or trigger area.</li>
+<li>Use <code>drawDebug</code> only when needed.</li>
+<li>Avoid placing many unnecessary waypoints in the navigation graph.</li>
+<li>After editing navigation waypoints, test AI/pathfinding.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="waypoint-does-not-appear">
+
+  Waypoint does not appear
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li><code>drawDebug</code> is false</li>
+<li>Global waypoint debug drawing is disabled</li>
+<li>Object is not selected</li>
+<li>Waypoint is outside view/debug draw range</li>
+</ul>
+<h3 id="mapjson-segment-cannot-find-waypoint">
+
+  map.json segment cannot find waypoint
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Waypoint name does not match</li>
+<li>Waypoint was renamed</li>
+<li>Waypoint is missing from <code>items.level.json</code></li>
+<li><code>excludeFromMap</code> is true</li>
+<li>Waypoint failed to load</li>
+</ul>
+<h3 id="ai-path-does-not-use-waypoint">
+
+  AI path does not use waypoint
+</h3>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"excludeFromMap"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre></div><p>Also verify that the waypoint is connected through <code>map.json</code> or a valid road graph source.</p>
+<h3 id="checkpoint-triggers-from-wrong-direction">
+
+  Checkpoint triggers from wrong direction
+</h3>
+<p>Use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"directionalWaypoint"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>and verify the waypoint rotation.</p>
+<h3 id="waypoint-radius-feels-wrong">
+
+  Waypoint radius feels wrong
+</h3>
+<p>Use uniform scale:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</span></span></code></pre></div><p>Avoid non-uniform scale for waypoints.</p>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p><code>BeamNGWaypoint</code> is a named spatial marker used by navigation, missions, checkpoints, scripts, and editor tools.</p>
+<p>It can act as:</p>
+<ul>
+<li>A manual navigation node</li>
+<li>A mission reference point</li>
+<li>A checkpoint/trigger volume</li>
+<li>A <code>map.json</code> node reference</li>
+</ul>
+<p>Use <code>excludeFromMap</code> to control whether it contributes to navigation, and use <code>directionalWaypoint</code> when direction-sensitive detection is needed.</p>
+<p><strong>See also:</strong> <a data-doc="levels/level_formats/map" href="/docs/levels/level_formats/map">Navigation map (<code>map.json</code>)</a>
+, <a data-doc="levels/level_formats/buslines" href="/docs/levels/level_formats/buslines">Bus lines</a>
+, <a data-doc="levels/level_formats/items" href="/docs/levels/level_formats/items">Level object files (<code>items.level.json</code>)</a>
+.</p>

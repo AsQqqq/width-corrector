@@ -1,0 +1,462 @@
+<p>To help with Jbeam design, the game has multiple debug views that allow you to get more information about your Jbeam.</p>
+<h3 id="console">
+
+  Console
+</h3>
+<p>The console can be accessed using <kbd>`</kbd>. It shows information and errors that happen while loading a car, and can be helpful to investigate why a vehicle isn’t loading, has missing textures, etc.</p>
+<p>The information is color coded, with errors in red, warnings in yellow, info in green and debug information in blue. You can hide the various types of messages by clicking on the buttons in the upper left corner.</p>
+<p>The text box at the bottom is used to enter commands.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/Console.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/Console_hu1287b3066bb1b2312c2efe312d161c38_1438099_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="slow-motion">
+
+  Slow-Motion
+</h3>
+<p>The Slow-Motion tool, while not expressly defined as a debug tool, can be very useful to troubleshoot jbeam issues. It can be accessed in the “Environment” menu, or by pressing <kbd>Alt + Up</kbd></p>
+<h3 id="vehicle-config-debug-ui">
+
+  Vehicle Config &gt; Debug UI
+</h3>
+<p>The Debug UI contains many ways to debug the vehicles’ JBeam physics properties. This UI includes the debug modes listed below and also includes vehicle spawning functions.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/DebugUI.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/DebugUI_hu5ccd9c9a040f43d21eafb47a9c584096_107898_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Debug UI includes a selector of vehicle parts affected by the debug tools which works like a checklist - highlighted parts will be affected, others not. You can use the checkmark icon to quickly select and unselect all parts. After changing a part in the vehicle’s own parts selector or changing a visibility of a part there, changes will be synced automatically. The selector also includes a search bar.</p>
+<p>The debug UI includes the following sections, among others:</p>
+<h4 id="node-visualization">
+
+  Node visualization
+</h4>
+<p>The node debug views can be accessed by default with <kbd>Ctrl + M</kbd>. In the debug UI, you can edit the width and transparency of the highlight.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/Node.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/Node_hu2d6e3ef9760283cf2d5ed227b1f102d1_831863_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+The following views are available:</p>
+<ul>
+<li>Simple - Shows the nodes with a color code based on collisions. Yellow nodes have both internal and external collision, light blue nodes have external collision but no internal collision, purple nodes have no collision at all.</li>
+<li>Highlighted Only - Shows highlighted nodes in their highlight color.</li>
+<li>Weights - Shows the nodes as dots whose size varies based on the weight of the node, color coded the same way as in the Simple mode.</li>
+<li>Displacement- Highlights the nodes that have displaced from their initial position on spawn via elastic deformation. The bigger displacement, the more opacity the highlight color has.</li>
+<li>Velocities - Shows node velocity compared to the reference nodes.</li>
+<li>Forces - Shows a vector of the total forces applied on a node. Can be very useful to find instabilities or nodes which are being pushed by unwanted triangles collisions.</li>
+<li>Density - Shows if the node is currently in the air (green) or in water (red).</li>
+<li>Clusters - Shows each node cluster in a different color. Clusters are groups of nodes connected by beams. The whole vehicle is inidially a single cluster, broken off parts separate into their own clusters.</li>
+<li>Main Cluster - Shows the nodes from the main cluster in green color, and the rest in blue color. Main cluster is the one the camera follows.</li>
+</ul>
+<p>In addition to these debug modes, in the UI there is also a <code>Show Highlighted</code> checkbox. If checked, it essentially combines the chosen mode with the Highlighted Only mode.</p>
+<h4 id="node-text">
+
+  Node text
+</h4>
+<p>The node text views can be accessed by default with <kbd>Ctrl + N</kbd>. The following views are available:</p>
+<ul>
+<li>Name - Shows the name of each node as defined in the jbeam. If it has no name, which is true for wheel nodes, it shows the id number instead.</li>
+<li>Numbers - Shows each node’s id number. Mostly used by lua and the physics engine.</li>
+<li>Name+Numbers - Combination of the two previous modes.</li>
+<li>Weights - Shows each node’s name and weight in kg. Also shows the total weight of all nodes around the top right corner of the screen.</li>
+<li>Materials - Shows each node’s name and assigned material.</li>
+<li>Groups - For each node, shows its name and the group it belongs to. Requires turning on the “Spawn in Debug Mode” checkbox in the debug UI to work.</li>
+<li>Forces - Shows each node’s name and the value of the vector of total forces applied on it. Also shows average force around the top right corner of the screen. Couplers are shown with red font instead of black, and are not counted in the average calculation.</li>
+<li>Relative positions - Shows each node’s name and its position relative to the vehicle’s local coordinates.</li>
+<li>World positions - Shows each node’s name and its position relative to the world.</li>
+</ul>
+<p>In the debug UI, you can toggle the <code>Show Wheels</code> checkbox, which decides whether these text are also shown for wheel nodes. This is turned off by default due to them obstructing view and generally not being useful in most cases.</p>
+<h4 id="node-debug-text">
+
+  Node debug text
+</h4>
+<p>Shows extra debug text which contains info about some additional properties defined for some nodes. Can be accessed by default with <kbd>Ctrl + K</kbd>. The following views are available:</p>
+<ul>
+<li>Latches - Shows sound events related to vehicle latches, such as the open event, close event and break event, along with the name of the latch.</li>
+<li>PropAnimation - Shows sound events related to prop animation controllers, along with the name of the controller.</li>
+<li>Soundscape - Shows sound events related to various vehicle sounds.</li>
+<li>CombustionEngine - Shows sound events related to the engine and exhaust, if they exist on the vehicle. Shows the name of the engine in the label, and additionally in the name of this section, for example “CombustionEngine mainEngine”.</li>
+<li>Powertrain - Shows sound events related to various powertrain devices of the vehicle.</li>
+</ul>
+<h4 id="beam-visualization">
+
+  Beam visualization
+</h4>
+<p>The beams debug views offer multiple views to help show the various states of beams. They are useful to help building your jbeam, and investigate issues caused by instability or leaking properties. The beam debug views can be accessed by default with <kbd>Ctrl + B</kbd>. Some beam debug views have a value range parameter to limit the values that are visualized. This can be set through Vehicle Config &gt; Debug &gt; “Range Min” and “Range Max” sliders and the “Show Infinity Values (FLT_MAX)” checkbox.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/Beam.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/Beam_hu22d3a7ba81741037f97eed4c8138a076_971229_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>This section contains beam visualization modes based on the current status of the beam in game. Available modes are:</p>
+<ul>
+<li>Simple - Shows the beams in green.</li>
+<li>Type - Draws the beams different colors depending on their type. Regular beams are green, support beams are purple, bounded beams are yellow, hydro beams are dark blue, pressured beams are cyan, l-beams are grey, and anisotropic beams are orange. This color legend can be found in the game as well.</li>
+<li>With broken - Same as the “Type” view, but shows broken beams in red.</li>
+<li>Broken only - Only draws broken beams. Useful to investigate issues like beams breaking on spawn.</li>
+<li>Support only - Only draws support beams that are not broken. Useful for tuning beamLongBound parameter for support beams.</li>
+<li>Stress - Shows how much stress is on the beams, coloring them red in compression, and blue in tension. Useful to see instability issues and vibration. There are two stress modes, one with and one without constraining range values in the debug UI, the latter named “Stress (Old)”.</li>
+<li>Displacement - Shows how much the beams are displaced via elastic deformation from their initial lengths. Blue means the beam has been stretched and red means that it has been shortened. Debug UI lets you constraint range values.</li>
+<li>Deformation - Shows how much the beams are permanently deformed. Blue means the beam has been stretched past its initial length, red that it has been shortened. Debug UI lets you constraint range values.</li>
+<li>Break Groups - Highlights the beams by breakGroups with different colors. Useful to investigate issues of breakGroups that aren’t working as they should, or leaking.</li>
+<li>Deform Groups - Highlights the beams by deformGroups with different colors.</li>
+<li>Bounded Beam Bounds - Shows only bounded beams.
+<ul>
+<li>If the beam has not expanded or compressed from the spawn length (taking precompression into account), it is shown fully in green with no overshoot length from the nodes.</li>
+<li>If it has been shortened from the spawn length, then the current length is shown in green, and it is extended to the spawn length on both sides by dark blue color. If the beam’s shortBound has been triggered, it is shown in cyan color on top of the blue, and additionally light blue visualizes the transition zone.</li>
+<li>If the beam has been extended from the spawn length, then the green color shows the original length, while the extension is filled in by red color. If the beam has expanded beyond the longBound limit, the remaining extension is filled in with yellow color, and additionally orange visualizes the transition zone.</li>
+</ul>
+</li>
+<li>Support Beam Bounds - Does the same as above, but for support beams. Transition zones are not shown due to being zero length. These beams frequently utilize precompression lower than 1 combined with high longBound values, so they will often have long reaching yellow longBound limits.</li>
+<li>Frequency - Highlights beams which have the set frequency with the set max amplitude.</li>
+</ul>
+<p>There also beam visualization modes which visualize beams based on their properties set in Jbeam. These debug modes visualize lower end range values in white, upper end range values in red, and infinity (FLT_MAX) values in purple. The modes for these are:</p>
+<ul>
+<li>Beam Damp</li>
+<li>Beam Damp Fast</li>
+<li>Beam Damp Rebound</li>
+<li>Beam Damp Rebound Fast</li>
+<li>Beam Damp Velocity Split</li>
+<li>Beam Deform</li>
+<li>Beam Limit Damp</li>
+<li>Beam Limit Damp Rebound</li>
+<li>Beam Long Bound</li>
+<li>Beam Precompression</li>
+<li>Beam Precompression Range</li>
+<li>Beam Precompression Time</li>
+<li>Beam Short Bound</li>
+<li>Beam Spring</li>
+<li>Beam Strength</li>
+<li>Bound Zone</li>
+<li>Damp Cutoff Hz</li>
+<li>Damp Expansion</li>
+<li>Deform Limit</li>
+<li>Deform Limit Expansion</li>
+<li>Deformation Trigger Ratio</li>
+<li>Long Bound Range</li>
+<li>Precompression Range</li>
+<li>Short Bound Range</li>
+<li>Spring Expansion</li>
+</ul>
+<h4 id="beam-text">
+
+  Beam text
+</h4>
+<p>Contains extra information for each beam:</p>
+<ul>
+<li>IDs - Shows the internal id of the beam.</li>
+<li>Spawn Length - Displays the original length in meters for each beam.</li>
+<li>Live Length - Displays the current length in meters for each beam.</li>
+</ul>
+<h4 id="torsion-bar-visualization">
+
+  Torsion bar visualization
+</h4>
+<p>Only available from the debug UI. Shows torsion bars of the vehicle. Useful to debug stiff structures such as subframes and suspension.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/TorsionbarsSimple.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/TorsionbarsSimple_hu97d521b6c0442473a025a6f47bcc338d_714649_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+Available modes:</p>
+<ul>
+<li>Simple - For each torsion bar, it shows its nodes color coded from one end to the other in red, orange, yellow and green colors respectively. Also highlights the connections between these nodes in a different color for each torsion bar.</li>
+<li>Without Broken - The same as above, except broken torsion bars will no longer be highlighted.</li>
+<li>With Broken - The same as above, except broken torsion bars will be highlighted in more visible colors than intact ones.</li>
+<li>Broken Only - The same as above, except it will only highlight the broken torsion bars.</li>
+<li>Angle - The opacity of the torsion bar will visualize the angle between its arms. You can set the minimum and maximum displayed range in settings.</li>
+<li>Stress - The opacity of the torsion bar will visualize the stress between its arms. You can set the minimum and maximum displayed range in settings.</li>
+<li>Deformation - The opacity of the torsion bar will visualize the deformation between its arms. You can set the minimum and maximum displayed range in settings.</li>
+<li>Damp - The color of the connections between the torsion bar’s nodes will visualize its damping the same way beam damp debug is visualized. You can set the minimum and maximum displayed range in settings.</li>
+<li>Deform - The color of the connections between the torsion bar’s nodes will visualize its deformation resistance the same way beam deform debug is visualized. You can set the minimum and maximum displayed range in settings.</li>
+<li>Spring - The color of the connections between the torsion bar’s nodes will visualize its stiffness the same way beam spring debug is visualized. You can set the minimum and maximum displayed range in settings.</li>
+<li>Strength - The color of the connections between the torsion bar’s nodes will visualize its breaking resistance the same way beam strength debug is visualized. You can set the minimum and maximum displayed range in settings.</li>
+</ul>
+<h4 id="rails-and-slidenodes-visualization">
+
+  Rails and Slidenodes visualization
+</h4>
+<p>Only available from the debug UI. Shows rails and slidenodes of the vehicle. Useful to debug issues with beam breaking and deformation on spawn due to misaligned slidenodes.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/RailsSimple.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/RailsSimple_hu2e4576a54d1d9a77a4a13e50f2c97e91_1392688_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+Available modes:</p>
+<ul>
+<li>Simple - Shows each rail and its slidenodes in their own color. Slidenodes will be thicker than rail nodes.</li>
+<li>Without Broken - The same as above, except broken rails and detached slidenodes will no longer be highlighted.</li>
+<li>With Broken - The same as above, except broken rails and detached slidenodes will be highlighted in more visible colors than intact ones.</li>
+<li>Broken Only - The same as above, except only highlights broken rails and detached slidenodes.</li>
+</ul>
+<h4 id="collision-triangle-visualization">
+
+  Collision Triangle visualization
+</h4>
+<p>The triangle debug view can be accessed by default with <kbd>Ctrl + T</kbd>. Useful to debug collision and aero.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/TriangleDebug.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/TriangleDebug_hu78989d1ca8e0961fe2a1a72a37f80a32_823541_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+Available modes:</p>
+<ul>
+<li>Simple - Shows the front side of triangles in green, and the rear in purple.</li>
+<li>Type - Same as above, but the front sides of non-collidable triangles are shown in yellow, those of pressured triangles in blue.</li>
+<li>Without Broken - Same as above, but broken triangles are no longer shown.</li>
+<li>With Broken - Same as above, but broken triangles are shown in red color on both sides.</li>
+<li>Broken Only - Same as above, but only shows broken triangles.</li>
+<li>Collidable Only - Same as Without Broken, but also doesn’t show non-collidable triangles.</li>
+</ul>
+<h4 id="others">
+
+  Others
+</h4>
+<ul>
+<li>Aerodynamics debug:
+The aerodynamics debug is only available through the debug menu, which can be accessed after enabling advanced functions in the UI options. It is used to debug the aerodynamics of the car, and investigating issues like imbalances in lift and drag. Keep in mind that while the aerodynamic properties are defined with <a data-doc="vehicle/sections/triangles" href="/docs/vehicle/sections/triangles">triangles</a>
+, forces are calculated at each node, using the properties, size and orientation of the adjacent triangles.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/CombinedAeroDebug.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/CombinedAeroDebug_hu52141b209531b1db384d1d66920675a2_837194_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+Available options:</li>
+</ul>
+<ol>
+<li>Drag + Lift - shows 3 vectors for each node. In yellow is the normal vector of the node’s aero surface, based on the size and orientation of the adjacent triangles. In red is the drag applied to that node. This force vector will always be pointing straight back compared to the airflow. In blue is the lift/downforce applied to that node. This force vector will always be perpendicular to the drag.</li>
+<li>Angle of Attack - shows the angle between the node’s normal vector and the airflow. If the normal vector is perfectly aligned with the airflow, the angle of attack will be 90 degrees and the force will be entirely drag. If the normal vector is perpendicular to the airflow, the angle of attack will be 0 degrees and there will be no aero forces on the node.</li>
+<li>Combined - This view combines the information from the previous 2 views.</li>
+</ol>
+<ul>
+<li>
+<p>Center of Gravity:
+The CoG debug view can be accessed by default with <kbd>Ctrl + G</kbd>.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/COG.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/COG_hu640922129089c39bd36ddd10fceb09da_861762_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+The red dot shows the position of the car’s center of gravity. The blue dot shows the position of the car’s center of pressure, which is where all the drag and lift forces average out. The two different modes show the center of gravity with and without wheels, respectively.</p>
+</li>
+<li>
+<p>Tire contact point debug:
+Shows ground contact point for each tire of the vehicle.</p>
+</li>
+<li>
+<p>Steering geometry debug (available since version 0.33):
+Casts rays from wheel centers in both directions. The intersection points between them help visualize and debug the steering geometry. The rays have adjustable length.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/steeringGeometry.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/steeringGeometry_hu2818fc6e81992b47ef9eea407285ebb3_1163919_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+</li>
+<li>
+<p>Mesh visibility:
+While not a debug tool by itself, the mesh visibility scale is very useful to help you see the various debug views better by making the mesh partly or full transparent. The default keys are <kbd>Ctrl + NumpadPlus</kbd> and <kbd>Ctrl + NumpadMinus</kbd> to raise and lower mesh visibility, respectively.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/MeshVis.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/MeshVis_hue9f2a848a0e47bdb33aa2ef079c6298f_1226649_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+</li>
+</ul>
+<h3 id="ui-apps">
+
+  UI Apps
+</h3>
+<p>BeamNG.drive includes a number of useful debug UI apps that can be added to the interface. They can be added in the UI Apps tab in the top menu.</p>
+<h4 id="advanced-wheels-debug">
+
+  Advanced Wheels Debug
+</h4>
+<p>This app shows the toe and camber angles for every wheel on the vehicle, and additionally caster and SAI angles for steer axis wheels. The values are calculated in reference to the vehicle’s refNodes, and are based on the positions of nodes defined in the pressureWheels sections of Jbeam. Can be used to help set up and debug suspension geometry, and also makes refNode alignment issues easy to notice.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/uiAppWheelsDebug.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/uiAppWheelsDebug.png"/>
+</span></a></p>
+<h4 id="brake-thermal-debug">
+
+  Brake Thermal Debug
+</h4>
+<p>Allows selecting 2 of the brakes on the vehicle and displays various thermal related values. Can be used to debug brake overheating issues.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/uiAppBrakeThermalDebug.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/uiAppBrakeThermalDebug_hu023bdf9e5545b1eda0c78feb824c2d9b_63256_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="engine-debug">
+
+  Engine Debug
+</h4>
+<p>Displays some information about the engine which can be useful to debug energy losses caused by friction or temperature.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/uiAppEngineDebug.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/uiAppEngineDebug.png"/>
+</span></a></p>
+<h4 id="engine-thermal-debug">
+
+  Engine Thermal Debug
+</h4>
+<p>An extensive dynamic list of various thermal properties of the vehicle’s engine. Contains information about the engine damage, radiator and coolant efficiency, oil starvation and more. Allows to exactly pinpoint the cause of overheating and oil issues, and helps with cooling system tuning.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/uiAppEngineThermalDebug.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/uiAppEngineThermalDebug_huaddd41cc5ddff795cf18e1130d69380d_325810_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="node-beam-info">
+
+  Node/Beam Info
+</h4>
+<p>This app reliably displays Jbeam related statistics of the vehicle, such as a number and percentage of deformed or broken beams and torsionbars, precise total weight, number of triangles, etc. Can be used to judge a vehicle’s Jbeam related performance impact compared to other vehicles. Also very useful for finding issues that are otherwise hard to notice and result in a wrong weight or deformed beams.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/uiAppNodeBeamInfo.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/uiAppNodeBeamInfo_hu9d44be296743a0b6ab9c7bf3ff8c011c_56300_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="powertrain-visualization">
+
+  Powertrain Visualization
+</h4>
+<p>Visualizes the powertrain tree of the vehicle with all of its components and the torque going through it. This can be changed to power by clicking on the ’torque’ text. Highlighting a component with the mouse will display its name and RPM. Some components such as locking wheel axles, disconnectable shafts, locking differentials and rangeboxes can be interacted with by clicking on them in the app. This app is very useful for debugging issues such as driveline windup and incorrect drivetrain configurations.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/uiAppPowertrainVis.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/uiAppPowertrainVis_hu42a43fc1c3d7e8e144d4332e0f815205_79689_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="shift-point-debug">
+
+  Shift Point Debug
+</h4>
+<p>Shows an animated graph of which transmission gears are active on which engine RPM and wheel speed in km/h, with marked shift points and a line showing the current gear. Useful for setting up shift points of automatic transmissions.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/uiAppShiftPointDebug.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/uiAppShiftPointDebug.png"/>
+</span></a></p>
+<h4 id="torque-curve">
+
+  Torque Curve
+</h4>
+<p>Practically a must have for tuning engines, this app shows the torque to RPM curve in Nm and power to RPM curve in Ps, displaying the current and peak power and torque values together with the current point on the curve. Individual forced induction devices can be toggled on and off in the graph and will be shown with different line styles.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/uiAppTorqueCurve.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/uiAppTorqueCurve.png"/>
+</span></a></p>
+<h4 id="weight-distribution">
+
+  Weight Distribution
+</h4>
+<p>Shows the load on each wheel of the vehicle in different ways at once: as a background visual highlighting wheels with over 25% load, as weight load in kg, force load in N, and percentage of total weight on each wheel.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/uiAppWeightDistribution.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/uiAppWeightDistribution.png"/>
+</span></a></p>
+<h3 id="world-editor">
+
+  World Editor
+</h3>
+<p>The World Editor, accessed with the <kbd>F11</kbd> key by default, contains a few useful tools for Jbeam debugging. They can be added via the Window tab.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/worldEditor.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/worldEditor_hu0d3a200fe102aab71246aee6190b9038_1231498_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="engine-audio-debug">
+
+  Engine Audio Debug
+</h4>
+<p>Found in Audio tab. This tool allows for real time tweaking and testing engine and exhaust sound config values. The resulting Jbeam setup can be copied to clipboard and pasted into the engine Jbeam file.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/engineAudioDebug.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/engineAudioDebug_hu9ac68e82af23e61ebbc0395b68aa7e35_102146_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="suspension-audio-debug">
+
+  Suspension Audio Debug
+</h4>
+<p>Found in Audio tab. Allows debugging suspension sound parameters defined in Jbeam.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/suspensionAudioDebug.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/suspensionAudioDebug_hue3d2c675d9388ef5a75bf92d576af07b_91609_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="vehicle-detail-viewer">
+
+  Vehicle Detail Viewer
+</h4>
+<p>WIP, will be documented later
+
+</p><div class="bng-embvideo">
+<svg viewbox="0 0 16 9" xmlns="http://www.w3.org/2000/svg"></svg>
+<iframe allow="autoplay; fullscreen; picture-in-picture" allowfullscreen="" frameborder="0" src="https://www.youtube-nocookie.com/embed/m75ZO-x1qps?modestbranding=1" title="YouTube video"></iframe>
+</div>
+<h4 id="vehicle-manager">
+
+  Vehicle Manager
+</h4>
+<p>Found in Experimental tab. Upon clicking ‘Reload’, it creates the following files in the user folder:</p>
+<ul>
+<li>vehicleDebug_activeParts.json: Raw Jbeam data from all active parts on the vehicle in the Json format.</li>
+<li>vehicleDebug_chosenParts.json: List of all the parts currently equipped on the vehicle and their slots, formated similar to the .pc configuration files.</li>
+<li>vehicleDebug_config.json: Configuration file of the current vehicle, similar to a .pc file but with more data.</li>
+<li>vehicleDebug_data.json: All of the data of the vehicle as seen by the game engine.</li>
+<li>vehicleDebug_preTable.json: All of the Jbeam sections from all of the parts of the vehicle merged into one Json file.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/vehicleManager.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/vehicleManager.png"/>
+</span></a>
+The Vehicle Manager allows for debugging issues with calculations and string concatenation in Jbeam, by displaying how this data is seen on various stages of its processing.</li>
+</ul>
+<h3 id="vehicle-editor">
+
+  Vehicle Editor
+</h3>
+<p>The Vehicle Editor is a group of useful Jbeam tools which can be accessed via <kbd>Shift + F11</kbd> or from the World Editor tabs: Window &gt; Experimental&gt; Vehicle Editor. It has two tabs: Static Editor, focused on editing Jbeam files, and Live Editor, focused on debugging Jbeam behavior in real time. Both have customizable layouts that can be saved, allowing the user to have their favorite tools always on display.</p>
+<h4 id="static-editor-apps">
+
+  Static Editor Apps
+</h4>
+<ul>
+<li>Jbeam Modifier Leaking Visualizer: Shows which Jbeam values used in parts leak to parts loaded after them.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/leaking.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/leaking_hu58269b9f71d103d9862af57e9b3262ce_303298_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Jbeam Spellchecker: Searches all Jbeam files for section name typos and then prints them in console.</li>
+<li>Jbeam Table Visualizer: Shows tables of the chosen Jbeam files on the UI.</li>
+<li>Jbeam Variables Checker: Searches all .pc fies for variables that are out of range according to the Jbeam files they are defined in and then prints them in console. (May produce false positives in case the same variable is defined in multiple files with different ranges)</li>
+</ul>
+<h4 id="live-editor-apps">
+
+  Live Editor Apps
+</h4>
+<ul>
+<li>Vehicle Aero Debug: Shows various values related to aerodynamics, the most useful being axle downforce.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/aeroDebug.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/aeroDebug_hu2f4ba94f24ad6b610521ddc014071a02_48016_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Beam Visualization: Same thing as in the debug UI.</li>
+<li>Flexbody Debug: Very useful when debugging spiking and stretching issues, allows you to see which nodes each vertex of the model is interpolated by, and which vertices each of the nodes in Jbeam interpolates. In the ‘All Flexmeshes’ tab, it has tools that can automatically find potentially problematic areas where vertices lack nearby nodes, which can cause spiking issues.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/flexbodyDebug.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/flexbodyDebug_hub56628016ad7af41a058d16c6481e902_763828_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>General Data: Shows some basic useful data all in one place.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/generalData.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/generalData_hu4f703bcb9e593b8c2ef3a2b42eb3b3fd_57475_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Jbeam Picker: Allows for picking individual nodes and beams of the vehicle with the mouse cursor, and displaying some static and live data of them.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/jbeamPicker.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/jbeamPicker_hu5e7adf6d43e50e0ae9c0dc3acbaa7471_1036887_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Lights Debug: Shows the directions in which all of the lights on the vehicle are being cast.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/lightsDebug.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/lightsDebug_hu00109b834412d10df37072af1f658170_970363_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Mirrors Debug: Allows testing mirror Jbeam parameters in real time using sliders.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/mirrorsDebug.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/mirrorsDebug_hu1c8a7cbb5c76c2ef304faf606f314936_847524_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Node Triangle Self Collision Detector: Highlights nodes and triangles that are within a specified distance of each other, if they can potentially collide with each other. Also prints the data about these nodes and triangles in console. The default range is 0.025m, which means they are colliding with each other on spawn. It is recommended to keep the distances at least 0.035m to prevent collisions when the chassis is flexing.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/collisionDetector.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/collisionDetector_hud6b504f2c74d5729ee6cfc3b91330b5a_480625_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Node Visualization: Same thing as in the debug UI.</li>
+<li>Powertrain Inspector: Shows static and live Jbeam about a selected powertrain device.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/powertrainInspector.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/powertrainInspector_hu61d55ca1beceecea2a1cfddedc1b9ae0_65852_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Prop Transformer: A very useful utility which makes positioning props on the vehicle much easier. To select a prop, click the ‘Pick Prop’ button. Some points will appear on the vehicle, they are origin nodes of the props, you can cycle between different props in each origin with the scroll wheel. You can then use the buttons at the bottom to enable a 3D gizmo which will allow you to set the position and rotation of the props. Finally, you can copy the values from text fields to your Jbeam. You can do it manually or automatically with a button if you are using baseTranslationGlobal.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/propTransformer.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/propTransformer_hu8244ffe4a24f0f4b52fc4c706afa9909_909900_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Raw Vehicle Data: Shows all of the vehicle data from game engine.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/rawVehicleData.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/rawVehicleData_hu94398b364e44170ae465060cc73ec18e_45982_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+</ul>
+<h3 id="props">
+
+  Props
+</h3>
+<p>There are some spawnable props in game that can help with tuning Jbeam parameters. Make sure to turn on the <code>Include Auxiliary Debug Content</code> checkbox in the vehicle selector to see them.</p>
+<h4 id="roof-crusher-tester">
+
+  Roof Crusher Tester
+</h4>
+<p>This prop is used to replicate the IIHS vehicle roof strength test in order to achieve realistic roof deformation on vehicles.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/debugtools/car_crusher.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/debugtools/car_crusher_hubf13c21086b99bcbf2e4d23f447bf24a_1589060_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p><strong>Usage tutorial</strong></p>
+<ul>
+<li>Open the body JBeam file of the vehicle you want to test and add the {“fixed”:true} tag to the floor nodes.</li>
+<li>Spawn the Roof Crusher Tester on the Grid, Small, Pure map. You can find it near the bottom of the list if you have the “Include Auxiliary Debug Content” option checked. Spawn the car you want to test, and move it to the center of the crusher via World Editor. Use the base model of the car.</li>
+<li>Click the blue ball on the crusher and wait until it touches the roof of the vehicle. If it doesn’t touch the roof properly, you might have toremove some parts, or use the red and green balls to tweak the position. For low vehicles, you can also move the car up via World Editor.</li>
+<li>Click the blue ball again and wait for the UI message with the measured force. You will also find the reading in the console. If the vehicle’smirror has interfered with the test (can happen on mods based on old vehicles), redo the test with the mirror removed.</li>
+<li>Calculate the roof weight rating of the vehicle, by dividing the test result value by 9.81.</li>
+<li>Calculate the vehicle’s expected roof weight rating, by multiplying its weight by the IIHS roof strength test result rating. Use the closestpossible vehicle if you can’t find the exact model.</li>
+<li><em>Pre-2013 vehicles will usually have the rating of around 1.5, it will be lower for cheaper cars, for very cheap ones it can go down to 1.00 andexpensive ones can reach around 1.75. Most 1980-2005 cars will have the rating above 1.5, and later can reach above 3. In 2013 the standards haveincreased drastically, it will be around 4 for them. 2016 and later always have a rating of at least 4, for very heavy or expensive cars it willreach above 5. SUVs can be much stronger or much weaker than normal cars depending on the body structure design.</em></li>
+<li>Tweak the Jbeam until you reach a reasonable result (around 2x better rating than irl is fine). You might have to rework the Jbeam for the roof and each pillar to have its own rigidifiers, connected to each other with easily deformable beams. You may have to test how much the glass affectsthe results and weaken it accordingly. You might also have to tweak or remove breakable body beams.</li>
+<li>Remember to retune the strength of the floor afterwards in order to preserve the head-on impact strength of the vehicle.</li>
+</ul>

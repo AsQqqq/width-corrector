@@ -1,0 +1,90 @@
+<h3 id="51-purpose">
+
+  5.1 Purpose
+</h3>
+<p>Define standards for static props, textures, buildings and reusable assemblies, with emphasis on scale, collision, and performance.</p>
+<h3 id="52-requirements-and-conventions">
+
+  5.2 Requirements and conventions
+</h3>
+<p>Props and buildings must use consistent real-world scale and orientation.</p>
+<p>Collision meshes should be simplified relative to render meshes but keep in mind to treat the collisions that will interact with vehicles detailed enough to avoid unrealistic behavior like tire sinking over mesh surface.</p>
+<p>Disable collisions for tiny decorative items where safe to reduce memory costs.</p>
+<p>Use available materials across maps assets. Reuse texture atlases, tilable or trim textures to save memory instead of baked materials.</p>
+<h3 id="53-prefabs-and-modularity">
+
+  5.3 Prefabs and modularity
+</h3>
+<p>Use modular kits for buildings, sidewalks, curbs, guardrails, etc. to ensure a quick assets creation and consistent snapping and spacing.</p>
+<p>Use Prefabs to pack modules and reuse frequent compositions to make map creation quicker.</p>
+<h3 id="54-urban-and-interior-specifics">
+
+  5.4 Urban and interior specifics
+</h3>
+<p>Maintain road clearances and sightlines around intersections</p>
+<p>For tunnels and enclosed spaces, use occlusion/visibility tools like Zones objects where applicable to control light intensity and colors.</p>
+<h3 id="55-lod-policy">
+
+  5.5 LOD policy
+</h3>
+<p>Level of Detail (LOD) is a key optimization technique: as an object moves farther from the camera, the engine swaps the high‑detail mesh for progressively simpler versions. Prepare multiple variants of the model with reduced polygon counts.</p>
+<p>In BeamNG LODs are setup in an external software and imported following a specific pipeline.</p>
+<p>Following is illustrated how you need to setup the scene in Blender and 3Ds Max to correctly export your mesh with LODs to make it works in engine:</p>
+<p>Blender setup</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section5/lodblender.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Blender export hierarchy setup" loading="lazy" src="/docassets/img/modding/levels/level_creation/section5/lodblender.jpeg"/>
+</span><span class="text" style="text-align: left;">Blender export hierarchy setup</span></a></p>
+<p>3Ds Max setup</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section5/lod3ds.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="3Ds Max export hierarchy setup" loading="lazy" src="/docassets/img/modding/levels/level_creation/section5/lod3ds.jpeg"/>
+</span><span class="text" style="text-align: left;">3Ds Max export hierarchy setup</span></a></p>
+<p>LODs naming must be respected or the mesh will not work as intended when imported in game:</p>
+<ul>
+<li>The _L<em>number</em> you see at the end of each LOD instance defines the number in screen pixels that determines the next LOD switch.</li>
+</ul>
+<div class="bng-notice note">Letter _L is arbitrary. It stands for Lod, but you can use whichever letter you prefer. Be aware to use a letter before the number or the engine will not read the mesh properly.</div>
+<p>Keep material count per asset minimal and share materials among LODs.</p>
+<p>As a rule of thumb every LOD switch should have polygons and material numbers halved.</p>
+<p>Last LOD uses a particular material named <em>lod_vertcol</em></p>
+<p>Ideally, last LOD mesh should have this material applied to lower the overall memory of last LODs meshes present in the map</p>
+<h3 id="56-performance-guidance">
+
+  5.6 Performance guidance
+</h3>
+<p><strong>Draw calls</strong></p>
+<p>To keep performances of the map higher draw calls needs to be limited, mainly via material and mesh reuse.</p>
+<p>A draw call is a command issued by the CPU to the GPU instructing it to render a specific set of geometry using a defined material and shader state.
+It represents a single submission of rendering data to the graphics pipeline; any change in mesh, material, shader, or render state typically requires a new draw call.</p>
+<p><strong>Collision complexity</strong></p>
+<p>Ensure collision complexity is proportional to gameplay needs.</p>
+<p>Collisions are a simplified version of the original mesh that is used from the system to determine the points of impact of the vehicles or other physical objects on the mesh.</p>
+<p>The usual workflow is to keep collision meshes lower for meshes that usually are not in contact with the gameplay areas (higher buildings floor, objects that can’t be easily reached from players, etc.)</p>
+<p>In BeamNG collision meshes are setup in an external software and imported following a specific pipeline.</p>
+<p>Following is illustrated how you need to setup the scene in Blender and 3Ds Max to correctly export your collision mesh to make it works in engine:</p>
+<p>Blender setup</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section5/lodblender.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Blender export hierarchy setup" loading="lazy" src="/docassets/img/modding/levels/level_creation/section5/lodblender.jpeg"/>
+</span><span class="text" style="text-align: left;">Blender export hierarchy setup</span></a></p>
+<p>3Ds Max setup</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section5/lod3ds.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="3Ds Max export hierarchy setup" loading="lazy" src="/docassets/img/modding/levels/level_creation/section5/lod3ds.jpeg"/>
+</span><span class="text" style="text-align: left;">3Ds Max export hierarchy setup</span></a></p>
+<p>Collision meshes are named as you see in the images examples above.</p>
+<p>Upper case should be respected: <code>Colmesh_``*meshname*``-1</code></p>
+<p>To export the collision mesh together with the object mesh you should also select the <code>base00</code>, <code>collision-1</code> and <code>start01</code> container.</p>
+<p>Notice:</p>
+<p>The naming convention of the collision mesh that is important to respect is limited to <code>Colmesh-1</code>, the added mesh naming is arbitrary to keep meshes organized and recognizable.</p>
+<h3 id="57-data-locations">
+
+  5.7 Data locations
+</h3>
+<p>It’s always a good practice to put the meshes and textures used in the corresponding folders inside your map project path.</p>
+<ul>
+<li>Meshes: <code>YourMap/art/shapes/meshes</code></li>
+<li>Materials/textures: <code>YourMap/art/textures</code></li>
+<li>Prefabs: <code>YourMap/art/prefabs</code></li>
+</ul>
+<p><strong>See also:</strong> <a data-doc="levels/level_classes/prefab" href="/docs/levels/level_classes/prefab">Prefab class</a>
+, <a data-doc="levels/level_formats/prefab" href="/docs/levels/level_formats/prefab">Prefab format</a>
+, <a data-doc="levels/level_classes/tsstatic" href="/docs/levels/level_classes/tsstatic">TSStatic class</a>
+.</p>

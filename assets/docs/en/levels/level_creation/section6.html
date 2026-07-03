@@ -1,0 +1,386 @@
+<h3 id="61-purpose">
+
+  6.1 Purpose
+</h3>
+<p>Establish how materials are defined and organized, including texture inputs, reflection handling, and optimization.</p>
+<p>Material Editor can be opened from the Main menu bar: <code>Window &gt; Material Editor</code></p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section6/materialeditor.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Material Editor window" loading="lazy" src="/docassets/img/modding/levels/level_creation/section6/materialeditor_hu26a77363e1b8f3a7f77706d78d6cc621_104651_0x300_resize_q85_bgfff_box.jpeg"/>
+</span><span class="text" style="text-align: left;">Material Editor window</span></a></p>
+<h3 id="62-core-concepts">
+
+  6.2 Core concepts
+</h3>
+<p>Materials are defined in JSON (main.materials.json) and reference PNG textures via relative paths.</p>
+<p>Material naming should align with mapTo entries in main.materials.json.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section6/materialfile.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="main.materials.json, example of a material definition" loading="lazy" src="/docassets/img/modding/levels/level_creation/section6/materialfile_hu0978f88ee57eddc6783d9bb64c8288ad_102063_0x300_resize_q85_bgfff_box.jpeg"/>
+</span><span class="text" style="text-align: left;">main.materials.json, example of a material definition</span></a></p>
+<p>Reflections are controlled and assigned per material through <code>Reflection Mode</code> selection in the <code>Advanced - All Layers</code> section of Material Editor window. You’ll find 3 main option to choose from.</p>
+<ul>
+<li>None: no cubemap is used. Set as default and used for non-metallic and non-translucent materials</li>
+<li>Level: material uses reflection information from the level</li>
+<li>Cubemap: material uses reflection information from a custom cubemap (you can find some cubemaps already available in game)</li>
+</ul>
+<p>A cubemap is a GPU texture that stores six equal-size square images corresponding to the faces of a cube (±X, ±Y, ±Z). It is sampled with a 3D direction vector.</p>
+<p><code>Level</code> is the best option to use if you want to generate correct reflections from your level.</p>
+<p>Cubemaps can be found ready to be used online or created from the user.</p>
+<p>Use cubemaps if you want to have custom reflections on your material.</p>
+<p>Here’s an example of a custom cubemap created for West Coast map.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section6/cubemap.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Custom cubemap created for the West Coast map" loading="lazy" src="/docassets/img/modding/levels/level_creation/section6/cubemap_huc562dd55bc26ca85519842ea28fd679e_80809_0x300_resize_q85_bgfff_box.jpeg"/>
+</span><span class="text" style="text-align: left;">Custom cubemap created for the West Coast map</span></a></p>
+<div class="bng-notice note">Cubemap are used for water plane object (mainly used in game as Ocean) to simulate level reflections on water surface</div>
+<h3 id="63-materials-import">
+
+  6.3 Materials import
+</h3>
+<p>If you want to apply your own materials to a mesh you should closely follow the pipeline below.</p>
+<p>You can’t directly apply materials to a mesh inside the engine. Instead you need to use an external software (Blender, 3Ds Max, Maya, etc), apply the materials from there and export the mesh.</p>
+<p>You have 2 possible path:</p>
+<ol>
+<li>Apply an already available material in game</li>
+<li>Create your own material</li>
+</ol>
+<p><strong>Apply an already available material in game</strong></p>
+<p>Let’s use Blender as software example.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section6/blenderexample.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Applying an existing in-game material in Blender" loading="lazy" src="/docassets/img/modding/levels/level_creation/section6/blenderexample.jpeg"/>
+</span><span class="text" style="text-align: left;">Applying an existing in-game material in Blender</span></a></p>
+<p><strong>Create your own material</strong></p>
+<p>First you need to create a new material using Material Editor in World Editor</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section6/bngexample.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Creating a new material in the World Editor Material Editor" loading="lazy" src="/docassets/img/modding/levels/level_creation/section6/bngexample_hub7d798fd29e88a7d016b75cda33c1123_118174_0x300_resize_q85_bgfff_box.jpeg"/>
+</span><span class="text" style="text-align: left;">Creating a new material in the World Editor Material Editor</span></a></p>
+<p>Once you’ve created your material(s) you can go on and add the textures in their specific channels and save the material(s).</p>
+<p>Now you’re all set up to follow step 1 to apply your new material and import it in game.</p>
+<h3 id="64-requirements-and-conventions">
+
+  6.4 Requirements and conventions
+</h3>
+<p>All texture assets are PNG. Paths must be relative to the level or art domain.</p>
+<p>Use consistent naming for your material is strongly recommend to maintain a good organization.
+Eg. <code>m_concrete_old_trim_b_color.png</code></p>
+<p>The suffix of the textures types should be respected for a correct texture baking.</p>
+<p>
+</p><div class="bng-table" id="table-1783007349757936827"><div class="bng-table-header"><div>Slot</div><div>PNG Format</div><div>Color Space</div><div>Postfix</div><div>DDS Format</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Base Color</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">RGB 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">sRGB</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.color.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC7 sRGB</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Detail Base Color</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">RGB 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">sRGB</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.color.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC7 sRGB</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Color Palette</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">RGB 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC7</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Emissive</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">RGB 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC7</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Metallic</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Detail Metallic</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Roughness</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Detail Roughness</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Opacity</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Detail Opacity</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Ambient Occlusion</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Detail Ambient Occlusion</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Clear Coat</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Height</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Normal</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">RGB 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.normal.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC5</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Detail Normal</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">RGB 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.normal.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC5</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Slot</div>
+<div style=""><strong>Clear Coat Normal</strong></div>
+</div><div>
+<div style="">PNG Format</div>
+<div style="">RGB 8-bit</div>
+</div><div>
+<div style="">Color Space</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Postfix</div>
+<div style=""><code>*.normal.png</code></div>
+</div><div>
+<div style="">DDS Format</div>
+<div style=""><strong>BC5</strong></div>
+</div></div></div>
+<br/>
+<p>Keep material count reasonable within any single view. Prefer reuse across assets.</p>
+<h3 id="65-texture-inputs-and-calibration">
+
+  6.5 Texture inputs and calibration
+</h3>
+<p>Main texture inputs in Material Editor window include <code>Base Color, Metallic, Normal, Roughness, Opacity</code> and <code>Ambient Occlusion</code> maps</p>
+<p>For more control over material details there are <code>Base Color Detail</code> and <code>Normal Detail</code> maps</p>
+<p>Other advanced map channels are: <code>Base Color Palette</code> and <code>Emissive</code></p>
+<p>Maintain sensible value ranges for color and shading to avoid extremes.</p>
+<p>BeamNG engine uses OpenGL normal map format. Verify normal map orientation is correct for the renderer when import textures.</p>
+<h3 id="66-optimization">
+
+  6.6 Optimization
+</h3>
+<p>BeamNG maps uses a wide variety of textures resolution compared to material application.</p>
+<p>Most of the textures used in game are built respecting 512px/mt as default resolution.</p>
+<p>Use power‑of‑two (POT) texture sizes to keep correct proportions. You can also use 1:2 or 2:1 proportions but always respecting POT (eg. 512x512px, 1024x512px, 2048x4096px)</p>
+<p>Share materials where possible to keep draw calls lower.</p>
+<p>Texture memory should be monitored by choosing appropriate resolutions. Resource checker &gt; Assets Stat can help overview the assets memory cost.</p>
+<h3 id="67-data-locations">
+
+  6.7 Data locations
+</h3>
+<ul>
+<li>main.materials.json in the level or art domain.</li>
+<li>PNG textures under /art/textures and domain‑specific folders (/art/roads, /art/terrains, etc.).</li>
+</ul>
+<p><strong>See also:</strong> <a data-doc="file_formats/materials" href="/docs/file_formats/materials">Material file format</a>
+.</p>
+<h3 id="68-common-issues">
+
+  6.8 Common issues
+</h3>
+<ul>
+<li>Missing textures due to path errors.</li>
+<li>Over‑strong reflections that flatten shading.</li>
+<li>Inconsistent material naming causing mapTo mismatches.</li>
+</ul>
+<h3 id="69-validation-criteria">
+
+  6.9 Validation criteria
+</h3>
+<ul>
+<li>No missing or placeholder materials in representative scenes.</li>
+<li>Decals render cleanly without shimmer; atlases reduce material switches.</li>
+<li>Reflections appear coherent with surface type and environment intent.</li>
+</ul>

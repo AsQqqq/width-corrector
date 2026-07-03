@@ -1,0 +1,373 @@
+<p>This page describes level-local drift spot folders.</p>
+<p>Drift spots define freeroam drift challenges. They combine UI metadata, scoring objectives, spatial setup, route data, boundary data, and scene marker objects.</p>
+<h2 id="file-location">
+
+  File location
+</h2>
+<p>Drift spots are stored under the level root:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/driftSpots/&lt;spotName&gt;/
+</span></span></code></pre></div><p>Common files:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">info.json
+</span></span><span class="line"><span class="cl">spot.driftSpot.json
+</span></span><span class="line"><span class="cl">race.race.json
+</span></span><span class="line"><span class="cl">bounds.sites.json
+</span></span><span class="line"><span class="cl">preview.jpg
+</span></span></code></pre></div><p>The drift system discovers spots by scanning for <code>spot.driftSpot.json</code>.</p>
+<h2 id="discovery-behavior">
+
+  Discovery behavior
+</h2>
+<p>When a level is loaded, the drift spot system scans:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/driftSpots/
+</span></span></code></pre></div><p>Each folder containing <code>spot.driftSpot.json</code> is treated as one drift spot. The folder name becomes part of the drift spot id, so keep it stable after releasing or after career/progress data references it.</p>
+<h2 id="file-roles">
+
+  File roles
+</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>info.json</code></td>
+<td>Display name, unlock data, objectives, rewards, and UI metadata.</td>
+</tr>
+<tr>
+<td><code>spot.driftSpot.json</code></td>
+<td>Spatial drift spot setup, big map teleport transform, drift line definitions, and scene marker references.</td>
+</tr>
+<tr>
+<td><code>race.race.json</code></td>
+<td>Path/route data used by the drift gameplay.</td>
+</tr>
+<tr>
+<td><code>bounds.sites.json</code></td>
+<td>Boundary zones for the playable or scoring area.</td>
+</tr>
+<tr>
+<td><code>preview.*</code></td>
+<td>Optional preview image for UI fallback.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="infojson">
+
+<code>info.json</code>
+</h2>
+<p>The drift spot <code>info.json</code> is not the same as level <code>info.json</code>. It is local to one drift spot and usually contains UI and progression data:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Display name or translation key.</td>
+</tr>
+<tr>
+<td><code>objectives</code></td>
+<td>Score thresholds and rewards, such as bronze, silver, and gold.</td>
+</tr>
+<tr>
+<td><code>unlock</code></td>
+<td>Optional unlock/progression data.</td>
+</tr>
+</tbody>
+</table>
+<p>Score thresholds should be tuned with real driving. If they are too low, progression feels accidental; if they are too high, the spot may appear broken to players.</p>
+<p>Minimal <code>info.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.driftSpots.harbor.name"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"objectives"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"bronze"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"score"</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"rewards"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"money"</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"beamXP"</span><span class="p">:</span> <span class="mi">25</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"silver"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"score"</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"rewards"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"money"</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"beamXP"</span><span class="p">:</span> <span class="mi">50</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"gold"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"score"</span><span class="p">:</span> <span class="mi">15000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"rewards"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"money"</span><span class="p">:</span> <span class="mi">1500</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"beamXP"</span><span class="p">:</span> <span class="mi">75</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"unlock"</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Use stable objective ids. Progress systems may store completion by objective id.</p>
+<h2 id="spotdriftspotjson">
+
+<code>spot.driftSpot.json</code>
+</h2>
+<p>This file stores spatial setup for the spot. Common concepts include:</p>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bigMapTp</code></td>
+<td>Big map teleport position/rotation/scale for the drift spot.</td>
+</tr>
+<tr>
+<td><code>lines</code></td>
+<td>One or more start/scoring line definitions.</td>
+</tr>
+<tr>
+<td><code>markerObjects</code></td>
+<td>Scene objects used as visible or managed markers.</td>
+</tr>
+<tr>
+<td><code>startDir</code></td>
+<td>Direction used by the drift line or start logic.</td>
+</tr>
+</tbody>
+</table>
+<p>The exact line layout can vary by spot. Keep the file authored by the Drift Data Editor when possible.</p>
+<p>Minimal <code>spot.driftSpot.json</code> shape:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"spatialInfo"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"bigMapTp"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"rot"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"scl"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"lines"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"lineOne"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"markerObjects"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">"harbor_line_1_a"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">"harbor_line_1_b"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">"harbor_drift_sign"</span>
+</span></span><span class="line"><span class="cl">        <span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"rot"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"scl"</span><span class="p">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"startDir"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="spotdriftspotjson-fields">
+
+<code>spot.driftSpot.json</code> fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spatialInfo</code></td>
+<td>Yes</td>
+<td>Container for teleport and line data.</td>
+</tr>
+<tr>
+<td><code>spatialInfo.bigMapTp</code></td>
+<td>Recommended</td>
+<td>Big map teleport transform.</td>
+</tr>
+<tr>
+<td><code>spatialInfo.lines</code></td>
+<td>Yes</td>
+<td>One or more drift line definitions.</td>
+</tr>
+<tr>
+<td><code>markerObjects</code></td>
+<td>Recommended</td>
+<td>Scene object names managed by the drift spot.</td>
+</tr>
+<tr>
+<td><code>pos</code> / <code>rot</code> / <code>scl</code></td>
+<td>Yes for each line</td>
+<td>Transform of the line trigger/volume.</td>
+</tr>
+<tr>
+<td><code>startDir</code></td>
+<td>Recommended</td>
+<td>Expected entry direction for the line.</td>
+</tr>
+</tbody>
+</table>
+<p><code>rot</code> is stored as a quaternion array. <code>scl</code> controls the line volume size.</p>
+<h2 id="raceracejson-and-boundssitesjson">
+
+<code>race.race.json</code> and <code>bounds.sites.json</code>
+</h2>
+<p>The drift spot loader expects these files next to <code>spot.driftSpot.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">race.race.json
+</span></span><span class="line"><span class="cl">bounds.sites.json
+</span></span></code></pre></div><p><code>race.race.json</code> describes the path used by drift gameplay. <code>bounds.sites.json</code> contains the playable/scoring area. These formats are shared with other gameplay systems, so prefer creating them with the existing path and sites tools instead of writing large files manually.</p>
+<h2 id="folder-identity">
+
+  Folder identity
+</h2>
+<p>The spot id is derived from the current level and the folder name:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">&lt;levelName&gt;/&lt;spotName&gt;
+</span></span></code></pre></div><p>Keep folder names stable once progress, career data, leagues, or UI references exist.</p>
+<h2 id="scene-object-references">
+
+  Scene object references
+</h2>
+<p><code>spot.driftSpot.json</code> can reference scene marker objects for drift lines and signs. These objects are usually hidden or managed by the drift system at runtime.</p>
+<p>When moving or renaming drift marker objects, update the drift spot file at the same time.</p>
+<p>Marker objects should be grouped clearly in the scene so the drift spot can be maintained without searching the entire level tree.</p>
+<h2 id="relationship-with-missions-and-pois">
+
+  Relationship with missions and POIs
+</h2>
+<p>Drift spots can appear as big map POIs and can share patterns with mission path data. The <code>race.race.json</code> and <code>bounds.sites.json</code> files should be treated as part of the spot, even though similar file names are also used by missions.</p>
+<p>The drift system can also save player progress separately from the level files. Changing folder names, objective ids, or spot ids after release can disconnect existing scores or completion data.</p>
+<h2 id="authoring-workflow">
+
+  Authoring workflow
+</h2>
+<ol>
+<li>Create or choose the road/area to use.</li>
+<li>Create marker objects and line placement in the level scene.</li>
+<li>Author <code>spot.driftSpot.json</code> with the Drift Data Editor where possible.</li>
+<li>Add or update <code>race.race.json</code> for the intended route.</li>
+<li>Add <code>bounds.sites.json</code> for the scoring/play area.</li>
+<li>Tune <code>info.json</code> objectives from real test runs.</li>
+<li>Check the big map marker and teleport target.</li>
+</ol>
+<h2 id="creating-a-drift-spot-with-editor-tools">
+
+  Creating a drift spot with editor tools
+</h2>
+<p>Use the Drift Data Editor when available. It helps keep the spatial data and marker references consistent.</p>
+<p>Recommended editor-first workflow:</p>
+<ol>
+<li>Open the level in World Editor.</li>
+<li>Create a dedicated scene group for the drift spot markers.</li>
+<li>Place visible marker meshes or signs for the drift start/scoring lines.</li>
+<li>Use the Drift Data Editor to define the drift lines and spatial data.</li>
+<li>Save the spot under <code>levels/&lt;levelName&gt;/driftSpots/&lt;spotName&gt;/</code>.</li>
+<li>Create or update <code>race.race.json</code> for the intended drift path.</li>
+<li>Create or update <code>bounds.sites.json</code> for the scoring area.</li>
+<li>Add <code>info.json</code> with name, unlock data, and objectives.</li>
+<li>Reload the level or drift data and test from the big map.</li>
+</ol>
+<p>Keep marker object names short but descriptive. For example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">garage_line_1_a
+</span></span><span class="line"><span class="cl">garage_line_1_b
+</span></span><span class="line"><span class="cl">garage_drift_sign
+</span></span></code></pre></div>
+<h2 id="writing-files-manually">
+
+  Writing files manually
+</h2>
+<p>Manual authoring is possible, but it is easier to break marker references or transforms. If editing by hand, work in this order:</p>
+<ol>
+<li>Create the folder first.</li>
+<li>Write <code>info.json</code> with a name and a small set of objectives.</li>
+<li>Create <code>bounds.sites.json</code> in the Sites Editor.</li>
+<li>Create or copy a <code>race.race.json</code> path, then adjust it for the spot.</li>
+<li>Write <code>spot.driftSpot.json</code> last, after marker object names and transforms are stable.</li>
+</ol>
+<p>The minimum useful drift spot folder normally needs:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">info.json
+</span></span><span class="line"><span class="cl">spot.driftSpot.json
+</span></span><span class="line"><span class="cl">race.race.json
+</span></span><span class="line"><span class="cl">bounds.sites.json
+</span></span></code></pre></div><p>Do not tune objective scores until the line placement, route, and boundary are final.</p>
+<h2 id="updating-an-existing-drift-spot">
+
+  Updating an existing drift spot
+</h2>
+<p>When editing an existing spot:</p>
+<ul>
+<li>Preserve the folder name if player progress or career data may exist.</li>
+<li>Preserve objective ids such as <code>bronze</code>, <code>silver</code>, and <code>gold</code> unless intentionally resetting progress.</li>
+<li>If marker objects are renamed, update every <code>markerObjects</code> entry.</li>
+<li>If the route changes significantly, retune score thresholds.</li>
+<li>If the big map teleport changes, test the spawn with several vehicles.</li>
+</ul>
+<h2 id="troubleshooting">
+
+  Troubleshooting
+</h2>
+<h3 id="spot-does-not-appear">
+
+  Spot does not appear
+</h3>
+<p>Check:</p>
+<ul>
+<li>The folder is under <code>levels/&lt;levelName&gt;/driftSpots/</code>.</li>
+<li><code>spot.driftSpot.json</code> exists.</li>
+<li><code>info.json</code> exists or the fallback display data is acceptable.</li>
+<li>The feature is enabled in the current gameplay mode.</li>
+</ul>
+<h3 id="markers-are-missing-or-stuck-visible">
+
+  Markers are missing or stuck visible
+</h3>
+<p>Check:</p>
+<ul>
+<li>Every marker name in <code>spot.driftSpot.json</code> exists in the level scene.</li>
+<li>Marker objects are not renamed by prefab unpacking or scene cleanup.</li>
+<li>The spot was reloaded after editing marker names.</li>
+</ul>
+<h3 id="scores-or-objectives-feel-wrong">
+
+  Scores or objectives feel wrong
+</h3>
+<p>Check:</p>
+<ul>
+<li><code>race.race.json</code> follows the intended route.</li>
+<li><code>bounds.sites.json</code> covers the intended scoring area.</li>
+<li><code>info.json</code> objective score thresholds were tuned with the intended vehicle class.</li>
+<li>The player is entering the line in the expected direction.</li>
+</ul>
+<h2 id="validation-checklist">
+
+  Validation checklist
+</h2>
+<ul>
+<li>The folder contains <code>spot.driftSpot.json</code> and <code>info.json</code>.</li>
+<li>The spot folder name is stable and unique within the level.</li>
+<li><code>race.race.json</code> exists and matches the intended route.</li>
+<li><code>bounds.sites.json</code> exists and covers the intended area.</li>
+<li>Marker object names referenced by <code>spot.driftSpot.json</code> exist in the level scene.</li>
+<li>The big map teleport transform is safe and points to the intended start area.</li>
+<li>Objective thresholds in <code>info.json</code> are reachable in normal gameplay.</li>
+<li>Folder names and objective ids are stable once progress data depends on them.</li>
+</ul>
+<h2 id="related-pages">
+
+  Related pages
+</h2>
+<ul>
+<li><a data-doc="levels/level_formats/sites" href="/docs/levels/level_formats/sites">Sites (.sites.json)</a>
+</li>
+<li><a data-doc="levels/level_classes/gameplayareas" href="/docs/levels/level_classes/gameplayareas">Gameplay Areas and Points of Interest</a>
+</li>
+<li><a data-doc="levels/gameplay_data" href="/docs/levels/gameplay_data">Level Gameplay Data</a>
+</li>
+</ul>

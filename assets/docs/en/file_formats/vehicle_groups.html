@@ -1,0 +1,306 @@
+<p>This page describes vehicle group files used by traffic, parking, missions, editor tools, and other gameplay systems.</p>
+<p>A vehicle group is a named pool of vehicle model/config entries. It controls what may be spawned, but not where vehicles spawn or how they drive. Placement and behavior still come from traffic, parking, missions, sites, and navgraph data.</p>
+<h2 id="file-structure">
+
+  File Structure
+</h2>
+<p>Most authored vehicle groups use this shape:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Example Traffic Group"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"tags"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"example"</span><span class="p">,</span> <span class="s2">"traffic"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"data"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"model"</span><span class="p">:</span> <span class="s2">"covet"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"config"</span><span class="p">:</span> <span class="s2">"DXi_A"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"model"</span><span class="p">:</span> <span class="s2">"pickup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"config"</span><span class="p">:</span> <span class="s2">"d15_4wd_A_facelift"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="top-level-fields">
+
+  Top-level fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>Recommended</td>
+<td>Use <code>custom</code> for hand-authored groups.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>Recommended</td>
+<td>Display/debug name used by tools.</td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>Optional</td>
+<td>Helps organize groups by level, mission, use, or role.</td>
+</tr>
+<tr>
+<td><code>data</code></td>
+<td>Yes</td>
+<td>Array of vehicle entries. Empty groups are valid JSON but not useful.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="vehicle-entry-fields">
+
+  Vehicle entry fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>model</code></td>
+<td>Yes</td>
+<td>Folder/id of the vehicle model.</td>
+</tr>
+<tr>
+<td><code>config</code></td>
+<td>Recommended</td>
+<td>Vehicle configuration id. If missing or invalid, spawning may fail or use an unintended default depending on the caller.</td>
+</tr>
+<tr>
+<td><code>paintName</code></td>
+<td>Optional</td>
+<td>Can be used by some editor/traffic workflows to request a paint choice.</td>
+</tr>
+</tbody>
+</table>
+<p>Some tools may preserve additional per-vehicle fields, such as paint or spawn-related metadata. Do not remove unknown fields from an existing group unless you know the consuming system does not need them.</p>
+<p>Minimal one-car group:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"One Car Test"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"data"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"model"</span><span class="p">:</span> <span class="s2">"pickup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"config"</span><span class="p">:</span> <span class="s2">"d15_4wd_A_facelift"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h2 id="file-locations">
+
+  File Locations
+</h2>
+<p>Shared vehicle groups can be stored under:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicleGroups/**/*.vehGroup.json
+</span></span></code></pre></div><p>Level-specific groups can be stored in a level root:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/*.vehGroup.json
+</span></span></code></pre></div><p>Common level-specific names:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/traffic.vehGroup.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/police.vehGroup.json
+</span></span></code></pre></div><p>Mission-specific groups are commonly stored with the mission:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">gameplay/missions/&lt;levelName&gt;/&lt;missionType&gt;/&lt;missionName&gt;/custom.vehGroup.json
+</span></span></code></pre></div>
+<h2 id="lookup-behavior">
+
+  Lookup Behavior
+</h2>
+<p>Traffic and mission tools can load vehicle groups from different places depending on context:</p>
+<table>
+<thead>
+<tr>
+<th>Context</th>
+<th>Typical lookup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Level traffic</td>
+<td>Looks in the current level directory for matching <code>*.vehGroup.json</code> files, such as names containing <code>traffic</code> or <code>police</code>.</td>
+</tr>
+<tr>
+<td>Mission custom traffic</td>
+<td>Uses a mission-local file, commonly <code>custom.vehGroup.json</code>.</td>
+</tr>
+<tr>
+<td>Shared/custom tool groups</td>
+<td>Falls back to files under <code>/vehicleGroups/</code> where supported.</td>
+</tr>
+</tbody>
+</table>
+<p>When several matching files exist, tools may choose one from the matching set. Use clear file names and tags when a level or mission contains multiple groups.</p>
+<h2 id="common-uses">
+
+  Common Uses
+</h2>
+<table>
+<thead>
+<tr>
+<th>File name</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>traffic.vehGroup.json</code></td>
+<td>General traffic vehicle pool for a level.</td>
+</tr>
+<tr>
+<td><code>police.vehGroup.json</code></td>
+<td>Police vehicle pool for a level.</td>
+</tr>
+<tr>
+<td><code>custom.vehGroup.json</code></td>
+<td>Mission-specific custom vehicle group.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="creating-groups-with-tools">
+
+  Creating Groups With Tools
+</h2>
+<p>The easiest way to create a vehicle group is to use the in-game editor tooling:</p>
+<ol>
+<li>Open the World Editor.</li>
+<li>Open the Traffic Manager or the Vehicle Groups tool from the editor.</li>
+<li>Select the vehicle models/configs you want in the group.</li>
+<li>Save the group as a <code>*.vehGroup.json</code> file.</li>
+<li>Place the file where the intended consumer will search for it.</li>
+<li>Test the group with Traffic Manager, Mission Editor, or the gameplay feature that uses it.</li>
+</ol>
+<p>Traffic Manager can also load a vehicle group file directly for testing. If the group loads there, but not in a mission or level, the problem is usually file location, naming, or the consuming setup rather than the file structure.</p>
+<h2 id="writing-groups-by-hand">
+
+  Writing Groups By Hand
+</h2>
+<p>Vehicle group files are simple enough to write manually:</p>
+<ol>
+<li>Choose where the file should live.</li>
+<li>Add <code>type</code>, <code>name</code>, and optional <code>tags</code>.</li>
+<li>Add a <code>data</code> array.</li>
+<li>Add one object per vehicle config.</li>
+<li>Test the group in the system that consumes it.</li>
+</ol>
+<p>When editing manually, verify model/config ids against known working vehicle configurations. A typo can make the group load but fail to spawn the intended vehicle.</p>
+<h2 id="level-traffic-groups">
+
+  Level Traffic Groups
+</h2>
+<p>For levels, the most common convention is:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">traffic.vehGroup.json
+</span></span><span class="line"><span class="cl">police.vehGroup.json
+</span></span></code></pre></div><p>Use <code>traffic.vehGroup.json</code> for ordinary ambient traffic and <code>police.vehGroup.json</code> for police spawning. These files should match the level’s region, era, and road network. For example, avoid using very large vehicles in a level with narrow roads unless that is part of the intended traffic mix.</p>
+<p>To create a level group:</p>
+<ol>
+<li>Build a temporary group in Traffic Manager or the Vehicle Groups tool.</li>
+<li>Save it to the level root as <code>traffic.vehGroup.json</code> or <code>police.vehGroup.json</code>.</li>
+<li>Load the level and spawn traffic.</li>
+<li>Check variety, vehicle size, and performance.</li>
+<li>Adjust the group until traffic feels appropriate for the level.</li>
+</ol>
+<h2 id="mission-custom-groups">
+
+  Mission Custom Groups
+</h2>
+<p>Missions can use a mission-local group when they need deterministic or restricted AI traffic. A common path is:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">gameplay/missions/&lt;levelName&gt;/&lt;missionType&gt;/&lt;missionName&gt;/custom.vehGroup.json
+</span></span></code></pre></div><p>Mission-local groups are useful when:</p>
+<ul>
+<li>Only specific vehicles should spawn for a challenge.</li>
+<li>A mission needs themed traffic independent of the level default.</li>
+<li>A test or tutorial must avoid random vehicle selection.</li>
+</ul>
+<p>Keep mission custom groups small unless the mission intentionally needs variety.</p>
+<p>To create a mission custom group:</p>
+<ol>
+<li>Open the mission in Mission Editor.</li>
+<li>Enable the custom vehicle group option for the relevant traffic/setup module.</li>
+<li>Save or select <code>custom.vehGroup.json</code> in the mission folder.</li>
+<li>Test the mission from a fresh start, not only from an editor preview.</li>
+</ol>
+<h2 id="choosing-vehicles">
+
+  Choosing Vehicles
+</h2>
+<p>Advanced authoring considerations:</p>
+<ul>
+<li>Prefer configs that are complete and spawn reliably.</li>
+<li>Consider vehicle size, weight, speed, and drivetrain for the target roads.</li>
+<li>For traffic groups, include enough variety to avoid repetition but not so much that rare vehicles dominate.</li>
+<li>For police groups, use configs with expected police equipment and behavior.</li>
+<li>Avoid configs that depend on mods unless the vehicle group is part of that mod and clearly requires them.</li>
+<li>If a config is renamed or removed, update every group that references it.</li>
+</ul>
+<h2 id="troubleshooting">
+
+  Troubleshooting
+</h2>
+<h3 id="group-is-not-found">
+
+  Group is not found
+</h3>
+<p>Check:</p>
+<ul>
+<li>The file is saved in a location searched by the consuming system.</li>
+<li>The file name matches the expected convention, such as <code>traffic</code>, <code>police</code>, or <code>custom</code>.</li>
+<li>The extension is exactly <code>.vehGroup.json</code>.</li>
+<li>The file is valid JSON.</li>
+</ul>
+<h3 id="group-loads-but-vehicles-do-not-spawn">
+
+  Group loads but vehicles do not spawn
+</h3>
+<p>Check:</p>
+<ul>
+<li>Every <code>model</code> exists.</li>
+<li>Every <code>config</code> exists for the model.</li>
+<li>The consuming traffic or mission setup is actually using the group.</li>
+<li>The level has valid spawn roads, parking spots, or mission spawn data.</li>
+</ul>
+<h3 id="wrong-vehicles-appear">
+
+  Wrong vehicles appear
+</h3>
+<p>Check:</p>
+<ul>
+<li>Another matching group file is being selected.</li>
+<li>A mission-specific group is overriding the level group.</li>
+<li>The gameplay system is using generated traffic instead of a custom group.</li>
+</ul>
+<h2 id="validation-checklist">
+
+  Validation Checklist
+</h2>
+<ul>
+<li>The JSON file loads without errors.</li>
+<li>Every <code>model</code> exists.</li>
+<li>Every <code>config</code> exists for its model.</li>
+<li>The group file is saved where the consuming tool or system expects it.</li>
+<li>The group name and tags describe the intended use.</li>
+<li>The mission, level, or tool that expects the group can find it.</li>
+<li>The selected vehicles make sense for the roads, mission, and performance budget.</li>
+</ul>
+<h2 id="related-pages">
+
+  Related Pages
+</h2>
+<ul>
+<li><a data-doc="levels/gameplay_data" href="/docs/levels/gameplay_data">Level Gameplay Data</a>
+</li>
+<li><a data-doc="levels/level_formats/signals" href="/docs/levels/level_formats/signals">Traffic Signals</a>
+</li>
+<li><a data-doc="levels/level_formats/map" href="/docs/levels/level_formats/map">Navigation Map</a>
+</li>
+</ul>

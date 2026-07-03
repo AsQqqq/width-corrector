@@ -1,0 +1,369 @@
+<p><code>SpawnSphere</code> is a marker object used to define spawn positions in a level. In BeamNG levels, it is most commonly used as a named spawn point referenced by <code>info.json</code>.</p>
+<p>A <code>SpawnSphere</code> is a type of <code>MissionMarker</code>, so it is mainly a 3D editor marker rather than gameplay geometry. It is shown in the World Editor, but it is not intended to be visible as a normal level object during gameplay.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Basic example
+</h2>
+<p>Example <code>SpawnSphere</code> in <code>items.level.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SpawnSphere"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dataBlock"</span><span class="p">:</span> <span class="s2">"SpawnSphereMarker"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>This object can then be referenced from <code>info.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"defaultSpawnPointName"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"spawnPoints"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.default.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_default.jpg"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="main-purpose">
+
+  Main purpose
+</h2>
+<p>In modern level creation, <code>SpawnSphere</code> is mainly used for:</p>
+<ul>
+<li>Player spawn positions</li>
+<li>Spawn point selection in the level UI</li>
+<li>Big map spawn point POIs</li>
+<li>Freeroam spawn locations</li>
+<li>Scenario/mission reference positions</li>
+<li>Editor-visible spawn markers</li>
+</ul>
+<p>The most important part is the object name. <code>info.json</code> spawn point entries reference a <code>SpawnSphere</code> by its <code>objectname</code>.</p>
+<hr/>
+<h2 id="important-fields">
+
+  Important fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>"SpawnSphere"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Scene object name. Used by <code>info.json</code> spawn point entries.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Spawn marker world position.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Spawn orientation. Used to orient spawned vehicles/camera.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Editor marker scale. Usually <code>[1, 1, 1]</code>.</td>
+</tr>
+<tr>
+<td><code>dataBlock</code></td>
+<td>string</td>
+<td>Marker datablock used for editor visualization, usually <code>SpawnSphereMarker</code>.</td>
+</tr>
+<tr>
+<td><code>spawnClass</code></td>
+<td>string</td>
+<td>Legacy/generic object spawning field. Usually not needed for level spawn points.</td>
+</tr>
+<tr>
+<td><code>spawnDatablock</code></td>
+<td>string</td>
+<td>Legacy/generic object spawning field.</td>
+</tr>
+<tr>
+<td><code>spawnProperties</code></td>
+<td>string</td>
+<td>Legacy/generic object spawning properties.</td>
+</tr>
+<tr>
+<td><code>spawnScript</code></td>
+<td>string</td>
+<td>Legacy script executed after spawning an object.</td>
+</tr>
+<tr>
+<td><code>autoSpawn</code></td>
+<td>bool</td>
+<td>Legacy behavior: spawns an object when the SpawnSphere is created.</td>
+</tr>
+<tr>
+<td><code>spawnTransform</code></td>
+<td>bool</td>
+<td>Applies the SpawnSphere transform to spawned object when using legacy spawn behavior.</td>
+</tr>
+<tr>
+<td><code>radius</code></td>
+<td>number</td>
+<td>Deprecated.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="relationship-with-infojson">
+
+  Relationship with info.json
+</h2>
+<p>Spawn points shown in the level selector and big map are defined in <code>info.json</code>, but their actual world transform comes from a scene object.</p>
+<p>The <code>objectname</code> field in <code>info.json</code> should match the <code>SpawnSphere</code> object name.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.docks"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.docks.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_docks"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_docks.jpg"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Matching scene object:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SpawnSphere"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"spawns_docks"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">125</span><span class="p">,</span> <span class="mi">420</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">-1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dataBlock"</span><span class="p">:</span> <span class="s2">"SpawnSphereMarker"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><div class="bng-notice warning">If <code>info.json</code> references a spawn point object that does not exist, the spawn point may not appear or may fail when selected.</div>
+<hr/>
+<h2 id="default-spawn-point">
+
+  Default spawn point
+</h2>
+<p>The default spawn point is selected in <code>info.json</code> using:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"defaultSpawnPointName"</span><span class="err">:</span> <span class="s2">"spawns_default"</span>
+</span></span></code></pre></div><p>This should match a <code>SpawnSphere</code> object name.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SpawnSphere"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>If no matching default spawn point is found, the level system may create a fallback default spawn entry.</p>
+<hr/>
+<h2 id="position">
+
+  Position
+</h2>
+<p><code>position</code> defines where the spawn point is located.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"position"</span><span class="err">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+</span></span></code></pre></div><p>Place spawn points:</p>
+<ul>
+<li>On valid ground or road surface</li>
+<li>With enough clearance for the default vehicle</li>
+<li>Away from walls, props, and traffic</li>
+<li>Away from steep slopes unless intended</li>
+<li>In locations that are safe after level load</li>
+</ul>
+<hr/>
+<h2 id="rotation">
+
+  Rotation
+</h2>
+<p><code>rotationMatrix</code> defines the spawn orientation.</p>
+<p>This affects the direction vehicles face when spawned.</p>
+<p>Example identity rotation:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"rotationMatrix"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>When setting spawn points, make sure the forward direction points toward a safe driving direction.</p>
+<div class="bng-notice info">If a vehicle spawns facing the wrong way, rotate the <code>SpawnSphere</code> object in the World Editor and save the level.</div>
+<hr/>
+<h2 id="scale">
+
+  Scale
+</h2>
+<p><code>scale</code> controls the editor marker size.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre></div><p>For normal level spawn points, keep this at:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre></div><p>The old <code>radius</code> field is deprecated and should not be relied on for modern spawn point behavior.</p>
+<hr/>
+<h2 id="datablock">
+
+  dataBlock
+</h2>
+<p>Spawn spheres are usually visualized with a marker datablock:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"dataBlock"</span><span class="err">:</span> <span class="s2">"SpawnSphereMarker"</span>
+</span></span></code></pre></div><p>This datablock defines the editor shape used to display the marker, commonly a green octahedron.</p>
+<p>If the datablock is missing, the spawn point may still exist logically, but editor visualization may be broken.</p>
+<hr/>
+<h2 id="missionmarker-behavior">
+
+  MissionMarker behavior
+</h2>
+<p><code>SpawnSphere</code> inherits from <code>MissionMarker</code>.</p>
+<p>Mission markers are added to the scene mainly while editing, so they can be seen and manipulated in the World Editor.</p>
+<p>They are not intended to act as visible gameplay meshes.</p>
+<hr/>
+<h2 id="legacy-generic-spawning-fields">
+
+  Legacy generic spawning fields
+</h2>
+<p><code>SpawnSphere</code> also supports older generic spawning behavior through fields such as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"spawnClass"</span><span class="err">:</span> <span class="s2">"Player"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"spawnDatablock"</span><span class="err">:</span> <span class="s2">"DefaultPlayerData"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"spawnProperties"</span><span class="err">:</span> <span class="s2">"name = \"Bob\";"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"spawnScript"</span><span class="err">:</span> <span class="s2">"echo(\"Spawned object\");"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"autoSpawn"</span><span class="err">:</span> <span class="kc">true</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"spawnTransform"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>This system can create an object using <code>spawnClass</code> and <code>spawnDatablock</code>, optionally applying properties and script.</p>
+<p>However, for modern BeamNG level spawn points, these fields are usually not needed.</p>
+<div class="bng-notice note">For normal level spawn locations, use <code>SpawnSphere</code> as a named marker referenced by <code>info.json</code>. Do not use <code>autoSpawn</code> unless you specifically need legacy object spawning behavior.</div>
+<hr/>
+<h2 id="spawnobject">
+
+  spawnObject()
+</h2>
+<p><code>SpawnSphere</code> has a <code>spawnObject()</code> function that can create an object based on its legacy spawn fields.</p>
+<p>The spawned object can optionally receive the <code>SpawnSphere</code> transform if:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"spawnTransform"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>The object is added to <code>MissionCleanup</code> if available.</p>
+<p>This is mostly legacy functionality and should not be confused with normal player spawn point selection.</p>
+<hr/>
+<h2 id="big-map-and-poi-integration">
+
+  Big map and POI integration
+</h2>
+<p>Spawn points from <code>info.json</code> can appear as POIs in the big map.</p>
+<p>The level system:</p>
+<ol>
+<li>Reads <code>info.json</code>.</li>
+<li>Iterates through <code>spawnPoints</code>.</li>
+<li>Finds the object named by <code>objectname</code>.</li>
+<li>Uses that object’s position for the POI marker.</li>
+<li>Uses preview/description data from <code>info.json</code>.</li>
+</ol>
+<p>If the <code>SpawnSphere</code> object is missing, the POI may not be created.</p>
+<hr/>
+<h2 id="example-multiple-spawn-points">
+
+  Example: multiple spawn points
+</h2>
+<p><code>items.level.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SpawnSphere"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"spawns_city"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">100</span><span class="p">,</span><span class="mi">200</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"dataBlock"</span><span class="p">:</span><span class="s2">"SpawnSphereMarker"</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SpawnSphere"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"spawns_highway"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">500</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">-1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"dataBlock"</span><span class="p">:</span><span class="s2">"SpawnSphereMarker"</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SpawnSphere"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"spawns_docks"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">-250</span><span class="p">,</span><span class="mi">400</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"dataBlock"</span><span class="p">:</span><span class="s2">"SpawnSphereMarker"</span><span class="p">}</span>
+</span></span></code></pre></div><p><code>info.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"defaultSpawnPointName"</span><span class="p">:</span> <span class="s2">"spawns_city"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"spawnPoints"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.city"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.city.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_city"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_city.jpg"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.highway"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.highway.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_highway"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_highway.jpg"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.docks"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.docks.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_docks"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_docks.jpg"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Use <code>SpawnSphere</code> for level spawn locations.</li>
+<li>Give each spawn point a clear, stable name.</li>
+<li>Reference spawn points from <code>info.json</code> using <code>objectname</code>.</li>
+<li>Make sure <code>defaultSpawnPointName</code> matches a valid spawn point.</li>
+<li>Place spawn points on safe, flat enough surfaces.</li>
+<li>Orient spawn points toward a safe driving direction.</li>
+<li>Keep <code>scale</code> at <code>[1, 1, 1]</code> unless you need a larger editor marker.</li>
+<li>Do not rely on deprecated <code>radius</code>.</li>
+<li>Avoid legacy <code>autoSpawn</code> behavior for normal level spawns.</li>
+<li>Use preview images for each spawn point in <code>info.json</code>.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="spawn-point-does-not-appear-in-level-selector">
+
+  Spawn point does not appear in level selector
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Missing <code>info.json</code> entry</li>
+<li><code>spawnPoints</code> entry has no <code>objectname</code></li>
+<li><code>objectname</code> does not match the <code>SpawnSphere</code> name</li>
+<li>Spawn point object is missing from <code>items.level.json</code></li>
+</ul>
+<h3 id="default-spawn-is-wrong">
+
+  Default spawn is wrong
+</h3>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"defaultSpawnPointName"</span><span class="err">:</span> <span class="s2">"spawns_default"</span>
+</span></span></code></pre></div><p>and verify that a matching <code>SpawnSphere</code> exists.</p>
+<h3 id="vehicle-spawns-facing-wrong-direction">
+
+  Vehicle spawns facing wrong direction
+</h3>
+<p>Rotate the <code>SpawnSphere</code> in the World Editor and save the level.</p>
+<h3 id="vehicle-spawns-inside-geometry">
+
+  Vehicle spawns inside geometry
+</h3>
+<p>Move the <code>SpawnSphere</code> to a safer location with enough clearance.</p>
+<h3 id="spawn-marker-is-not-visible-in-editor">
+
+  Spawn marker is not visible in editor
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Missing <code>dataBlock</code></li>
+<li>Editor marker visualization disabled</li>
+<li>Not in editor mode</li>
+<li>Marker object is hidden</li>
+</ul>
+<h3 id="unexpected-object-spawns-automatically">
+
+  Unexpected object spawns automatically
+</h3>
+<p>Check whether legacy spawning is enabled:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoSpawn"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>For normal level spawn markers, this should usually be false or omitted.</p>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p><code>SpawnSphere</code> is the standard marker object for level spawn positions.</p>
+<p>In modern BeamNG levels, it is mainly used as a named transform referenced by <code>info.json</code> spawn point entries. The object provides the position and rotation, while <code>info.json</code> provides UI text, preview images, and default spawn selection.</p>
+<p>Legacy generic object spawning fields still exist, but they are not normally needed for level spawn point setup.</p>

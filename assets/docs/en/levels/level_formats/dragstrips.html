@@ -1,0 +1,507 @@
+<p>This page describes level-local drag strip data.</p>
+<p>Drag strips define staged drag race gameplay. A drag strip setup usually combines settings, strip geometry, lane waypoints, timing definitions, optional prefabs, and facility/POI integration.</p>
+<h2 id="file-location">
+
+  File location
+</h2>
+<p>Drag strip data is stored under:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/dragstrips/
+</span></span></code></pre></div><p>Common files:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">&lt;stripName&gt;.dragSettings.json
+</span></span><span class="line"><span class="cl">&lt;stripName&gt;_main.strip.json
+</span></span><span class="line"><span class="cl">dragStripData.dragData.json
+</span></span><span class="line"><span class="cl">&lt;stripName&gt;.facility.json
+</span></span></code></pre></div><p>Modern gameplay discovers level drag strips by scanning for <code>*.dragSettings.json</code>.</p>
+<h2 id="discovery-behavior">
+
+  Discovery behavior
+</h2>
+<p>The drag racing system scans the current level’s <code>dragstrips/</code> folder for:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.dragSettings.json
+</span></span></code></pre></div><p>Each settings file is treated as an entry point. Other files, such as <code>*.strip.json</code> or facility files, are only useful when referenced by a settings file, mission, facility entry, or compatibility workflow.</p>
+<h2 id="creating-drag-strip-files-with-editor-tools">
+
+  Creating drag strip files with editor tools
+</h2>
+<p>Use the Drag Race Editor for new drag strip data when possible. It can create and save strips, lane data, drag settings, zones, and feature-specific facility files.</p>
+<p>Recommended workflow:</p>
+<ol>
+<li>Open the level in World Editor.</li>
+<li>Open the Drag Race Editor.</li>
+<li>Create the strip layout first.</li>
+<li>Define lanes, boundaries, spawn waypoints, stage waypoints, and end-line waypoints.</li>
+<li>Save the strip as <code>*.strip.json</code>.</li>
+<li>Create drag settings that reference the saved strip.</li>
+<li>Configure timers, race phases, context, and optional prefabs.</li>
+<li>Save the settings as <code>*.dragSettings.json</code>.</li>
+<li>Add or connect facility/POI data if the strip should appear in freeroam or career UI.</li>
+<li>Test staging, countdown, race completion, reset, and big map entry.</li>
+</ol>
+<p>Create the strip before the settings file. The settings file is the entry point, but it needs a valid strip layout to be useful.</p>
+<h2 id="writing-drag-strip-files-manually">
+
+  Writing drag strip files manually
+</h2>
+<p>Manual authoring is possible, but the lane transforms and waypoints are easier to place in the editor. If writing manually, work in this order:</p>
+<ol>
+<li>Create the <code>dragstrips/</code> folder.</li>
+<li>Write the <code>*.strip.json</code> layout with lane boundaries and waypoints.</li>
+<li>Write the <code>*.dragSettings.json</code> file that references the strip.</li>
+<li>Add optional <code>*.facility.json</code> or facility integration.</li>
+<li>Add optional prefabs only after the race works.</li>
+</ol>
+<p>Minimum modern setup:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/dragstrips/example_main.strip.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/dragstrips/example.dragSettings.json
+</span></span></code></pre></div><p>The settings file must point to the strip file:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"example"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"stripId"</span><span class="p">:</span> <span class="s2">"/levels/example/dragstrips/example_main.strip.json"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Use absolute game paths beginning with <code>/levels/</code> for references that may be loaded from missions or other systems.</p>
+<h2 id="dragsettingsjson-structure">
+
+<code>*.dragSettings.json</code> structure
+</h2>
+<p>Minimal settings file:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"exampleStrip"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"context"</span><span class="p">:</span> <span class="s2">"freeroam"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dragType"</span><span class="p">:</span> <span class="s2">"headsUpRace"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"stripId"</span><span class="p">:</span> <span class="s2">"/levels/example/dragstrips/exampleStrip_main.strip.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"canBeReseted"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"canBeTeleported"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"timers"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"time_1_4"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"label"</span><span class="p">:</span> <span class="s2">"1/4 mile"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"shortLabel"</span><span class="p">:</span> <span class="s2">"1/4"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"distanceTimer"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"distance"</span><span class="p">:</span> <span class="mf">402.336</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"important"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"phases"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span> <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"stage"</span><span class="p">,</span> <span class="nt">"dependency"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nt">"startedOffset"</span><span class="p">:</span> <span class="mi">0</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span> <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"countdown"</span><span class="p">,</span> <span class="nt">"dependency"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nt">"startedOffset"</span><span class="p">:</span> <span class="mi">0</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span> <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"race"</span><span class="p">,</span> <span class="nt">"dependency"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span> <span class="nt">"startedOffset"</span><span class="p">:</span> <span class="mi">0</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span> <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"stop"</span><span class="p">,</span> <span class="nt">"dependency"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span> <span class="nt">"startedOffset"</span><span class="p">:</span> <span class="mi">0</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"prefabs"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"christmasTree"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"isUsed"</span><span class="p">:</span> <span class="kc">false</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"displaySign"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"isUsed"</span><span class="p">:</span> <span class="kc">false</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"paths"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"isUsed"</span><span class="p">:</span> <span class="kc">false</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"decorations"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"isUsed"</span><span class="p">:</span> <span class="kc">false</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="settings-fields">
+
+  Settings fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>Yes</td>
+<td>Stable drag settings id.</td>
+</tr>
+<tr>
+<td><code>stripId</code></td>
+<td>Yes</td>
+<td>Path to the <code>*.strip.json</code> file.</td>
+</tr>
+<tr>
+<td><code>context</code></td>
+<td>Recommended</td>
+<td>Usually <code>freeroam</code> for level-local strips.</td>
+</tr>
+<tr>
+<td><code>dragType</code></td>
+<td>Recommended</td>
+<td>Race type, such as <code>headsUpRace</code>.</td>
+</tr>
+<tr>
+<td><code>canBeReseted</code></td>
+<td>Optional</td>
+<td>Whether reset behavior is allowed.</td>
+</tr>
+<tr>
+<td><code>canBeTeleported</code></td>
+<td>Optional</td>
+<td>Whether teleport behavior is allowed.</td>
+</tr>
+<tr>
+<td><code>timers</code></td>
+<td>Optional</td>
+<td>If missing or invalid, defaults may be used.</td>
+</tr>
+<tr>
+<td><code>phases</code></td>
+<td>Optional</td>
+<td>Race phase sequence.</td>
+</tr>
+<tr>
+<td><code>prefabs</code></td>
+<td>Optional</td>
+<td>Presentation/prefab toggles.</td>
+</tr>
+</tbody>
+</table>
+<p>Timer entries support <code>distanceTimer</code> and <code>velocity</code> types. Distances are meters.</p>
+<h2 id="stripjson-structure">
+
+<code>*.strip.json</code> structure
+</h2>
+<p>Minimal strip file:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"exampleStrip_main"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Example Strip"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"Two-lane example drag strip"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"lanes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"exampleStrip_lane1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"shortName"</span><span class="p">:</span> <span class="s2">"Right"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"longName"</span><span class="p">:</span> <span class="s2">"Right Lane"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"laneOrder"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"color"</span><span class="p">:</span> <span class="s2">"green"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"boundary"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Right Lane Boundary"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"vertices"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">-2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">-2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"waypoints"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"exampleStrip_lane1_spawn"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"spawn"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"exampleStrip_wp_spawn_1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"transform"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"position"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"x"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span> <span class="mi">0</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"rotation"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"x"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"w"</span><span class="p">:</span> <span class="mi">1</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"scale"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"x"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span> <span class="mi">1</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"waypoint"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"mode"</span><span class="p">:</span> <span class="s2">"limit"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"speed"</span><span class="p">:</span> <span class="mi">20</span>
+</span></span><span class="line"><span class="cl">          <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"exampleStrip_lane1_stage"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"stage"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"exampleStrip_wp_stage_1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"transform"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"position"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"x"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span> <span class="mi">0</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"rotation"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"x"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"w"</span><span class="p">:</span> <span class="mi">1</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"scale"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"x"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span> <span class="mi">1</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"waypoint"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"mode"</span><span class="p">:</span> <span class="s2">"limit"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"speed"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">          <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"exampleStrip_lane1_endLine"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"endLine"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"exampleStrip_wp_endLine_1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"transform"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"position"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"x"</span><span class="p">:</span> <span class="mf">402.336</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span> <span class="mi">0</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"rotation"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"x"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"w"</span><span class="p">:</span> <span class="mi">1</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"scale"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"x"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span> <span class="mi">1</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"waypoint"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"mode"</span><span class="p">:</span> <span class="s2">"set"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"speed"</span><span class="p">:</span> <span class="mi">800</span>
+</span></span><span class="line"><span class="cl">          <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="strip-fields">
+
+  Strip fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>Yes</td>
+<td>Stable strip id.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>Recommended</td>
+<td>Display/debug name.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Optional</td>
+<td>Description.</td>
+</tr>
+<tr>
+<td><code>lanes</code></td>
+<td>Yes</td>
+<td>One or more lane definitions.</td>
+</tr>
+<tr>
+<td><code>lanes[].id</code></td>
+<td>Recommended</td>
+<td>Stable lane id.</td>
+</tr>
+<tr>
+<td><code>lanes[].laneOrder</code></td>
+<td>Recommended</td>
+<td>Visual/gameplay lane order.</td>
+</tr>
+<tr>
+<td><code>lanes[].boundary</code></td>
+<td>Recommended</td>
+<td>Lane area. Use editor-created boundaries when possible.</td>
+</tr>
+<tr>
+<td><code>lanes[].waypoints</code></td>
+<td>Yes</td>
+<td>Spawn, stage, end-line, and optional other waypoints.</td>
+</tr>
+<tr>
+<td><code>waypoints[].type</code></td>
+<td>Yes</td>
+<td>For example <code>spawn</code>, <code>stage</code>, or <code>endLine</code>.</td>
+</tr>
+<tr>
+<td><code>waypoints[].transform</code></td>
+<td>Yes</td>
+<td>Position, rotation, and scale.</td>
+</tr>
+<tr>
+<td><code>waypoints[].waypoint</code></td>
+<td>Optional</td>
+<td>Gameplay waypoint behavior, such as speed mode.</td>
+</tr>
+</tbody>
+</table>
+<p>Transforms in newer strip files use object-style vectors/quaternions:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"x"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span> <span class="mi">0</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotation"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"x"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nt">"w"</span><span class="p">:</span> <span class="mi">1</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">{</span> <span class="nt">"x"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span> <span class="mi">1</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Some older content may use compact <code>pos</code>, <code>rot</code>, and <code>scl</code> names. Prefer the newer object-style fields for new authored strip files.</p>
+<h2 id="file-roles">
+
+  File roles
+</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*.dragSettings.json</code></td>
+<td>Entry point for a drag strip. Defines id, context, drag type, timers, phases, prefab usage, and the referenced strip file.</td>
+</tr>
+<tr>
+<td><code>*.strip.json</code></td>
+<td>Strip layout data: lanes, lane boundaries, waypoint transforms, zones, and lane metadata.</td>
+</tr>
+<tr>
+<td><code>dragStripData.dragData.json</code></td>
+<td>Older/shared drag race data used by some shipped content and compatibility workflows.</td>
+</tr>
+<tr>
+<td><code>*.facility.json</code></td>
+<td>Feature-specific facility data for the drag strip.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="settings-and-strip-relationship">
+
+  Settings and strip relationship
+</h2>
+<p>A drag settings file should reference the strip layout file:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"exampleStrip"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"stripId"</span><span class="p">:</span> <span class="s2">"/levels/example/dragstrips/exampleStrip_main.strip.json"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Keep the settings id, strip id, and file names stable once missions, POIs, or career/freeroam data reference the strip.</p>
+<p>The settings file describes how the activity behaves. The strip file describes where the lanes, boundaries, and waypoints are. Keep those responsibilities separate when editing:</p>
+<ul>
+<li>Change timers, phases, context, or race type in the settings file.</li>
+<li>Change lane geometry, lane order, and waypoint transforms in the strip file.</li>
+<li>Change big map/career/freeroam integration in facility or POI data.</li>
+</ul>
+<p>When creating settings from scratch, start simple:</p>
+<ol>
+<li>One strip reference.</li>
+<li>One drag type.</li>
+<li>Basic phases.</li>
+<li>One or two important timers.</li>
+<li>No optional prefabs.</li>
+</ol>
+<p>After the race starts and finishes correctly, add more timers, displays, and presentation.</p>
+<h2 id="lane-and-waypoint-data">
+
+  Lane and waypoint data
+</h2>
+<p>The strip file describes each lane. Lanes usually contain:</p>
+<ul>
+<li>A boundary volume.</li>
+<li>Lane order and display names.</li>
+<li>Waypoints such as spawn, stage, and end line.</li>
+<li>Optional zone data.</li>
+</ul>
+<p>These waypoints are gameplay positions, not regular road navgraph nodes. Keep them aligned with the visible strip and any supporting prefabs.</p>
+<p>Important waypoint types usually include:</p>
+<table>
+<thead>
+<tr>
+<th>Waypoint</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spawn</td>
+<td>Where racers are placed before staging.</td>
+</tr>
+<tr>
+<td>Stage</td>
+<td>Where racers line up before the countdown.</td>
+</tr>
+<tr>
+<td>End line</td>
+<td>Where timing/speed results are evaluated.</td>
+</tr>
+</tbody>
+</table>
+<p>Lane order should match what the player sees. Incorrect lane ordering can make UI labels, staging, or opponent placement confusing even if the race technically starts.</p>
+<p>For two-lane strips, test both lanes independently. A common authoring mistake is fixing the player lane while leaving the opponent lane spawn, stage, or end-line waypoint misaligned.</p>
+<h2 id="timers-and-phases">
+
+  Timers and phases
+</h2>
+<p>Drag settings can define timers and race phases such as staging, countdown, race, and stop. Timer names and phase names are consumed by drag race gameplay and UI, so prefer editing them through the Drag Race Editor when possible.</p>
+<p>Common timer data includes elapsed-time checkpoints and trap-speed measurements. Keep labels concise because they can appear in race result UI.</p>
+<h2 id="prefabs-and-presentation">
+
+  Prefabs and presentation
+</h2>
+<p>Drag settings can enable supporting prefabs such as:</p>
+<ul>
+<li>Christmas tree lights.</li>
+<li>Display signs.</li>
+<li>Path helpers.</li>
+<li>Decorations.</li>
+</ul>
+<p>Only enable prefabs that exist and are aligned with the strip. Missing or misplaced presentation prefabs can make a valid race look broken.</p>
+<p>Prefab placement should be treated as presentation, not as core race logic. If a new strip fails, disable optional prefabs while debugging the settings and lane data.</p>
+<h2 id="relationship-with-facilities-and-missions">
+
+  Relationship with facilities and missions
+</h2>
+<p>Drag strips can appear as freeroam/career facilities and can also be used by drag mission types. A mission may reference a drag settings file, while freeroam/career UI may use related facility or POI data.</p>
+<p>For general facility behavior, see <a data-doc="levels/level_formats/facilities" href="/docs/levels/level_formats/facilities">Facilities</a>
+.</p>
+<p>Drag mission types may point directly at a settings file. If a drag strip works in freeroam but not in a mission, check the mission reference first, then the settings file and strip file.</p>
+<h2 id="legacy-and-compatibility-data">
+
+  Legacy and compatibility data
+</h2>
+<p>Some shipped content includes <code>dragStripData.dragData.json</code>. This can contain older or shared drag strip data and may overlap with newer settings/strip files. For new or actively maintained content, prefer the <code>*.dragSettings.json</code> entry point plus referenced <code>*.strip.json</code> layout.</p>
+<p>Do not delete compatibility files from shipped content unless you have verified every consumer that might still read them.</p>
+<h2 id="troubleshooting">
+
+  Troubleshooting
+</h2>
+<h3 id="strip-does-not-appear">
+
+  Strip does not appear
+</h3>
+<p>Check:</p>
+<ul>
+<li>The settings file ends with <code>.dragSettings.json</code>.</li>
+<li>The file is under <code>levels/&lt;levelName&gt;/dragstrips/</code>.</li>
+<li>The drag feature is enabled in the current mode.</li>
+<li>The settings file can be parsed.</li>
+</ul>
+<h3 id="race-starts-in-the-wrong-place">
+
+  Race starts in the wrong place
+</h3>
+<p>Check:</p>
+<ul>
+<li><code>stripId</code> points to the intended <code>*.strip.json</code> file.</li>
+<li>Lane spawn and stage waypoints are placed correctly.</li>
+<li>Lane order matches the visible strip.</li>
+<li>The player and opponent have enough room to spawn.</li>
+</ul>
+<h3 id="timing-or-results-look-wrong">
+
+  Timing or results look wrong
+</h3>
+<p>Check:</p>
+<ul>
+<li>End-line waypoints are placed at the intended finish.</li>
+<li>Timer distances match the intended race length.</li>
+<li>Race phases match the selected drag type.</li>
+<li>Display labels match the timer purpose.</li>
+</ul>
+<h3 id="freeroam-marker-is-missing">
+
+  Freeroam marker is missing
+</h3>
+<p>Check:</p>
+<ul>
+<li>Facility or POI data references the drag strip correctly.</li>
+<li>The facility id and drag settings id are stable.</li>
+<li>The big map or freeroam mode has drag racing enabled.</li>
+</ul>
+<h2 id="validation-checklist">
+
+  Validation checklist
+</h2>
+<ul>
+<li><code>*.dragSettings.json</code> loads and references an existing strip file.</li>
+<li>Strip ids and file names are stable.</li>
+<li>Lane boundaries cover the intended lanes.</li>
+<li>Spawn, stage, and end-line waypoints are placed and oriented correctly.</li>
+<li>Timers and phases match the intended race type.</li>
+<li>Prefabs referenced by the settings exist when enabled.</li>
+<li>Facility or POI data resolves if the strip should appear in freeroam/career UI.</li>
+<li>Drag missions that reference the strip can start and reset correctly.</li>
+<li>Compatibility files are preserved when old consumers may still need them.</li>
+</ul>
+<h2 id="related-pages">
+
+  Related pages
+</h2>
+<ul>
+<li><a data-doc="levels/level_formats/facilities" href="/docs/levels/level_formats/facilities">Facilities</a>
+</li>
+<li><a data-doc="levels/gameplay_data" href="/docs/levels/gameplay_data">Level Gameplay Data</a>
+</li>
+<li><a data-doc="levels/level_classes/gameplayareas" href="/docs/levels/level_classes/gameplayareas">Gameplay Areas and Points of Interest</a>
+</li>
+</ul>

@@ -1,0 +1,1341 @@
+<p>This document describes BeamNG terrain files and their companion metadata files.</p>
+<p>Terrain data is stored mainly in a binary <code>.ter</code> file. When terrain is saved, the engine also writes a companion <code>.terrain.json</code> file that describes the terrain data and referenced materials.</p>
+<p>A terrain in a level is represented by a <code>TerrainBlock</code> scene object. The <code>TerrainBlock</code> references the <code>.ter</code> file using its <code>terrainFile</code> field.</p>
+<p>This page describes terrain files and terrain material data. For the scene object that places terrain in a level, see <a data-doc="levels/level_classes/terrainblock" href="/docs/levels/level_classes/terrainblock">TerrainBlock</a>
+.</p>
+<hr/>
+<h2 id="file-roles">
+
+  File roles
+</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.ter</code></td>
+<td>Binary terrain file containing heightmap data, layer map data, and terrain material names.</td>
+</tr>
+<tr>
+<td><code>.terrain.json</code></td>
+<td>Metadata file describing the <code>.ter</code> file. Useful for tools and debugging.</td>
+</tr>
+<tr>
+<td><code>.terrainheightmap.png</code></td>
+<td>Optional/exported heightmap image reference written by the terrain save path.</td>
+</tr>
+<tr>
+<td><code>items.level.json</code></td>
+<td>Contains the <code>TerrainBlock</code> scene object that references the <code>.ter</code>.</td>
+</tr>
+<tr>
+<td><code>*.materials.json</code></td>
+<td>Contains <code>TerrainMaterial</code> definitions referenced by the <code>.ter</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="typical-file-location">
+
+  Typical file location
+</h2>
+<p>Terrain files are usually stored inside the level folder.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example/terrain.ter
+</span></span><span class="line"><span class="cl">levels/example/terrain.terrain.json
+</span></span><span class="line"><span class="cl">levels/example/terrain.terrainheightmap.png
+</span></span></code></pre></div><p>Some older levels or tools may place terrain files directly in the level folder, but using a dedicated terrain folder is recommended.</p>
+<p>The terrain object itself is stored in the level scene data, for example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example/main/items.level.json
+</span></span></code></pre></div><hr/>
+<h2 id="terrainblock-object">
+
+  TerrainBlock object
+</h2>
+<p>A terrain is placed in the level with a <code>TerrainBlock</code> object.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TerrainBlock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"theTerrain"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"terrainFile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/terrain.ter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"squareSize"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxHeight"</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"baseTexSize"</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"lightMapSize"</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"screenError"</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"castShadows"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-1024</span><span class="p">,</span> <span class="mi">-1024</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="important-terrainblock-fields">
+
+  Important TerrainBlock fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>terrainFile</code></td>
+<td>string</td>
+<td>Path to the <code>.ter</code> terrain data file.</td>
+</tr>
+<tr>
+<td><code>minimapImage</code></td>
+<td>string</td>
+<td>Optional minimap image for this terrain block.</td>
+</tr>
+<tr>
+<td><code>materialTextureSet</code></td>
+<td>string</td>
+<td>Optional <code>TerrainMaterialTextureSet</code> used by newer terrain rendering paths.</td>
+</tr>
+<tr>
+<td><code>castShadows</code></td>
+<td>bool</td>
+<td>Whether terrain casts shadows.</td>
+</tr>
+<tr>
+<td><code>squareSize</code></td>
+<td>number</td>
+<td>Distance between heightmap samples in meters.</td>
+</tr>
+<tr>
+<td><code>maxHeight</code></td>
+<td>number</td>
+<td>Maximum terrain height in meters.</td>
+</tr>
+<tr>
+<td><code>baseTexSize</code></td>
+<td>integer</td>
+<td>Resolution of generated terrain base texture.</td>
+</tr>
+<tr>
+<td><code>lightMapSize</code></td>
+<td>integer</td>
+<td>Terrain lightmap texture size.</td>
+</tr>
+<tr>
+<td><code>screenError</code></td>
+<td>integer</td>
+<td>Terrain LOD/screen error setting.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice info">Terrain object scaling is disabled. Use <code>squareSize</code> and <code>maxHeight</code> to control terrain dimensions instead of object scale.</div>
+<hr/>
+<h2 id="terrain-dimensions">
+
+  Terrain dimensions
+</h2>
+<p>The <code>.ter</code> file stores a square grid:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">size x size
+</span></span></code></pre></div><p>The world-space terrain width is approximately:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">world size = size x squareSize
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">size = 2048
+</span></span><span class="line"><span class="cl">squareSize = 1
+</span></span><span class="line"><span class="cl">world size = 2048 m x 2048 m
+</span></span></code></pre></div><p>If <code>squareSize</code> is <code>2</code>, the same terrain grid covers:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">4096 m x 4096 m
+</span></span></code></pre></div><hr/>
+<h2 id="height-scale">
+
+  Height scale
+</h2>
+<p>Terrain heights are stored as unsigned 16-bit values (<code>u16</code>).</p>
+<p>The <code>TerrainBlock</code> converts stored height values to meters using:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">heightScale = maxHeight / 65536
+</span></span><span class="line"><span class="cl">heightMeters = storedHeight x heightScale
+</span></span></code></pre></div><p>Example with:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"maxHeight"</span><span class="err">:</span> <span class="mi">2048</span>
+</span></span></code></pre></div><p>The height scale is:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">2048 / 65536 = 0.03125 m
+</span></span></code></pre></div><p>So one stored height unit equals approximately <code>0.03125 m</code>.</p>
+<p>The terrain object position is then applied on top of this height.</p>
+<hr/>
+<h2 id="ter-binary-format">
+
+  .ter binary format
+</h2>
+<p>The <code>.ter</code> file is the main binary terrain data file. It stores terrain height data, material layer indices, and the list of terrain material names.</p>
+<p>The file is read sequentially from start to end.</p>
+<hr/>
+<h2 id="current-saved-layout">
+
+  Current saved layout
+</h2>
+<p>The current <code>TerrainFile::save()</code> path writes this binary layout:</p>
+<table>
+<thead>
+<tr>
+<th align="right">Step</th>
+<th>Field</th>
+<th>Type</th>
+<th>Size</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">1</td>
+<td><code>version</code></td>
+<td><code>u8</code></td>
+<td>1 byte</td>
+<td>Terrain file version.</td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td><code>size</code></td>
+<td><code>u32</code></td>
+<td>4 bytes</td>
+<td>Width/height of the square terrain grid.</td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td><code>heightMap</code></td>
+<td><code>u16[size x size]</code></td>
+<td><code>size x size x 2</code> bytes</td>
+<td>Height samples.</td>
+</tr>
+<tr>
+<td align="right">4</td>
+<td><code>layerMap</code></td>
+<td><code>u8[size x size]</code></td>
+<td><code>size x size</code> bytes</td>
+<td>Terrain material index per sample.</td>
+</tr>
+<tr>
+<td align="right">5</td>
+<td><code>materialCount</code></td>
+<td><code>u32</code></td>
+<td>4 bytes</td>
+<td>Number of terrain material names.</td>
+</tr>
+<tr>
+<td align="right">6</td>
+<td><code>materialNames</code></td>
+<td>string array</td>
+<td>variable</td>
+<td>Terrain material internal names.</td>
+</tr>
+</tbody>
+</table>
+<p>Current save pseudocode:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">write</span><span class="p">((</span><span class="n">u8</span><span class="p">)</span><span class="n">FILE_VERSION</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">write</span><span class="p">(</span><span class="n">mSize</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">write</span><span class="p">(</span><span class="n">mHeightMap</span><span class="p">.</span><span class="n">byteSize</span><span class="p">(),</span> <span class="n">mHeightMap</span><span class="p">.</span><span class="n">address</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl"><span class="n">write</span><span class="p">(</span><span class="n">mLayerMap</span><span class="p">.</span><span class="n">byteSize</span><span class="p">(),</span> <span class="n">mLayerMap</span><span class="p">.</span><span class="n">address</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">write</span><span class="p">((</span><span class="n">u32</span><span class="p">)</span><span class="n">mMaterials</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">each</span> <span class="nl">material</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">write</span><span class="p">(</span><span class="n">material</span><span class="p">.</span><span class="n">internalName</span><span class="p">);</span>
+</span></span></code></pre></div><div class="bng-notice info">The current implementation assumes little-endian data.</div>
+<hr/>
+<h2 id="reading-strategy">
+
+  Reading strategy
+</h2>
+<p>To read a current <code>.ter</code> file:</p>
+<ol>
+<li>Read <code>version</code> as <code>u8</code>.</li>
+<li>Validate that <code>version &lt;= FILE_VERSION</code>.</li>
+<li>Read <code>size</code> as <code>u32</code>.</li>
+<li>Compute <code>sampleCount = size x size</code>.</li>
+<li>Read <code>sampleCount</code> <code>u16</code> values as the heightmap.</li>
+<li>Read <code>sampleCount</code> <code>u8</code> values as the layer map.</li>
+<li>Read <code>materialCount</code> as <code>u32</code>.</li>
+<li>Read <code>materialCount</code> strings.</li>
+<li>Resolve material names to <code>TerrainMaterial</code> definitions.</li>
+<li>Build the terrain grid/quadtree data for rendering and collision.</li>
+</ol>
+<p>Simplified pseudocode:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">u8</span> <span class="n">version</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">read</span><span class="p">(</span><span class="n">version</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">u32</span> <span class="n">size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">read</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">u32</span> <span class="n">sampleCount</span> <span class="o">=</span> <span class="n">size</span> <span class="o">*</span> <span class="n">size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">u16</span> <span class="n">heightMap</span><span class="p">[</span><span class="n">sampleCount</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">read</span><span class="p">(</span><span class="n">heightMap</span><span class="p">,</span> <span class="n">sampleCount</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">u16</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">u8</span> <span class="n">layerMap</span><span class="p">[</span><span class="n">sampleCount</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">read</span><span class="p">(</span><span class="n">layerMap</span><span class="p">,</span> <span class="n">sampleCount</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">u8</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">u32</span> <span class="n">materialCount</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">read</span><span class="p">(</span><span class="n">materialCount</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="n">in</span> <span class="nl">materialCount</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">string</span> <span class="n">materialName</span> <span class="o">=</span> <span class="n">readString</span><span class="p">();</span>
+</span></span></code></pre></div><hr/>
+<h2 id="version-handling">
+
+  Version handling
+</h2>
+<p>The first byte is the terrain file version.</p>
+<p>When loading:</p>
+<ul>
+<li>If <code>version &gt; FILE_VERSION</code>, loading fails.</li>
+<li>If <code>version &gt;= 7</code>, the modern loader path is used.</li>
+<li>If <code>version &lt; 7</code>, a legacy loader path is used.</li>
+</ul>
+<p>For normal tools and new content, target the current saved layout described above.</p>
+<div class="bng-notice note">The loader contains compatibility paths for older terrain versions. These are mostly for loading old content and should not be used as a reference for new files.</div>
+<hr/>
+<h2 id="heightmap-encoding">
+
+  Heightmap encoding
+</h2>
+<p>The heightmap is stored as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">u16 heightMap[size x size]
+</span></span></code></pre></div><p>Each sample is an unsigned 16-bit integer.</p>
+<p>Conversion to meters:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">heightMeters = storedHeight x (maxHeight / 65536)
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">storedHeight = 32768
+</span></span><span class="line"><span class="cl">maxHeight = 2048
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">heightMeters = 32768 x (2048 / 65536)
+</span></span><span class="line"><span class="cl">heightMeters = 1024 m
+</span></span></code></pre></div><hr/>
+<h2 id="layer-map-encoding">
+
+  Layer map encoding
+</h2>
+<p>The layer map is stored as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">u8 layerMap[size x size]
+</span></span></code></pre></div><p>Each value is an index into the terrain material name list.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">0 = first terrain material
+</span></span><span class="line"><span class="cl">1 = second terrain material
+</span></span><span class="line"><span class="cl">2 = third terrain material
+</span></span></code></pre></div><p>The value <code>255</code> (<code>U8_MAX</code>) is special:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">255 = empty terrain / hole
+</span></span></code></pre></div><p>Empty terrain is used by the terrain system to skip rendering and collision in those areas.</p>
+<hr/>
+<h2 id="material-names">
+
+  Material names
+</h2>
+<p>After the heightmap and layer map, the file stores terrain material names:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">u32 materialCount
+</span></span><span class="line"><span class="cl">string materialNames[materialCount]
+</span></span></code></pre></div><p>These names are resolved at load time using:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">TerrainMaterial::findOrCreate(name)
+</span></span></code></pre></div><p>If no valid materials are found, the terrain falls back to a warning material.</p>
+<h3 id="material-count-limit">
+
+  Material count limit
+</h3>
+<p>The terrain layer map uses <code>u8</code> indices, with <code>255</code> reserved for empty terrain. The loader supports up to <code>254</code> terrain material entries.</p>
+<p>Materials after that limit are ignored.</p>
+<p>For performance and maintainability, keep terrain material counts much lower than the technical limit.</p>
+<hr/>
+<h2 id="file-size-estimate">
+
+  File size estimate
+</h2>
+<p>For a current terrain file, before material name strings:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">1 byte                   version
+</span></span><span class="line"><span class="cl">4 bytes                  size
+</span></span><span class="line"><span class="cl">size x size x 2 bytes    heightMap
+</span></span><span class="line"><span class="cl">size x size x 1 byte     layerMap
+</span></span><span class="line"><span class="cl">4 bytes                  materialCount
+</span></span><span class="line"><span class="cl">variable                 material names
+</span></span></code></pre></div><p>For <code>2048 x 2048</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">heightMap = 2048 x 2048 x 2 = 8 MiB
+</span></span><span class="line"><span class="cl">layerMap  = 2048 x 2048 x 1 = 4 MiB
+</span></span></code></pre></div><p>Total map data:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">~12 MiB
+</span></span></code></pre></div><p>plus the small header and material name strings.</p>
+<hr/>
+<h2 id="terrainjson-metadata">
+
+  .terrain.json metadata
+</h2>
+<p>When the engine saves a terrain, it writes a companion <code>.terrain.json</code> file.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"datafile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/terrain.ter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"heightmapImage"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/terrain.terrainheightmap.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"size"</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"binaryFormat"</span><span class="p">:</span> <span class="s2">"version(char), size(unsigned int), heightMap(heightMapSize * heightMapItemSize), layerMap(layerMapSize * layerMapItemSize), layerTextureMap(layerMapSize * layerMapItemSize), materialNames"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"heightMapSize"</span><span class="p">:</span> <span class="mi">4194304</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"heightMapItemSize"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"layerMapSize"</span><span class="p">:</span> <span class="mi">4194304</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"layerMapItemSize"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materials"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"grass"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"rock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"asphalt"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="metadata-fields">
+
+  Metadata fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>version</code></td>
+<td>number</td>
+<td>Terrain file version.</td>
+</tr>
+<tr>
+<td><code>datafile</code></td>
+<td>string</td>
+<td>Path to the binary <code>.ter</code> file.</td>
+</tr>
+<tr>
+<td><code>heightmapImage</code></td>
+<td>string</td>
+<td>Path to associated/exported heightmap image.</td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td>number</td>
+<td>Terrain grid size.</td>
+</tr>
+<tr>
+<td><code>binaryFormat</code></td>
+<td>string</td>
+<td>Human-readable description of the terrain binary layout.</td>
+</tr>
+<tr>
+<td><code>heightMapSize</code></td>
+<td>number</td>
+<td>Number of heightmap samples.</td>
+</tr>
+<tr>
+<td><code>heightMapItemSize</code></td>
+<td>number</td>
+<td>Size of each heightmap sample in bytes.</td>
+</tr>
+<tr>
+<td><code>layerMapSize</code></td>
+<td>number</td>
+<td>Number of layer map samples.</td>
+</tr>
+<tr>
+<td><code>layerMapItemSize</code></td>
+<td>number</td>
+<td>Size of each layer map sample in bytes.</td>
+</tr>
+<tr>
+<td><code>materials</code></td>
+<td>array[string]</td>
+<td>Terrain material internal names.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice note"><code>.terrain.json</code> is descriptive metadata for tools and debugging. The engine loads the actual terrain data from the <code>.ter</code> file referenced by the <code>TerrainBlock</code>.</div>
+<div class="bng-notice warning">The <code>binaryFormat</code> string may mention compatibility data used by older terrain versions. For newly saved terrains, use the current saved layout described in this document.</div>
+<hr/>
+<h2 id="terrain-materials">
+
+  Terrain materials
+</h2>
+<p>The <code>.ter</code> file stores only terrain material <strong>names</strong>. The actual material definitions are separate <code>TerrainMaterial</code> objects, stored in a materials JSON file.</p>
+<p>Terrain materials come in two versions: the classic <strong>v1</strong> path and the modern PBR <strong>v1.5</strong> workflow. The sections below describe v1.5 - how it is enabled, how it works, and its fields.</p>
+<hr/>
+<h2 id="enabling-v15-terrain-materials">
+
+  Enabling v1.5 terrain materials
+</h2>
+<p>Terrain materials have two versions:</p>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>When it is used</th>
+<th>Texture model</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>v1 (classic)</strong></td>
+<td><code>TerrainBlock.materialTextureSet</code> is empty.</td>
+<td>Single <code>diffuseMap</code>, <code>normalMap</code>, <code>detailMap</code>, <code>macroMap</code>.</td>
+</tr>
+<tr>
+<td><strong>v1.5 (PBR)</strong></td>
+<td><code>TerrainBlock.materialTextureSet</code> references a <code>TerrainMaterialTextureSet</code>.</td>
+<td><code>baseColor</code>, <code>normal</code>, <code>roughness</code>, <code>ao</code>, <code>height</code>, each with base/macro/detail textures.</td>
+</tr>
+</tbody>
+</table>
+<p>The whole terrain switches version based on the <code>TerrainBlock</code>. There is no per-material version flag: assigning a <code>materialTextureSet</code> to the <code>TerrainBlock</code> activates v1.5 for every material painted on that terrain.</p>
+<h3 id="upgrading-from-v1-to-v15">
+
+  Upgrading from v1 to v1.5
+</h3>
+<p>In the World Editor, the <strong>Terrain Material Library</strong> has an <strong>Upgrade Terrain Materials</strong> action. It:</p>
+<ul>
+<li>Creates a <code>TerrainMaterialTextureSet</code> object (saved in <code>art/terrains/main.materials.json</code>).</li>
+<li>Assigns it to the <code>TerrainBlock.materialTextureSet</code> field.</li>
+<li>Clears the obsolete v1 fields (<code>diffuseMap</code>, <code>normalMap</code>, <code>detailMap</code>, <code>macroMap</code>) from existing terrain materials.</li>
+</ul>
+<div class="bng-notice warning">Upgrading is one-way. The classic v1 texture assignments are <strong>not</strong> carried over to the v1.5 slots, so every terrain material must be re-authored with the new base/macro/detail textures after upgrading. Save the level afterwards to persist the <code>TerrainBlock</code> change.</div>
+<h3 id="terrain-material-file">
+
+  Terrain material file
+</h3>
+<p>v1.5 terrain materials and the <code>TerrainMaterialTextureSet</code> are stored in:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/art/terrains/main.materials.json
+</span></span></code></pre></div><p>Older levels may still store terrain materials in <code>art/terrains/materials.json</code>. This is a deprecated layout; the editor offers an <strong>Upgrade Terrain Material file format</strong> action that moves them into <code>main.materials.json</code>.</p>
+<hr/>
+<h2 id="how-v15-terrain-materials-work">
+
+  How v1.5 terrain materials work
+</h2>
+<p>A v1.5 terrain material is built from <strong>five texture groups</strong>, and each group is sampled at <strong>three scales</strong> that combine into the final surface. Understanding this model is the key to authoring good-looking terrain.</p>
+<div class="bng-notice tip"><strong>In short (for a first material):</strong> make a <code>baseColor</code>, <code>normal</code>, <code>roughness</code>, <code>ao</code>, and <code>height</code> texture, and for each one supply a <strong>base</strong> (broad look), a <strong>macro</strong> (mid-range variation), and a <strong>detail</strong> (close-up) version. Assign them in the World Editor’s <em>Terrain Material Library</em>, set a <code>groundmodelName</code> (e.g. <code>GRASS</code>), and leave the distance/strength values at the typical defaults shown below. The deep-dive subsections explain how to fine-tune from there.</div>
+<h3 id="the-five-texture-groups">
+
+  The five texture groups
+</h3>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>What it controls</th>
+<th>Color space</th>
+<th>How to author</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Base color</strong></td>
+<td>The albedo (surface color).</td>
+<td>sRGB</td>
+<td>Paint the real color of the surface (grass green, rock gray, …).</td>
+</tr>
+<tr>
+<td><strong>Normal</strong></td>
+<td>Surface relief / bumpiness (tangent-space normal map).</td>
+<td>Linear</td>
+<td>A normal map. Only red/green are stored; blue is reconstructed by the shader.</td>
+</tr>
+<tr>
+<td><strong>Roughness</strong></td>
+<td>Glossiness. Dark = glossy/wet, bright = rough/matte.</td>
+<td>Linear (grayscale)</td>
+<td>A grayscale roughness map.</td>
+</tr>
+<tr>
+<td><strong>Ambient occlusion</strong></td>
+<td>Self-shadowing in crevices under ambient light.</td>
+<td>Linear (grayscale)</td>
+<td>A grayscale AO map; white = no occlusion.</td>
+</tr>
+<tr>
+<td><strong>Height</strong></td>
+<td>Per-pixel height used for <strong>layer blending</strong> (see below).</td>
+<td>Linear (grayscale)</td>
+<td>A grayscale heightmap; white = raised, black = recessed.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="base-macro-and-detail-scales">
+
+  Base, macro, and detail scales
+</h3>
+<p>Within a single group, the <strong>base</strong>, <strong>macro</strong>, and <strong>detail</strong> textures are three tiling layers at different scales that are sampled and combined per pixel. The simplest way to think about them is as low-, medium-, and high-frequency versions of the same surface:</p>
+<table>
+<thead>
+<tr>
+<th>Scale</th>
+<th>Typical mapping size (<code>*TexSize</code>)</th>
+<th>Repetition</th>
+<th>When it is sampled</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Base</strong></td>
+<td>Large - often whole-terrain (≈ 128–2048 m)</td>
+<td>Low (large tile, sometimes unique)</td>
+<td>Always, at every distance.</td>
+<td>The foundation. Sets the broad, large-scale look and the group’s actual value.</td>
+</tr>
+<tr>
+<td><strong>Macro</strong></td>
+<td>Medium (≈ 30–80 m)</td>
+<td>Medium</td>
+<td>Within <code>macroDistances</code>, capped at 1000 m.</td>
+<td>Mid-scale variation that breaks up the base’s repetition at medium/long range.</td>
+</tr>
+<tr>
+<td><strong>Detail</strong></td>
+<td>Small (≈ 2–8 m)</td>
+<td>High (small tile)</td>
+<td>Within <code>detailDistances</code>, capped at 250 m.</td>
+<td>Fine, sharp close-up detail.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Base</strong> is the primary layer and the only one that defines an absolute value (the others modify it). In official levels the base is usually a <strong>single large texture mapped across the whole terrain</strong> - often the same <code>t_terrain_base_*</code> set shared by every material (for example West Coast USA maps it at 2048 m for all materials). Because one tile spans the whole terrain it has no visible repetition, but it is soft / low-resolution up close - which is exactly what the detail layer fixes.</p>
+<p><strong>Macro</strong> is a second layer at a smaller mapping size (typically 30–80 m). Its job is to hide the fact that the base is repeating: large, soft patches of color or brightness variation that you notice across a hillside but not on a single tile. It is most useful at medium and long range and can be faded with <code>macroDistances</code>.</p>
+<p><strong>Detail</strong> is a third layer at a very small mapping size (typically 2–8 m), so it repeats often and stays crisp right under the camera or vehicle (individual blades, pebbles, fine normal bumps). Because high-frequency tiling becomes both obvious and expensive at distance, detail is faded out by <code>detailDistances</code> and is never sampled past 250 m.</p>
+<h4 id="what-the-mapping-size-means">
+
+  What the mapping size means
+</h4>
+<p><code>*BaseTexSize</code>, <code>*MacroTexSize</code>, and <code>*DetailTexSize</code> are <strong>world distances in meters for one tile</strong> of the texture - not the pixel resolution.</p>
+<ul>
+<li><strong>Larger</strong> size → bigger tile → fewer repeats → broad look, little visible tiling, but blurrier up close.</li>
+<li><strong>Smaller</strong> size → smaller tile → more repeats → crisp up close, but tiling becomes obvious if used at distance.</li>
+</ul>
+<p>In official content the base is usually the whole-terrain size, macro is around <code>30–80 m</code>, and detail is around <code>2–8 m</code>. (If a size field is left unset, the engine defaults are <code>256</code> / <code>60</code> / <code>2</code> m for base / macro / detail.)</p>
+<h4 id="why-three-scales">
+
+  Why three scales
+</h4>
+<p>A single tiled texture cannot look good at every distance: make the tile large and it is blurry up close; make it small and it tiles visibly across the terrain. Splitting the surface into base + macro + detail lets the terrain stay sharp where the camera is close (detail), varied at mid range (macro), and free of obvious repetition far away (base) - all at the same time.</p>
+<p>At a glance, by distance:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">far   : base (+ macro)         -&gt; broad, no obvious tiling
+</span></span><span class="line"><span class="cl">mid   : base + macro           -&gt; base broken up by variation
+</span></span><span class="line"><span class="cl">near  : base + macro + detail  -&gt; full crispness
+</span></span></code></pre></div>
+<h4 id="how-to-use-them">
+
+  How to use them
+</h4>
+<ul>
+<li>All scales are required: every group must have a <strong>base</strong>, <strong>macro</strong>, and <strong>detail</strong> texture assigned. The terrain material editor reports an empty slot as a validation error and will not save the material until all five groups have all three textures.</li>
+<li>Author the <strong>base color base</strong> as the real surface color; author <strong>macro/detail</strong> textures around mid-gray so they only add variation (see <a href="#how-the-scales-combine">How the scales combine</a>
+).</li>
+<li>To effectively “disable” a macro or detail layer in a group, still assign a texture but make it neutral - flat mid-gray for color/data, or a flat normal - so it contributes nothing.</li>
+<li>Use <strong>detail</strong> to add close-up crispness, and keep its distances short for performance.</li>
+<li>Use <strong>macro</strong> to kill visible tiling on large open areas; soft, low-contrast macro textures usually look best.</li>
+</ul>
+<h3 id="how-the-scales-combine">
+
+  How the scales combine
+</h3>
+<p>For the color and data groups (base color, roughness, AO, height), the base texture sets the value and macro/detail are added as <strong>signed overlays</strong> around mid-gray:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">final = base + (macro  - 0.5) * 2 * macroStrength
+</span></span><span class="line"><span class="cl">             + (detail - 0.5) * 2 * detailStrength
+</span></span></code></pre></div><p>Because of this, <strong>macro and detail textures should be authored around mid-gray (0.5)</strong>: gray = no change, lighter areas brighten the base, darker areas darken it. For the normal group, the base/macro/detail normals are blended together instead of added.</p>
+<h3 id="height-based-layer-blending">
+
+  Height-based layer blending
+</h3>
+<p>This is the most important behavior to understand. When two terrain materials overlap (where you paint one over another), the engine does <strong>not</strong> simply cross-fade them. It compares the <strong>height</strong> texture of each layer per pixel and lets the <strong>higher</strong> one show through.</p>
+<p>This produces natural transitions - for example gravel poking through where it sits “above” sand, instead of a soft, blurry seam.</p>
+<p>To use it: author the height map so the parts that should appear first in a blend (pebbles, raised pattern, rocks) are brighter, and the recessed parts (mortar gaps, sand pockets) are darker.</p>
+<h3 id="tuning-distance-strength-and-attenuation">
+
+  Tuning distance, strength, and attenuation
+</h3>
+<p>These fields control how macro and detail fade with camera distance - they matter for both looks and performance.</p>
+<ul>
+<li><code>macroDistances</code> / <code>detailDistances</code> - <code>[startFadeIn, near, far, endFadeOut]</code> in meters (ascending). The contribution fades in over <code>startFadeIn → near</code>, is full between <code>near</code> and <code>far</code>, then fades out over <code>far → endFadeOut</code>.</li>
+<li><code>*MacroStrength</code> / <code>*DetailStrength</code> - <code>[near, far]</code> intensity (0–1) of the overlay, so you can make a layer strong up close and weaker far away.</li>
+<li><code>macroDistAtten</code> / <code>detailDistAtten</code> - <code>[near, far]</code> (0–1) controlling how much the contribution drops at the fade edges (<code>1</code> = fades fully to zero, <code>0</code> = stays).</li>
+</ul>
+<div class="bng-notice warning">Independently of these curves, the renderer <strong>hard-stops</strong> detail sampling beyond <code>250 m</code> and macro beyond <code>1000 m</code>. Setting <code>endFadeOut</code> higher than that does not extend them - official content often leaves <code>endFadeOut</code> large (e.g. <code>3000</code>) and relies on these caps, controlling the real fade with the <code>far</code> value instead.</div>
+<p>Typical values seen in official levels:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Common value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>macroDistances</code></td>
+<td><code>[0, 10, 100, 3000]</code></td>
+<td>Macro fully visible out to ~100 m, present until the 1000 m cap.</td>
+</tr>
+<tr>
+<td><code>detailDistances</code></td>
+<td><code>[0, 0, 30, 60]</code> (or large <code>endFadeOut</code>)</td>
+<td>Detail fully visible to ~30 m, gone well before the 250 m cap.</td>
+</tr>
+<tr>
+<td><code>*MacroStrength</code></td>
+<td><code>[0.2, 0.4]</code> (color), <code>[0.5, 0.6]</code> (normal)</td>
+<td>Subtle on color, stronger on normal.</td>
+</tr>
+<tr>
+<td><code>*DetailStrength</code></td>
+<td><code>[0.3, 0]</code> (color), <code>[0.8, 0.15]</code> (normal)</td>
+<td>Strong up close, fading to nothing far away.</td>
+</tr>
+<tr>
+<td><code>macroDistAtten</code> / <code>detailDistAtten</code></td>
+<td><code>[1, 1]</code></td>
+<td>Fade in from zero and out to zero.</td>
+</tr>
+</tbody>
+</table>
+<p>Practical guidance:</p>
+<ul>
+<li>Keep <strong>detail</strong> <code>far</code> short (often 20–50 m). It is high-frequency, only useful up close, and stopping it early also saves performance.</li>
+<li>Use <strong>macro</strong> to break up obvious base-texture tiling at medium and long range.</li>
+<li><code>height</code> macro/detail strengths are usually left at <code>0</code> - height drives <a href="#height-based-layer-blending">layer blending</a>
+, so you rarely want macro/detail modulating it.</li>
+</ul>
+<h3 id="slope-projection-and-depth">
+
+  Slope projection and depth
+</h3>
+<ul>
+<li><code>useSideProjection</code> - projects the texture onto vertical faces instead of straight down, so cliffs and steep rock do not look stretched.</li>
+<li><code>parallaxScale</code> - adds a parallax / self-occlusion depth effect from the height/normal data.</li>
+</ul>
+<div class="bng-notice warning"><code>useSideProjection</code> and <code>parallaxScale</code> belong to the <strong>classic v1</strong> terrain path. The v1.5 renderer (and the v1.5 material editor) do not use them, so they have no effect on a terrain that has a <code>materialTextureSet</code> assigned.</div>
+<h3 id="groundmodel-and-annotation">
+
+  Groundmodel and annotation
+</h3>
+<ul>
+<li><code>groundmodelName</code> - links the painted area to a <strong>groundmodel</strong>, which defines the physics surface: friction, tyre particles, skid sounds, rolling resistance, and so on. Match it to the look (<code>GRASS</code>, <code>ROCK</code>, <code>ASPHALT</code>, …). See <a data-doc="levels/level_formats/groundmodels" href="/docs/levels/level_formats/groundmodels">Groundmodels</a>
+.</li>
+<li><code>annotation</code> - a semantic/debug class (e.g. <code>GRASS</code>, <code>NATURE</code>) used by the annotation render pass for tools such as semantic segmentation and sensors. Defaults to <code>NATURE</code>.</li>
+</ul>
+<p>Both fields are used by classic v1 and v1.5 materials.</p>
+<hr/>
+<h2 id="terrainmaterial-v15-fields">
+
+  TerrainMaterial v1.5 fields
+</h2>
+<p>A v1.5 <code>TerrainMaterial</code> is defined by <strong>per-group texture fields</strong> plus a few <strong>material-level fields</strong>. For what each field does and how to use it, see <a href="#how-v15-terrain-materials-work">How v1.5 terrain materials work</a>
+; this section is a quick name/type lookup.</p>
+<p>Values are stored as JSON numbers and arrays: single values as numbers (<code>512</code>, <code>0.3</code>) and vectors as arrays (<code>[0.3, 0]</code>, <code>[0, 10, 100, 3000]</code>).</p>
+<h3 id="texture-group-fields">
+
+  Texture group fields
+</h3>
+<p>Each of the five groups - <code>baseColor</code>, <code>normal</code>, <code>roughness</code>, <code>ao</code>, <code>height</code> - exposes the same fields. Build the field name from the group and the scale (<code>Base</code>, <code>Macro</code>, <code>Detail</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Field pattern</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;group&gt;&lt;Scale&gt;Tex</code></td>
+<td>path</td>
+<td>Source texture for that group/scale, e.g. <code>baseColorBaseTex</code>, <code>normalDetailTex</code>.</td>
+</tr>
+<tr>
+<td><code>&lt;group&gt;&lt;Scale&gt;TexSize</code></td>
+<td>number</td>
+<td>World mapping size in meters (typically whole-terrain for base, 30–80 for macro, 2–8 for detail).</td>
+</tr>
+<tr>
+<td><code>&lt;group&gt;MacroStrength</code></td>
+<td>number[2] <code>[near, far]</code></td>
+<td>Macro overlay intensity, <code>0..1</code>.</td>
+</tr>
+<tr>
+<td><code>&lt;group&gt;DetailStrength</code></td>
+<td>number[2] <code>[near, far]</code></td>
+<td>Detail overlay intensity, <code>0..1</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>For example, the <code>baseColor</code> group expands to <code>baseColorBaseTex</code>, <code>baseColorMacroTex</code>, <code>baseColorDetailTex</code>, <code>baseColorBaseTexSize</code>, <code>baseColorMacroTexSize</code>, <code>baseColorDetailTexSize</code>, <code>baseColorMacroStrength</code>, and <code>baseColorDetailStrength</code>.</p>
+<h3 id="material-level-fields">
+
+  Material-level fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>internalName</code></td>
+<td>string</td>
+<td>Unique name referenced by the <code>.ter</code> material list.</td>
+</tr>
+<tr>
+<td><code>macroDistances</code></td>
+<td>number[4] <code>[startFadeIn, near, far, endFadeOut]</code></td>
+<td>Distance fade curve (m) shared by all macro textures. Sampling stops at the 1000 m cap. Typical <code>[0, 10, 100, 3000]</code>.</td>
+</tr>
+<tr>
+<td><code>detailDistances</code></td>
+<td>number[4] <code>[startFadeIn, near, far, endFadeOut]</code></td>
+<td>Distance fade curve (m) shared by all detail textures. Sampling stops at the 250 m cap. Typical <code>[0, 0, 30, 60]</code>.</td>
+</tr>
+<tr>
+<td><code>macroDistAtten</code></td>
+<td>number[2] <code>[near, far]</code></td>
+<td>How much macro fades at the fade edges, <code>0..1</code>. Typical <code>[1, 1]</code>.</td>
+</tr>
+<tr>
+<td><code>detailDistAtten</code></td>
+<td>number[2] <code>[near, far]</code></td>
+<td>How much detail fades at the fade edges, <code>0..1</code>. Typical <code>[1, 1]</code>.</td>
+</tr>
+<tr>
+<td><code>groundmodelName</code></td>
+<td>string</td>
+<td>Physics groundmodel (friction, particles, sounds).</td>
+</tr>
+<tr>
+<td><code>annotation</code></td>
+<td>string</td>
+<td>Semantic/debug class for the annotation pass. Default <code>NATURE</code>.</td>
+</tr>
+<tr>
+<td><code>useSideProjection</code></td>
+<td>bool</td>
+<td>Classic v1 only - ignored by the v1.5 renderer.</td>
+</tr>
+<tr>
+<td><code>parallaxScale</code></td>
+<td>number</td>
+<td>Classic v1 only - ignored by the v1.5 renderer.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="example-v15-terrainmaterial">
+
+  Example v1.5 TerrainMaterial
+</h3>
+<p><code>TerrainMaterial</code> definitions are stored as a name-keyed JSON object, one key per material:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"grass01"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TerrainMaterial"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"internalName"</span><span class="p">:</span> <span class="s2">"grass01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"annotation"</span><span class="p">:</span> <span class="s2">"GRASS"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"groundmodelName"</span><span class="p">:</span> <span class="s2">"GRASS"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorBaseTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_terrain_base_grass_b.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorBaseTexSize"</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorMacroTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_macro_grass_b.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorMacroTexSize"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorMacroStrength"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorDetailTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_grass_b.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorDetailTexSize"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorDetailStrength"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalBaseTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_terrain_base_grass_nm.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalBaseTexSize"</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalMacroTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_macro_grass_nm.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalMacroTexSize"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalMacroStrength"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalDetailTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_grass_nm.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalDetailTexSize"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalDetailStrength"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessBaseTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_terrain_base_grass_r.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessBaseTexSize"</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessMacroTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_macro_grass_r.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessMacroTexSize"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessMacroStrength"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessDetailTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_grass_r.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessDetailTexSize"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessDetailStrength"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">"aoBaseTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_terrain_base_grass_ao.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aoBaseTexSize"</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aoMacroTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_macro_grass_ao.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aoMacroTexSize"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aoDetailTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_grass_ao.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aoDetailTexSize"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">"heightBaseTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_terrain_base_grass_h.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"heightBaseTexSize"</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"heightMacroTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_macro_grass_h.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"heightMacroTexSize"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"heightDetailTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_grass_h.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"heightDetailTexSize"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">"macroDistances"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">3000</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"detailDistances"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"macroDistAtten"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"detailDistAtten"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><div class="bng-notice note"><ul>
+<li>All five groups must have their <strong>base</strong>, <strong>macro</strong>, and <strong>detail</strong> textures assigned - the terrain material editor will not save a material with an empty texture slot.</li>
+<li>The editor also writes an auto-generated <code>persistentId</code> and uses a <code>&lt;name&gt;-&lt;persistentId&gt;</code> JSON key; both are omitted here for clarity.</li>
+<li><code>height</code> strengths are left at their defaults so height only drives layer blending.</li>
+</ul>
+</div>
+<hr/>
+<h2 id="terrainmaterialtextureset">
+
+  TerrainMaterialTextureSet
+</h2>
+<p><code>TerrainMaterialTextureSet</code> defines the expected texture array sizes used by the v1.5 terrain material renderer.</p>
+<p>All terrain materials painted on a terrain are packed into a small set of <strong>shared GPU texture arrays</strong> (one slice per material), and a texture array requires every slice to have the same dimensions. The <code>TerrainMaterialTextureSet</code> declares those dimensions for the base, macro, and detail slots. This is why every texture you assign to a given slot must be exactly the declared size - a mismatch cannot be packed and the material falls back to the warning texture.</p>
+<p>There is normally one <code>TerrainMaterialTextureSet</code> per level (named like <code>&lt;levelName&gt;TerrainMaterialTextureSet</code>), shared by all terrain materials in that level.</p>
+<p>A <code>TerrainBlock</code> references it using:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"materialTextureSet"</span><span class="err">:</span> <span class="s2">"myTerrainTextureSet"</span>
+</span></span></code></pre></div><p>Important fields (pixel size as <code>[width, height]</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Typical</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>baseTexSize</code></td>
+<td>Pixel size of the base texture array.</td>
+<td><code>[512, 512]</code> – <code>[4096, 4096]</code> (higher when the base is a unique whole-terrain map)</td>
+</tr>
+<tr>
+<td><code>macroTexSize</code></td>
+<td>Pixel size of the macro texture array.</td>
+<td><code>[1024, 1024]</code></td>
+</tr>
+<tr>
+<td><code>detailTexSize</code></td>
+<td>Pixel size of the detail texture array.</td>
+<td><code>[1024, 1024]</code></td>
+</tr>
+</tbody>
+</table>
+<p>Example (from an official level layout):</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"templateTerrainMaterialTextureSet"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TerrainMaterialTextureSet"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"templateTerrainMaterialTextureSet"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseTexSize"</span><span class="p">:</span> <span class="p">[</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"macroTexSize"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"detailTexSize"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The renderer uses these sizes when packing terrain material textures into GPU texture arrays.</p>
+<div class="bng-notice warning">All textures assigned to the same slot type must match the expected size defined by the <code>TerrainMaterialTextureSet</code>. For example, all base textures must match <code>baseTexSize</code>.</div>
+<hr/>
+<h2 id="terrain-texture-packing">
+
+  Terrain texture packing
+</h2>
+<p>In the v1.5 terrain material path, source textures are packed into generated cached textures and copied into terrain texture arrays.</p>
+<p>Generated cache files can be stored under paths like:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/temp/art/terrainMaterialCache/&lt;hash&gt;.dds
+</span></span></code></pre></div><p>The hash is based on the source texture paths, so the same texture combination can be reused.</p>
+<p>The renderer packs terrain data into two main texture groups:</p>
+<h3 id="base-color-group">
+
+  Base color group
+</h3>
+<p>This group combines:</p>
+<ul>
+<li>Base color RGB</li>
+<li>Ambient occlusion</li>
+</ul>
+<p>Typical channel usage:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">R/G/B = base color
+</span></span><span class="line"><span class="cl">A     = ambient occlusion
+</span></span></code></pre></div>
+<h3 id="normal-data-group">
+
+  Normal/data group
+</h3>
+<p>This group combines:</p>
+<ul>
+<li>Roughness</li>
+<li>Height</li>
+<li>Normal data</li>
+</ul>
+<p>Typical channel usage:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">R = roughness
+</span></span><span class="line"><span class="cl">G = height
+</span></span><span class="line"><span class="cl">B/A = normal-related data
+</span></span></code></pre></div><div class="bng-notice info">The exact packed texture is generated automatically by the engine. Authors should provide valid source textures with matching sizes and correct color/data usage.</div>
+<p>If a source texture is missing, has the wrong size, or does not contain the expected channel, terrain material packing can fail or produce warning material output.</p>
+<h3 id="source-texture-requirements">
+
+  Source texture requirements
+</h3>
+<p>When authoring v1.5 terrain textures:</p>
+<ul>
+<li>Provide <strong>PNG</strong> source textures.</li>
+<li>Texture pixel dimensions must be <strong>power-of-two</strong> and must exactly match the corresponding <code>TerrainMaterialTextureSet</code> slot size (<code>baseTexSize</code>, <code>macroTexSize</code>, or <code>detailTexSize</code>).</li>
+<li><strong>Base color</strong> textures must be in <strong>sRGB</strong> color space. <strong>Normal</strong>, <strong>roughness</strong>, <strong>ambient occlusion</strong>, and <strong>height</strong> textures must be in <strong>linear</strong> space.</li>
+</ul>
+<p>Recommended source formats per slot:</p>
+<table>
+<thead>
+<tr>
+<th>Slot group</th>
+<th>Color space</th>
+<th>Recommended source format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base color</td>
+<td>sRGB</td>
+<td><code>R8G8B8</code> / <code>R8G8B8A8</code></td>
+</tr>
+<tr>
+<td>Normal</td>
+<td>Linear</td>
+<td><code>R8G8B8</code> / <code>R8G8B8A8</code></td>
+</tr>
+<tr>
+<td>Roughness / AO / Height</td>
+<td>Linear</td>
+<td><code>R8</code> (grayscale)</td>
+</tr>
+</tbody>
+</table>
+<p>The World Editor terrain material library validates these rules and reports size mismatches, missing textures, and unexpected formats.</p>
+<hr/>
+<h2 id="terrain-rendering">
+
+  Terrain rendering
+</h2>
+<p>The terrain renderer divides terrain into cells and builds a quadtree.</p>
+<p>Important value:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">minimum terrain cell size = 64
+</span></span></code></pre></div><p>The cell system is used for:</p>
+<ul>
+<li>Culling</li>
+<li>LOD selection</li>
+<li>Bounds</li>
+<li>Material tracking</li>
+<li>Shadow rendering</li>
+<li>Reflection rendering</li>
+<li>Prepass / G-buffer / annotation passes</li>
+</ul>
+<p>Terrain cell data is uploaded to GPU buffers for rendering.</p>
+<hr/>
+<h2 id="terrain-lod">
+
+  Terrain LOD
+</h2>
+<p>Terrain LOD is based on screen error and cell distance.</p>
+<p>Relevant fields/preferences:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>screenError</code></td>
+<td>Terrain screen error setting.</td>
+</tr>
+<tr>
+<td><code>$pref::Terrain::lodScale</code></td>
+<td>Global terrain LOD scale.</td>
+</tr>
+<tr>
+<td><code>$pref::Terrain::detailScale</code></td>
+<td>Global terrain detail distance scale.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="terrain-skirts">
+
+  Terrain skirts
+</h2>
+<p>Terrain cells generate extra skirt geometry around cell edges.</p>
+<p>Skirts help hide cracks between terrain cells when different LOD levels are used.</p>
+<p>This geometry is generated automatically and is not stored in the <code>.ter</code> file.</p>
+<hr/>
+<h2 id="empty-terrain-holes">
+
+  Empty terrain / holes
+</h2>
+<p>The layer index value <code>255</code> (<code>U8_MAX</code>) marks empty terrain.</p>
+<p>Empty terrain affects:</p>
+<ul>
+<li>Rendering</li>
+<li>Collision</li>
+<li>Terrain cell primitive generation</li>
+<li>SDF/boolean terrain operations</li>
+</ul>
+<p>The renderer can skip empty terrain squares by generating a custom primitive buffer for affected cells.</p>
+<hr/>
+<h2 id="collision">
+
+  Collision
+</h2>
+<p>Terrain collision is built from the heightmap.</p>
+<p>When terrain height changes:</p>
+<ul>
+<li>Grid data is updated</li>
+<li>Bounds are recalculated</li>
+<li>Render cells are updated</li>
+<li>Physics collision can be queued for rebuild</li>
+</ul>
+<p>Terrain collision is used by:</p>
+<ul>
+<li>Vehicles</li>
+<li>Props</li>
+<li>Raycasts</li>
+<li>Ground detection</li>
+<li>AI/navigation systems</li>
+</ul>
+<hr/>
+<h2 id="importing-terrain">
+
+  Importing terrain
+</h2>
+<p>Terrain can be imported from a heightmap and opacity/layer maps.</p>
+<p>Requirements:</p>
+<ul>
+<li>Heightmap must be square</li>
+<li>Heightmap resolution must be power of two</li>
+<li>Heightmap size must be between <code>128</code> and <code>8192</code></li>
+<li>Opacity/layer maps must match the heightmap size</li>
+<li>Number of material names must match number of opacity layers</li>
+</ul>
+<hr/>
+<h2 id="heightmap-import">
+
+  Heightmap import
+</h2>
+<p>Supported input heightmap behavior:</p>
+<ul>
+<li><code>R16</code> heightmaps are read directly as 16-bit height data.</li>
+<li>Other image formats are converted from 8-bit values to the full <code>u16</code> range.</li>
+</ul>
+<p>8-bit conversion:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">storedHeight = pixelValue / 255 x 65535
+</span></span></code></pre></div><hr/>
+<h2 id="opacity-layer-import">
+
+  Opacity/layer import
+</h2>
+<p>Import uses opacity layers to build the terrain layer map.</p>
+<p>Each opacity layer can come from a texture channel:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">R
+</span></span><span class="line"><span class="cl">G
+</span></span><span class="line"><span class="cl">B
+</span></span><span class="line"><span class="cl">A
+</span></span></code></pre></div><p>For each terrain sample, the material layer with the highest opacity value wins.</p>
+<p>Pseudocode:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">each</span> <span class="nl">sample</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bestLayer</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bestValue</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">each</span> <span class="n">opacity</span> <span class="nl">layer</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">opacityValue</span> <span class="o">&gt;=</span> <span class="nl">bestValue</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">bestLayer</span> <span class="o">=</span> <span class="n">layer</span>
+</span></span><span class="line"><span class="cl">            <span class="n">bestValue</span> <span class="o">=</span> <span class="n">opacityValue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">layerMap</span><span class="p">[</span><span class="n">sample</span><span class="p">]</span> <span class="o">=</span> <span class="n">bestLayer</span>
+</span></span></code></pre></div><hr/>
+<h2 id="hole-map-import">
+
+  Hole map import
+</h2>
+<p>An optional hole map can mark terrain samples as empty.</p>
+<p>If the hole map value is <code>0xFF</code>, the layer map value becomes:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">255
+</span></span></code></pre></div><p>which means empty terrain.</p>
+<hr/>
+<h2 id="y-axis-flipping">
+
+  Y-axis flipping
+</h2>
+<p>Import supports a <code>flipYAxis</code> option.</p>
+<p>If disabled, the importer flips input data vertically while copying it into terrain memory.</p>
+<p>Use this if the imported terrain appears vertically flipped.</p>
+<hr/>
+<h2 id="creating-terrain">
+
+  Creating terrain
+</h2>
+<p>When creating a new terrain, the engine:</p>
+<ol>
+<li>Chooses a unique <code>.ter</code> filename.</li>
+<li>Creates a <code>TerrainFile</code>.</li>
+<li>Adds the initial material.</li>
+<li>Rounds terrain resolution up to the next power of two.</li>
+<li>Initializes the heightmap and layer map.</li>
+<li>Saves the <code>.ter</code>.</li>
+<li>Writes the <code>.terrain.json</code> metadata file.</li>
+<li>Creates/registers a <code>TerrainBlock</code>.</li>
+</ol>
+<p>New terrain height is initialized above zero so the editor has room to excavate.</p>
+<hr/>
+<h2 id="minimal-terrainblock-example">
+
+  Minimal TerrainBlock example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TerrainBlock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"theTerrain"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"terrainFile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/terrain.ter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"squareSize"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxHeight"</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"baseTexSize"</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"lightMapSize"</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"screenError"</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"castShadows"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-1024</span><span class="p">,</span> <span class="mi">-1024</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="minimal-terrainjson-example">
+
+  Minimal .terrain.json example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"datafile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/terrain.ter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"heightmapImage"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/terrain.terrainheightmap.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"size"</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"binaryFormat"</span><span class="p">:</span> <span class="s2">"version(char), size(unsigned int), heightMap(heightMapSize * heightMapItemSize), layerMap(layerMapSize * layerMapItemSize), materialNames"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"heightMapSize"</span><span class="p">:</span> <span class="mi">1048576</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"heightMapItemSize"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"layerMapSize"</span><span class="p">:</span> <span class="mi">1048576</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"layerMapItemSize"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materials"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"grass"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"rock"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Keep terrain resolution power-of-two.</li>
+<li>Use terrain sizes between <code>128</code> and <code>8192</code>.</li>
+<li>Use <code>squareSize</code> to control world scale.</li>
+<li>Use <code>maxHeight</code> to control vertical range.</li>
+<li>Do not scale the <code>TerrainBlock</code> object.</li>
+<li>Keep terrain material counts manageable.</li>
+<li>Use valid <code>TerrainMaterial</code> internal names.</li>
+<li>Keep opacity/layer maps the same size as the heightmap.</li>
+<li>Use <code>255</code> layer values only for intended holes.</li>
+<li>Resave old terrain files to upgrade them.</li>
+<li>Test terrain collision after major edits.</li>
+<li>Use cooked DDS textures for legacy terrain materials.</li>
+<li>Keep terrain material texture set sizes consistent.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="terrain-does-not-load">
+
+  Terrain does not load
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Invalid <code>terrainFile</code> path</li>
+<li>Missing <code>.ter</code> file</li>
+<li>Terrain file version is newer than the engine supports</li>
+<li>Corrupted binary data</li>
+</ul>
+<h3 id="terrain-appears-with-warning-material">
+
+  Terrain appears with warning material
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Material name in <code>.ter</code> cannot be resolved</li>
+<li><code>TerrainMaterial</code> definition is missing</li>
+<li>Terrain material texture path is invalid</li>
+<li><code>materialTextureSet</code> cannot be found</li>
+</ul>
+<h3 id="terrain-height-is-wrong">
+
+  Terrain height is wrong
+</h3>
+<p>Check:</p>
+<ul>
+<li><code>maxHeight</code></li>
+<li><code>squareSize</code></li>
+<li>Terrain object position</li>
+<li>Heightmap import scale</li>
+<li>Y-axis flip setting</li>
+</ul>
+<h3 id="terrain-painting-looks-wrong">
+
+  Terrain painting looks wrong
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Layer map index does not match material order</li>
+<li>Material order changed</li>
+<li>Opacity maps are wrong</li>
+<li>Texture cache is outdated</li>
+<li>Source textures have incorrect size</li>
+</ul>
+<h3 id="terrain-has-holes">
+
+  Terrain has holes
+</h3>
+<p>Layer map values may be <code>255</code>, which marks terrain as empty.</p>
+<h3 id="terrain-collision-is-outdated">
+
+  Terrain collision is outdated
+</h3>
+<p>Rebuild terrain collision or save/reload after major height edits.</p>
+<h3 id="import-fails">
+
+  Import fails
+</h3>
+<p>Check that:</p>
+<ul>
+<li>Heightmap is square</li>
+<li>Heightmap resolution is power-of-two</li>
+<li>Heightmap size is between <code>128</code> and <code>8192</code></li>
+<li>Opacity maps match the heightmap size</li>
+<li>Number of materials matches number of opacity layers</li>
+</ul>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p>BeamNG terrain uses:</p>
+<ul>
+<li>A binary <code>.ter</code> file for heightmap, layer map, and material names</li>
+<li>A <code>.terrain.json</code> metadata file for documentation/tooling</li>
+<li>A <code>TerrainBlock</code> scene object to place the terrain in the level</li>
+<li>Separate <code>TerrainMaterial</code> definitions for visual and physical material data</li>
+</ul>
+<p>The <code>.ter</code> file is compact and fast to load, while the <code>.terrain.json</code> file helps tools understand the terrain data layout.</p>

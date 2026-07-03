@@ -1,0 +1,358 @@
+<h2 id="naming-organization-in-game-engine">
+
+  Naming &amp; Organization in Game Engine
+</h2>
+<p>Every mesh could theoretically have a different material without performance loss. But you can combine them to not go insane as an artist. This will also help with organization and maintenance.</p>
+<p><strong><div class="bng-mark caution">BUT</div></strong>
+For example, <strong>we don’t want to load a 2048x2048 map just for a different steering wheel</strong>, because there are many other parts on it.</p>
+<div class="line-inner-small"></div>
+<h3 id="material-naming-guidelines">
+
+  Material Naming Guidelines
+</h3>
+<p><span class="bng-mark caution"><strong>Material names must be determined before the project starts</strong></span><br/>
+<em>(because changing names mid-development in Substance Painter is difficult)</em></p>
+<ul>
+<li>Names should this format: <code>"vehicle_dev_name"_"material_type"</code></li>
+</ul>
+<div class="bng-notice usage"><p><strong>Examples:</strong></p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="s2">"pickup_main"</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="s2">"pickup_interior"</span>
+</span></span></code></pre></div></div>
+<hr/>
+<h3 id="object-material-naming-rules">
+
+  Object &amp; Material Naming Rules
+</h3>
+<ul>
+<li><strong>Objects and materials must</strong>:
+<ul>
+<li>Have <strong>clear names</strong></li>
+<li>Names <strong>may not contain special characters</strong>, only <code>_</code> are allowed (aka snake case)</li>
+</ul>
+</li>
+<li><strong>Each material should be assigned separately in Blender</strong></li>
+</ul>
+<hr/>
+<h3 id="standard-material-names-descriptions">
+
+  Standard Material Names &amp; Descriptions
+</h3>
+<div class="bng-table" id="material-info"><div class="bng-table-header"><div>Material Type</div><div>Texture Size</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div>Material Type</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>main</code></div>
+</div><div>
+<div>Texture Size</div>
+<div style="text-align: left;">4096x2048</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;"><p>Cab, body panels, exterior meshes, interior painted metal meshes, external roll cage, flatbed, upfits.</p>
+<p>This material will use UV0 for normal maps.</p>
+<p>UV1 will contain body wrap UVs.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Material Type</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>interior</code></div>
+</div><div>
+<div>Texture Size</div>
+<div style="text-align: left;">2048x2048 to 4096x4096</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Dashboard, steering wheel, seats, miscellaneous interior parts.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Material Type</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>wrap</code></div>
+</div><div>
+<div>Texture Size</div>
+<div style="text-align: left;">4096x2048</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;"><p>Vehicle skin (decals and body textures).</p>
+<p>Uses UV1 to minimize stretching.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Material Type</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>mechanical</code></div>
+</div><div>
+<div>Texture Size</div>
+<div style="text-align: left;">2048x2048</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Drivetrain, axles, suspension components, fuel tank, exhaust, chassis.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Material Type</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>lights</code></div>
+</div><div>
+<div>Texture Size</div>
+<div style="text-align: left;">512x512 to 1024x1024</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;"><p>Headlights, taillights, blinkers, fog lights.</p>
+<p>Contains three textures: <strong>Off, On, Broken</strong>.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Material Type</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>engine/transmission</code></div>
+</div><div>
+<div>Texture Size</div>
+<div style="text-align: left;">1024x1024 to 2048x2048</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;"><p>Engine, transmission, radiator, piping, exhaust manifold.</p>
+<p>Created to allow reuse of engines/transmissions across vehicles.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Material Type</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>gauges</code></div>
+</div><div>
+<div>Texture Size</div>
+<div style="text-align: left;">1024x512</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;"><p>Instrumental cluster.</p>
+<p>Contains two textures: <strong>Lit &amp; Unlit</strong>.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Material Type</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><p><code>grille</code></p>
+<p><em>(alpha channel)</em></p>
+</div>
+</div><div>
+<div>Texture Size</div>
+<div style="text-align: left;">By Design</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;"><p>Grilles, badges, 2D emblems.</p>
+<p>Used for objects requiring transparency (e.g. bolt stickers).</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Material Type</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><p><code>glass</code></p>
+<p><em>(alpha channel)</em></p>
+</div>
+</div><div>
+<div>Texture Size</div>
+<div style="text-align: left;">1024x1024 to 2048x2048</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;"><p>Windows.</p>
+<p>Contains two material states: <strong>Broken &amp; Unbroken</strong>.</p>
+<p>The broken state switches dynamically when mesh bends.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Material Type</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><p><code>lettering</code></p>
+<p><em>(alpha channel)</em></p>
+</div>
+</div><div>
+<div>Texture Size</div>
+<div style="text-align: left;">512x512 to 1024x1024</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Logos, vehicle emblems.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Material Type</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>wheel</code></div>
+</div><div>
+<div>Texture Size</div>
+<div style="text-align: left;">512x512 to 1024x1024</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Rim texture.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Material Type</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>tire</code></div>
+</div><div>
+<div>Texture Size</div>
+<div style="text-align: left;">1024x512</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Tire texture.</div>
+</div></div></div>
+<p><strong>Useful tips</strong></p>
+<ul>
+<li>
+<p>Remember that while texture dimensions need to stick to strict power of 2 sizes, the aspect ratio is not fixed. In many of these examples you may find yourself using a 1024x512 texture set, for example, which is advised when it would be the most efficient solution.</p>
+</li>
+<li>
+<p>You should always only use the size that is necessary for what you are making to look decent. Using large textures when not necessary is one of the easiest ways to waste memory.</p>
+</li>
+<li>
+<p>Texture resolutions in a set do not need to be the same. Less important or more basic textures, such as AO or some metallic maps may not need to be as high res as the base color or normal map of a texture set and can be at lower resolutions to save on memory.</p>
+</li>
+</ul>
+<div class="line-inner-small"></div>
+<h3 id="dummy-materials">
+
+  Dummy Materials
+</h3>
+<h4 id="standard-dummy-material-names">
+
+  Standard Dummy Material Names
+</h4>
+<div class="bng-table" id="table-1783007352487614865"><div class="bng-table-header"><div><strong>Material Name</strong></div><div><strong>Description</strong></div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Material Name</strong></div>
+<div style=""><code>vehiclename_lowbeam</code></div>
+</div><div>
+<div style=""><strong>Description</strong></div>
+<div style=""><ul>
+<li>Low beam headlights</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Material Name</strong></div>
+<div style=""><code>vehiclename_highbeam</code></div>
+</div><div>
+<div style=""><strong>Description</strong></div>
+<div style=""><ul>
+<li>High beam headlights</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Material Name</strong></div>
+<div style=""><code>vehiclename_lowhighbeam</code></div>
+</div><div>
+<div style=""><strong>Description</strong></div>
+<div style=""><ul>
+<li>Lights that remain ON for both high &amp; low beams</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Material Name</strong></div>
+<div style=""><code>vehiclename_signal_R</code></div>
+</div><div>
+<div style=""><strong>Description</strong></div>
+<div style=""><ul>
+<li>Right turn signal</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Material Name</strong></div>
+<div style=""><code>vehiclename_signal_L</code></div>
+</div><div>
+<div style=""><strong>Description</strong></div>
+<div style=""><ul>
+<li>Left turn signal</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Material Name</strong></div>
+<div style=""><code>vehiclename_taillight</code></div>
+</div><div>
+<div style=""><strong>Description</strong></div>
+<div style=""><ul>
+<li>Tail lights</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Material Name</strong></div>
+<div style=""><code>vehiclename_brakelight</code></div>
+</div><div>
+<div style=""><strong>Description</strong></div>
+<div style=""><ul>
+<li>Brake lights</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Material Name</strong></div>
+<div style=""><code>vehiclename_reverselight</code></div>
+</div><div>
+<div style=""><strong>Description</strong></div>
+<div style=""><ul>
+<li>Reverse lights</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Material Name</strong></div>
+<div style=""><code>vehiclename_foglight</code></div>
+</div><div>
+<div style=""><strong>Description</strong></div>
+<div style=""><ul>
+<li>Fog lights</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Material Name</strong></div>
+<div style=""><code>vehiclename_gauges</code></div>
+</div><div>
+<div style=""><strong>Description</strong></div>
+<div style=""><ul>
+<li>Instrument panel</li>
+</ul>
+</div>
+</div></div></div>
+<hr/>
+<h4 id="shared-dummy-materials">
+
+  Shared Dummy Materials
+</h4>
+<ul>
+<li><strong>Left &amp; right lights can share the same material when their functionality is the same</strong> <em>(e.g., headlights, brake lights)</em></li>
+<li>Some vehicles <strong>require taillight turn signals</strong> <em>(e.g., American cars where the same light blinks as a turn signal)</em> so in this case they would need to have <strong>unique left and right materials</strong></li>
+</ul>
+<div class="bng-notice usage"><p><strong>Example:</strong></p>
+<p>This will allow <em>independent control</em>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="s2">"vehiclename_taillight_R"</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="s2">"vehiclename_taillight_L"</span>
+</span></span></code></pre></div></div>
+<hr/>
+<h4 id="important-notes">
+
+  Important Notes
+</h4>
+<ul>
+<li>Objects that use these materials must be separate from others</li>
+<li>Multiple dummy materials can exist on the same object</li>
+</ul>
+<div class="bng-notice usage"><p><strong>Example:</strong></p>
+<p>A <em>taillight</em> may have the following:</p>
+<ul>
+<li><code>vehiclename_taillight</code> <em>(general taillight)</em></li>
+<li><code>vehiclename_brakelight</code> <em>(brake light functionality)</em></li>
+<li><code>vehiclename_reverselight</code> <em>(reverse light functionality)</em></li>
+<li><code>vehiclename_signal_L</code> <em>(left turn signal functionality)</em></li>
+</ul>
+</div>
+<div class="line-inner-small"></div>
+<h2 id="dynamic-material-switching">
+
+  Dynamic Material Switching
+</h2>
+<p>Some materials dynamically switch in-game, for example, a <strong>headlight breaking during a crash</strong>.</p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li>JBeam code targets a material name</li>
+<li>A trigger is activated upon deformation</li>
+<li>The targeted material is swapped to the damaged variant</li>
+</ol>
+<div class="bng-notice note">Material triggers and activation timing are <strong>defined in JBeam</strong>, so <strong>only the material names matter</strong>.</div>
+<p><strong>Example:</strong></p>
+<ul>
+<li>A <strong>headlight</strong> using <code>vehiclename_headlight</code> gets <strong>damaged</strong> during a crash</li>
+<li>This will trigger the game engine to replace it with <code>vehiclename_headlight_dmg</code></li>
+</ul>
+<div class="bng-notice info"><p><strong>GlowMaps System:</strong></p>
+<p>We also support a system for emissive glowing textures (e.g. lights turning on/off). Dummy materials swap dynamically for different light states.</p>
+</div>

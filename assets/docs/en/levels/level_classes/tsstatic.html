@@ -1,0 +1,629 @@
+<p><code>TSStatic</code> is the main object class for individually placed static meshes in BeamNG levels. It is commonly used for buildings, signs, bridges, and other manually placed environment meshes.</p>
+<p>For very large amounts of repeated static objects, such as trees, rocks, bushes, or small vegetation and props, clutter, barriers, the <strong>Forest</strong> system is usually more efficient. Forest items are the preferred lightweight solution for repeated assets, while <code>TSStatic</code> is best suited for individually placed objects.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Basic example
+</h2>
+<p>A simple <code>TSStatic</code> entry in <code>items.level.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TSStatic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"garage_building"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/garage.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"collisionType"</span><span class="p">:</span> <span class="s2">"Collision Mesh"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"decalType"</span><span class="p">:</span> <span class="s2">"Collision Mesh"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isRenderEnabled"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="important-fields">
+
+  Important fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>"TSStatic"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Scene object name. Should be unique within the level.</td>
+</tr>
+<tr>
+<td><code>shapeName</code></td>
+<td>string</td>
+<td>Path to the model file used by this object.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>World position.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Object rotation as a 3x3 matrix.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Object scale.</td>
+</tr>
+<tr>
+<td><code>collisionType</code></td>
+<td>enum/string</td>
+<td>Mesh data used for physics/collision queries.</td>
+</tr>
+<tr>
+<td><code>decalType</code></td>
+<td>enum/string</td>
+<td>Mesh data used for decal projection/clipping.</td>
+</tr>
+<tr>
+<td><code>dynamic</code></td>
+<td>bool</td>
+<td>Disables some static-object render optimizations.</td>
+</tr>
+<tr>
+<td><code>playAmbient</code></td>
+<td>bool</td>
+<td>Plays an animation sequence named <code>ambient</code>, if present.</td>
+</tr>
+<tr>
+<td><code>meshCulling</code></td>
+<td>bool</td>
+<td>Enables per-submesh culling for large complex shapes.</td>
+</tr>
+<tr>
+<td><code>originSort</code></td>
+<td>bool</td>
+<td>Sorts translucent rendering by object origin instead of bounds.</td>
+</tr>
+<tr>
+<td><code>useInstanceRenderData</code></td>
+<td>bool</td>
+<td>Enables per-instance render data such as instance colors.</td>
+</tr>
+<tr>
+<td><code>instanceColor</code></td>
+<td>color</td>
+<td>Per-instance base color multiplier.</td>
+</tr>
+<tr>
+<td><code>instanceColor1</code></td>
+<td>color</td>
+<td>First palette color for instance color palette materials.</td>
+</tr>
+<tr>
+<td><code>instanceColor2</code></td>
+<td>color</td>
+<td>Second palette color for instance color palette materials.</td>
+</tr>
+<tr>
+<td><code>skin</code></td>
+<td>string</td>
+<td>Optional material target remapping / skin name.</td>
+</tr>
+<tr>
+<td><code>prebuildCollisionData</code></td>
+<td>bool</td>
+<td>Prebuilds collision data at load time.</td>
+</tr>
+<tr>
+<td><code>renderNormals</code></td>
+<td>number</td>
+<td>Debug normal rendering scale.</td>
+</tr>
+<tr>
+<td><code>forceDetail</code></td>
+<td>integer</td>
+<td>Forces a specific shape detail/LOD level. <code>-1</code> means automatic.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="shape-file">
+
+  Shape file
+</h2>
+<p>The most important field is:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"shapeName"</span><span class="err">:</span> <span class="s2">"/levels/example/art/shapes/garage.dae"</span>
+</span></span></code></pre></div><p>This points to the model used by the object.</p>
+<p>Supported shape paths usually point to:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">.dae
+</span></span><span class="line"><span class="cl">.cdae
+</span></span><span class="line"><span class="cl">.dts
+</span></span></code></pre></div><p>The engine may use cached shape data internally, such as <code>.cdae</code>, but level files usually reference the source/imported shape path.</p>
+<div class="bng-notice info">If the shape cannot be loaded, the engine may replace it with an error/no-mesh shape and log an error.</div>
+<hr/>
+<h2 id="transform-fields">
+
+  Transform fields
+</h2>
+<p>Most <code>TSStatic</code> objects use standard transform fields.</p>
+<h3 id="position">
+
+  position
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"position"</span><span class="err">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</span></span></code></pre></div><p>World position in meters.</p>
+<h3 id="rotationmatrix">
+
+  rotationMatrix
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"rotationMatrix"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>3x3 rotation matrix.</p>
+<h3 id="scale">
+
+  scale
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre></div><p>Object scale.</p>
+<div class="bng-notice warning">Scaling affects rendering and collision. Large non-uniform scaling can make collision or visual results harder to validate.</div>
+<hr/>
+<h2 id="collision-type">
+
+  Collision type
+</h2>
+<p><code>collisionType</code> controls what mesh data is used for physics collision and raycasts.</p>
+<p>Supported values:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>None</code></td>
+<td>No collision.</td>
+</tr>
+<tr>
+<td><code>Bounds</code></td>
+<td>Uses the object bounding box. Limited support.</td>
+</tr>
+<tr>
+<td><code>Collision Mesh</code></td>
+<td>Uses dedicated collision meshes from the shape. Recommended.</td>
+</tr>
+<tr>
+<td><code>Visible Mesh</code></td>
+<td>Uses rendered mesh polygons for collision. Expensive.</td>
+</tr>
+<tr>
+<td><code>Visible Mesh Final</code></td>
+<td>Uses rendered mesh polygons intentionally. Use only when required.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"collisionType"</span><span class="err">:</span> <span class="s2">"Collision Mesh"</span>
+</span></span></code></pre></div><p>Recommended default:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"collisionType"</span><span class="err">:</span> <span class="s2">"Collision Mesh"</span>
+</span></span></code></pre></div><p>Use <code>None</code> for purely decorative objects that should not collide:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"collisionType"</span><span class="err">:</span> <span class="s2">"None"</span>
+</span></span></code></pre></div><hr/>
+<h2 id="collision-meshes">
+
+  Collision meshes
+</h2>
+<p>For best performance, models should include dedicated collision geometry.</p>
+<p>A dedicated collision mesh should be much simpler than the visible mesh.</p>
+<p>Good collision meshes are:</p>
+<ul>
+<li>Low-poly</li>
+<li>Simple enough for physics</li>
+<li>Accurate enough for gameplay</li>
+<li>Not overly detailed</li>
+<li>Split logically if the object is complex</li>
+</ul>
+<p>Avoid using visible mesh collision unless necessary.</p>
+<div class="bng-notice warning">Visible mesh collision can be expensive. If it is intentional, use <code>Visible Mesh Final</code>; otherwise prefer proper collision meshes.</div>
+<hr/>
+<h2 id="decal-type">
+
+  Decal type
+</h2>
+<p><code>decalType</code> controls which mesh data decals are clipped/projected against.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"decalType"</span><span class="err">:</span> <span class="s2">"Collision Mesh"</span>
+</span></span></code></pre></div><p>Common values are the same as <code>collisionType</code>.</p>
+<p>For objects that should receive projected decals, use a mesh type that matches the surface reasonably well.</p>
+<p>For objects that should not receive decals:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"decalType"</span><span class="err">:</span> <span class="s2">"None"</span>
+</span></span></code></pre></div><hr/>
+<h2 id="static-rendering-optimization">
+
+  Static rendering optimization
+</h2>
+<p>By default, <code>TSStatic</code> objects without animation can be rendered through the static shape manager. This allows the engine to batch and optimize repeated static shapes.</p>
+<p>This is important for performance, especially when a level contains many placed meshes.</p>
+<p>The object can use static manager rendering when:</p>
+<ul>
+<li><code>dynamic</code> is false</li>
+<li>No <code>ambient</code> animation is active</li>
+<li>The shape can be treated as static</li>
+</ul>
+<p>If an object is dynamic or animated, it uses its own <code>TSShapeInstance</code>.</p>
+<hr/>
+<h2 id="dynamic">
+
+  dynamic
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"dynamic"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p><code>dynamic</code> disables some render optimizations for static objects.</p>
+<p>Use it only when needed, such as for objects that need per-object dynamic behavior or cannot be managed as a static instance.</p>
+<p>For normal level props and buildings, leave it false or omit it.</p>
+<hr/>
+<h2 id="ambient-animation">
+
+  Ambient animation
+</h2>
+<p><code>TSStatic</code> can automatically play an animation sequence named:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">ambient
+</span></span></code></pre></div><p>if the shape contains it and <code>playAmbient</code> is enabled.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"playAmbient"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>This is useful for simple repeating animations such as:</p>
+<ul>
+<li>Fans</li>
+<li>Rotating signs</li>
+<li>Small mechanical props</li>
+<li>Animated background elements</li>
+</ul>
+<p>If an ambient animation exists, the object becomes process-enabled and will not use the most static optimized path.</p>
+<hr/>
+<h2 id="meshculling">
+
+  meshCulling
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"meshCulling"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p><code>meshCulling</code> enables more detailed per-submesh culling inside the object.</p>
+<p>This is a legacy feature that only works if <code>dynamic</code> is enabled, howver it’s not recommend to use as it creates performance issues.</p>
+<hr/>
+<h2 id="originsort">
+
+  originSort
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"originSort"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p><code>originSort</code> changes translucent sorting behavior by using the object origin instead of bounds.</p>
+<p>This can help with some transparent objects, but it can also create sorting issues if the origin is poorly placed.</p>
+<p>Use only when needed for translucent materials.</p>
+<hr/>
+<h2 id="instance-render-data">
+
+  Instance render data
+</h2>
+<p><code>useInstanceRenderData</code> enables per-instance render properties.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"useInstanceRenderData"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>This is used by materials that support instance color or palette data.</p>
+<p>Important fields:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"instanceColor"</span><span class="err">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"instanceColor1"</span><span class="err">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"instanceColor2"</span><span class="err">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre></div><p>These can drive material features such as:</p>
+<ul>
+<li>Instance base color</li>
+<li>Instance opacity</li>
+<li>Instance emissive</li>
+<li>Color palettes</li>
+</ul>
+<p>The material must be authored to use these features.</p>
+<hr/>
+<h2 id="example-instance-colored-prop">
+
+  Example: instance-colored prop
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TSStatic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"colored_barrier"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/barrier.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"useInstanceRenderData"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"instanceColor"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"collisionType"</span><span class="p">:</span> <span class="s2">"Collision Mesh"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="skin">
+
+  Skin
+</h2>
+<p>The <code>skin</code> field remaps material targets on the shape.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"skin"</span><span class="err">:</span> <span class="s2">"blue"</span>
+</span></span></code></pre></div><p>Basic behavior:</p>
+<ul>
+<li>Material targets beginning with the old skin name are renamed.</li>
+<li>The default old skin name is usually <code>base</code>.</li>
+<li>The new target must resolve to an existing material.</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">base_body → blue_body
+</span></span></code></pre></div><p>Advanced syntax:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"skin"</span><span class="err">:</span> <span class="s2">"base=blue;glass=darkglass"</span>
+</span></span></code></pre></div><p>This replaces multiple material target prefixes.</p>
+<div class="bng-notice info">Skinning changes material target names. It does not modify mesh geometry.</div>
+<hr/>
+<h2 id="materials">
+
+  Materials
+</h2>
+<p><code>TSStatic</code> material targets come from the shape’s material list. These targets are matched to BeamNG <code>Material</code> definitions through <code>mapTo</code>.</p>
+<p>For example, if the model has a material target:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">garage_wall
+</span></span></code></pre></div><p>then the material definition should use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"mapTo"</span><span class="err">:</span> <span class="s2">"garage_wall"</span>
+</span></span></code></pre></div><p>Use the Material Editor or tooling to inspect material targets.</p>
+<p>Useful runtime methods for tools include:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">getTargetCount()
+</span></span><span class="line"><span class="cl">getTargetName(index)
+</span></span></code></pre></div><hr/>
+<h2 id="lod-and-detail-levels">
+
+  LOD and detail levels
+</h2>
+<p><code>TSStatic</code> uses the shape’s detail levels for LOD.</p>
+<p>The engine selects a detail level based on the object’s estimated <strong>screen-space size</strong>. In simple terms, it checks how large the object appears on screen and chooses an appropriate LOD.</p>
+<p>Several factors affect this:</p>
+<ul>
+<li><strong>Camera distance</strong> - farther objects appear smaller, so lower detail levels are used.</li>
+<li><strong>Camera FOV</strong> - camera FOV changes how big/small object appear on screen.</li>
+<li><strong>Shape size</strong> - larger objects remain visually large for longer, so they keep higher detail levels at greater distances.</li>
+<li><strong>Object scale</strong> - scaled-up objects behave like larger objects and switch to lower LODs later.</li>
+<li><strong>Viewport size / projection</strong> - screen resolution and camera projection affect how many pixels the object occupies.</li>
+<li><strong>Global detail adjustment</strong> - <code>$pref::TS::detailAdjust</code> scales the calculated pixel size, allowing higher or lower LOD bias.</li>
+</ul>
+<p>The result is a calculated <code>pixelSize</code> value. This is compared against the detail levels stored in the shape. Higher <code>pixelSize</code> means the object appears larger on screen and should use a higher-detail mesh; lower <code>pixelSize</code> means the object appears smaller and can use a lower-detail mesh.</p>
+<p>For example, a small prop and a large building at the same distance will not necessarily use the same LOD. The building has a larger bounding radius, so it occupies more screen space and may keep a higher detail level farther away.</p>
+<p>Relevant settings include:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">$pref::TS::detailAdjust
+</span></span><span class="line"><span class="cl">$pref::TS::skipRenderDLs
+</span></span></code></pre></div>
+<h3 id="forcedetail">
+
+  forceDetail
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"forceDetail"</span><span class="err">:</span> <span class="mi">-1</span>
+</span></span></code></pre></div><p><code>-1</code> means automatic detail selection.</p>
+<p>A non-negative value forces a specific detail level:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"forceDetail"</span><span class="err">:</span> <span class="mi">0</span>
+</span></span></code></pre></div><p>Use this only for debugging or special cases. For normal content, let the engine select LOD automatically.</p>
+<hr/>
+<h2 id="billboard-details">
+
+  Billboard details
+</h2>
+<p>Shapes can contain billboard/imposter detail levels. The engine can use these for far-away rendering if the shape is set up correctly.</p>
+<p>This is handled by the shape data and is not configured directly in <code>TSStatic</code>.</p>
+<hr/>
+<h2 id="debug-fields">
+
+  Debug fields
+</h2>
+<h3 id="rendernormals">
+
+  renderNormals
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"renderNormals"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre></div><p>If greater than zero, renders debug normals for the current detail level.</p>
+<p>Useful for checking:</p>
+<ul>
+<li>Broken normals</li>
+<li>Incorrect shading</li>
+<li>Mirrored/incorrect geometry</li>
+<li>Export issues</li>
+</ul>
+<h3 id="forcedetail-1">
+
+  forceDetail
+</h3>
+<p>Forces a detail level, useful for checking LODs.</p>
+<hr/>
+<h2 id="raycasts-and-selection">
+
+  Raycasts and selection
+</h2>
+<p><code>TSStatic</code> supports raycasts and poly list generation.</p>
+<p>Depending on context, it may use:</p>
+<ul>
+<li>Bounds</li>
+<li>Collision meshes</li>
+<li>Visible meshes</li>
+<li>Current rendered detail</li>
+<li>LOS details</li>
+</ul>
+<p>This affects:</p>
+<ul>
+<li>Editor selection</li>
+<li>Physics queries</li>
+<li>Decal projection</li>
+<li>Gameplay raycasts</li>
+<li>Collision</li>
+</ul>
+<hr/>
+<h2 id="resource-reloading">
+
+  Resource reloading
+</h2>
+<p><code>TSStatic</code> listens for shape resource changes.</p>
+<p>If the referenced shape file changes, the object can recreate its shape and refresh collision/material data.</p>
+<p>This is useful when iterating on level art.</p>
+<hr/>
+<h2 id="full-example">
+
+  Full example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TSStatic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"warehouse_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/buildings/warehouse_01.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">250</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">-1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"collisionType"</span><span class="p">:</span> <span class="s2">"Collision Mesh"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"decalType"</span><span class="p">:</span> <span class="s2">"Collision Mesh"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dynamic"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"playAmbient"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"meshCulling"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"originSort"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"useInstanceRenderData"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isRenderEnabled"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"canSaveDynamicFields"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="when-to-use-tsstatic-vs-forest">
+
+  When to use TSStatic vs Forest
+</h2>
+<p>Use <code>TSStatic</code> for individually placed objects:</p>
+<ul>
+<li>Buildings</li>
+<li>Bridges</li>
+<li>Barriers</li>
+<li>Large props</li>
+<li>Unique objects</li>
+<li>Objects requiring specific placement</li>
+<li>Objects needing individual collision or material setup</li>
+</ul>
+<p>Use the Forest system for large quantities of repeated objects:</p>
+<ul>
+<li>Trees</li>
+<li>Rocks</li>
+<li>Bushes</li>
+<li>Grass clumps</li>
+<li>Scatter props</li>
+<li>Repeated assets</li>
+</ul>
+<p>Forest items are generally more lightweight for high object counts.</p>
+<hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Use <code>TSStatic</code> for manually placed static level meshes.</li>
+<li>Use Forest items for large repeated natural/scatter assets.</li>
+<li>Use dedicated collision meshes whenever possible.</li>
+<li>Avoid visible mesh collision unless absolutely needed.</li>
+<li>Use <code>collisionType: None</code> for decorative non-collidable objects.</li>
+<li>Keep object origins sensible, especially for transparent objects and sorting.</li>
+<li>Leave <code>dynamic</code> disabled unless required.</li>
+<li>Let LOD selection happen automatically; avoid <code>forceDetail</code> except for debugging.</li>
+<li>Use instance render data only when the material needs it.</li>
+<li>Keep material target names stable and match them with <code>mapTo</code>.</li>
+<li>Use <code>.dae</code>/<code>.cdae</code> assets with proper LODs and collision detail.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="object-does-not-appear">
+
+  Object does not appear
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Invalid <code>shapeName</code></li>
+<li>Missing shape file</li>
+<li>Shape failed to load</li>
+<li>Object is hidden</li>
+<li>LOD/detail setup hides it</li>
+<li>Materials failed badly enough to make it appear invisible</li>
+</ul>
+<h3 id="object-has-warning-material">
+
+  Object has warning material
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Missing material definition</li>
+<li><code>mapTo</code> mismatch</li>
+<li>Material file not loaded</li>
+<li>Texture missing</li>
+</ul>
+<h3 id="object-has-no-collision">
+
+  Object has no collision
+</h3>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"collisionType"</span><span class="err">:</span> <span class="s2">"Collision Mesh"</span>
+</span></span></code></pre></div><p>Also verify the shape actually contains collision mesh/detail data.</p>
+<h3 id="object-collision-is-too-expensive">
+
+  Object collision is too expensive
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Using visible mesh collision</li>
+<li>Collision mesh too detailed</li>
+<li>Object is very large or complex</li>
+<li>Too many collidable <code>TSStatic</code> objects</li>
+</ul>
+<h3 id="decals-do-not-project-correctly">
+
+  Decals do not project correctly
+</h3>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"decalType"</span><span class="err">:</span> <span class="s2">"Collision Mesh"</span>
+</span></span></code></pre></div><p>or use a mesh type better suited for decal clipping.</p>
+<h3 id="ambient-animation-does-not-play">
+
+  Ambient animation does not play
+</h3>
+<p>Check that:</p>
+<ul>
+<li><code>playAmbient</code> is true</li>
+<li>The shape contains an animation sequence named <code>ambient</code></li>
+<li>The object is not hidden</li>
+</ul>
+<h3 id="instance-color-does-nothing">
+
+  Instance color does nothing
+</h3>
+<p>Check that:</p>
+<ul>
+<li><code>useInstanceRenderData</code> is true</li>
+<li>The material uses instance color features</li>
+<li>The material is authored to multiply base color/emissive/opacity by instance color</li>
+</ul>
+<h3 id="transparent-sorting-looks-wrong">
+
+  Transparent sorting looks wrong
+</h3>
+<p>Try <code>originSort</code>, but also check:</p>
+<ul>
+<li>Object origin</li>
+<li>Material blend mode</li>
+<li>Geometry split</li>
+<li>Draw order</li>
+</ul>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p><code>TSStatic</code> is the main object class for individually placed static 3D meshes in levels.</p>
+<p>For large numbers of repeated natural or scatter assets, use the Forest system instead. BeamNG level geometry should normally be placed either as <code>TSStatic</code> objects or as Forest items.</p>
+<p><code>TSStatic</code> directly references a shape file and supports rendering, collision, decals, LODs, material remapping, optional ambient animation, and per-instance render data.</p>
+<p><strong>See also:</strong> <a data-doc="file_formats/materials" href="/docs/file_formats/materials">Material file format</a>
+, <a data-doc="levels/level_classes/prefab" href="/docs/levels/level_classes/prefab">Prefab</a>
+, <a data-doc="levels/level_classes/forest" href="/docs/levels/level_classes/forest">Forest</a>
+.</p>

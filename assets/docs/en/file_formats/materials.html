@@ -1,0 +1,231 @@
+<p>This document describes BeamNG material JSON files.</p>
+<p>Material JSON files define <code>Material</code> objects used by levels, vehicles, shared art, decals, roads, water, skyboxes, props, and other rendered content.</p>
+<p>For material authoring concepts, see the <a data-doc="materials" href="/docs/materials">Materials</a>
+ section. For the World Editor window, see <a href="https://documentation.beamng.com/world_editor/windows/material_editor/" rel="noopener" target="_blank">Material Editor</a>
+.</p>
+<hr/>
+<h2 id="file-names">
+
+  File names
+</h2>
+<p>Common material files include:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">main.materials.json
+</span></span><span class="line"><span class="cl">skin.materials.json
+</span></span><span class="line"><span class="cl">*.materials.json
+</span></span></code></pre></div><p>Examples:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/main.materials.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/art/shapes/buildings/main.materials.json
+</span></span><span class="line"><span class="cl">vehicles/&lt;vehicleName&gt;/main.materials.json
+</span></span><span class="line"><span class="cl">vehicles/&lt;vehicleName&gt;/skin.materials.json
+</span></span><span class="line"><span class="cl">art/shapes/objects/main.materials.json
+</span></span></code></pre></div><p>Material JSON files are loaded from game, level, vehicle, and mod paths depending on the content being loaded.</p>
+<hr/>
+<h2 id="basic-structure">
+
+  Basic structure
+</h2>
+<p>A material file is a JSON object. Each top-level key defines one material.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"m_concrete_wall"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"m_concrete_wall"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"mapTo"</span><span class="p">:</span> <span class="s2">"m_concrete_wall"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"/levels/example/art/textures/concrete_b.color.png"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalMap"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"/levels/example/art/textures/concrete_n.normal.png"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"/levels/example/art/textures/concrete_r.roughness.png"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessFactor"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The top-level key and <code>name</code> usually match.</p>
+<hr/>
+<h2 id="important-fields">
+
+  Important fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Usually <code>"Material"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Material object name. Usually matches the top-level key.</td>
+</tr>
+<tr>
+<td><code>mapTo</code></td>
+<td>string</td>
+<td>Mesh/material slot name this material maps to.</td>
+</tr>
+<tr>
+<td><code>baseColorMap</code></td>
+<td>array[path]</td>
+<td>Base color texture path per material layer.</td>
+</tr>
+<tr>
+<td><code>normalMap</code></td>
+<td>array[path]</td>
+<td>Normal map texture path per material layer.</td>
+</tr>
+<tr>
+<td><code>roughnessMap</code></td>
+<td>array[path]</td>
+<td>Roughness map texture path per material layer.</td>
+</tr>
+<tr>
+<td><code>metallicMap</code></td>
+<td>array[path]</td>
+<td>Metallic map texture path per material layer.</td>
+</tr>
+<tr>
+<td><code>baseColorFactor</code></td>
+<td>array/color</td>
+<td>Base color multiplier where present.</td>
+</tr>
+<tr>
+<td><code>roughnessFactor</code></td>
+<td>array[number]</td>
+<td>Roughness scalar per layer.</td>
+</tr>
+<tr>
+<td><code>metallicFactor</code></td>
+<td>array[number]</td>
+<td>Metallic scalar per layer.</td>
+</tr>
+<tr>
+<td><code>emissiveMap</code></td>
+<td>array[path]</td>
+<td>Emissive texture path where used.</td>
+</tr>
+<tr>
+<td><code>alphaRef</code></td>
+<td>number</td>
+<td>Alpha cutoff value where used.</td>
+</tr>
+<tr>
+<td><code>translucent</code></td>
+<td>bool</td>
+<td>Enables translucent rendering where used.</td>
+</tr>
+<tr>
+<td><code>useAnisotropic</code></td>
+<td>bool</td>
+<td>Enables anisotropic filtering where used.</td>
+</tr>
+<tr>
+<td><code>annotation</code></td>
+<td>string</td>
+<td>Optional annotation/debug classification.</td>
+</tr>
+</tbody>
+</table>
+<p>Material definitions can contain many renderer-specific fields. Preserve unknown fields when writing tools.</p>
+<div class="bng-notice warning">Do not delete fields only because they are not listed here. Material JSON often contains renderer, editor, compatibility, or generated fields.</div>
+<hr/>
+<h2 id="mapto">
+
+  mapTo
+</h2>
+<p><code>mapTo</code> links a material definition to a material slot name used by a mesh or generated geometry.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"mapTo"</span><span class="err">:</span> <span class="s2">"road_asphalt"</span>
+</span></span></code></pre></div><p>For imported meshes, <code>mapTo</code> should match the material name assigned in the DAE/DTS source file.</p>
+<p>For objects that reference materials directly, such as <code>DecalRoad.material</code> or <code>MeshRoad.topMaterial</code>, the object field usually references the material object name.</p>
+<hr/>
+<h2 id="texture-arrays">
+
+  Texture arrays
+</h2>
+<p>Many texture fields are saved as arrays because materials can support multiple layers.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"baseColorMap"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"/levels/example/art/textures/concrete_b.color.png"</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>A one-layer material still commonly uses an array with one entry.</p>
+<hr/>
+<h2 id="material-paths">
+
+  Material paths
+</h2>
+<p>Use paths that work from normal game content and packed mods.</p>
+<p>Common paths:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/levels/&lt;levelName&gt;/art/textures/...
+</span></span><span class="line"><span class="cl">/levels/&lt;levelName&gt;/art/shapes/...
+</span></span><span class="line"><span class="cl">/vehicles/&lt;vehicleName&gt;/...
+</span></span><span class="line"><span class="cl">/art/shapes/objects/...
+</span></span></code></pre></div><p>Keep capitalization consistent.</p>
+<hr/>
+<h2 id="relationship-with-terrain-materials">
+
+  Relationship with terrain materials
+</h2>
+<p>Normal <code>Material</code> definitions are different from <code>TerrainMaterial</code> definitions.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Main use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Material</code></td>
+<td>Meshes, decals, water, skyboxes, roads, props, vehicles, and general rendering.</td>
+</tr>
+<tr>
+<td><code>TerrainMaterial</code></td>
+<td>Terrain painting, terrain texture layers, and terrain groundmodel links.</td>
+</tr>
+</tbody>
+</table>
+<p>For terrain-specific material data, see <a data-doc="levels/level_formats/terrain" href="/docs/levels/level_formats/terrain">Terrain files</a>
+.</p>
+<hr/>
+<h2 id="tool-notes">
+
+  Tool notes
+</h2>
+<p>For tools that generate or edit material files:</p>
+<ul>
+<li>Preserve unknown fields.</li>
+<li>Preserve top-level material keys and <code>name</code> values unless intentionally renaming.</li>
+<li>Update <code>mapTo</code> only when mesh material slot names change.</li>
+<li>Keep texture fields as arrays when the source file uses arrays.</li>
+<li>Validate referenced texture paths.</li>
+<li>Keep normal maps in the expected orientation for BeamNG rendering.</li>
+<li>Avoid generating duplicate material names across loaded material files.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<ul>
+<li>Mesh shows a warning material because <code>mapTo</code> does not match the mesh material slot.</li>
+<li>Material is not found because the material file was saved outside a loaded path.</li>
+<li>Texture is missing because the path is wrong or not included in the mod.</li>
+<li>Material looks too shiny because roughness values or roughness maps are wrong.</li>
+<li>Imported mesh uses a different material name than the BeamNG material definition.</li>
+</ul>
+<hr/>
+<h2 id="validation-criteria">
+
+  Validation criteria
+</h2>
+<ul>
+<li>Material JSON loads without parse errors.</li>
+<li>Material names are unique in the loaded content scope.</li>
+<li><code>mapTo</code> values match mesh source material slots where needed.</li>
+<li>Texture paths exist and use expected formats.</li>
+<li>Referencing objects such as <code>TSStatic</code>, <code>DecalRoad</code>, <code>MeshRoad</code>, <code>WaterObject</code>, <code>SkyBox</code>, or vehicle parts render without warning materials.</li>
+</ul>

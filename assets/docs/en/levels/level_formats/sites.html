@@ -1,0 +1,814 @@
+<p>This document describes BeamNG <code>.sites.json</code> files.</p>
+<p>Sites files store gameplay-relevant spatial metadata such as:</p>
+<ul>
+<li>Locations</li>
+<li>Zones</li>
+<li>Parking spots</li>
+<li>Tags</li>
+<li>Custom fields</li>
+</ul>
+<p>They are used by gameplay systems, missions, traffic, parking logic, facilities, POIs, and editor tools to understand named points and areas of a level.</p>
+<hr/>
+<h2 id="overview">
+
+  Overview
+</h2>
+<p>A <code>.sites.json</code> file defines named spatial data. Unlike normal scene objects, sites are not rendered as level geometry. Instead, they describe useful gameplay positions, areas, and parking locations.</p>
+<p>Common uses include:</p>
+<ul>
+<li>Mission start and finish locations</li>
+<li>Named city districts or map regions</li>
+<li>Facility zones, such as garages or dealerships</li>
+<li>Parking spot placement</li>
+<li>Vehicle spawn areas</li>
+<li>Delivery/drop-off zones</li>
+<li>Gameplay zone filtering</li>
+<li>Metadata for traffic, parking, and procedural missions</li>
+<li>Mission boundaries</li>
+</ul>
+<p>Sites are usually edited with:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">World Editor → Gameplay → Sites Editor
+</span></span></code></pre></div><div class="bng-notice info">Sites are gameplay metadata, not scene geometry. They are usually consumed by scripts and gameplay systems rather than rendered directly.</div>
+<hr/>
+<h2 id="file-locations">
+
+  File locations
+</h2>
+<p>Sites files use the suffix:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.sites.json
+</span></span></code></pre></div><p>Common examples:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/city.sites.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities.sites.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/garages.sites.json
+</span></span><span class="line"><span class="cl">gameplay/missions/&lt;levelName&gt;/&lt;missionType&gt;/&lt;missionName&gt;/bounds.sites.json
+</span></span><span class="line"><span class="cl">/gameplay/*.sites.json
+</span></span></code></pre></div><p>The sites manager can scan <code>.sites.json</code> files inside level folders and under:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/gameplay/
+</span></span></code></pre></div><p>This allows both level-specific and shared gameplay sites.</p>
+<hr/>
+<h2 id="common-sites-files">
+
+  Common sites files
+</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>city.sites.json</code></td>
+<td>Default level sites file. Commonly used for general zones, locations, and parking spots.</td>
+</tr>
+<tr>
+<td><code>facilities.sites.json</code></td>
+<td>Sites referenced by facilities such as garages, gas stations, dealerships, computers, dragstrips, etc.</td>
+</tr>
+<tr>
+<td><code>garages.sites.json</code></td>
+<td>Garage/career-related zones and parking spots, often loaded by systems that need garage zone lists.</td>
+</tr>
+<tr>
+<td><code>bounds.sites.json</code></td>
+<td>Mission boundary data, often used by older/converted mission formats.</td>
+</tr>
+<tr>
+<td><code>/gameplay/*.sites.json</code></td>
+<td>Shared/global sites files used by gameplay systems or tools.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="default-level-sites-file">
+
+  Default level sites file
+</h2>
+<p>When a level starts, gameplay systems usually try to load the default sites file for the current map:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">&lt;level folder&gt;/city.sites.json
+</span></span></code></pre></div><p>For example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/west_coast_usa/city.sites.json
+</span></span></code></pre></div><p>If the file exists, it is loaded and cached by the sites manager.</p>
+<p>This default file is commonly used by systems such as:</p>
+<ul>
+<li>City/level metadata helpers</li>
+<li>Parking</li>
+<li>Random parking spot selection</li>
+<li>Zone lookup by position</li>
+<li>Vehicle group metadata</li>
+<li>Mission and gameplay utilities</li>
+</ul>
+<hr/>
+<h2 id="other-sites-file-examples">
+
+  Other sites file examples
+</h2>
+<h3 id="facilitiessitesjson">
+
+  facilities.sites.json
+</h3>
+<p>Facilities are usually defined in <code>info.json</code> or <code>*.facilities.json</code> files, but those facility definitions often reference zones or parking spots stored in a <code>.sites.json</code> file.</p>
+<p>For example, a garage facility may reference:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"sitesFile"</span><span class="err">:</span> <span class="s2">"facilities.sites.json"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"zoneNames"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"garage_downtown"</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"parkingSpotNames"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"garage_downtown_01"</span><span class="p">,</span> <span class="s2">"garage_downtown_02"</span><span class="p">]</span>
+</span></span></code></pre></div><p>The sites file contains the actual zone and parking spot data.</p>
+<div class="bng-notice note">A facilities file defines the facility metadata. A <code>.sites.json</code> file defines the spatial zones and parking spots used by that facility.</div>
+<h3 id="garagessitesjson">
+
+  garages.sites.json
+</h3>
+<p>Some gameplay/career systems load a sites file from a configured folder, commonly:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">garages.sites.json
+</span></span></code></pre></div><p>This is used to populate lists of garage-related zones. For example, tools may load all zone names from this file so designers can select valid initial and destination garage zones.</p>
+<h3 id="boundssitesjson">
+
+  bounds.sites.json
+</h3>
+<p>Some mission data uses a <code>bounds.sites.json</code> file to store mission boundaries.</p>
+<p>A mission porting workflow may convert:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">bounds.sites.json
+</span></span></code></pre></div><p>into a newer boundary format.</p>
+<p>In this case, the sites file usually contains one or more zones, and the first zone may be used as the mission boundary.</p>
+<hr/>
+<h2 id="main-data-types">
+
+  Main data types
+</h2>
+<p>A sites file can contain three main spatial element types:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Location</strong></td>
+<td>A named point or small area. Useful for landmarks, mission points, and references.</td>
+</tr>
+<tr>
+<td><strong>Zone</strong></td>
+<td>A named polygon/area used to test whether a position is inside a region.</td>
+</tr>
+<tr>
+<td><strong>Parking Spot</strong></td>
+<td>A position and orientation where vehicles can be placed, spawned, or checked for parking.</td>
+</tr>
+</tbody>
+</table>
+<p>Each type can also have:</p>
+<ul>
+<li>Name</li>
+<li>Sort order</li>
+<li>Tags</li>
+<li>Custom fields</li>
+</ul>
+<hr/>
+<h2 id="locations">
+
+  Locations
+</h2>
+<p>Locations are named points or small spatial markers.</p>
+<p>They are useful for:</p>
+<ul>
+<li>Mission start points</li>
+<li>Mission finish points</li>
+<li>Landmarks</li>
+<li>Delivery points</li>
+<li>AI/navigation references</li>
+<li>Camera or gameplay reference points</li>
+</ul>
+<p>A location usually stores:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Location name.</td>
+</tr>
+<tr>
+<td><code>pos</code></td>
+<td>World position.</td>
+</tr>
+<tr>
+<td><code>radius</code></td>
+<td>Optional size/area of influence.</td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>Optional tag list.</td>
+</tr>
+<tr>
+<td><code>customFields</code></td>
+<td>Optional gameplay metadata.</td>
+</tr>
+<tr>
+<td><code>sortOrder</code></td>
+<td>Editor ordering value.</td>
+</tr>
+</tbody>
+</table>
+<p>Example location names:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">gas_station
+</span></span><span class="line"><span class="cl">police_station
+</span></span><span class="line"><span class="cl">industrial_delivery_01
+</span></span><span class="line"><span class="cl">race_start
+</span></span></code></pre></div><hr/>
+<h2 id="zones">
+
+  Zones
+</h2>
+<p>Zones define named areas of the map.</p>
+<p>They are commonly used for:</p>
+<ul>
+<li>Districts</li>
+<li>Mission boundaries</li>
+<li>Facility areas</li>
+<li>Garage/dealership areas</li>
+<li>Delivery zones</li>
+<li>Vehicle group filtering</li>
+<li>Parking spot grouping</li>
+<li>Spawn region logic</li>
+<li>Gameplay area checks</li>
+</ul>
+<p>Gameplay code can query zones containing a position, for example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">getZonesForPosition(pos)
+</span></span></code></pre></div><p>Zones are especially useful when a system needs to know “where” something is, not just the nearest point.</p>
+<hr/>
+<h2 id="zone-boundaries">
+
+  Zone boundaries
+</h2>
+<p>Zones are polygon-like areas made from vertices. Some zone data can also include vertical limits such as top and bottom planes.</p>
+<p>A conceptual zone may contain:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"downtown"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vertices"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">]}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"top"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"active"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normal"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"bot"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"active"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">-10</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normal"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">-1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><div class="bng-notice warning">The exact serialized structure is generated by the Sites Editor and gameplay sites system. Use the editor to create and save files when possible.</div>
+<hr/>
+<h2 id="zone-priority">
+
+  Zone priority
+</h2>
+<p>Zones can use a custom field named:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">priority
+</span></span></code></pre></div><p>Higher priority zones are preferred when multiple zones contain the same position.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"customFields"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"priority"</span><span class="p">:</span> <span class="mi">10</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>This is useful when a smaller, more specific area exists inside a larger general zone.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">City
+</span></span><span class="line"><span class="cl"> └── Downtown
+</span></span><span class="line"><span class="cl">      └── Dealership
+</span></span></code></pre></div><p>If all three zones contain the same position, systems can select the highest-priority zone.</p>
+<hr/>
+<h2 id="zone-custom-fields">
+
+  Zone custom fields
+</h2>
+<p>Zones can store gameplay metadata in custom fields.</p>
+<p>A commonly used field is:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicleGroup
+</span></span></code></pre></div><p>The system also supports suffixes for multiple entries:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicleGroup
+</span></span><span class="line"><span class="cl">vehicleGroup1
+</span></span><span class="line"><span class="cl">vehicleGroup2
+</span></span><span class="line"><span class="cl">vehicleGroup3
+</span></span><span class="line"><span class="cl">vehicleGroup4
+</span></span></code></pre></div><p>This allows one zone to reference several vehicle groups or metadata entries.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"customFields"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"priority"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicleGroup"</span><span class="p">:</span> <span class="s2">"city"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicleGroup1"</span><span class="p">:</span> <span class="s2">"traffic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicleGroup2"</span><span class="p">:</span> <span class="s2">"parked"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Gameplay code can merge these fields from the highest-priority matching zones.</p>
+<hr/>
+<h2 id="parking-spots">
+
+  Parking spots
+</h2>
+<p>Parking spots define vehicle placement locations.</p>
+<p>They are used for:</p>
+<ul>
+<li>Parked traffic</li>
+<li>Mission vehicle spawns</li>
+<li>Garage quick travel</li>
+<li>Delivery destinations</li>
+<li>Scenario start/end positions</li>
+<li>Random parking spot selection</li>
+<li>Parking validation</li>
+</ul>
+<p>A parking spot usually stores:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Parking spot name.</td>
+</tr>
+<tr>
+<td><code>pos</code></td>
+<td>World position.</td>
+</tr>
+<tr>
+<td><code>rot</code></td>
+<td>Vehicle orientation.</td>
+</tr>
+<tr>
+<td><code>scl</code></td>
+<td>Parking spot size/bounds.</td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>Optional tag list.</td>
+</tr>
+<tr>
+<td><code>customFields</code></td>
+<td>Optional gameplay metadata.</td>
+</tr>
+<tr>
+<td><code>sortOrder</code></td>
+<td>Editor ordering value.</td>
+</tr>
+</tbody>
+</table>
+<p>Parking spots can be associated with zones. For example, a parking spot inside a zone can inherit district, facility, or gameplay metadata from that zone.</p>
+<hr/>
+<h2 id="parking-spot-tags">
+
+  Parking spot tags
+</h2>
+<p>Parking spots may use tags to control parking behavior.</p>
+<p>Common tags include:</p>
+<table>
+<thead>
+<tr>
+<th>Tag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>banned</code></td>
+<td>Parking system should not use this spot.</td>
+</tr>
+<tr>
+<td><code>forwards</code></td>
+<td>Prefer forward parking direction.</td>
+</tr>
+<tr>
+<td><code>backwards</code></td>
+<td>Prefer reverse parking direction.</td>
+</tr>
+<tr>
+<td><code>perfect</code></td>
+<td>Avoid random parking offset/rotation.</td>
+</tr>
+<tr>
+<td><code>street</code></td>
+<td>Indicates a street-side parking spot. May keep tracking enabled so AI can avoid the vehicle.</td>
+</tr>
+<tr>
+<td><code>nightTime</code></td>
+<td>Spot is more likely to be used at night.</td>
+</tr>
+<tr>
+<td><code>dayTime</code></td>
+<td>Spot is more likely to be used during the day.</td>
+</tr>
+</tbody>
+</table>
+<p>These are mostly used by dynamic parking and traffic systems.</p>
+<hr/>
+<h2 id="parking-spot-custom-fields">
+
+  Parking spot custom fields
+</h2>
+<p>Parking spots can use custom fields such as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">probability
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"customFields"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="mf">0.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>This controls how likely a spot is to be used by systems that scatter parked vehicles.</p>
+<p>The parking system may also adjust probability by time of day using tags like <code>nightTime</code> and <code>dayTime</code>.</p>
+<hr/>
+<h2 id="random-parking-spot-selection">
+
+  Random parking spot selection
+</h2>
+<p>Gameplay utilities can select random parking spot pairs.</p>
+<p>For example, one function can return:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">start parking spot
+</span></span><span class="line"><span class="cl">destination parking spot
+</span></span><span class="line"><span class="cl">start zone
+</span></span><span class="line"><span class="cl">destination zone
+</span></span></code></pre></div><p>with a minimum distance between start and destination.</p>
+<p>This is useful for:</p>
+<ul>
+<li>Procedural missions</li>
+<li>Delivery routes</li>
+<li>Random driving tasks</li>
+<li>Career gameplay</li>
+</ul>
+<hr/>
+<h2 id="tags">
+
+  Tags
+</h2>
+<p>Sites support tags for:</p>
+<ul>
+<li>Locations</li>
+<li>Zones</li>
+<li>Parking spots</li>
+</ul>
+<p>Tags are used for filtering and organization.</p>
+<p>Example tags:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">delivery
+</span></span><span class="line"><span class="cl">garage
+</span></span><span class="line"><span class="cl">fuel
+</span></span><span class="line"><span class="cl">parking
+</span></span><span class="line"><span class="cl">industrial
+</span></span><span class="line"><span class="cl">urban
+</span></span><span class="line"><span class="cl">offroad
+</span></span><span class="line"><span class="cl">race
+</span></span><span class="line"><span class="cl">banned
+</span></span><span class="line"><span class="cl">street
+</span></span><span class="line"><span class="cl">nightTime
+</span></span><span class="line"><span class="cl">dayTime
+</span></span></code></pre></div><p>The Sites Editor has separate tabs for:</p>
+<ul>
+<li>Location Tags</li>
+<li>Zone Tags</li>
+<li>Parking Spot Tags</li>
+</ul>
+<hr/>
+<h2 id="custom-fields">
+
+  Custom fields
+</h2>
+<p>Custom fields allow gameplay systems to attach arbitrary metadata to sites.</p>
+<p>Examples:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"customFields"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"priority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicleGroup"</span><span class="p">:</span> <span class="s2">"traffic_city"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"missionType"</span><span class="p">:</span> <span class="s2">"delivery"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"difficulty"</span><span class="p">:</span> <span class="s2">"easy"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="mf">0.75</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Custom fields are commonly used by systems that need map-specific data without hardcoding it into scripts.</p>
+<hr/>
+<h2 id="facilities-and-sites">
+
+  Facilities and sites
+</h2>
+<p>Facilities use sites files to resolve spatial data.</p>
+<p>Facility definitions may reference:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"sitesFile"</span><span class="err">:</span> <span class="s2">"facilities.sites.json"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"zoneNames"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"dealership_downtown"</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"parkingSpotNames"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"dealership_downtown_01"</span><span class="p">]</span>
+</span></span></code></pre></div><p>Then the facility system loads those sites files and looks up:</p>
+<ul>
+<li>Zones by name</li>
+<li>Parking spots by name</li>
+</ul>
+<p>This is used for:</p>
+<ul>
+<li>Garages</li>
+<li>Gas stations</li>
+<li>Dealerships</li>
+<li>Computers</li>
+<li>Private sellers</li>
+<li>Delivery providers</li>
+<li>Dragstrips</li>
+</ul>
+<hr/>
+<h2 id="mission-boundaries">
+
+  Mission boundaries
+</h2>
+<p>Some older mission formats store boundaries in:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">bounds.sites.json
+</span></span></code></pre></div><p>These files usually contain zones representing the playable/mission area.</p>
+<p>Mission conversion tools can convert this data into newer boundary/path/trail files.</p>
+<p>Typical conversion:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">bounds.sites.json → boundary file
+</span></span><span class="line"><span class="cl">race.race.json → path file
+</span></span><span class="line"><span class="cl">race.race.json startPositions → starting position file
+</span></span></code></pre></div><hr/>
+<h2 id="sites-editor">
+
+  Sites Editor
+</h2>
+<p>The Sites Editor is available in the World Editor:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">World Editor → Gameplay → Sites Editor
+</span></span></code></pre></div><p>The editor provides tabs for:</p>
+<ul>
+<li>Locations</li>
+<li>Zones</li>
+<li>Parking Spots</li>
+<li>Location Tags</li>
+<li>Zone Tags</li>
+<li>Parking Spot Tags</li>
+</ul>
+<p>It can:</p>
+<ul>
+<li>Create new sites files</li>
+<li>Load existing <code>.sites.json</code> files</li>
+<li>Save sites files</li>
+<li>Sort locations by name</li>
+<li>Sort zones by name</li>
+<li>Sort parking spots by name</li>
+<li>Enumerate duplicate parking spot names</li>
+<li>Rename parking spots based on containing zone</li>
+</ul>
+<hr/>
+<h2 id="saving">
+
+  Saving
+</h2>
+<p>When saving from the Sites Editor, the file path is stored in the sites object:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">sites.dir
+</span></span><span class="line"><span class="cl">sites.name
+</span></span></code></pre></div><p>The file is written as JSON using:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">jsonWriteFile(path, data, true)
+</span></span></code></pre></div><p>Use the editor to save whenever possible, as it ensures the serialized structure matches what the gameplay sites system expects.</p>
+<hr/>
+<h2 id="loading-and-caching">
+
+  Loading and caching
+</h2>
+<p>The sites manager loads sites files through:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">gameplay_sites_sitesManager.loadSites(filepath)
+</span></span></code></pre></div><p>Loaded files are cached by path. If the same file is requested again, the cached sites object is reused unless forced reload is requested.</p>
+<p>The cache is cleared when the mission ends.</p>
+<hr/>
+<h2 id="manager-discovery">
+
+  Manager discovery
+</h2>
+<p>The sites manager can scan all levels for <code>.sites.json</code> files.</p>
+<p>It stores a list of sites files per level:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">sitesByLevel[levelName] = { ... }
+</span></span></code></pre></div><p>The Sites Editor can display these through:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">File → Sites in Manager...
+</span></span></code></pre></div><p>This makes it easier to find and load sites files from other levels or from <code>/gameplay</code>.</p>
+<hr/>
+<h2 id="simplified-structure">
+
+  Simplified structure
+</h2>
+<p>The exact serialized structure is generated by the gameplay sites system, but conceptually a sites file contains:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"city"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"locations"</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"zones"</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"parkingSpots"</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"tags"</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"customFields"</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>A simplified conceptual example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"city"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"locations"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"gas_station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"tags"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"fuel"</span><span class="p">,</span> <span class="s2">"service"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"zones"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"downtown"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"vertices"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">]}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"customFields"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"priority"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"vehicleGroup"</span><span class="p">:</span> <span class="s2">"city"</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"parkingSpots"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"downtown_parking_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"rot"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"scl"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"tags"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"parking"</span><span class="p">,</span> <span class="s2">"street"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"customFields"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"probability"</span><span class="p">:</span> <span class="mf">0.75</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><div class="bng-notice warning">This example shows the conceptual data model. For exact formatting, create and save a file using the Sites Editor.</div>
+<hr/>
+<h2 id="recommended-workflow">
+
+  Recommended workflow
+</h2>
+<ol>
+<li>Open the World Editor.</li>
+<li>Open <strong>Gameplay → Sites Editor</strong>.</li>
+<li>Create or load a <code>.sites.json</code> file.</li>
+<li>Add locations, zones, and parking spots.</li>
+<li>Add tags and custom fields where needed.</li>
+<li>Use sorting/enumeration tools to keep data organized.</li>
+<li>Save as the appropriate file:
+<ul>
+<li><code>city.sites.json</code> for default level sites</li>
+<li><code>facilities.sites.json</code> for facility spatial data</li>
+<li><code>garages.sites.json</code> for garage/career zone data</li>
+<li><code>bounds.sites.json</code> for mission boundary data when needed</li>
+</ul>
+</li>
+</ol>
+<hr/>
+<h2 id="naming-recommendations">
+
+  Naming recommendations
+</h2>
+<p>Use clear and stable names.</p>
+<p>Good examples:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">downtown
+</span></span><span class="line"><span class="cl">industrial_zone
+</span></span><span class="line"><span class="cl">gas_station_01
+</span></span><span class="line"><span class="cl">garage_downtown
+</span></span><span class="line"><span class="cl">parking_downtown_001
+</span></span><span class="line"><span class="cl">delivery_port_03
+</span></span><span class="line"><span class="cl">race_start_city
+</span></span></code></pre></div><p>Avoid:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">test
+</span></span><span class="line"><span class="cl">new
+</span></span><span class="line"><span class="cl">zone1
+</span></span><span class="line"><span class="cl">asdf
+</span></span><span class="line"><span class="cl">parking
+</span></span></code></pre></div><p>Parking spots often benefit from numbered names:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">parking_downtown_001
+</span></span><span class="line"><span class="cl">parking_downtown_002
+</span></span><span class="line"><span class="cl">parking_downtown_003
+</span></span></code></pre></div><p>The editor includes an <strong>Enumerate Parking Spots</strong> tool for duplicate names.</p>
+<hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Use <code>city.sites.json</code> for the default level sites file.</li>
+<li>Use separate sites files for specialized data when appropriate, such as <code>facilities.sites.json</code> or <code>garages.sites.json</code>.</li>
+<li>Use zones for large named areas.</li>
+<li>Use locations for specific points of interest.</li>
+<li>Use parking spots for vehicle placement.</li>
+<li>Use tags for filtering.</li>
+<li>Use custom fields for gameplay metadata.</li>
+<li>Use <code>priority</code> on overlapping zones.</li>
+<li>Keep names stable once missions, facilities, or career data depend on them.</li>
+<li>Use the Sites Editor instead of manual editing when possible.</li>
+<li>Save and test after major edits.</li>
+<li>Avoid deleting or renaming zones/parking spots that are referenced by other files.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="sites-file-does-not-load">
+
+  Sites file does not load
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>File does not exist</li>
+<li>Invalid JSON</li>
+<li>Wrong file extension</li>
+<li>File is not named <code>*.sites.json</code></li>
+<li>File is not in the expected level/gameplay path</li>
+</ul>
+<h3 id="default-sites-are-not-loaded">
+
+  Default sites are not loaded
+</h3>
+<p>Check that the level contains:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">city.sites.json
+</span></span></code></pre></div><p>in the level folder.</p>
+<h3 id="facility-zone-or-parking-spot-is-missing">
+
+  Facility zone or parking spot is missing
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Facility references the wrong <code>sitesFile</code></li>
+<li><code>zoneNames</code> do not match zone names in the sites file</li>
+<li><code>parkingSpotNames</code> do not match parking spot names in the sites file</li>
+<li>Sites file path is wrong</li>
+</ul>
+<h3 id="parking-spot-is-not-found">
+
+  Parking spot is not found
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Parking spot name changed</li>
+<li>File not loaded</li>
+<li>Parking spot removed</li>
+<li>Tags or custom fields do not match expected filters</li>
+<li>Parking spot is tagged <code>banned</code></li>
+</ul>
+<h3 id="parked-cars-do-not-spawn-in-expected-spots">
+
+  Parked cars do not spawn in expected spots
+</h3>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">banned
+</span></span><span class="line"><span class="cl">probability
+</span></span><span class="line"><span class="cl">dayTime
+</span></span><span class="line"><span class="cl">nightTime
+</span></span><span class="line"><span class="cl">street
+</span></span><span class="line"><span class="cl">perfect
+</span></span><span class="line"><span class="cl">forwards
+</span></span><span class="line"><span class="cl">backwards
+</span></span></code></pre></div><p>Also check that the vehicle fits inside the parking spot bounds.</p>
+<h3 id="zone-priority-does-not-work-as-expected">
+
+  Zone priority does not work as expected
+</h3>
+<p>Check the zone custom field:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">priority
+</span></span></code></pre></div><p>It should be numeric.</p>
+<h3 id="vehicle-group-data-is-missing">
+
+  Vehicle group data is missing
+</h3>
+<p>Check for zone custom fields:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicleGroup
+</span></span><span class="line"><span class="cl">vehicleGroup1
+</span></span><span class="line"><span class="cl">vehicleGroup2
+</span></span><span class="line"><span class="cl">vehicleGroup3
+</span></span><span class="line"><span class="cl">vehicleGroup4
+</span></span></code></pre></div>
+<h3 id="parking-spots-have-duplicate-names">
+
+  Parking spots have duplicate names
+</h3>
+<p>Use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Tools → Enumerate Parking Spots
+</span></span></code></pre></div><p>in the Sites Editor.</p>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p><code>.sites.json</code> files store gameplay map metadata.</p>
+<p>They define:</p>
+<ul>
+<li>Locations</li>
+<li>Zones</li>
+<li>Parking spots</li>
+<li>Tags</li>
+<li>Custom fields</li>
+</ul>
+<p>The default level sites file is usually:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">city.sites.json
+</span></span></code></pre></div><p>Other common examples include:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">facilities.sites.json
+</span></span><span class="line"><span class="cl">garages.sites.json
+</span></span><span class="line"><span class="cl">bounds.sites.json
+</span></span></code></pre></div><p>Sites are used by gameplay systems to find named places, determine zones by position, select parking spots, support facilities, and apply map-specific metadata such as vehicle groups and priorities.</p>

@@ -1,0 +1,2235 @@
+<p>The pressureWheel is the primary method for creating wheels in BeamNG. It is a real time physical tire model made from nodes, beams, and triangles.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/wheels/TireJbeam.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/wheels/TireJbeam_hu1aec9fbe618426f1a00b4c7a6c9fbec9_446709_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>The pressure wheel system will automatically generate a wheel with the defined parameters around a pair of nodes which acts as an axle. The position and orientation of the nodes determines the position and orientation of the wheel.</p>
+<p>Due to their complexity and large number of parameters, it is recommended that you copy sections of vanilla jbeam when using pressure wheels, and modify the things that are needed.</p>
+<h3 id="wheel-construction">
+
+  Wheel construction
+</h3>
+<p>Wheels are made out of two primary components.</p>
+<p>The first element is the hub, which matches with the exterior layer of the rim. Those nodes are attached to the axle, a set of 2 predefined nodes that are attached to the vehicles hub.</p>
+<p>The second element is the tire, which has it’s own set of nodes on the exterior layer of the tire, connected to the hub nodes with multiple beams. A pressure group is also set-up using both the hub and tire nodes.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/wheels/PressureWheelPicture.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/wheels/PressureWheelPicture_hu2bffa3b9dba0ae438fa4cfa7f6fb0a8c_529443_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>The beams between the hub and the axle are fairly rigid standard beams, to represent the rigid structure of a wheel.</p>
+<p>The tire nodes are linked to the hub node and each other with a mix of beams to represent the structure of the tire, and allow for tread deformation and sidewall flex.</p>
+<p>The radial beams are the main weight bearing nodes on the tire. They are generated as anisotropic beams, allowing them to be quite soft in compression, to simulate the squishiness of tires, while still being strong in extension, keeping the tires from expanding at higher speeds.</p>
+<p>Reinforcement beams link the tire nodes on one side to the wheel nodes on the other side. They assure the lateral rigidity of the tire, but can still allow for some amount of sidewall flex under cornering like a real tire.</p>
+<h3 id="tire-friction-parameters">
+
+  Tire friction parameters
+</h3>
+<p>In order to replicate as closely as possible the behavior of real life tires, the pressure wheel system has multiple more advanced friction parameters based on sliding speed and the load on the tire.</p>
+<p>Each ground surface in beamNG has a static and sliding friction parameter, along with a stribekVelocity which affects the transition between static and sliding friction.</p>
+<p>The tire’s various friction parameters are defined as multipliers of those various friction parameters.</p>
+<h4 id="friction-velocity">
+
+  Friction velocity
+</h4>
+<p>The first two parameters are the “frictionCoef” and “slidingFrictionCoef” parameters, which are friction multipliers when the tire is rolling, and when it’s sliding. As with most objects, tires can require less force to keep sliding once they’re already sliding, meaning that the sliding friction coefficient is lower than the static friction coefficient.</p>
+<p>Since rubber has some flexibility, tires do not abruptly go from static friction to sliding friction and tend to do it progressively. To simulate this behavior, the Stribeck curve, which defines the transitory behavior from static to sliding friction, can be used.</p>
+<p>The stribeckVelocity parameter will affect the overall length of the transition, with larger numbers resulting in a tire that will more slowly transition to sliding friction.</p>
+<p>The stribeckExponent parameter will smooth out the top and bottom parts of the curve, resulting in a more bell shaped curve.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/wheels/SlidingFrictionCoef.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/wheels/SlidingFrictionCoef_hua4b8877dc2aa528b369aeafee8a88fd5_57225_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="tire-load">
+
+  Tire load
+</h4>
+<p>In standard friction models, friction force is directly proportional to the load on the surface. However, with tires, it’s a little more complicated than that, as tires aren’t completely rigid in the way they interface the ground. Their frictionCoefficient is slightly better at lighter loads comparatively, which also helps the tire react more progressively to load changes when braking and cornering.</p>
+<p>Three parameters are used; “noLoadCoef”, “loadSensitivitySlope” and “fullLoadCoef”. noLoadCoef will usually be slightly above one, and fullLoadCoef slightly under. The load sensitivity slope affects how quickly the tire reaches the fullLoadCoef. The end result is a curve similar to this :</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/wheels/TireLoadCoef.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/wheels/TireLoadCoef_hub24de22986198ea10565093da5c76365_53526_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>As the force is calculated per node, the normal force used is the force on each individual node, not the force on the wheel itself.</p>
+<h3 id="required-arguments">
+
+  Required arguments
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The name of the wheel</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>The standard naming for 4 wheeled vehicles is FR, FL, RR and RL.</p>
+<p>This will be used when referring to the wheel in other sections, like the powertrain.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The nodegroup of the hub nodes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Works in a similar way to standard node groups.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The nodegroup of the tire nodes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Works in a similar way to standard node groups.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The first axle node.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">The standard naming scheme for 4 wheeled vehicles is fw1rr, fw1ll, rw1rr and rw1ll.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The second axle node</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">The standard naming scheme for 4 wheeled vehicles is fw1r, fw1l, rw1r, and rw1l.</div>
+</div>
+</div>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Name of the stabilizing node</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Each node from the hub will attach to this node with a beam. It’s mostly legacy and not generally used. Putting 9999 in will disable it.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Along with nodeCoupling, this node will be used to apply braking counter torque to the suspension and body.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">NodeArm should should located roughly where the brake caliper should be. Keep in mind that this node needs to be far enough from the nodeCoupling, and heavy enough. A node that is too close, or too light for the set braking torque can cause instability in the braking system, resulting in poor braking performance and brakes that overheat when the parking brake is applied. For a typical car, they should be at least 2kg. For a large truck, as much as 5-10kg.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The direction that drive torque is applied.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">The correct value (1 or -1) depends on which order you define the axle nodes.</div>
+</div>
+</div>
+<h3 id="optional-arguments">
+
+  Optional arguments
+</h3>
+<h4 id="basic-settings-and-dimensions">
+
+  Basic settings and dimensions
+</h4>
+<p>These arguments define the size and position of the wheel, along with some basic structural parameter</p>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Radius of tire tread (meters)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">For a wheel that has no physical tire, but still needs tire sounds, this should be set to the same as hubRadius.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Radius of hub (meters)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Offset of wheel midpoint from midpoint of axle nodes (meters)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Width of tire tread (meters)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Width of hub (meters)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">It is a good idea generally to have the tireWidth slightly narrower than hubWidth for automotive tires.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">When disabled, only the hub will be generated, not the tire.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Used in common wheel system to allow different tire choices for one wheel rim.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Defines if the wheel will be used when calculating speedometer speed.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Along with nodeArm, this creates a lever that will apply braking torque to the suspension or body.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>If this is not defined, the inner axle node will be used.</p>
+<p>It should be located in the center of the wheel, where the center of the brake disc would be located. It should be heavy enough for the desired braking power. For a typical car, they should be at least 2kg. For a large truck, as much as 5-10kg.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Along with torqueArm and torqueArm2 forms a set of nodes that will be used to apply counter torque to the suspension or body.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>The torqueCoupling node should be defined either at the differential, or differential output node.</p>
+<p>As with nodeArm/Coupling, nodes that are heavier and further apart will allow for more torque to be transmitted before running into stability issues.</p>
+<p>If torqueCoupling or torqueArm are not defined, the game will default to not generating drivetrain torque reactions.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Along with torqueCoupling and torqueArm2, forms a set of nodes that will be used to apply counter torque to the suspension or body.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>This node should be located on the same structure as the torqueCoupling, and not move compared to it during typical driving. The engine itself, axle, or suspension subframes can be decent choices depending on the suspension and powertrain layout.</p>
+<p>As with nodeArm/Coupling, nodes that are heavier and further apart will allow for more torque to be transmitted before running into stability issues.</p>
+<p>If torqueCoupling or torqueArm is not defined, the game will default to not generating drivetrain torque reactions.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Along with torqueCoupling and torqueArm, forms a set of nodes that will be used to apply counter torque to the suspension or body.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Will default to one of the axle nodes if not defined.</p>
+<p>Should be part of the same structure as torqueCoupling and torqueArm, and not move compared to them during typical driving. The engine itself, axle, or suspension subframes can be decent choices depending on the suspension and powertrain layout.</p>
+<p>As with nodeArm/Coupling, nodes that are heavier and further apart will allow for more torque to be transmitted before running into stability issues.</p>
+<p>This node should also not form a line between it, torqueArm2 and torqueCoupling.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The top node of the steering axis.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This is used by the advanced suspension UI tool to calculate caster.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The bottom node of the steering axis.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This is used by the advanced suspension UI tool to calculate caster.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Transaxle axis node closer to the wheel.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Used on FWD cars to simulate the effect of half-shaft joint angles on torque reactions, affects torque steer.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Transaxle axis node further away from the wheel.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Used on FWD cars to simulate the effect of half-shaft joint angles on torque reactions, affects torque steer.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Defines beams which, when broken, disable drive torque to the wheel.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">These beams should be the beams representing the half-shafts, which transfer power from the differential to the wheels.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Enables and disables mesh breaking on the tire.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Enables and disables mesh breaking on the hub.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">A value of 0 disables drive torque, a value of 1 allows engine torque to drive the wheel.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This is deprecated and has been replaced with the powertrain system. Should be left at 0.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">If the wheel nodes have collision with the vehicle they’re attached to.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Usually set to false.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">If the wheel nodes have collision with other objects.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Should always be set to true.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">integer or nil<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Changes the way wheel midpoint is calculated (see wheelOffset argument)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This is currently unused in official content. Normally, wheel midpoint is a point exactly in the middle between the 2 wheel center nodes. If offsetFromNode is set to 1, then midpoint is calculated as node 1 position + 0.5 * hubWidth. When it’s set to 2, it’s node 2 position - 0.5 * hubWidth. Can be useful when a sub-component of the wheel modifies its width, but we want to keep it aligned to one side.</div>
+</div>
+</div>
+<h4 id="node-arguments">
+
+  Node Arguments
+</h4>
+<p>Node settings define the friction parameters of the wheels, along with the weight of the wheels, both for the tire and hub.</p>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Mass of tire tread nodes (kg).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Because part of the weight of a tire is in the sidewall and tire bead, start with a real life tire and wheel weight, but subtract some weight from the tire nodes and add it to the hub nodes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Mass of hub nodes (kg)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Because part of the weight of a tire is in the sidewall and tire bead, start with a real life tire and wheel weight, but subtract some weight from the tire nodes and add it to the hub nodes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Alternative way to define the node weights. Mass of the hub (kg), overwrites hubNodeWeight</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Overall mass of the wheel hub that will be spread between all the hub nodes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Alternative way to define the node weights. Mass of the tire (kg), overwrites nodeWeight</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Overall mass of the tire that will be spread between all the hub nodes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Alternative way to define the node weights. How much of the tire weight will be part of the hub nodes (0.0 - 1.0), overwrites hubNodeWeight and nodeWeight</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Because part of the weight of a tire is in the sidewall and tire bead, this relocates the specified ratio of the tire weight from the tire’s own nodes onto the hub nodes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Friction coefficient of hub nodes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Material of hub nodes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">As of version <code>0.38.5.0</code> the following physics materials are available:<br/><code>METAL</code>, <code>PLASTIC</code>, <code>RUBBER</code>, <code>GLASS</code>, <code>WOOD</code>, <code>FOLIAGE</code>, <code>CLOTH</code>, <code>WATER</code>, <code>ASPHALT</code>, <code>ASPHALT_WET</code>, <code>SLIPPERY</code>, <code>ROCK</code>, <code>DIRT_DUSTY</code>, <code>DIRT</code>, <code>SAND</code>, <code>SANDY_ROAD</code>, <code>MUD</code>, <code>GRAVEL</code>, <code>GRASS</code>, <code>ICE</code>, <code>SNOW</code>, <code>FIRESMALL</code>, <code>FIREMEDIUM</code>, <code>FIRELARGE</code>, <code>SMOKESMALLBLACK</code>, <code>SMOKEMEDIUMBLACK</code>, <code>STEAM</code>, <code>RUMBLE_STRIP</code>, <code>COBBLESTONE</code>, <code>FOLIAGE_THIN</code>, <code>SPIKE_STRIP</code></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Friction coefficient of tire tread nodes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Determines overall grip of the tire.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Friction coefficient of tire tread nodes when sliding.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Allows finer control of the sliding friction curve.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Affects the velocity at which the sliding coefficient will apply.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.75<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Allows finer control of the sliding friction curve.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Smaller values will result in a more progressive transition.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">How treaded the tire is.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>A slick tire will be 0, an offroad tire about 0.9 and a standard tire 0.7.</p>
+<p>This value is multiplied against a roughness coefficient for each ground type (mud has a high roughness, asphalt has very little) this means that a mud tire now works well in mud but mediocre on pavement, a slick works well on pavement but horribly on mud.</p>
+<p>This value affects tire sounds, so it is important to set a realistic value even if the vehicle has no physical tires.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The friction coefficient modifier when the tire is unloaded.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Allows to give the tire comparatively more grip when unloaded, which helps the tire react more progressively to weight transfers and load changes.</p>
+<p>This value should be higher than the “fullLoadCoef”</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The loss of coef per newton of normal force</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">The friction coefficient will keep going down from the “noLoadCoef” until it reaches the “fullLoadCoef”, at which point it will stay stable.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The friction coefficient modifier when the tire is fully loaded.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Allows to give the tire comparatively less grip when fully loaded, which helps the tire react more progressively to weight transfers and load changes.</p>
+<p>This value should be lower than the “noLoadCoef”</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Material of tire tread nodes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">As of version <code>0.38.5.0</code> the following physics materials are available:<br/><code>METAL</code>, <code>PLASTIC</code>, <code>RUBBER</code>, <code>GLASS</code>, <code>WOOD</code>, <code>FOLIAGE</code>, <code>CLOTH</code>, <code>WATER</code>, <code>ASPHALT</code>, <code>ASPHALT_WET</code>, <code>SLIPPERY</code>, <code>ROCK</code>, <code>DIRT_DUSTY</code>, <code>DIRT</code>, <code>SAND</code>, <code>SANDY_ROAD</code>, <code>MUD</code>, <code>GRAVEL</code>, <code>GRASS</code>, <code>ICE</code>, <code>SNOW</code>, <code>FIRESMALL</code>, <code>FIREMEDIUM</code>, <code>FIRELARGE</code>, <code>SMOKESMALLBLACK</code>, <code>SMOKEMEDIUMBLACK</code>, <code>STEAM</code>, <code>RUMBLE_STRIP</code>, <code>COBBLESTONE</code>, <code>FOLIAGE_THIN</code>, <code>SPIKE_STRIP</code></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.6<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Influences the time variant friction behavior of the tire.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Higher values (up to a maximum of 1) make the tire behave more like soft racing slick rubber, while lower values behave more like a harder tire compound.</p>
+<p>It also affects tire sounds (harder tires squeal more), so it is important to set a realistic value even if the vehicle has no physical tires.</p>
+</div>
+</div>
+</div>
+<h4 id="beam-generation-arguments">
+
+  Beam Generation Arguments
+</h4>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">int<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Number of spokes per side of wheel (must be an even number)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Keep numRays between 10 for small basic wheels to 20 for smoothest running. Most vanilla wheels have 16 rays</p>
+<p>While it is true that a high numRay wheel runs smoother, this effect is mainly only noticeable at low speed (&lt;10km/h).</p>
+<p>High numRay wheels use considerably more nodes, beams, and triangles, using up more of the CPU budget. Wheels with high numRays will also run into stability issues quicker, meaning they might struggle to achieve the cornering and longitudinal stiffness of a real tire, leading to smooth but vague handling. They may also suffer from greater amounts of expansion at high speeds.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Enable diagonal tire reinforcement beams.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Mimics the stiffness of the sidewall to tread connection of a real tire.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Enable L-beam tire reinforcement beams.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Mimics the stiffness of the sidewall to tread connection of a real tire. Similar to TireReinfBeams, but a better method. If enabled, TireReinfBeams will be disabled.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Enable extra anisotropic sidewall beams.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Adds longitudinal stiffness, most useful for tall sidewalls or high numRay tires.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Enable extra tread beams.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Improves lateral stiffness and reduces grip loss at high speeds.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Enable extra periphery beams.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Affects longitudinal stiffness.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Enable extra support beams from wheel center to tire nodes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">New argument in version <code>0.38</code>. Used to keep tire nodes away from the rim after the tire has deflated, by simulating the collision between the tire nodes and the wheel center via precompressed support beams. Useful on very thick tires.</div>
+</div>
+</div>
+<h4 id="beam-arguments">
+
+  Beam Arguments
+</h4>
+<p>Beam settings define the parameters of all the beams that make up a pressure wheel.</p>
+<p>Each parameter listed bellow has Spring, Damp, Deform and Strength parameters, which can be used by replacing the “*” symbol with the property you want to change.</p>
+<p>For example, the spring setting of the hubBeams would be “hubBeamSpring”, while the deform would be “hubBeamDeform. All those parameters work in a similar way as the parameters for standard beams.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength of hub beams</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength of hub tread beams (across)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">The hub refers to the wheel. The spring value should be as stiff as possible without running into instability issues, to limit deflection within the wheel and avoid expansion of the wheel at higher speeds. The damping values can be kept very low (&lt;10)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength of hub periphery beams (circumference)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">The hub refers to the wheel. The spring value should be as stiff as possible without running into instability issues, to limit deflection within the wheel and avoid expansion of the wheel at higher speeds. The damping values can be kept very low (&lt;10)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength of hub side beams (radial spokes)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">The hub refers to the wheel. The spring value should be as stiff as possible without running into instability issues, to limit deflection within the wheel and avoid expansion of the wheel at higher speeds. The damping values can be kept very low (&lt;10)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength of Anisotropic hub side reinforcement beams (hub only)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">The hub refers to the wheel. This is used by a simplified model in which the hub and tire are 1 part, utilized by traffic cars for optimization purposes. Should not be used on normal wheels.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, DampCutoffHz, Precompression of Anisotropic hub side beams (sidewall)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Spring and Damp Should be low to allow air pressure to handle weight of vehicle. Since 0.22, the spring parameter is often set as a function of tire pressure.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Expansion Spring, Damp of Anisotropic hub side beams in expansion (sidewall)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Spring and Damp affects longitudinal stiffness (higher-&gt;stiffer), rolling resistance(higher-&gt;better), sharpness of lateral grip curve (higher-&gt;sharper peak), compression stiffness to a small extent (higher -&gt;stiffer in compression)</p>
+<p>The spring value should be as high as possible, on the limit of instability, to keep the tire from expanding at higher speeds.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, DampCutoffHz of Anisotropic hub side reinforcement beams (sidewall +-2 nodes)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Spring and Damp should be low to allow air pressure to handle weight of vehicle.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Expansion Spring, Damp of Anisotropic hub side reinforcement beams in expansion (sidewall +- 2 nodes)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Spring and Damp affects longitudinal stiffness (higher-&gt;stiffer), rolling resistance(higher-&gt;better), sharpness of lateral grip curve (higher-&gt;softer peak), compression stiffness to a small extent (higher -&gt;stiffer in compression)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, DampCutoffHz, Precompression of diagonal tire reinforcement beams, or L-beams (diagonal)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Spring and Damp affects lateral stiffness primarily at lower slip angles (higher-&gt;stiffer). Low values can make a tire that tends to roll onto the sidewall more under hard cornering. Too high of a value reduces aligning torque.</p>
+<p>The spring value should be as high as possible, on the limit of instability, to keep the tire from expanding at higher speeds.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, DampCutoffHz, Precompression of tire tread beams (across)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Spring and Damp primarily affects lateral stiffness from low to high slip angles (higher-&gt;stiffer)</p>
+<p>The spring value should be fairly high, up to about 50-75% of the sideBeamSpringExpansion or at the limit of stability.</p>
+</div>
+</div>
+</div>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, DampCutoffHz, Precompression of diagonal tread reinforcement beams (across +-2 nodes)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Spring and Damp primarily affects lateral stiffness at low slip angles (higher_&gt;stiffer) and also reduces grip loss at high speeds. Keep spring value between 1/4 to 1/2 of wheelTreadBeam values.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, DampCutoffHz, Precompression of tire periphery beams (circumference)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Spring and Damp affects longitudinal stiffness (higher-&gt;stiffer). Also affects compression stiffness, high speed expansion, high speed grip.</p>
+<p>Should be nearly the same as treadBeamSpring for narrow tires, but stiffer for wide tires.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, DampCutoffHz, Precompression of tire periphery beams (circumference)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Spring and Damp affects longitudinal stiffness (higher-&gt;stiffer). Also affects compression stiffness, high speed expansion, high speed grip.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, SidewallRatio, LongExtent of tire support beams (radial spokes)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>SidewallRatio defines beamPrecompression argument of the support beams: precompression range = (hub radius - tire radius) * sidewall ratio. This value defaults to 0.9 if not present.</p>
+<p>LongExtent defines the beamLongBound argument of the support beams directly. If not present, defaults to 2 * sidewallRatio.</p>
+</div>
+</div>
+</div>
+<h4 id="collision-pressure-tri-arguments">
+
+  Collision/Pressure Tri Arguments
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Pressure in PSI that fills the tires</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>This value should be set to a realistic value for the tire size and application.</p>
+<p>Here are some examples of various real life applications of tires:</p>
+<ul>
+<li>Car, typical road tire: 25-35psi</li>
+<li>Car, racing slick: 22-27psi</li>
+<li>Light truck: 30-50psi</li>
+<li>Rock Crawler: 5-15psi</li>
+<li>Heavy truck: 50-100psi</li>
+<li>Aircraft: 100psi+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Max tire pressure in PSI that fills the tires.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This primarily exists to keep internal pressure rising too high and causing instability when the tire is deformed.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Sets whether tire triangles collide with the collision triangles of own vehicle or other vehicles.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>When enabled, tires will not clip right through firewalls, for example, but may get stuck in sharp bodywork after a collision. More CPU resources are needed when this is enabled.</p>
+<p>This argument, as well as the other triangle collision related ones, is normally only used on off-road vehicles with big tires, where simulating accurate tire collision is more important.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Sets whether tire tread triangles collide with the collision triangles of own vehicle or other vehicles.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Only affects tire tread triangles.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Sets whether tire side 1 triangles collide with the collision triangles of own vehicle or other vehicles.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Side 1 is normally the inner side, while Side 2 is the outer.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Sets whether tire side 2 triangles collide with the collision triangles of own vehicle or other vehicles.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Side 1 is normally the inner side, while Side 2 is the outer.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Sets whether inner hub triangles collide with the collision triangles of own vehicle or other vehicles.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>These triangles are behind the tire surface, meaning that they will normally not collide with anything, so this argument is not useful in standard use cases.</p>
+<p>Not affected by triangleCollision argument.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Sets whether hub side 1 triangles collide with the collision triangles of own vehicle or other vehicles.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Side 1 is normally the inner side, while Side 2 is the outer.</p>
+<p>Not affected by triangleCollision argument.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Sets whether hub side 2 triangles collide with the collision triangles of own vehicle or other vehicles.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Side 1 is normally the inner side, while Side 2 is the outer.</p>
+<p>Not affected by triangleCollision argument.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">100<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Sets fluid drag for the tires.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This value should be in the range of 5-20. It is a fairly small component of vehicle drag, but mainly important to make sure the tires don’t fly through water unimpeded.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Sets skin drag for the tires.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Additional drag coefficient defined along the tire surface rather than across. Used to simulate paddle-like treads in mud tires.</div>
+</div>
+</div>
+<h3 id="hubcap-arguments">
+
+  Hubcap Arguments
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Defines if hubcaps should be added to the wheel.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The name of the hubcap’s breakgroup</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The node group of the hubcap</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Should match the hubcap’s flexbody group parameter.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">If the hubcap has collisions with the world and other objects.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">If the hubcap has collisions with the vehicle.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Creates beams between the center node of the hubcap and the axle nodes of the wheel.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The offset of the hubcap compared to the face of the wheel.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Negative values will move the nodes inside the wheel.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The offset of the center node compared to the outside rim of the hubcap.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Negative values will cause the center node to be outside of the wheel, while positive values will result in the center need being inside the wheel.</p>
+<p>This should not be left at 0, as the center node acts as a rigidifier. 0.06 is a common value.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The radius of the hubcap.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The spring, damp, strength, deform setting of the beams composing the hubcap itself.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The spring, damp, strength, deform setting of the beams attaching the hubcap to the wheel.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The spring, damp, strength, deform setting of the <a data-doc="vehicle/sections/beams/support" href="/docs/vehicle/sections/beams/support">support beams</a>
+ between the hubcap and wheel.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The weight of the hubcap nodes (kg)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The weight of the hubcap center node (kg)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The material of the hubcap nodes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">As of version <code>0.38.5.0</code> the following physics materials are available:<br/><code>METAL</code>, <code>PLASTIC</code>, <code>RUBBER</code>, <code>GLASS</code>, <code>WOOD</code>, <code>FOLIAGE</code>, <code>CLOTH</code>, <code>WATER</code>, <code>ASPHALT</code>, <code>ASPHALT_WET</code>, <code>SLIPPERY</code>, <code>ROCK</code>, <code>DIRT_DUSTY</code>, <code>DIRT</code>, <code>SAND</code>, <code>SANDY_ROAD</code>, <code>MUD</code>, <code>GRAVEL</code>, <code>GRASS</code>, <code>ICE</code>, <code>SNOW</code>, <code>FIRESMALL</code>, <code>FIREMEDIUM</code>, <code>FIRELARGE</code>, <code>SMOKESMALLBLACK</code>, <code>SMOKEMEDIUMBLACK</code>, <code>STEAM</code>, <code>RUMBLE_STRIP</code>, <code>COBBLESTONE</code>, <code>FOLIAGE_THIN</code>, <code>SPIKE_STRIP</code></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The friction coefficient of the hubcap nodes.</div>
+</div>
+</div>
+<h3 id="brakes-arguments">
+
+  Brakes arguments
+</h3>
+<p>These settings affect the parameters that apply to the brakes on this wheel.</p>
+<p>Most parameters are related to the brake thermals system, which calculates the amount of energy heating up the rotor, and how quickly it cools.</p>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The braking torque when using the service brake (Nm).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The braking torque when using the parking brake (Nm).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">10<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The flexibility of the braking torque (Nm/rad).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This is mostly used for stability purposes, with the brake torque having some level of flexibility to avoid running into instability problems in the wheels and suspension.
+This value should be proportional to the weight of the wheels and reaction nodes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Enables thermals for the brakes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.35<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The diameter of the rotor at the pad contact point. (Meters)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Used for the thermals calculations.</p>
+<p>Defines the cooling area of the brakes.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">10<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The mass of the rotor (kg)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Used for the thermals calculations.</p>
+<p>Affects the thermal inertia of the brakes. Heavier rotors will heat up and cool down more slowly.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">vented-disc<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The type of rotor</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Used by the thermals calculations, and affects how quickly the rotors cool down.</p>
+<p>The available options are “vented-disc, carbon-ceramic-vented-disc, disc and drum”</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">steel<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The material of the brake rotor</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Used by the thermals calculations, and affects the heat capacity of the rotors, their maximum operating temperature, along with how quickly they cool down.</p>
+<p>The available options are “steel, aluminum, aluminium and carbon-ceramic”</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">How much aeration the brakes are getting</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Simulates the effect of brake ducts and other similar systems on the brake cooling.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">basic<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The material of the brake pad.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Affects the braking force vs temperature curves.</p>
+<p>The available options are “basic, premium, sport, semi-race, full-race, carbon-ceramic and godmode.”</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Percentage of brake input at which the brakeSplitCoef will apply.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Should be between 0 and 1. Allows to have a point at which braking force rises slower, to have progressive or digressive brakes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Braking curve when brake input is above brakeInputSplit.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Values below 1 will result in a digressive braking curve. Values above 1 will result in a progressive curve.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The inherent level of brake squeal generated by the brakes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Should be 0 for modern brakes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The inherent level of brake squeal generated by the brakes at low speeds.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Should be 0 for modern road brakes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The level of brake squeal generated by glazed brake pads.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Indicates if the brakes have ABS enabled.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.18<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The target slip ratio to be achieved by ABS under braking.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Just like in real life, our tires provide optimum grip at non-zero slip ratios. The optimal value is different for each car and requires manual testing to find.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">100<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Vibration frequency of the ABS</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">ABS works by pulsing the brakes. This parameter changes the pulsation frequency.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.04<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Smoother to replicate delay when pressing the brakes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Mostly relevant with air brakes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.04<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Smoother to replicate delay when releasing the brakes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Mostly relevant with air brakes.</div>
+</div>
+</div>
+<h3 id="specific-to-simplified-traffic-cars">
+
+  Specific to simplified traffic cars
+</h3>
+<p>These arguments are used to send tire data to the tire sound system for simplified traffic vehicles which have no actual tires for optimization purposes.
+
+
+
+
+
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Wheel hub radius as seen by the tire sound system.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">When present, the tire sounds system will treat this value as the hub radius, and the actual hub radius will be treated as tire radius.</div>
+</div>
+</div>
+<h3 id="simple-example">
+
+  Simple example
+</h3>
+<p>A simple tire-less wheel, not separated into individual components.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pressureWheels"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span><span class="s2">"hubGroup"</span><span class="p">,</span><span class="s2">"group"</span><span class="p">,</span><span class="s2">"node1:"</span><span class="p">,</span><span class="s2">"node2:"</span><span class="p">,</span><span class="s2">"nodeS"</span><span class="p">,</span><span class="s2">"nodeArm:"</span><span class="p">,</span><span class="s2">"wheelDir"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//general settings
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"hubRadius"</span><span class="o">:</span><span class="mf">0.08</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelOffset"</span><span class="o">:</span><span class="mf">0.005</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubWidth"</span><span class="o">:</span><span class="mf">0.025</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"numRays"</span><span class="o">:</span><span class="mi">10</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hasTire"</span><span class="o">:</span><span class="kc">false</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//hub options
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"hubBeamSpring"</span><span class="o">:</span><span class="mi">251000</span><span class="p">,</span> <span class="s2">"hubBeamDamp"</span><span class="o">:</span><span class="mi">5</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubBeamDeform"</span><span class="o">:</span><span class="mi">40000</span><span class="p">,</span> <span class="s2">"hubBeamStrength"</span><span class="o">:</span><span class="mi">160000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubNodeWeight"</span><span class="o">:</span><span class="mf">0.1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubNodeMaterial"</span><span class="o">:</span><span class="s2">"|NM_RUBBER"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubFrictionCoef"</span><span class="o">:</span><span class="mf">0.8</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//stabilizer wheel
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"propulsed"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeTorque"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"parkingTorque"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"collision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"STR"</span><span class="p">,</span> <span class="s2">"stabwheel_R"</span><span class="p">,</span> <span class="s2">"stabwheel_R"</span><span class="p">,</span> <span class="s2">"stw1r"</span><span class="p">,</span> <span class="s2">"stw1rr"</span><span class="p">,</span> <span class="mi">9999</span><span class="p">,</span> <span class="s2">"sta1r"</span><span class="p">,</span> <span class="mi">1</span><span class="p">{</span><span class="s2">"speedo"</span><span class="o">:</span><span class="kc">false</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"propulsed"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hasTire"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>
+<h3 id="advanced-example">
+
+  Advanced example
+</h3>
+<p>A pair of front wheels split into individual components.</p>
+<p>Hubs:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pressureWheels"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span><span class="s2">"hubGroup"</span><span class="p">,</span><span class="s2">"group"</span><span class="p">,</span><span class="s2">"node1:"</span><span class="p">,</span><span class="s2">"node2:"</span><span class="p">,</span><span class="s2">"nodeS"</span><span class="p">,</span><span class="s2">"nodeArm:"</span><span class="p">,</span><span class="s2">"wheelDir"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"disableMeshBreaking"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"disableHubMeshBreaking"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"hasTire"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//general settings
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"hubRadius"</span><span class="o">:</span><span class="mf">0.18</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelOffset"</span><span class="o">:-</span><span class="mf">0.04</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubWidth"</span><span class="o">:</span><span class="mf">0.160</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"numRays"</span><span class="o">:</span><span class="mi">16</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//hub options
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"hubTreadBeamSpring"</span><span class="o">:</span><span class="mi">901000</span><span class="p">,</span> <span class="s2">"hubTreadBeamDamp"</span><span class="o">:</span><span class="mi">6</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubPeripheryBeamSpring"</span><span class="o">:</span><span class="mi">901000</span><span class="p">,</span> <span class="s2">"hubPeripheryBeamDamp"</span><span class="o">:</span><span class="mi">6</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubSideBeamSpring"</span><span class="o">:</span><span class="mi">1351000</span><span class="p">,</span> <span class="s2">"hubSideBeamDamp"</span><span class="o">:</span><span class="mi">6</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubNodeWeight"</span><span class="o">:</span><span class="mf">0.40</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubNodeMaterial"</span><span class="o">:</span><span class="s2">"|NM_METAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubFrictionCoef"</span><span class="o">:</span><span class="mf">0.5</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubBeamDeform"</span><span class="o">:</span><span class="mi">15000</span><span class="p">,</span> <span class="s2">"hubBeamStrength"</span><span class="o">:</span><span class="mi">66000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>Tires:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pressureWheels"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span><span class="s2">"hubGroup"</span><span class="p">,</span><span class="s2">"group"</span><span class="p">,</span><span class="s2">"node1:"</span><span class="p">,</span><span class="s2">"node2:"</span><span class="p">,</span><span class="s2">"nodeS"</span><span class="p">,</span><span class="s2">"nodeArm:"</span><span class="p">,</span><span class="s2">"wheelDir"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"disableMeshBreaking"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"disableHubMeshBreaking"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"hasTire"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hasTire"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTireReinfBeams"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTireLbeams"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTireSideReinfBeams"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTreadReinfBeams"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTirePeripheryReinfBeams"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//general settings
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"radius"</span><span class="o">:</span><span class="mf">0.28</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"tireWidth"</span><span class="o">:</span><span class="mf">0.135</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//tire options
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"wheelSideBeamSpring"</span><span class="o">:</span><span class="s2">"$=$tirepressure_F*550"</span><span class="p">,</span><span class="s2">"wheelSideBeamDamp"</span><span class="o">:</span><span class="mi">20</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelSideBeamSpringExpansion"</span><span class="o">:</span><span class="mi">281000</span><span class="p">,</span><span class="s2">"wheelSideBeamDampExpansion"</span><span class="o">:</span><span class="mi">30</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelSideTransitionZone"</span><span class="o">:</span><span class="mf">0.09</span><span class="p">,</span><span class="s2">"wheelSideBeamPrecompression"</span><span class="o">:</span><span class="mf">0.98</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelReinfBeamSpring"</span><span class="o">:</span><span class="mi">15000</span><span class="p">,</span><span class="s2">"wheelReinfBeamDamp"</span><span class="o">:</span><span class="mi">140</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelReinfBeamDampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">,</span><span class="s2">"wheelReinfBeamPrecompression"</span><span class="o">:</span><span class="mf">0.98</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelTreadBeamSpring"</span><span class="o">:</span><span class="mi">50000</span><span class="p">,</span><span class="s2">"wheelTreadBeamDamp"</span><span class="o">:</span><span class="mi">50</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelTreadBeamDampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">,</span><span class="s2">"wheelTreadBeamPrecompression"</span><span class="o">:</span><span class="mf">0.98</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelTreadReinfBeamSpring"</span><span class="o">:</span><span class="mi">120000</span><span class="p">,</span><span class="s2">"wheelTreadReinfBeamDamp"</span><span class="o">:</span><span class="mi">40</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelTreadReinfBeamDampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">,</span><span class="s2">"wheelTreadReinfBeamPrecompression"</span><span class="o">:</span><span class="mf">0.98</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelPeripheryBeamSpring"</span><span class="o">:</span><span class="mi">35000</span><span class="p">,</span><span class="s2">"wheelPeripheryBeamDamp"</span><span class="o">:</span><span class="mi">23</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelPeripheryBeamDampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">,</span><span class="s2">"wheelPeripheryBeamPrecompression"</span><span class="o">:</span><span class="mf">0.98</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelPeripheryReinfBeamSpring"</span><span class="o">:</span><span class="mi">95000</span><span class="p">,</span><span class="s2">"wheelPeripheryReinfBeamDamp"</span><span class="o">:</span><span class="mi">23</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelPeripheryReinfBeamDampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">,</span><span class="s2">"wheelPeripheryReinfBeamPrecompression"</span><span class="o">:</span><span class="mf">0.98</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//general tire values
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span><span class="mf">0.11</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"nodeMaterial"</span><span class="o">:</span><span class="s2">"|NM_RUBBER"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"triangleCollision"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"pressurePSI"</span><span class="o">:</span><span class="s2">"$tirepressure_F"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"dragCoef"</span><span class="o">:</span><span class="mi">5</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//groundmodel friction multipliers
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"frictionCoef"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"slidingFrictionCoef"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"treadCoef"</span><span class="o">:</span><span class="mf">0.7</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//advanced friction values
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"noLoadCoef"</span><span class="o">:</span><span class="mf">1.28</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"loadSensitivitySlope"</span><span class="o">:</span><span class="mf">0.00019</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"fullLoadCoef"</span><span class="o">:</span><span class="mf">0.4</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"softnessCoef"</span><span class="o">:</span><span class="mf">0.7</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//deform values
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"wheelSideBeamDeform"</span><span class="o">:</span><span class="mi">11000</span><span class="p">,</span><span class="s2">"wheelSideBeamStrength"</span><span class="o">:</span><span class="mi">15000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelTreadBeamDeform"</span><span class="o">:</span><span class="mi">10000</span><span class="p">,</span><span class="s2">"wheelTreadBeamStrength"</span><span class="o">:</span><span class="mi">13000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelPeripheryBeamDeform"</span><span class="o">:</span><span class="mi">40000</span><span class="p">,</span><span class="s2">"wheelPeripheryBeamStrength"</span><span class="o">:</span><span class="mi">40000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>Hubcaps:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pressureWheels"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span><span class="s2">"hubGroup"</span><span class="p">,</span><span class="s2">"group"</span><span class="p">,</span><span class="s2">"node1:"</span><span class="p">,</span><span class="s2">"node2:"</span><span class="p">,</span><span class="s2">"nodeS"</span><span class="p">,</span><span class="s2">"nodeArm:"</span><span class="p">,</span><span class="s2">"wheelDir"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//hubcap options
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"enableHubcaps"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapSelfCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableExtraHubcapBeams"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapOffset"</span><span class="o">:-</span><span class="mf">0.03</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapWidth"</span><span class="o">:-</span><span class="mf">0.025</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapRadius"</span><span class="o">:</span><span class="mf">0.11</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapBeamSpring"</span><span class="o">:</span><span class="mi">121000</span><span class="p">,</span> <span class="s2">"hubcapBeamDamp"</span><span class="o">:</span><span class="mi">4</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapBeamDeform"</span><span class="o">:</span><span class="mi">3500</span><span class="p">,</span> <span class="s2">"hubcapBeamStrength"</span><span class="o">:</span><span class="mi">15000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapAttachBeamSpring"</span><span class="o">:</span><span class="mi">121000</span><span class="p">,</span> <span class="s2">"hubcapAttachBeamDamp"</span><span class="o">:</span><span class="mi">8</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapAttachBeamDeform"</span><span class="o">:</span><span class="mi">1200</span><span class="p">,</span> <span class="s2">"hubcapAttachBeamStrength"</span><span class="o">:</span><span class="mi">1800</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapSupportBeamDeform"</span><span class="o">:</span><span class="mi">2500</span><span class="p">,</span> <span class="s2">"hubcapSupportBeamStrength"</span><span class="o">:</span><span class="mi">5000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapNodeWeight"</span><span class="o">:</span><span class="mf">0.06</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapCenterNodeWeight"</span><span class="o">:</span><span class="mf">0.06</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapNodeMaterial"</span><span class="o">:</span><span class="s2">"|NM_METAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapFrictionCoef"</span><span class="o">:</span><span class="mf">0.7</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>Brakes:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pressureWheels"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span><span class="s2">"hubGroup"</span><span class="p">,</span><span class="s2">"group"</span><span class="p">,</span><span class="s2">"node1:"</span><span class="p">,</span><span class="s2">"node2:"</span><span class="p">,</span><span class="s2">"nodeS"</span><span class="p">,</span><span class="s2">"nodeArm:"</span><span class="p">,</span><span class="s2">"wheelDir"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//brakes
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"brakeTorque"</span><span class="o">:</span><span class="s2">"$=$brakestrength*1350"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeInputSplit"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeSplitCoef"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"parkingTorque"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeSpring"</span><span class="o">:</span><span class="mi">125</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//brake thermals
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"enableBrakeThermals"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeDiameter"</span><span class="o">:</span><span class="mf">0.24</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeMass"</span><span class="o">:</span><span class="mf">4.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeType"</span><span class="o">:</span><span class="s2">"vented-disc"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"rotorMaterial"</span><span class="o">:</span><span class="s2">"steel"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeVentingCoef"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//brake sounds
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"squealCoefNatural"</span><span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span><span class="s2">"squealCoefLowSpeed"</span><span class="o">:</span> <span class="mf">0.0</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>Adding the wheels to the car (note that all of the previous values are reset at the end, to prevent interfering with other wheels of the vehicle):</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pressureWheels"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span><span class="s2">"hubGroup"</span><span class="p">,</span><span class="s2">"group"</span><span class="p">,</span><span class="s2">"node1:"</span><span class="p">,</span><span class="s2">"node2:"</span><span class="p">,</span><span class="s2">"nodeS"</span><span class="p">,</span><span class="s2">"nodeArm:"</span><span class="p">,</span><span class="s2">"wheelDir"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//front wheels
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"collision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapBreakGroup"</span><span class="o">:</span><span class="s2">"hubcap_FR"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapGroup"</span><span class="o">:</span><span class="s2">"hubcap_FR"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"axleBeams"</span><span class="o">:</span><span class="p">[</span><span class="s2">"axle_FR"</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"FR"</span><span class="p">,</span> <span class="s2">"wheel_FR"</span><span class="p">,</span> <span class="s2">"tire_FR"</span><span class="p">,</span> <span class="s2">"fw1rr"</span><span class="p">,</span> <span class="s2">"fw1r"</span><span class="p">,</span> <span class="mi">9999</span><span class="p">,</span> <span class="s2">"fh6r"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">"torqueCoupling:"</span><span class="o">:</span><span class="s2">"fh1r"</span><span class="p">,</span><span class="s2">"torqueArm:"</span><span class="o">:</span><span class="s2">"fh2r"</span><span class="p">,</span><span class="s2">"torqueArm2:"</span><span class="o">:</span><span class="s2">"fh3r"</span><span class="p">,</span><span class="s2">"steerAxisUp:"</span><span class="o">:</span><span class="s2">"fh2r"</span><span class="p">,</span><span class="s2">"steerAxisDown:"</span><span class="o">:</span><span class="s2">"fh1r"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapBreakGroup"</span><span class="o">:</span><span class="s2">"hubcap_FL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapGroup"</span><span class="o">:</span><span class="s2">"hubcap_FL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"axleBeams"</span><span class="o">:</span><span class="p">[</span><span class="s2">"axle_FL"</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"FL"</span><span class="p">,</span> <span class="s2">"wheel_FL"</span><span class="p">,</span> <span class="s2">"tire_FL"</span><span class="p">,</span> <span class="s2">"fw1ll"</span><span class="p">,</span> <span class="s2">"fw1l"</span><span class="p">,</span> <span class="mi">9999</span><span class="p">,</span> <span class="s2">"fh6l"</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">"torqueCoupling:"</span><span class="o">:</span><span class="s2">"fh1l"</span><span class="p">,</span><span class="s2">"torqueArm:"</span><span class="o">:</span><span class="s2">"fh2l"</span><span class="p">,</span><span class="s2">"torqueArm2:"</span><span class="o">:</span><span class="s2">"fh3l"</span><span class="p">,</span><span class="s2">"steerAxisUp:"</span><span class="o">:</span><span class="s2">"fh2l"</span><span class="p">,</span><span class="s2">"steerAxisDown:"</span><span class="o">:</span><span class="s2">"fh1l"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"axleBeams"</span><span class="o">:</span><span class="p">[]},{</span><span class="s2">"disableMeshBreaking"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"disableTriangleBreaking"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapBreakGroup"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapGroup"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableHubcaps"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTireLbeams"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTireSideReinfBeams"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTireReinfBeams"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTreadReinfBeams"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTirePeripheryReinfBeams"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"loadSensitivitySlope"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"noLoadCoef"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"fullLoadCoef"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"frictionCoef"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"slidingFrictionCoef"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"softnessCoef"</span><span class="o">:</span><span class="mf">0.5</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"treadCoef"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//cancel out brake properties
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"brakeTorque"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"parkingTorque"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableBrakeThermals"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeDiameter"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeMass"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeType"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"rotorMaterial"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeVentingCoef"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>

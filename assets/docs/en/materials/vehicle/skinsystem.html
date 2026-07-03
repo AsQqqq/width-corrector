@@ -1,0 +1,76 @@
+<p>The skin system allows for easy and seamless changes of vehicle textures within the game.</p>
+<p>This is most commonly used to allow the change between different paintjobs or interior colors.</p>
+<p>They are defined using two elements, the first one is a jbeamed part that will call the skin, and the second one is a new material defined as a skin.</p>
+<p></p><div class="bng-notice note"><p>This page describes more the technical elements of the skin system so you can use it for things like interior colors and others.</p>
+<p>See <a data-doc="materials/vehicle/skinsystem/skintutorial" href="/docs/materials/vehicle/skinsystem/skintutorial">this tutorial</a>
+ if you just want to learn how to create a new skin for a vanilla car.</p>
+</div>
+<br/>
+<h3 id="jbeam">
+
+  Jbeam
+</h3>
+<p>The definition of a skin’s uses the slotType, and the skin identifier.</p>
+<p>Keep in mind that with the exception of “paint_design”, the slotType of a skin needs to start with “skin_”, like “skin_interior” or “skin_gauges”.</p>
+<div class="bng-notice note">Every vanilla car has a “paint_design” slot already included. This slot should be used when making alternative paintjobs.</div>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pigeon_skin_birdabduction"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Bird Response Livery"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">1500</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"paint_design"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"globalSkin"</span> <span class="o">:</span> <span class="s2">"birdabduction"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div><p>The “globalSkin” or “skinName” value will be used to define which skin should be used. Both can be used interchangeably.</p>
+<h3 id="material">
+
+  Material
+</h3>
+<p>The material is defined like a standard material, usually starting with a copy of the base material and changing the parts that will be affected by the skin, usually the colorPalette and baseColorMap.</p>
+<p>The main change is the “name” and “mapTo” parameters. For skins they should be structured as “materialName.skinType.skinName”</p>
+<p>Material name refers to the name of the material on the model that will be replaced.</p>
+<p>SkinType refers to the slotType of the jbeam that calls this skin. The only exception to this is the “paint_design” slot, which gets mapped to “skin”.</p>
+<p>SkinName needs to match the value set inside the “globalSkin” or “skinName” value in the jbeam.</p>
+<p>If we take the following example. The material that gets replaced is the main pessima material. The skinType is “skin”, meaning it uses the “paint_design” slot. The skinName is “bodycolored”.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pessima.skin.bodycolored"</span> <span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span> <span class="p">:</span> <span class="s2">"pessima.skin.bodycolored"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"mapTo"</span> <span class="p">:</span> <span class="s2">"pessima.skin.bodycolored"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span> <span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"persistentId"</span> <span class="p">:</span> <span class="s2">"e2c54f56-d710-4eb0-bc18-1dad8c9a5910"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_b.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_m.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"vehicles/pessima/pessima_n.dds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_r.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_cc.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatRoughnessFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"colorPaletteMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_p.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"colorPaletteMapUseUV"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"instanceDiffuse"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_n.dds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"opacityMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_alt_c.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"activeLayers"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dynamicCubemap"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"materialTag0"</span><span class="p">:</span> <span class="s2">"beamng"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"materialTag1"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order_simset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>

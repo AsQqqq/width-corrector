@@ -1,0 +1,107 @@
+<h2 id="texture-optimization">
+
+  Texture Optimization
+</h2>
+<div class="bng-notice tip"><p><strong>Texture Optimization Tips:</strong></p>
+<p><span class="bng-mark caution"><strong>RGB maps (diffuse, normal, etc.) use x2 more memory</strong></span> than single-channel maps (metallic, roughness, opacity).<br/>
+Prioritize optimizing these first.</p>
+<ul>
+<li>Use a <strong>single-channel opacity map</strong> instead of a full-color texture to save memory.</li>
+<li>Data size <strong>scales x4</strong> with each step (e.g., 2K → 4K). Avoid 4K unless it makes a visible difference.</li>
+</ul>
+</div>
+<p>All texture cooker files should be PNG format with the correct mode selected in photoshop (grayscale textures are saved as grayscale PNGs, RGB textures are saved as RGB PNGs), with filenames that are followed by a suffix before the file extension, either <code>.color</code> or <code>.data</code>. This tells the cooker and GPU what sort of texture the file is.</p>
+<p>The game will convert to <code>.dds</code> for you (for mods please ship the mod with <code>.dds</code> so the players computer doesn’t need to convert)</p>
+<p>The full filename using this format would be something like <code>vehiclename_gauges_b.color.png</code></p>
+<ul>
+<li><code>.color</code> is for 8-bit RGB format textures (such as base color or emissive maps)</li>
+<li><code>.data</code> is for 8-bit greyscale textures (such as metallic or AO maps)</li>
+<li><code>.normal</code> is for normal maps specifically - these should also be set to 8-bit RGB</li>
+</ul>
+<p>Below are the maps in-game and the ram usage:</p>
+<div class="line-inner-small"></div>
+<h3 id="3-channel-rgb-map-sizes">
+
+  3-channel RGB map sizes
+</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Size</strong></th>
+<th><strong>Resolution</strong></th>
+<th><strong>File Path</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>21 MB</td>
+<td>4096x4096x0</td>
+<td><code>nine_main_b.color.dds</code></td>
+</tr>
+<tr>
+<td>5.3 MB</td>
+<td>2048x2048x0</td>
+<td><code>nine_gauges_b.color.dds</code></td>
+</tr>
+<tr>
+<td>1.3 MB</td>
+<td>1024x1024x0</td>
+<td><code>autobello_interior_b_b.color.dds</code></td>
+</tr>
+<tr>
+<td>341 KB</td>
+<td>512x512x0</td>
+<td><code>sealedbeam_b.color.dds</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="1-channel-gray-scale-map-sizes">
+
+  1-channel (Gray Scale) map sizes
+</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Size</strong></th>
+<th><strong>Resolution</strong></th>
+<th><strong>File</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>11 MB</td>
+<td>4096x4096x0</td>
+<td><code>nine_main_r.data.dds</code></td>
+</tr>
+<tr>
+<td>2.7 MB</td>
+<td>2048x2048x0</td>
+<td><code>nine_main_ao.data.dds</code></td>
+</tr>
+<tr>
+<td>683 KB</td>
+<td>1024x1024x0</td>
+<td><code>DumpTruck_glass_dmg_r.data.dds</code></td>
+</tr>
+<tr>
+<td>171 KB</td>
+<td>512x512x0</td>
+<td><code>nine_badges_m.data.dds</code></td>
+</tr>
+</tbody>
+</table>
+<div class="line-inner-small"></div>
+<h3 id="color-values-for-maps">
+
+  Color values for maps
+</h3>
+<p><em>(almost no data size)</em></p>
+<p>This means that we don’t need to and should not ever be using purely one color textures in any scenario, and this would serve purely to waste memory.</p>
+<p>The color value directly correlates to what the value of that color on the texture would be, with colors using RGB values as an input while metallic maps are on a 0 to 1 scale (0 being black, 1 being white).</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="(red base color done via values with no texture)" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/materials-and-meshes/1.png"/>
+</span><span class="text" style="text-align: center;"><em>(red base color done via values with no texture)</em></span></div>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="(low roughness value set via value with no texture)" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/materials-and-meshes/2.png"/>
+</span><span class="text" style="text-align: center;"><em>(low roughness value set via value with no texture)</em></span></div>

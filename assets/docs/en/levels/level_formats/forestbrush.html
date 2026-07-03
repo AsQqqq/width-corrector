@@ -1,0 +1,492 @@
+<p>This document describes Forest Brush data used by the World Editor Forest Editor.</p>
+<p>Forest Brushes are editor-only groups of placement rules used to paint forest items into a level. A brush can contain one or more <code>ForestBrushElement</code> objects. Each element references a <code>ForestItemData</code> type and defines how that item should be randomly placed.</p>
+<p>Forest Brushes do not directly store placed forest instances. They are tools for creating forest placement data.</p>
+<hr/>
+<h2 id="overview">
+
+  Overview
+</h2>
+<p>A Forest Brush is a container of one or more brush elements.</p>
+<p>Each <code>ForestBrushElement</code> controls:</p>
+<ul>
+<li>Which forest item type can be placed</li>
+<li>How likely it is to be selected</li>
+<li>Random rotation range</li>
+<li>Random scale range</li>
+<li>Slope limits</li>
+<li>Elevation limits</li>
+<li>Sink/depth adjustment</li>
+</ul>
+<p>This allows a single brush stroke to paint a natural-looking mixture of trees, rocks, bushes, grass clumps, and other forest items.</p>
+<p>Example use cases:</p>
+<ul>
+<li>Mixed tree brushes</li>
+<li>Rock scatter brushes</li>
+<li>Bush/grass undergrowth brushes</li>
+<li>Elevation-specific vegetation</li>
+<li>Slope-restricted cliff rocks</li>
+<li>Randomized forest density and scale variation</li>
+</ul>
+<hr/>
+<h2 id="object-types">
+
+  Object types
+</h2>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ForestBrush</code></td>
+<td>Container for one or more <code>ForestBrushElement</code> objects.</td>
+</tr>
+<tr>
+<td><code>ForestBrushElement</code></td>
+<td>Defines placement settings for one forest item type.</td>
+</tr>
+<tr>
+<td><code>ForestItemData</code></td>
+<td>Forest item type referenced by the brush element.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="forestbrush">
+
+  ForestBrush
+</h2>
+<p><code>ForestBrush</code> is a container class for <code>ForestBrushElement</code> objects.</p>
+<p>It is used by the editor only and is stored under a special group:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">ForestBrushGroup
+</span></span></code></pre></div><p>If <code>ForestBrushGroup</code> does not exist, the engine creates it automatically.</p>
+<p>A <code>ForestBrush</code> only accepts <code>ForestBrushElement</code> children. Other object types are ignored when added to the brush.</p>
+<hr/>
+<h2 id="forestbrushelement">
+
+  ForestBrushElement
+</h2>
+<p>A <code>ForestBrushElement</code> represents one possible forest item type in a brush.</p>
+<p>For example, a “mixed pine forest” brush may contain:</p>
+<ul>
+<li>Small pine element</li>
+<li>Medium pine element</li>
+<li>Large pine element</li>
+<li>Bush element</li>
+<li>Rock element</li>
+</ul>
+<p>Each element has its own probability, scale, slope, and elevation settings.</p>
+<hr/>
+<h2 id="fields">
+
+  Fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>forestItemData</code></td>
+<td>ForestItemData</td>
+<td><code>null</code></td>
+<td>Forest item type this element places.</td>
+</tr>
+<tr>
+<td><code>probability</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Relative chance of this element being selected during painting.</td>
+</tr>
+<tr>
+<td><code>rotationRange</code></td>
+<td>number</td>
+<td><code>360</code></td>
+<td>Maximum random rotation range in degrees.</td>
+</tr>
+<tr>
+<td><code>scaleMin</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Minimum random item scale.</td>
+</tr>
+<tr>
+<td><code>scaleMax</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Maximum random item scale.</td>
+</tr>
+<tr>
+<td><code>scaleExponent</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Bias exponent used when choosing random scale.</td>
+</tr>
+<tr>
+<td><code>sinkMin</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Minimum sink amount variation.</td>
+</tr>
+<tr>
+<td><code>sinkMax</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Maximum sink amount variation.</td>
+</tr>
+<tr>
+<td><code>sinkRadius</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Radius used to calculate sinking into terrain, especially on slopes.</td>
+</tr>
+<tr>
+<td><code>slopeMin</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Minimum surface slope, in degrees, where this item can be placed.</td>
+</tr>
+<tr>
+<td><code>slopeMax</code></td>
+<td>number</td>
+<td><code>90</code></td>
+<td>Maximum surface slope, in degrees, where this item can be placed.</td>
+</tr>
+<tr>
+<td><code>elevationMin</code></td>
+<td>number</td>
+<td><code>-10000</code></td>
+<td>Minimum world-space elevation where this item can be placed.</td>
+</tr>
+<tr>
+<td><code>elevationMax</code></td>
+<td>number</td>
+<td><code>10000</code></td>
+<td>Maximum world-space elevation where this item can be placed.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="probability">
+
+  Probability
+</h2>
+<p><code>probability</code> controls how often an element is selected relative to other elements in the same brush.</p>
+<p>It is not an absolute percentage by itself. Instead, the chance is based on the element’s probability divided by the sum of all probabilities in the brush.</p>
+<p>Example:</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Probability</th>
+<th>Approximate chance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pine small</td>
+<td><code>3</code></td>
+<td>50%</td>
+</tr>
+<tr>
+<td>Pine large</td>
+<td><code>2</code></td>
+<td>33%</td>
+</tr>
+<tr>
+<td>Rock</td>
+<td><code>1</code></td>
+<td>17%</td>
+</tr>
+</tbody>
+</table>
+<p>Total probability:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">3 + 2 + 1 = 6
+</span></span></code></pre></div><p>So:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Pine small = 3 / 6 = 50%
+</span></span><span class="line"><span class="cl">Pine large = 2 / 6 = 33%
+</span></span><span class="line"><span class="cl">Rock       = 1 / 6 = 17%
+</span></span></code></pre></div><p>Use higher probability for common items and lower probability for rare accent items.</p>
+<hr/>
+<h2 id="rotation-range">
+
+  Rotation range
+</h2>
+<p><code>rotationRange</code> controls random yaw rotation.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"rotationRange"</span><span class="err">:</span> <span class="mi">360</span>
+</span></span></code></pre></div><p>This allows full random rotation and is useful for trees, rocks, bushes, and most natural objects.</p>
+<p>Smaller values restrict rotation variation:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"rotationRange"</span><span class="err">:</span> <span class="mi">30</span>
+</span></span></code></pre></div><p>This can be useful for objects that need a more consistent orientation.</p>
+<hr/>
+<h2 id="scale-range">
+
+  Scale range
+</h2>
+<p><code>scaleMin</code> and <code>scaleMax</code> define random item scale.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scaleMin"</span><span class="err">:</span> <span class="mf">0.8</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"scaleMax"</span><span class="err">:</span> <span class="mf">1.3</span>
+</span></span></code></pre></div><p>This creates variation so repeated assets do not look identical.</p>
+<p>Typical usage:</p>
+<table>
+<thead>
+<tr>
+<th>Asset type</th>
+<th>Suggested scale range</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Trees</td>
+<td><code>0.8 - 1.4</code></td>
+</tr>
+<tr>
+<td>Bushes</td>
+<td><code>0.7 - 1.5</code></td>
+</tr>
+<tr>
+<td>Rocks</td>
+<td><code>0.6 - 1.8</code></td>
+</tr>
+<tr>
+<td>Grass clumps</td>
+<td><code>0.8 - 1.2</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="scale-exponent">
+
+  Scale exponent
+</h2>
+<p><code>scaleExponent</code> biases the random scale distribution between <code>scaleMin</code> and <code>scaleMax</code>.</p>
+<p>Default:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scaleExponent"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre></div><p>A value of <code>1</code> gives a normal linear distribution.</p>
+<p>Higher or lower values can bias the result toward smaller or larger instances, depending on the random distribution used by the editor.</p>
+<p>Use this when you want most items to be near one end of the scale range instead of evenly distributed.</p>
+<hr/>
+<h2 id="sink-settings">
+
+  Sink settings
+</h2>
+<p>Sink settings help place items naturally into terrain.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sinkMin</code></td>
+<td>Minimum sink amount.</td>
+</tr>
+<tr>
+<td><code>sinkMax</code></td>
+<td>Maximum sink amount.</td>
+</tr>
+<tr>
+<td><code>sinkRadius</code></td>
+<td>Radius used to calculate sinking around the base.</td>
+</tr>
+</tbody>
+</table>
+<p>These are useful for:</p>
+<ul>
+<li>Trees on slopes</li>
+<li>Rocks partially embedded in terrain</li>
+<li>Bushes that should not appear floating</li>
+<li>Large objects with uneven bases</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"sinkMin"</span><span class="err">:</span> <span class="mf">0.05</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"sinkMax"</span><span class="err">:</span> <span class="mf">0.2</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"sinkRadius"</span><span class="err">:</span> <span class="mf">1.5</span>
+</span></span></code></pre></div><p>This allows the object to be placed slightly below the terrain surface to avoid visible gaps.</p>
+<div class="bng-notice info">Use sink values carefully. Too much sinking can hide roots, bases, or lower geometry.</div>
+<hr/>
+<h2 id="slope-limits">
+
+  Slope limits
+</h2>
+<p><code>slopeMin</code> and <code>slopeMax</code> restrict placement based on surface slope.</p>
+<p>Example for normal trees:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"slopeMin"</span><span class="err">:</span> <span class="mi">0</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"slopeMax"</span><span class="err">:</span> <span class="mi">35</span>
+</span></span></code></pre></div><p>Example for cliff rocks:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"slopeMin"</span><span class="err">:</span> <span class="mi">25</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"slopeMax"</span><span class="err">:</span> <span class="mi">80</span>
+</span></span></code></pre></div><p>This helps control where items appear:</p>
+<ul>
+<li>Trees on flatter terrain</li>
+<li>Rocks on steep slopes</li>
+<li>Grass on gentle hills</li>
+<li>No large vegetation on cliffs</li>
+</ul>
+<hr/>
+<h2 id="elevation-limits">
+
+  Elevation limits
+</h2>
+<p><code>elevationMin</code> and <code>elevationMax</code> restrict placement based on world-space height.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"elevationMin"</span><span class="err">:</span> <span class="mi">200</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"elevationMax"</span><span class="err">:</span> <span class="mi">800</span>
+</span></span></code></pre></div><p>This is useful for biome control:</p>
+<ul>
+<li>Lowland vegetation</li>
+<li>Mountain trees</li>
+<li>Alpine rocks</li>
+<li>Beach plants</li>
+<li>Snow-line vegetation</li>
+</ul>
+<hr/>
+<h2 id="example-brush-setup">
+
+  Example brush setup
+</h2>
+<p>A mixed forest brush could contain three elements:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestBrush"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"mixed_pine_forest"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Example elements:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestBrushElement"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"forestItemData"</span><span class="p">:</span> <span class="s2">"pine_small"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationRange"</span><span class="p">:</span> <span class="mi">360</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scaleMin"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scaleMax"</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"slopeMin"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"slopeMax"</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"elevationMin"</span><span class="p">:</span> <span class="mi">-10000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"elevationMax"</span><span class="p">:</span> <span class="mi">10000</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestBrushElement"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"forestItemData"</span><span class="p">:</span> <span class="s2">"pine_large"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationRange"</span><span class="p">:</span> <span class="mi">360</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scaleMin"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scaleMax"</span><span class="p">:</span> <span class="mf">1.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"slopeMin"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"slopeMax"</span><span class="p">:</span> <span class="mi">30</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestBrushElement"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"forestItemData"</span><span class="p">:</span> <span class="s2">"rock_medium"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationRange"</span><span class="p">:</span> <span class="mi">360</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scaleMin"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scaleMax"</span><span class="p">:</span> <span class="mf">1.8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sinkMin"</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sinkMax"</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sinkRadius"</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"slopeMin"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"slopeMax"</span><span class="p">:</span> <span class="mi">75</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>In this brush:</p>
+<ul>
+<li>Small pines are common</li>
+<li>Large pines are less common</li>
+<li>Rocks appear occasionally</li>
+<li>Trees avoid steep slopes</li>
+<li>Rocks can appear on steeper terrain</li>
+</ul>
+<hr/>
+<h2 id="relationship-with-forestitemdata">
+
+  Relationship with ForestItemData
+</h2>
+<p><code>forestItemData</code> must reference a valid forest item definition.</p>
+<p>Forest item data is usually defined in:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/art/forest/managedItemData.json
+</span></span></code></pre></div><p>Example item data:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pine_small"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestItemData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"internalName"</span><span class="p">:</span> <span class="s2">"pine_small"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"shapeFile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/trees/pine_small.dae"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Brush element reference:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"forestItemData"</span><span class="err">:</span> <span class="s2">"pine_small"</span>
+</span></span></code></pre></div><p>If the referenced item data does not exist, the brush element cannot place that object.</p>
+<hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Use multiple brush elements for natural variation.</li>
+<li>Use probability to control common vs rare items.</li>
+<li>Use scale ranges to avoid repetition.</li>
+<li>Use slope limits to prevent trees from appearing on cliffs.</li>
+<li>Use elevation limits for biome control.</li>
+<li>Use small sink values for rocks and trees on slopes.</li>
+<li>Set <code>windScale</code> in <code>ForestItemData</code>, not the brush, for wind behavior.</li>
+<li>Keep brush elements focused; create separate brushes for different biomes or asset groups.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="brush-does-not-place-an-item">
+
+  Brush does not place an item
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li><code>forestItemData</code> is missing or invalid</li>
+<li>Referenced <code>ForestItemData</code> does not exist</li>
+<li>Slope is outside <code>slopeMin</code> / <code>slopeMax</code></li>
+<li>Elevation is outside <code>elevationMin</code> / <code>elevationMax</code></li>
+<li>Probability is too low compared to other elements</li>
+</ul>
+<h3 id="items-float-above-terrain">
+
+  Items float above terrain
+</h3>
+<p>Increase sink values slightly or check asset origin/pivot.</p>
+<h3 id="items-are-buried-too-deeply">
+
+  Items are buried too deeply
+</h3>
+<p>Reduce <code>sinkMin</code>, <code>sinkMax</code>, or <code>sinkRadius</code>.</p>
+<h3 id="too-many-repeated-looking-items">
+
+  Too many repeated-looking items
+</h3>
+<p>Increase rotation variation, widen scale range, or add more brush elements.</p>
+<h3 id="items-appear-on-cliffs">
+
+  Items appear on cliffs
+</h3>
+<p>Lower <code>slopeMax</code>.</p>
+<h3 id="rocks-do-not-appear-on-slopes">
+
+  Rocks do not appear on slopes
+</h3>
+<p>Increase <code>slopeMax</code> or raise <code>slopeMin</code> depending on the desired placement range.</p>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p>Forest Brushes are editor-only placement tools used by the Forest Editor.</p>
+<p>A brush contains one or more <code>ForestBrushElement</code> objects. Each element references a <code>ForestItemData</code> type and defines how that item should be randomly placed using probability, rotation, scale, sinking, slope, and elevation rules.</p>
+<p>They are used to efficiently paint natural-looking forests, rocks, bushes, and other repeated level vegetation.</p>

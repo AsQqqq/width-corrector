@@ -1,0 +1,263 @@
+<p>Texture Streaming was introduced for the Vulkan API in update <em>0.37</em>. It allows the engine to load texture mip levels on demand instead of keeping every texture at full resolution in memory at all times.</p>
+<p>Since update <em>0.39</em>, Direct3D 12 is also supported and includes texture streaming support.</p>
+<p>Texture Streaming is supported only on:</p>
+<ul>
+<li><strong>Vulkan</strong></li>
+<li><strong>Direct3D 12</strong></li>
+</ul>
+<p>It is <strong>not supported on Direct3D 11</strong>.</p>
+<h2 id="what-texture-streaming-does">
+
+  What texture streaming does
+</h2>
+<p>Texture streaming allows the engine to load texture detail on demand. Instead of keeping every texture at full resolution in VRAM, the renderer tracks which mip levels are actually needed and requests higher or lower resolution mips as required.</p>
+<p>BeamNG uses GPU feedback to determine which mip levels are sampled during rendering. This allows the streaming system to prioritize textures that are visible and close to the camera, while keeping distant or unused textures at lower resolution.</p>
+<p>This helps with:</p>
+<ul>
+<li>Lower VRAM usage</li>
+<li>Better stability on memory-limited GPUs</li>
+<li>Reduced loading pressure in large scenes</li>
+<li>More efficient use of texture memory</li>
+<li>Better scalability across different hardware</li>
+</ul>
+<p>Streamable textures may initially load at a lower mip level. Higher-resolution mips are streamed in later when needed.</p>
+<h2 id="vram-budgeting">
+
+  VRAM budgeting
+</h2>
+<p>Texture streaming uses a VRAM budget to decide when to load or unload high-resolution mip levels.</p>
+<ul>
+<li>When VRAM usage is below roughly <strong>50%</strong>, the engine can keep more high-resolution mips resident, reducing visible texture pop-in.</li>
+<li>When VRAM usage rises above roughly <strong>50%</strong>, the engine may begin unloading unused high-resolution mips.</li>
+<li>When VRAM usage approaches roughly <strong>90%</strong>, the engine normally stops loading additional high-resolution mips to avoid running out of VRAM.</li>
+</ul>
+<p>There is an exception for GPUs with memory budget below <strong>6 GB</strong>. On these systems, the engine may continue allowing higher-resolution mips to stream in even near the normal stop threshold, in order to avoid keeping textures permanently too blurry on lower-memory hardware.</p>
+<p>If the streaming budget is reached, textures may appear blurry or muddy because higher-resolution mip levels are not being loaded. This is intentional: it is better for the game to remain playable than to run out of VRAM.</p>
+<div class="bng-notice info">The budget is based on the GPU memory budget reported by the graphics driver, not always the exact advertised VRAM size of the GPU.</div>
+<h2 id="storage-speed">
+
+  Storage speed
+</h2>
+<p>Texture streaming depends on how quickly texture data can be read from disk.</p>
+<p>A slow HDD or SSD can increase the time it takes for high-resolution mip levels to appear. This may cause visible texture pop-in, where textures start blurry and become sharper after a delay.</p>
+<p>Fast SSDs improve streaming responsiveness, especially in large levels, with many vehicles, or when moving quickly through the world.</p>
+<h2 id="texture-quality-setting">
+
+  Texture Quality setting
+</h2>
+<p>Texture Quality controls the maximum texture resolution used by the renderer.</p>
+<table>
+<thead>
+<tr>
+<th>Texture Quality</th>
+<th>Resolution impact</th>
+<th>Example from 4096x4096</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Normal</strong></td>
+<td>Full resolution</td>
+<td>4096x4096</td>
+</tr>
+<tr>
+<td><strong>Low</strong></td>
+<td>Drops by 1 mip level</td>
+<td>2048x2048</td>
+</tr>
+<tr>
+<td><strong>Lowest</strong></td>
+<td>Drops by 2 mip levels</td>
+<td>1024x1024</td>
+</tr>
+</tbody>
+</table>
+<p>Each mip level halves the texture resolution in both width and height.</p>
+<p>This means:</p>
+<ul>
+<li><strong>Low</strong> uses half resolution in each dimension</li>
+<li><strong>Lowest</strong> uses quarter resolution in each dimension</li>
+</ul>
+<p>Because texture memory scales with total pixel count, dropping one mip level greatly reduces memory usage.</p>
+<p>For example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">4096x4096 = 16,777,216 pixels
+</span></span><span class="line"><span class="cl">2048x2048 = 4,194,304 pixels
+</span></span><span class="line"><span class="cl">1024x1024 = 1,048,576 pixels
+</span></span></code></pre></div><p>So dropping from 4096x4096 to 2048x2048 reduces the top mip pixel count to <strong>25%</strong> of the original.</p>
+<h2 id="what-mipmaps-are">
+
+  What mipmaps are
+</h2>
+<p>Mipmaps are smaller precomputed versions of a texture.</p>
+<p>A 4096x4096 texture usually contains a full mip chain:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">4096x4096
+</span></span><span class="line"><span class="cl">2048x2048
+</span></span><span class="line"><span class="cl">1024x1024
+</span></span><span class="line"><span class="cl">512x512
+</span></span><span class="line"><span class="cl">256x256
+</span></span><span class="line"><span class="cl">128x128
+</span></span><span class="line"><span class="cl">64x64
+</span></span><span class="line"><span class="cl">32x32
+</span></span><span class="line"><span class="cl">16x16
+</span></span><span class="line"><span class="cl">8x8
+</span></span><span class="line"><span class="cl">4x4
+</span></span><span class="line"><span class="cl">2x2
+</span></span><span class="line"><span class="cl">1x1
+</span></span></code></pre></div><p>The renderer selects the appropriate mip level based on how large the texture appears on screen.</p>
+<p>Mipmaps are important because they:</p>
+<ul>
+<li>Reduce shimmering and aliasing</li>
+<li>Reduce memory bandwidth usage</li>
+<li>Improve performance</li>
+<li>Allow texture streaming to load only needed detail</li>
+<li>Allow graphics settings to use lower resolution versions</li>
+</ul>
+<p>Without mipmaps, distant textures may flicker, shimmer, or waste bandwidth and lowering game performance by sampling unnecessarily large images.</p>
+<h2 id="why-power-of-two-textures-are-important">
+
+  Why power-of-two textures are important
+</h2>
+<p>Power-of-two textures use dimensions such as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">128x128
+</span></span><span class="line"><span class="cl">256x256
+</span></span><span class="line"><span class="cl">512x512
+</span></span><span class="line"><span class="cl">1024x1024
+</span></span><span class="line"><span class="cl">2048x2048
+</span></span><span class="line"><span class="cl">4096x4096
+</span></span></code></pre></div><p>They are strongly recommended because they produce clean mip chains down to <code>1x1</code>.</p>
+<p>Power-of-two textures are better for:</p>
+<ul>
+<li>Mipmap generation</li>
+<li>GPU texture compression</li>
+<li>Texture streaming</li>
+<li>Predictable memory usage</li>
+<li>Compatibility with older tools and pipelines</li>
+</ul>
+<p>Block-compressed formats such as BC4, BC5, and BC7 also work in fixed-size compression blocks, usually <code>4x4</code> pixels. Using power-of-two textures helps avoid padding, alignment issues, and inefficient mip chains.</p>
+<h2 id="why-dds-is-important">
+
+  Why DDS is important
+</h2>
+<p>DDS textures are GPU-ready texture files. They can store compressed formats such as BC7, BC5, and BC4, and they include mipmaps.</p>
+<p>Using cooked DDS textures provides:</p>
+<ul>
+<li>Faster loading</li>
+<li>Lower VRAM usage</li>
+<li>Lower memory bandwidth usage</li>
+<li>Correct mipmap support</li>
+<li>Better texture streaming behavior</li>
+<li>Smaller runtime memory footprint</li>
+</ul>
+<p>In BeamNG, source PNG textures should be processed through the <a data-doc="materials/texture_cooker" href="/docs/materials/texture_cooker">Texture Cooker</a>
+, which creates optimized DDS files.</p>
+<h2 id="why-png-source-textures-are-bad-for-runtime">
+
+  Why PNG source textures are bad for runtime
+</h2>
+<p>PNG is useful as an authoring format, but it is not a good runtime GPU texture format.</p>
+<p>PNG files are compressed on disk, but GPUs cannot sample PNG data directly. Before use, PNG textures must be decoded into raw pixel data and uploaded or converted into a GPU-friendly format.</p>
+<p>This can cause:</p>
+<ul>
+<li>Longer loading times</li>
+<li>Higher memory usage</li>
+<li>Poorer VRAM usage if no cooked texture exists</li>
+<li>Missing mipmaps</li>
+<li>Worse texture streaming behavior</li>
+</ul>
+<p>For example, a <code>4096x4096</code> RGBA PNG may look small on disk, but once decoded it requires:</p>
+<p><code>4096 x 4096 x 4 bytes = ~64 MiB</code></p>
+<p>That is only one texture, before considering additional maps such as normal, roughness, metallic, AO, opacity, and emissive.</p>
+<p>By comparison, a cooked DDS using GPU block compression, such as <strong>BC7</strong> for color textures, is much more efficient. BC7 uses about <strong>1 byte per pixel</strong>, so a <code>4096x4096</code> texture with a full mip chain requires roughly:</p>
+<p><code>4096 x 4096 x 4/3 = ~21 MiB</code></p>
+<p>This is why cooked DDS textures are important: they are GPU-ready, include mipmaps, use much less VRAM and bandwidth, and work properly with texture streaming and quality settings.</p>
+<div class="bng-notice warning">Do not ship mods with only source texture cooker PNG textures. If cooked DDS files are missing, textures may need to be cooked on the user’s machine, causing longer loading times and temporary performance drops.</div>
+<h2 id="bandwidth-and-performance">
+
+  Bandwidth and performance
+</h2>
+<p>Texture performance is not only about VRAM size. Memory bandwidth also matters.</p>
+<p>When rendering a scene, the GPU constantly reads texture data. Large uncompressed textures require more bandwidth, especially when used on large surfaces or sampled many times.</p>
+<p>High bandwidth usage can reduce performance because the GPU spends more time waiting for texture data instead of shading pixels.</p>
+<p>This is especially important for:</p>
+<ul>
+<li>Large terrain textures</li>
+<li>Road materials</li>
+<li>Vehicle skins</li>
+<li>Interior textures</li>
+<li>High-resolution normal maps</li>
+<li>Repeated detail maps</li>
+<li>Materials with many texture layers</li>
+</ul>
+<p>Mipmaps and GPU compression reduce bandwidth cost by ensuring the GPU reads smaller and more cache-friendly texture data whenever possible.</p>
+<h2 id="relationship-with-texture-cooker">
+
+  Relationship with Texture Cooker
+</h2>
+<p>The Texture Cooker converts correctly named PNG source textures into optimized DDS textures.</p>
+<p>Recommended workflow:</p>
+<ol>
+<li>Author textures as PNG using the correct suffix:
+<ul>
+<li><code>*.color.png</code></li>
+<li><code>*.normal.png</code></li>
+<li><code>*.data.png</code></li>
+</ul>
+</li>
+<li>Let the Texture Cooker generate DDS files.</li>
+<li>Ship the cooked DDS files with your mod.</li>
+<li>Keep material paths pointing to the PNG source path.</li>
+</ol>
+<p>The game will automatically use the cooked DDS if it exists.</p>
+<div class="bng-notice usage"><p>Materials should reference the PNG path, not the DDS path.</p>
+<p>Example:</p>
+<p><code>/vehicles/mycar/body.color.png</code></p>
+<p>Do not manually reference:</p>
+<p><code>/vehicles/mycar/body.color.dds</code></p>
+</div>
+<h2 id="debugging-mip-usage">
+
+  Debugging mip usage
+</h2>
+<p>Material debug tools can help check which mip levels are being used.</p>
+<p>Use:</p>
+<p><strong>Material Debug Visualization → Base Color Mip Level</strong></p>
+<p>This view shows how much of the original texture resolution is actually being used on screen.</p>
+<p>This is useful for finding:</p>
+<ul>
+<li>Textures that are too large for their screen size</li>
+<li>Objects that never use their highest mip levels</li>
+<li>Bad UV scaling</li>
+<li>Texture density issues</li>
+<li>Wasted memory from oversized assets</li>
+</ul>
+<p>If a texture almost always appears at lower mip levels, it may not need to be authored at such a high resolution.</p>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Use the Texture Cooker for textures.</li>
+<li>Ship cooked DDS files with mods.</li>
+<li>Keep material paths pointing to PNG source paths.</li>
+<li>Use power-of-two texture sizes.</li>
+<li>Avoid oversized textures.</li>
+<li>Prefer grayscale textures for single-channel data maps.</li>
+<li>Use debug views to inspect mip usage.</li>
+<li>Test with Texture Quality set to Normal, Low, and Lowest.</li>
+<li>Remember that Texture Streaming requires Vulkan or Direct3D 12.</li>
+<li>Use a fast SSD when possible to reduce streaming delays.</li>
+</ul>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p>Texture streaming, mipmaps, and DDS textures are essential for good performance.</p>
+<ul>
+<li><strong>Texture streaming</strong> loads texture detail on demand using GPU feedback.</li>
+<li><strong>VRAM budgeting</strong> helps prevent the game from running out of GPU memory.</li>
+<li><strong>Mipmaps</strong> reduce aliasing, bandwidth usage, and memory cost.</li>
+<li><strong>DDS</strong> provides GPU-ready compression and mip storage.</li>
+<li><strong>Texture Quality</strong> controls the maximum mip level used.</li>
+<li><strong>PNG</strong> is useful as a source format, but not ideal as a runtime texture format.</li>
+</ul>
+<p>For best results, author clean source textures, cook them to DDS, use power-of-two resolutions, and verify mip usage with debug tools.</p>

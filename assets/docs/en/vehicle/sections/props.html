@@ -1,0 +1,892 @@
+<p>Props are meshes that don’t flex, but can be animated. They are very useful for things like steering wheels, shifters, gauge needles, pedals, or other parts that are better animated than simulated. They can also be used to create spotlights that are tied to the glowMap/electrics system to make working lights.</p>
+<p><video autoplay="" controls="" src="PropVideo.mp4"></video></p>
+<p>By default, meshes will be positioned where they are in your modelling software, but they’ll need to be rotated into position using the base rotation argument. See <a href="https://documentation.beamng.com/modding/modelling/vehicle_modeling/#props" rel="noopener" target="_blank">modelling guidelines</a>
+ for more information</p>
+<h3 id="prop-axis-reference">
+
+  Prop axis reference
+</h3>
+<p>Each prop uses it’s own reference system made out of 3 nodes. This allows the prop to move when those nodes, allowing the props to move in crashes or for applications like moveable lights.</p>
+<p>The nodes chosen for the idRef, idX and idY arguments should form a right angle triangle, similarly to <a data-doc="vehicle/sections/refnodes" href="/docs/vehicle/sections/refnodes">refnodes</a>
+. Those nodes will form the X and Y axis of the prop’s coordinate system. The Z axis will be created based on those.</p>
+<p>For an example, the Pigeon’s dashboard props use the nodes “dsh2”,“dsh2r”,“dsh3” as it’s ref, x and y nodes respectively, with dsh2 being located in the center of the dash, dsh2r to it’s right, and dsh3 underneath.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/props/PropCoordinateSystem.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/props/PropCoordinateSystem_hu038c3db3cbf5866e6a67dad6b96c0846_432337_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>This means that positive values on the Y axis will move the props down, and on the Z axis the props will be moved backwards.</p>
+<p>All movements in translation will be done using that coordinate system, and not using the vehicle’s coordinate system as with nodes and other offsets. Rotation is done around each axis of the mesh’ coordinate system, with the center of rotation is the prop’s origin, as described in the <a href="https://documentation.beamng.com/modding/modelling/vehicle_modeling/" rel="noopener" target="_blank">modeling guidelines</a>
+</p>
+<h3 id="functions-and-limits">
+
+  Functions and limits
+</h3>
+<p>Prop movement is defined with a function using one of the vehicle’s <a data-doc="vehicle/vehicle_system/electrics" href="/docs/vehicle/vehicle_system/electrics">electrics</a>
+, along with rotation and translation values.</p>
+<p>The rotation and translation values define by how many degrees the prop will rotate and by how many meters it will move each time the function goes up by one. So for example if a temperature gauge had the follow parameter for rotation, it would rotate by 1 degree around the x axis for every degree temperature change.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">}</span>
+</span></span></code></pre></div><p>Rotation angle can be calculated by dividing the used range of the electric by the angle between the minimum and maximum positions.</p>
+<p>Min and max values are used to cap the movement of the prop. For example to simulate the “pegs” found on the gauges of many cars, which keeps the needle from moving beyond a certain range. They are defined as values of the function, and not as angle or translation.</p>
+<p>The offset value works in a similar way to the min and max, adding a static factor to the gauge. This is used to compensate for a 0 point which is not located at the needle’s initial position.</p>
+<p>The multiplier does exactly what it says on the tin, but it is rarely used, as rotation and translation values are modified instead.</p>
+<p>If we use the D-Series tachometer as an example.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/props/GaugeProps.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/props/GaugeProps.png"/>
+</span></a>
+It has a sweep of 180 degrees, with a range going of 6000rpm, giving us a rotation function of: 180 / 6000 = 0.03 degrees/rpm. We are using a negative value, because it goes in the clockwise direction.</p>
+<p>As we don’t want the gauge to go above 6000rpm, the max would be set to 6000, and the min to 0. For a temperature gauge the min and max could be values like 60 and 120.
+For the offset, in this case with an offset of 0 the needle points to 4000, meaning the offset should be -4000 for the needle to land on the correct value.
+If the needle isn’t aligned with the dashboard’s plane, the baseRotation parameter will be used to rotate the prop and it’s rotation axis.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">(...)</span><span class="s2">"baseRotation"</span><span class="p">,</span>           <span class="s2">"rotation"</span><span class="p">,</span>                 <span class="s2">"translation"</span><span class="p">,</span>       <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"multiplier"</span>
+</span></span><span class="line"><span class="cl"><span class="p">(...){</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">160</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">180</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mf">0.03</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span>     <span class="mi">6000</span><span class="p">,</span> <span class="o">-</span><span class="mi">4000</span><span class="p">,</span>     <span class="mi">1</span>
+</span></span></code></pre></div>
+<h3 id="lights">
+
+  Lights
+</h3>
+<p>Lights in beamNG consist of two main elements. The flare, which could be defined as a ball of light at the emitter, and represents the light bulb itself.</p>
+<p>The second part is the “cookie”, which represent the light reflected on surfaces by the light’s “beam”.</p>
+<p>Lights are often used in combination with glow maps and emissive textures, so the entire light appears lit.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/props/Lights.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/props/Lights_hue88f011a1b286d0dc86c0a33792e09be_858200_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Lights will turn on as soon as their function’s value is greater than 0, and can be associated to deform and break groups to disable them when the physical light gets damaged.</p>
+<p>Lights can transition progressively between the on and off state via linear scale if custom values defined in the <a data-doc="vehicle/sections/electrics" href="/docs/vehicle/sections/electrics">electrics</a>
+ section are used as the function value. There are special arguments used to modify the transition effect:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">(...){</span><span class="s2">"lightScaling"</span><span class="o">:</span><span class="p">{</span><span class="s2">"brightnessMinInput"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"brightnessMaxInput"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"flareScaleMinInput"</span><span class="o">:</span><span class="mf">0.6</span><span class="p">,</span> <span class="s2">"flareScaleMaxInput"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"lightColorOffsetRed"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"lightColorOffsetGreen"</span><span class="o">:</span><span class="mi">60</span><span class="p">,</span> <span class="s2">"lightColorOffsetBlue"</span><span class="o">:</span><span class="mi">80</span><span class="p">}}</span>
+</span></span></code></pre></div><p>However, these don’t have to be defined usually, as the default values already produce a convincing effect.</p>
+<h3 id="required-arguments">
+
+  Required arguments
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Defines the electric that will drive this prop</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>See the <a data-doc="vehicle/vehicle_system/electrics" href="/docs/vehicle/vehicle_system/electrics">electrics page</a>
+ for more information.</p>
+<p>For lights, the light will turn on as long as the function is greater than 0.</p>
+<p>If you want your prop to not be animated, use “nop” for a function that always return 0.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The name of the mesh to use for this prop</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The reference node that will be used to position this prop</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The X axis reference node</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The Y axis reference node</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The rotation of the prop around each axis.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Defined in degrees of rotation for each change of 1 of the function.</p>
+<p>Uses the intrinsic Euler -X -Z -Y rotation system.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The translation of the prop around each axis.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Defined in meters of movement for each change of 1 of the function.</div>
+</div>
+</div>
+<h3 id="optional-arguments">
+
+  Optional arguments
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Initial translation of the prop (non-spotlight props in meters, spotlight props in xnorm units for x and y and meters for z)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Overwrites the Location parameters in modelling software.</p>
+<p>Relative to the defined axis reference system. {“x”:0, “y”:0, “z”:0} will put the prop in the location of the idRef node.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Initial translation of the prop in JBeam/world space (meters)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Overwrites the Location parameters in modelling software.</p>
+<p>Relative to the Jbeam/world coordinates.
+{“x”:0, “y”:0, “z”:0} will put the prop in the position 0, 0, 0 according to the coordinates of the modelling software.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Same as baseTranslationGlobal but allows prop to maintain certain proportional distance from ref nodes as they stretch or compress</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Same as baseTranslationGlobal but prop becomes fixed a certain distance away from ref nodes</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The initial rotation (degrees)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Uses the intrinsic Euler -X -Z +Y rotation system.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The initial rotation of the prop in JBeam/world space (degrees)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Uses the intrinsic Euler +Y +Z +X rotation system.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The minimum value of the function that will be used</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">100<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The maximum value of the function that will be used</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Offset value</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Multiplier of the input value</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The name of the deform group which will disable the prop when activated</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Mostly used for lights, to disable them when broken.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The name of the break group which will disable the prop when activated</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Mostly used for lights, to disable them when broken.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Disables errors when one or more nodes of the prop were not found.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Useful for driveshafts, which have one end of the rotation axis in a separate component.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Offsets the mesh on the YZ axis, and offsets it in a mirrored fashion on the X axis if the position is not centered on it (m).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This is never set explicitly in Props section but rather passed from the <a data-doc="vehicle/sections/slots" href="/docs/vehicle/sections/slots">Slots</a>
+ section.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Offsets the mesh on the XYZ axis (m).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This is never set explicitly in Props section but rather passed from the <a data-doc="vehicle/sections/slots" href="/docs/vehicle/sections/slots">Slots</a>
+ section.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0, “px”:0, “py”:0, “pz”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Rotates the mesh by <code>x, y, z</code> degrees on XYZ axis, around the center point <code>px, py, pz</code></div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This is never set explicitly in Props section but rather passed from the <a data-doc="vehicle/sections/slots" href="/docs/vehicle/sections/slots">Slots</a>
+ section.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Whether the position of the mesh should ignore the nodeOffset modifier.</div>
+</div>
+</div>
+<h3 id="optional-arguments-lights-only">
+
+  Optional arguments (lights only)
+</h3>
+<p>These will only work when “mesh” is set to “SPOTLIGHT” or “POINTLIGHT”.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">40<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The angle at which the brightness is max (degrees).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">45<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The outer edge of the light beam (degrees).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Brightness decreases from the inner angle gradually until the outer angle.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">How bright the beam of light is.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">10<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">How far the light is still being reflected in meters.</div>
+</div>
+</div>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“r”:0, “g”:0, “b”:0, “a”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The color of the flare and emitted light.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>In an RGBA format.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"lightColor"</span><span class="o">:</span><span class="p">{</span><span class="s2">"r"</span><span class="o">:</span><span class="mi">255</span><span class="p">,</span> <span class="s2">"g"</span><span class="o">:</span><span class="mi">255</span><span class="p">,</span> <span class="s2">"b"</span><span class="o">:</span><span class="mi">150</span><span class="p">,</span> <span class="s2">"a"</span><span class="o">:</span><span class="mi">255</span><span class="p">},</span>
+</span></span></code></pre></div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:1, “z”:1}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">How quickly the light is reduced in the respective directions.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"lightAttenuation"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">}</span>
+</span></span></code></pre></div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">If the light will cast shadows on the objects it hits.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Enabling this will cause more load on the GPU, and should be limited to the headlights and other primary illumination. It is not required for indicators and taillamps.</div>
+</div>
+</div>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">vehicleDefaultLightflare<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Name of the flare to be used.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Commonly used values:</p>
+<ul>
+<li>“vehicleDefaultLightflare”</li>
+<li>“vehicleBrakeLightFlare”</li>
+<li>“vehicleHeadLightFlare”</li>
+<li>“vehicleReverseLightFlare”</li>
+</ul>
+<p>Other valid values:</p>
+<ul>
+<li>“BNG_LightFlare_1”</li>
+<li>“BNG_SpokeFlare_1”</li>
+<li>“BNG_Sunflare_1”</li>
+<li>“BNG_Sunflare_2”</li>
+<li>“BNG_Sunflare_3”</li>
+<li>“LightningLightAnim”</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The size factor of the flare.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Path to an image file which specifies the shape and texture of the reflected light.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Commonly used values:</p>
+<ul>
+<li>“/art/special/BNG_light_cookie_headlight.dds”</li>
+<li>“/art/special/BNG_light_cookie_lightbar.dds”</li>
+<li>“/art/special/BNG_light_cookie_underglow.dds”</li>
+</ul>
+<p>Any other grayscale image will work, where white is 100% visible and black is 100% invisible.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">256<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The resolution of the reflection of the light (px).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Increasing it makes it look smoother but it increases the strain on the GPU.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Defines how the edge of the shadows look like.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Contains some extra options to be used for material transitions.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Example usage:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">(...){</span><span class="s2">"lightScaling"</span><span class="o">:</span><span class="p">{</span><span class="s2">"brightnessMinInput"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"brightnessMaxInput"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"flareScaleMinInput"</span><span class="o">:</span><span class="mf">0.6</span><span class="p">,</span> <span class="s2">"flareScaleMaxInput"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"lightColorOffsetRed"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"lightColorOffsetGreen"</span><span class="o">:</span><span class="mi">60</span><span class="p">,</span> <span class="s2">"lightColorOffsetBlue"</span><span class="o">:</span><span class="mi">80</span><span class="p">}}</span>
+</span></span></code></pre></div><p>The arguments are described below. All of the transitions use linear scale. These are to be used together with glowMap transitions. Usually, default values don’t have to be changed. In that case you can make the dictionary empty:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">(...){</span><span class="s2">"lightScaling"</span><span class="o">:</span><span class="p">{}}</span>
+</span></span></code></pre></div></div>
+</div>
+</div>
+<h4 id="lightscaling-arguments">
+
+  LightScaling arguments
+</h4>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Function value at which lightBrightness will be at 0 during material transition</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Function value at which lightBrightness will be at its default value during material transition</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.6<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Function value at which flareScale will be at 0 during material transition</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Function value at which flareScale will be at its default value during material transition</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Number to be subtracted from red channel as the function value reaches 0 during material transition</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">60<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Number to be subtracted from green channel as the function value reaches 0 during material transition</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">80<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Number to be subtracted from blue channel as the function value reaches 0 during material transition</div>
+</div>
+</div>
+<h3 id="simple-examples">
+
+  Simple Examples
+</h3>
+<p>A set of two gauge needles.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"props"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"func"</span><span class="p">,</span> <span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"idRef:"</span><span class="p">,</span> <span class="s2">"idX:"</span><span class="p">,</span> <span class="s2">"idY:"</span><span class="p">,</span> <span class="s2">"baseRotation"</span><span class="p">,</span> <span class="s2">"rotation"</span><span class="p">,</span> <span class="s2">"translation"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"multiplier"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//needles
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"wheelspeed"</span><span class="p">,</span> <span class="s2">"needle_speedo"</span><span class="p">,</span> <span class="s2">"f7r"</span><span class="p">,</span><span class="s2">"f7l"</span><span class="p">,</span><span class="s2">"f8r"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mi">4</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="o">-</span><span class="mi">27</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"rpm"</span><span class="p">,</span> <span class="s2">"needle_tacho"</span><span class="p">,</span> <span class="s2">"f7r"</span><span class="p">,</span><span class="s2">"f7l"</span><span class="p">,</span><span class="s2">"f8r"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mf">0.038</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">6000</span><span class="p">,</span> <span class="o">-</span><span class="mi">2900</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>
+<p>A steering wheel prop</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"props"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"func"</span><span class="p">,</span> <span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"idRef:"</span><span class="p">,</span> <span class="s2">"idX:"</span><span class="p">,</span> <span class="s2">"idY:"</span><span class="p">,</span> <span class="s2">"baseRotation"</span><span class="p">,</span> <span class="s2">"rotation"</span><span class="p">,</span> <span class="s2">"translation"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"multiplier"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//steering wheel
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"steering"</span><span class="p">,</span> <span class="s2">"steer_04a"</span><span class="p">,</span> <span class="s2">"f1l"</span><span class="p">,</span><span class="s2">"f1r"</span><span class="p">,</span><span class="s2">"f6l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mi">78</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">"baseTranslation"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.070</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mf">0.605</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:-</span><span class="mf">0.56</span><span class="p">},</span> <span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">"steeringWheelBreak"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"> <span class="p">],</span>
+</span></span></code></pre></div>
+<h3 id="advanced-examples">
+
+  Advanced Examples
+</h3>
+<p>A set of various interior props for pedals and others driver controls.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"props"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"func"</span><span class="p">,</span> <span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"idRef:"</span><span class="p">,</span> <span class="s2">"idX:"</span><span class="p">,</span> <span class="s2">"idY:"</span><span class="p">,</span> <span class="s2">"baseRotation"</span><span class="p">,</span> <span class="s2">"rotation"</span><span class="p">,</span> <span class="s2">"translation"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"multiplier"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//pedals
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"brake"</span><span class="p">,</span> <span class="s2">"pedal_brake"</span><span class="p">,</span> <span class="s2">"b1l"</span><span class="p">,</span><span class="s2">"b1r"</span><span class="p">,</span><span class="s2">"b5l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mi">25</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"throttle"</span><span class="p">,</span> <span class="s2">"pedal_gas"</span><span class="p">,</span> <span class="s2">"b1l"</span><span class="p">,</span><span class="s2">"b1r"</span><span class="p">,</span><span class="s2">"b5l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mi">25</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"parkingbrake"</span><span class="p">,</span> <span class="s2">"pedal_parkingbrake"</span><span class="p">,</span> <span class="s2">"b1l"</span><span class="p">,</span><span class="s2">"b1r"</span><span class="p">,</span><span class="s2">"b5l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mi">25</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//turn signal stalk
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"turnsignal"</span><span class="p">,</span> <span class="s2">"signalstalk"</span><span class="p">,</span> <span class="s2">"dsh"</span><span class="p">,</span><span class="s2">"dshl"</span><span class="p">,</span><span class="s2">"dsh2"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">27</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">180</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">175</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:-</span><span class="mi">15</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mi">2</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>A single headlight with both a low and high beam.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"props"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"func"</span><span class="p">,</span> <span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"idRef:"</span><span class="p">,</span> <span class="s2">"idX:"</span><span class="p">,</span> <span class="s2">"idY:"</span><span class="p">,</span> <span class="s2">"baseRotation"</span><span class="p">,</span> <span class="s2">"rotation"</span><span class="p">,</span> <span class="s2">"translation"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"multiplier"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"lightInnerAngle"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"lightOuterAngle"</span><span class="o">:</span><span class="mi">120</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"lightColor"</span><span class="o">:</span><span class="p">{</span><span class="s2">"r"</span><span class="o">:</span><span class="mi">255</span><span class="p">,</span> <span class="s2">"g"</span><span class="o">:</span><span class="mi">255</span><span class="p">,</span> <span class="s2">"b"</span><span class="o">:</span><span class="mi">170</span><span class="p">,</span> <span class="s2">"a"</span><span class="o">:</span><span class="mi">255</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"lightAttenuation"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"lightCastShadows"</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"flareName"</span><span class="o">:</span><span class="s2">"vehicleHeadLightFlare"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"cookieName"</span><span class="o">:</span><span class="s2">"art/special/BNG_light_cookie_headlight.dds"</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"texSize"</span><span class="o">:</span><span class="mi">512</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"shadowSoftness"</span><span class="o">:</span><span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//low beams angled right slightly to avoid blinding oncoming traffic
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"lowbeam"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"fa2rr"</span><span class="p">,</span> <span class="s2">"fa2r"</span><span class="p">,</span> <span class="s2">"fa1rr"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">180</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">10</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">"baseTranslation"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.75</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.3</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"lightRange"</span><span class="o">:</span><span class="mi">50</span><span class="p">,</span><span class="s2">"lightBrightness"</span><span class="o">:</span><span class="mf">0.3</span><span class="p">,</span><span class="s2">"lightOuterAngle"</span><span class="o">:</span><span class="mi">95</span><span class="p">,</span><span class="s2">"flareScale"</span><span class="o">:</span><span class="mf">0.07</span><span class="p">,</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"headlightglass_R_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//high beams
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"highbeam"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"fa2rr"</span><span class="p">,</span> <span class="s2">"fa2r"</span><span class="p">,</span> <span class="s2">"fa1rr"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">180</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">10</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">"baseTranslation"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.3</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"lightRange"</span><span class="o">:</span><span class="mi">80</span><span class="p">,</span><span class="s2">"lightBrightness"</span><span class="o">:</span><span class="mf">0.6</span><span class="p">,</span><span class="s2">"lightOuterAngle"</span><span class="o">:</span><span class="mi">80</span><span class="p">,</span><span class="s2">"flareScale"</span><span class="o">:</span><span class="mf">0.09</span><span class="p">,</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"headlightglass_R_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>

@@ -1,0 +1,190 @@
+<p><code>Prefab</code> is a scene object that places and loads a reusable group of objects from a prefab file.</p>
+<p>The <code>Prefab</code> object stores the placement transform and the file reference. The prefab file stores the child objects.</p>
+<p>For the prefab file layout, see the <a data-doc="levels/level_formats/prefab" href="/docs/levels/level_formats/prefab">Prefab format</a>
+ documentation.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Basic example
+</h2>
+<p>A simple <code>Prefab</code> entry in <code>items.level.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Prefab"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"gas_station_prefab"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"MissionGroup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"filename"</span><span class="p">:</span> <span class="s2">"/levels/example/art/prefabs/gas_station.prefab.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"loadMode"</span><span class="p">:</span> <span class="s2">"Automatic"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="important-fields">
+
+  Important fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>"Prefab"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Scene object name.</td>
+</tr>
+<tr>
+<td><code>__parent</code></td>
+<td>string</td>
+<td>Parent group.</td>
+</tr>
+<tr>
+<td><code>filename</code></td>
+<td>string/path</td>
+<td>Prefab file to load. Can point to <code>.prefab</code> or <code>.prefab.json</code>.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Prefab placement position.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Prefab placement rotation.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Prefab placement scale.</td>
+</tr>
+<tr>
+<td><code>loadMode</code></td>
+<td>enum/string</td>
+<td><code>"Automatic"</code> or <code>"Manual"</code>.</td>
+</tr>
+<tr>
+<td><code>useGlobalTranslation</code></td>
+<td>bool</td>
+<td>Compatibility/special-case transform behavior for child objects.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="filename">
+
+  filename
+</h2>
+<p><code>filename</code> points to the prefab file:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"filename"</span><span class="err">:</span> <span class="s2">"/levels/example/art/prefabs/gas_station.prefab.json"</span>
+</span></span></code></pre></div><p>Modern prefab files usually use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.prefab.json
+</span></span></code></pre></div><p>Older content may use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.prefab
+</span></span></code></pre></div><div class="bng-notice warning">If the file is missing or the prefab file does not contain a valid root group, the prefab cannot create its child objects.</div>
+<hr/>
+<h2 id="loadmode">
+
+  loadMode
+</h2>
+<p>Supported values:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Automatic</code></td>
+<td>Loads the prefab when the <code>Prefab</code> object is added.</td>
+</tr>
+<tr>
+<td><code>Manual</code></td>
+<td>Does not load automatically. The prefab must be loaded by script/tooling.</td>
+</tr>
+</tbody>
+</table>
+<p>Most level content should use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"loadMode"</span><span class="err">:</span> <span class="s2">"Automatic"</span>
+</span></span></code></pre></div><hr/>
+<h2 id="transform-behavior">
+
+  Transform behavior
+</h2>
+<p>The <code>Prefab</code> transform is applied to the child objects loaded from the prefab file.</p>
+<p>This lets a reusable object group be placed multiple times with different position, rotation, or scale.</p>
+<p>For most content, keep:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"useGlobalTranslation"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre></div><p>Use <code>useGlobalTranslation</code> only when matching existing content or a tool-specific workflow that expects it.</p>
+<hr/>
+<h2 id="relationship-with-prefab-files">
+
+  Relationship with prefab files
+</h2>
+<p>The class and the file format have different responsibilities:</p>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Prefab</code> object</td>
+<td>Placement, transform, file reference, load mode.</td>
+</tr>
+<tr>
+<td><code>.prefab.json</code> / <code>.prefab</code> file</td>
+<td>Child object data and root group.</td>
+</tr>
+</tbody>
+</table>
+<p>Do not duplicate all child objects in the level item file if they are meant to live inside the prefab file.</p>
+<hr/>
+<h2 id="tool-notes">
+
+  Tool notes
+</h2>
+<p>For tools that create or modify prefabs:</p>
+<ul>
+<li>Preserve <code>filename</code> paths and keep them portable.</li>
+<li>Preserve the <code>Prefab</code> transform separately from child object transforms.</li>
+<li>Use <code>Prefab</code> for reusable object groups, not for single static meshes.</li>
+<li>Use <code>TSStatic</code> or <code>Forest</code> for individual or repeated mesh placement where prefab grouping is not needed.</li>
+<li>Keep prefab file structure documented in the prefab format page.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<ul>
+<li>Prefab does not appear because <code>filename</code> is wrong or missing.</li>
+<li>Prefab loads at the wrong location because child transforms and prefab transform were both baked.</li>
+<li>Multiple prefab instances conflict because child object names are not handled correctly by the prefab workflow.</li>
+<li>Manual <code>loadMode</code> is used but no script/tool loads the prefab.</li>
+</ul>
+<hr/>
+<h2 id="validation-criteria">
+
+  Validation criteria
+</h2>
+<ul>
+<li><code>filename</code> points to an existing prefab file.</li>
+<li><code>loadMode</code> is intentional.</li>
+<li>Child objects appear in the expected world position.</li>
+<li>Moving or rotating the <code>Prefab</code> object moves children as expected.</li>
+<li>The prefab file itself validates against the prefab format rules.</li>
+</ul>

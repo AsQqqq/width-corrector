@@ -1,0 +1,102 @@
+<p><code>CameraBookmark</code> stores editor/camera bookmark positions in a level.</p>
+<p>These objects are commonly found in shipped levels under camera bookmark groups. They are mainly useful for editors, tools, screenshots, cinematics, and repeatable inspection viewpoints.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Basic example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"CameraBookmark"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"overview_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"CameraBookmarks"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"observer"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="important-fields">
+
+  Important fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>"CameraBookmark"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Bookmark name.</td>
+</tr>
+<tr>
+<td><code>__parent</code></td>
+<td>string</td>
+<td>Parent group, often <code>CameraBookmarks</code>.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Camera bookmark position.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Camera bookmark orientation.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Standard scene object scale. Usually <code>[1, 1, 1]</code>.</td>
+</tr>
+<tr>
+<td><code>observer</code></td>
+<td>bool</td>
+<td>Marks the bookmark as suitable for observer camera use.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="tool-notes">
+
+  Tool notes
+</h2>
+<p>For tools that process level object files:</p>
+<ul>
+<li>Preserve camera bookmarks unless intentionally cleaning editor data.</li>
+<li>Keep names stable if screenshots, review tools, or scripts refer to them.</li>
+<li>Treat them as editor/helper objects, not gameplay geometry.</li>
+<li>Group them under a clear camera bookmark group where possible.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<ul>
+<li>Bookmark opens at the wrong view because <code>rotationMatrix</code> was changed or regenerated incorrectly.</li>
+<li>Tool cleanup removes bookmarks that are used by review or screenshot workflows.</li>
+<li>Bookmarks are hard to use because names are generic or duplicated.</li>
+</ul>
+<hr/>
+<h2 id="validation-criteria">
+
+  Validation criteria
+</h2>
+<ul>
+<li>Bookmarks load in the editor.</li>
+<li>Viewpoints point at useful level areas.</li>
+<li>Names are descriptive enough for tool/editor use.</li>
+<li>Tooling preserves bookmarks unless removal is intentional.</li>
+</ul>
+<p><strong>See also:</strong> <a data-doc="levels/level_formats/items" href="/docs/levels/level_formats/items">Level object files (<code>items.level.json</code>)</a>
+.</p>

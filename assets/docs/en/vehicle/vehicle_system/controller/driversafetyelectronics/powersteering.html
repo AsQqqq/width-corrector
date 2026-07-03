@@ -1,0 +1,147 @@
+<h3 id="summary">
+
+  Summary
+</h3>
+<p>The power steering controller is used to simulate the effects of power steering on the forces at the steering wheel.</p>
+<p>It only affects the strength of force feedback.</p>
+<p>The controller is set-up to allow for feedback which varies with speed,</p>
+<hr/>
+<h3 id="file-info">
+
+  File Info
+</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Filename</strong></td>
+<td><em>powerSteering.lua</em></td>
+</tr>
+<tr>
+<td><strong>Path</strong></td>
+<td><em>/lua/vehicle/controller/powerSteering.lua</em></td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td><em>Auxiliary</em></td>
+</tr>
+<tr>
+<td><strong>Usage type</strong></td>
+<td><em>Single</em></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="jbeam-properties">
+
+  JBeam Properties
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Steering assistance at high speeds.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Lower values mean less force being transmitted to the wheel. 1 means the steering is essentially unassisted, while 0 means no forces are transmitted back.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Steering assistance at low speeds.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Lower values mean less force being transmitted to the wheel. 1 means the steering is essentially unassisted, while 0 means no forces are transmitted back.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The vehicle speed (m/s) at which the strengthSlow value is used.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Under this speed, strengthSlow is used. Between this speed and speedFast, the controller will interpolate a value between strengthFast and strengthSlow.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The vehicle speed (m/s) at which the strengthFast value is used.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Under this speed, speedFast is used. Between this speed and speedSlow, the controller will interpolate a value between strengthFast and strengthSlow.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">-0.2<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Constant modifier on the level of assistance.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Negative values means that the steering will subtract a certain amount of force transmitted after the strengthFast/Slow calculations are completed.</p>
+<p>The game will always cap at a minimum of 0.</p>
+</div>
+</div>
+</div>
+<hr/>
+<h3 id="example-usage">
+
+  Example Usage
+</h3>
+<hr/>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"controller"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fileName"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"powerSteering"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"strengthFast"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"strengthSlow"</span><span class="o">:</span> <span class="mf">0.10</span><span class="p">,</span> <span class="s2">"speedSlow"</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"speedFast"</span><span class="o">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">"constantOffset"</span><span class="o">:-</span><span class="mf">0.05</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>

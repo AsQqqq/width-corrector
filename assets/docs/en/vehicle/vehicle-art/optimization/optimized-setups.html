@@ -1,0 +1,49 @@
+<p>For all new vehicle content there is a standard that things should ideally be at, to make sure everything is nicely optimized and will work properly in the future and make the most of the engine features we have available. VRAM usage is a very important issue we currently struggle with so every bit of effort towards optimizing this helps us in the long run!</p>
+<div class="line-inner-small"></div>
+<h2 id="texture-cooker">
+
+  Texture Cooker
+</h2>
+<p>All new textures should be set up so that they are compatible with the v1.5 materials system (PBR) and texture cooker. This applies to everything and not just something with a full set of PBR maps. The texture cooker makes sure things are optimized for the GPU and also generates mipmaps, which are used for lower texture settings and soon will also be used for texture streaming.</p>
+<p>By nature, these textures are also more optimized than the old specular system as they only use what channels are necessary (no alpha channels, and greyscale needs one) which can help offset or even improve on VRAM usage despite specular to PBR conversion requiring more maps in some situations.</p>
+<p>All texture cooker files should be PNG format with filenames that are followed by a suffix before the file extension, either <code>.color</code> or <code>.data</code>. This tells the cooker and GPU what sort of texture the file is.</p>
+<p>The full filename using this format would be something like <code>vehiclename_gauges_b.color.png</code></p>
+<ul>
+<li><code>.color</code> is for 8-bit RGB format textures (such as base color or emissive maps)</li>
+<li><code>.data</code> is for 8-bit greyscale textures (such as metallic or AO maps)</li>
+<li><code>.normal</code> is for normal maps specifically - these should also be set to 8-bit RGB</li>
+</ul>
+<p>Some programs (such as paint.net) may not automatically save PNGs in the correct format, or allow for control over this. You can ensure they are correct by opening in a program such as GIMP and checking what the image mode is set to.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="(example of correctly set up textures for the texture cooker)" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/optimized-setups/1.png"/>
+</span><span class="text" style="text-align: center;"><em>(example of correctly set up textures for the texture cooker)</em></span></div>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="(example of how correct format texture should look if checked with GIMP)" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/optimized-setups/2.png"/>
+</span><span class="text" style="text-align: center;"><em>(example of how correct format texture should look if checked with GIMP)</em></span></div>
+<div class="line-inner-small"></div>
+<h2 id="map-color-values">
+
+  Map Color Values
+</h2>
+<p>One big feature we have had available since the introduction of PBR is the ability to set color values in place of a texture for materials without needing dummy textures, etc. This means that we don’t need to and should not ever be using purely one color textures in any scenario, and this would serve purely to waste memory.</p>
+<p>The color value directly correlates to what the value of that color on the texture would be, with colors using RGB values as an input while metallic maps are on a 0 to 1 scale (0 being black, 1 being white)</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="(red base color done via values with no texture)" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/optimized-setups/3.png"/>
+</span><span class="text" style="text-align: center;"><em>(red base color done via values with no texture)</em></span></div>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="(low roughness value set via value with no texture)" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/optimized-setups/4.png"/>
+</span><span class="text" style="text-align: center;"><em>(low roughness value set via value with no texture)</em></span></div>
+<p>If you are ever making a material and it has a texture that is a pure black square, or any other color for that matter make sure you delete it and instead just set a value inside the material editor instead.</p>
+<p>Color values can also be used to optimize textures where some maps are barely visible. For example, a transparent generic grille material would not need a metallic map where the transparent parts are different as these are not visible in the end result, and instead this can just be a color value (this one is a real example fixed a while back). Something like the roughness and metallic on purely chrome badge materials would also be able to take advantage of this.</p>
+<div class="line-inner-small"></div>
+<h2 id="useful-notes">
+
+  Useful Notes
+</h2>
+<ul>
+<li>For the fading glowmap system to work properly, the on stage material must be identical to the off stage material but with the <code>Emissive Map</code> section under <code>Advanced Properties</code> set up. The material must also be PBR (materials v1.5)</li>
+<li>In some situations, the second UV layer can be utilized to allow for a tiled texture with a non tiled overlay on top (for example, a repeating base color with a singular normal map on top). This can prevent large repeating textures and instead use only a couple smaller textures for optimized memory usage.</li>
+<li>It is fine to reference another vehicle’s textures from one vehicle (though obviously do this in moderation to prevent bloating memory usage). In the case of common materials, for basic stuff it would be recommended to use them but for something more complex, such as a vehicle main material that may be skinned or have many layers it would be advisable to create a local vehicle specific copy of the material in question that simply refers to the other vehicle’s textures (for example, the solution used for the Miramar UTE’s pickup textures)</li>
+<li><code>null.dds</code> and <code>null_n.dds</code> files are an old leftover from 10+ years ago when the material system was much more privative and less understood. This doesn’t apply to the null color mask textures as these are one of the few texture types where an image is required instead of a value, so may still be used in places.</li>
+<li>The old “glow = 1” tag from the v0 materials system is deprecated and has been replaced with bloom in PBR emissive maps, and therefore should not be used anymore. We have some old uses of it but these should all be removed once the vehicles in question get new proper baked lights.</li>
+</ul>

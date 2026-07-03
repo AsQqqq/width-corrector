@@ -1,0 +1,198 @@
+<p><code>BeamNGTrigger</code> is a gameplay trigger volume. It calls Lua when vehicles or other triggerable objects enter, leave, overlap, or are contained by the trigger volume.</p>
+<p>It is commonly used for bus stops, speed traps, red-light cameras, garage/dealership logic, mission helpers, and other scripted level interactions.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Basic example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"BeamNGTrigger"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"speedTrapTrigger_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"speedCamera_001"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"luaFunction"</span><span class="p">:</span> <span class="s2">"onBeamNGTrigger"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"TriggerType"</span><span class="p">:</span> <span class="s2">"Box"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"TriggerMode"</span><span class="p">:</span> <span class="s2">"Center"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"TriggerTestType"</span><span class="p">:</span> <span class="s2">"Race corners"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="important-fields">
+
+  Important fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>"BeamNGTrigger"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Scene object name.</td>
+</tr>
+<tr>
+<td><code>__parent</code></td>
+<td>string</td>
+<td>Parent group.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Trigger center position.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Trigger orientation.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Trigger volume size.</td>
+</tr>
+<tr>
+<td><code>TriggerType</code></td>
+<td>enum/string</td>
+<td>Trigger shape, usually <code>"Box"</code> or <code>"Sphere"</code>.</td>
+</tr>
+<tr>
+<td><code>TriggerMode</code></td>
+<td>enum/string</td>
+<td>Trigger condition: <code>"Center"</code>, <code>"Contains"</code>, or <code>"Overlaps"</code>.</td>
+</tr>
+<tr>
+<td><code>TriggerTestType</code></td>
+<td>enum/string</td>
+<td>Test type, commonly <code>"Race corners"</code> or <code>"Bounding box"</code>.</td>
+</tr>
+<tr>
+<td><code>luaFunction</code></td>
+<td>string</td>
+<td>Lua function to call. Empty falls back to <code>onBeamNGTrigger</code>.</td>
+</tr>
+<tr>
+<td><code>tickPeriod</code></td>
+<td>integer</td>
+<td>Tick period in milliseconds when ticking is enabled.</td>
+</tr>
+<tr>
+<td><code>ticking</code></td>
+<td>bool</td>
+<td>Enables repeated trigger tick calls.</td>
+</tr>
+<tr>
+<td><code>debug</code></td>
+<td>bool</td>
+<td>Draws trigger debug visualization.</td>
+</tr>
+<tr>
+<td><code>debugInEditor</code></td>
+<td>bool</td>
+<td>Draws trigger debug visualization in the editor.</td>
+</tr>
+<tr>
+<td><code>triggerColor</code></td>
+<td>color</td>
+<td>Debug draw color.</td>
+</tr>
+<tr>
+<td><code>cameraOnEnter</code></td>
+<td>string</td>
+<td>Camera to switch to on enter.</td>
+</tr>
+<tr>
+<td><code>defaultOnLeave</code></td>
+<td>bool</td>
+<td>Returns to normal camera on exit.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="trigger-modes">
+
+  Trigger modes
+</h2>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Center</code></td>
+<td>Tests whether the object center is inside the trigger.</td>
+</tr>
+<tr>
+<td><code>Contains</code></td>
+<td>Tests whether the object is fully contained.</td>
+</tr>
+<tr>
+<td><code>Overlaps</code></td>
+<td>Tests whether the object overlaps the trigger volume.</td>
+</tr>
+</tbody>
+</table>
+<p>Use <code>Center</code> for most gameplay volumes. Use <code>Overlaps</code> or <code>Contains</code> when the size of the vehicle or object should matter.</p>
+<hr/>
+<h2 id="lua-function">
+
+  Lua function
+</h2>
+<p><code>luaFunction</code> selects the Lua callback:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"luaFunction"</span><span class="err">:</span> <span class="s2">"onBeamNGTrigger"</span>
+</span></span></code></pre></div><p>If empty, the trigger uses the default callback name:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">onBeamNGTrigger
+</span></span></code></pre></div><p>Level scripts and gameplay systems can also read extra dynamic fields saved on the object, such as speed trap or bus-stop metadata.</p>
+<div class="bng-notice note">Fields such as <code>speedLimit</code>, <code>speedTrapType</code>, <code>trafficSignalId</code>, or custom bus-stop data are dynamic fields used by gameplay scripts. Preserve them even if they are not core <code>BeamNGTrigger</code> fields.</div>
+<hr/>
+<h2 id="tool-notes">
+
+  Tool notes
+</h2>
+<p>For tools that generate triggers:</p>
+<ul>
+<li>Preserve dynamic fields used by gameplay scripts.</li>
+<li>Keep trigger names stable if scripts or data files reference them.</li>
+<li>Use <code>scale</code> to define the trigger volume.</li>
+<li>Keep <code>luaFunction</code> consistent with the gameplay system that consumes the trigger.</li>
+<li>Use <code>debugInEditor</code> while authoring, then disable it if the trigger should not draw normally.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<ul>
+<li>Trigger does nothing because <code>luaFunction</code> is wrong or missing.</li>
+<li>Trigger fires too early or too late because the scale or mode is wrong.</li>
+<li>Vehicle does not trigger because the test type does not match the intended object bounds.</li>
+<li>Generated triggers lose custom gameplay fields.</li>
+</ul>
+<hr/>
+<h2 id="validation-criteria">
+
+  Validation criteria
+</h2>
+<ul>
+<li>Trigger volume covers the intended gameplay area.</li>
+<li>Lua callback exists and receives the expected trigger events.</li>
+<li>Dynamic fields required by the owning gameplay system are present.</li>
+<li>Debug draw confirms placement and size in the editor.</li>
+</ul>
+<p><strong>See also:</strong> <a data-doc="levels/level_formats/items" href="/docs/levels/level_formats/items">Level object files (<code>items.level.json</code>)</a>
+, <a data-doc="levels/level_formats/buslines" href="/docs/levels/level_formats/buslines">Bus lines</a>
+, <a data-doc="levels/level_formats/signals" href="/docs/levels/level_formats/signals">Traffic Signals</a>
+.</p>

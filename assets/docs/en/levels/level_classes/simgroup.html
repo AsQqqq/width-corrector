@@ -1,0 +1,140 @@
+<p><code>SimGroup</code> is a container object used to organize other level objects in the scene tree and in <code>items.level.json</code> files.</p>
+<p>Most levels use a root group named:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">MissionGroup
+</span></span></code></pre></div><p>Nested groups are commonly used to keep props, lights, roads, terrain objects, markers, and generated content in manageable folders.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Basic example
+</h2>
+<p>A simple group entry in <code>items.level.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SimGroup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"road_props"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"MissionGroup"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Objects can then use that group as their parent:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TSStatic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"barrier_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"road_props"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/barrier.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="important-fields">
+
+  Important fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>"SimGroup"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Group name. Other objects use this value in <code>__parent</code>.</td>
+</tr>
+<tr>
+<td><code>__parent</code></td>
+<td>string</td>
+<td>Parent group name. Usually <code>"MissionGroup"</code> or another group.</td>
+</tr>
+<tr>
+<td><code>persistentId</code></td>
+<td>string</td>
+<td>Stable editor/runtime identifier where present. Usually generated automatically.</td>
+</tr>
+<tr>
+<td><code>hidden</code></td>
+<td>bool</td>
+<td>Hides the group in supported editor/runtime contexts. Child objects may still exist.</td>
+</tr>
+<tr>
+<td><code>enabled</code></td>
+<td>bool/string</td>
+<td>Group enabled state where present.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="relationship-with-parent">
+
+  Relationship with <code>__parent</code>
+</h2>
+<p>Level item files commonly store hierarchy through <code>__parent</code>.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"lights_night"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SimGroup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"MissionGroup"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Child object:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"street_lamp_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SpotLight"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"lights_night"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The group must be loaded before children that reference it, or the loading tool must rebuild the parent relationship.</p>
+<div class="bng-notice warning">When external tools move objects between files, preserve <code>__parent</code> or intentionally rebuild the same group hierarchy.</div>
+<hr/>
+<h2 id="missiongroup">
+
+  MissionGroup
+</h2>
+<p><code>MissionGroup</code> is the main level group used by the scene tree.</p>
+<p>A typical main item file contains:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"MissionGroup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SimGroup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"enabled"</span><span class="p">:</span> <span class="s2">"1"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Most level objects are direct or indirect children of <code>MissionGroup</code>.</p>
+<hr/>
+<h2 id="tool-notes">
+
+  Tool notes
+</h2>
+<p>For tools that generate or transform levels:</p>
+<ul>
+<li>Preserve group names used by <code>__parent</code>.</li>
+<li>Preserve <code>persistentId</code> values unless creating a new group.</li>
+<li>Keep generated groups close to the content they own.</li>
+<li>Avoid flattening the whole scene into <code>MissionGroup</code>; large levels rely on nested groups for editing.</li>
+<li>Do not delete a group without moving or deleting its children intentionally.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<ul>
+<li>Objects appear in the wrong scene tree location because <code>__parent</code> references the wrong group.</li>
+<li>Generated objects fail to load under the intended group because the group entry is missing.</li>
+<li>Renaming a group breaks child object placement if <code>__parent</code> values are not updated.</li>
+</ul>
+<hr/>
+<h2 id="validation-criteria">
+
+  Validation criteria
+</h2>
+<ul>
+<li><code>MissionGroup</code> exists.</li>
+<li>Every generated <code>__parent</code> value resolves to an existing <code>SimGroup</code>.</li>
+<li>Large object sets are organized into meaningful groups.</li>
+<li>Group names are stable enough for tools, scripts, and editor workflows.</li>
+</ul>
+<p><strong>See also:</strong> <a data-doc="levels/level_formats/items" href="/docs/levels/level_formats/items">Level object files (<code>items.level.json</code>)</a>
+.</p>

@@ -1,0 +1,228 @@
+<p>This section defines the scope of Level creation in BeamNG.drive and the conventions, tools, and file organization expected across this guide.</p>
+<h3 id="11-scope">
+
+  1.1 Scope
+</h3>
+<p>This guide covers the main tools and workflows used to create a BeamNG.drive level:</p>
+<ul>
+<li>Terrain, water, roads, vegetation, props, materials, decals, atmosphere, lighting, performance, testing, and packaging.</li>
+<li>The goal is a playable world that loads reliably, looks coherent, drives well, and can be packaged as a mod.</li>
+<li>Missions, Flowgraph, AI/traffic behavior, and scenarios are separate topics. This guide only covers the world/level foundation they can use later.</li>
+</ul>
+<div class="bng-notice tip">For your first map, keep the scope small. A short road, one spawn, basic terrain, a few props, and working materials are enough to validate the full workflow.</div>
+<h3 id="12-supported-versions">
+
+  1.2 Supported versions
+</h3>
+<ul>
+<li>This guide is a living document. All the sections will stay up to date following the World Editor progression</li>
+</ul>
+<h3 id="13-required-software-and-formats">
+
+  1.3 Required software and formats
+</h3>
+<p>The following brands of software are simply suggestions which allow you to have more control over possible ways to add assets to the level</p>
+<ul>
+<li>Blender (mesh authoring and .DAE export)</li>
+<li>Image editor for texture authoring (GIMP/Photoshop/Krita/Substance Suite/Affinity)</li>
+<li>Optional: JSON-friendly text editor (Notepad, Sublime Text, Visual Code, Kate)</li>
+<li>Formats used
+<ul>
+<li>Meshes: Collada .DAE</li>
+<li>Textures: PNG only</li>
+<li>Heightmaps: 16-bit PNG (terrain specific)</li>
+</ul>
+</li>
+</ul>
+<h3 id="131-first-playable-checklist">
+
+  1.3.1 First playable checklist
+</h3>
+<p>Before adding complex content, make sure the level has:</p>
+<ul>
+<li>A valid level folder under <code>/levels/your_map_name</code>.</li>
+<li>A default spawn point.</li>
+<li>Terrain, ground plane, or another drivable surface.</li>
+<li>At least one simple road or test driving area.</li>
+<li>Materials with no missing texture warnings.</li>
+<li>Daytime lighting that makes the road readable.</li>
+<li>No critical errors in the console/log after loading.</li>
+</ul>
+<p>This small milestone helps you find path, material, spawn, and scale problems before the map becomes hard to debug.</p>
+<h3 id="14-world-editor-interface">
+
+  1.4 World Editor interface
+</h3>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section1/we.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="World Editor interface overview" loading="lazy" src="/docassets/img/modding/levels/level_creation/section1/we_hu07ac5457371ca5a4b65a3b82cc64f3f2_741411_0x300_resize_q85_bgfff_box.jpeg"/>
+</span><span class="text" style="text-align: left;">World Editor interface overview</span></a></p>
+<h3 id="15-units-axes-and-scale">
+
+  1.5 Units, axes, and scale
+</h3>
+<ul>
+<li>Coordinate system: Z-up</li>
+<li>Units: meters</li>
+<li>TSStatic export notes: apply transforms, triangulate and export tangents if using normal maps</li>
+</ul>
+<h3 id="16-project-structure-standard">
+
+  1.6 Project structure standard
+</h3>
+<ul>
+<li>Recommended level-domain folders:
+<ul>
+<li><code>/levels/YourMap</code> (level.json, info.json, preview.png)</li>
+<li>keeping the default folder subdivision is recommended</li>
+<li><code>/levels/YourMap/main</code> for scene object files</li>
+<li><code>/levels/YourMap/art</code> for level-specific meshes, textures, materials, and prefabs</li>
+<li><code>/levels/YourMap/source</code> for editable source files that should not be packaged</li>
+</ul>
+</li>
+<li>Recommended naming conventions
+<ul>
+<li>lowercase_with_underscores for files/folders</li>
+<li>Consistent prefixes by domain (road_asphalt_01, prop_guardrail_01)</li>
+</ul>
+</li>
+</ul>
+<p>Keep paths portable. Avoid absolute paths such as <code>C:\...</code> or <code>D:\...</code> inside level data.</p>
+<h3 id="17-assets-types-high-level">
+
+  1.7 Assets types (high-level)
+</h3>
+<h4 id="meshes">
+
+<strong>Meshes</strong>
+</h4>
+<p>TSStatic defines a static mesh. A mesh is a 3D model, the standard class for static world geometry, composed of polygonal faces.</p>
+<p>You can use different external modelling software like Blender, 3Ds Max, Maya, etc. to create 3D models and use the proper workflow to import it in BeamNG World Editor.</p>
+<p>COLLADA (.dae) is the only supported format in BeamNG for static meshes</p>
+<h4 id="textures">
+
+<strong>Textures</strong>
+</h4>
+<p>Image textures are part of a material definition, and they are projected onto a surface when the material is applied.</p>
+<p>Textures are usually created using external software like Substance Painter/Designer, Photoshop or free ones like GIMP, then placed inside the proper explorer folder path to be read from the Asset Browser in World Editor.</p>
+<p>A material can use different texture types like Base Color, Roughness, Normal and additional ones like Emissive or Detail.</p>
+<p>The World Editor uses .png image formats and convert (bake) them to .dds once imported.</p>
+<h4 id="materials">
+
+<strong>Materials</strong>
+</h4>
+<p>A material is the sum of several textures applied to a surface which defines it’s appearance.</p>
+<p>You can also specify other parameters to define how it will interact with the environment: lights, shadows, transparency and also the Ground type that defines how it will behave with vehicles, all via Material Editor window.</p>
+<p>Materials are saved in <code>main.materials.json</code> files which contain all the saved information about material setup.</p>
+<h4 id="prefabs">
+
+<strong>Prefabs</strong>
+</h4>
+<p>A container with multiple objects (static meshes, lights, decalroads, etc.) is defined as a Prefab.
+It groups multiple objects into reusable assemblies that are saved in your project folder.</p>
+<p>Prefabs can contain other prefabs too.</p>
+<p>Package frequent compositions (e.g., intersections, parking lots, gas stations) as prefabs for repeatable placement.</p>
+<h4 id="other-main-assets-type">
+
+<strong>Other main assets type</strong>
+</h4>
+<ul>
+<li>Lights</li>
+<li>Sound emitters</li>
+<li>Cameras</li>
+</ul>
+<h4 id="assets-import">
+
+<strong>Assets import</strong>
+</h4>
+<p>BeamNG engine assets can be imported in game by saving them in the map folder path.</p>
+<p>Drag the file(s) inside the specific folder of your choice. The asset(s) will be available in the Asset Browser as soon as you run your map or, if your game is still running, you will see them appear in the selected folder.</p>
+<p>Freshly imported textures may take a while to be baked from the system. You may need to reload the map to properly bake them.</p>
+<h3 id="18-terrain-and-heightmaps-high-level">
+
+  1.8 Terrain and heightmaps (high-level)
+</h3>
+<ul>
+<li>Terrains can use heightmaps. 16-bit PNG sources are recommended to avoid bending</li>
+<li>Terrain material variety and paint layers affect both the look and performance (details in the Terrain section)</li>
+</ul>
+<h3 id="19-roads-and-drivable-surfaces">
+
+  1.9 Roads and drivable surfaces
+</h3>
+<ul>
+<li>DecalRoads project surfaces onto terrain and meshes and suit most road uses</li>
+<li>MeshRoads generate geometry for bridges, tunnels (more as a guide), and complex profiles and can be textured</li>
+<li>Road and shoulder materials should be consistent with intended ground behaviour</li>
+</ul>
+<h3 id="110-vegetation">
+
+  1.10 Vegetation
+</h3>
+<ul>
+<li>Forest manages large populations of instanced vegetation with density and variation controls</li>
+<li>Forest item is the container object that controls the vegetation behaviour. Props like rocks as well as any other static mesh can be added to the forest item</li>
+</ul>
+<h3 id="111-atmosphere-lighting-and-postfx">
+
+  1.11 Atmosphere, lighting, and PostFX
+</h3>
+<ul>
+<li>Global look is controlled via Time of Day, sky/skybox, fog/atmosphere</li>
+<li>Night scenes rely on dynamic lights with conservative budgets</li>
+<li>PostFX (exposure, SSAO, bloom, etc.) should preserve readability while driving</li>
+</ul>
+<h3 id="112-performance-and-content-budgets">
+
+  1.12 Performance and content budgets
+</h3>
+<ul>
+<li>Keep an eye on budgets for triangle counts, material/texture variety, and dynamic lights per project with the Resource Checker tool</li>
+<li>Use LODs/impostors for large assets and atlases for small props/decals to control draw calls and memory</li>
+<li>See the Performance section for profiling practices and common bottlenecks</li>
+</ul>
+<h3 id="113-packing-and-deliverables">
+
+  1.13 Packing and deliverables
+</h3>
+<ul>
+<li>Distributable levels are self-contained and packaged as .zip for the in-game Repository</li>
+<li>Required metadata: info.json and preview.png. Level configuration: level.json</li>
+<li>Place authoring sources under /source; do not include them in the distributable</li>
+</ul>
+<h3 id="114-starter-level-template">
+
+  1.14 Starter Level template
+</h3>
+<ul>
+<li>New level includes: spawn point, basic terrain, some terrain materials available, default sky/Time of Day, a water plane (ocean) and empty assets folders</li>
+<li>It serves as the reference baseline for the modder to start creating a level</li>
+</ul>
+<p>Recommended first actions after creating a Starter Level:</p>
+<ol>
+<li>Rename the level and confirm it loads.</li>
+<li>Move the default spawn to a safe drivable position.</li>
+<li>Save the level and reload it.</li>
+<li>Add or import one small test asset.</li>
+<li>Create or assign one material and verify it survives reload.</li>
+<li>Drive the test area and check the console/log for errors.</li>
+</ol>
+<h3 id="115-spawn-points">
+
+  1.15 Spawn points
+</h3>
+<p>Spawn points define where vehicles appear when the level loads or when the player resets. They are placed as <code>SpawnSphere</code> marker objects in the World Editor and referenced by name from the level’s <code>info.json</code>.</p>
+<ul>
+<li>A level should always include a default spawn (commonly named <code>spawns_default</code>).</li>
+<li>You can define multiple named spawns (e.g. per garage, point of interest, or scenario start) and expose them in the spawn selection UI through <code>info.json</code>.</li>
+</ul>
+<p>For the full object and metadata reference, see the <a data-doc="levels/level_classes/spawn" href="/docs/levels/level_classes/spawn">SpawnSphere</a>
+ and <a data-doc="levels/level_formats/info" href="/docs/levels/level_formats/info">Level metadata (info.json)</a>
+ docs.</p>
+<h3 id="116-cross-references">
+
+  1.16 Cross-references
+</h3>
+<ul>
+<li>Terrain (2), Roads (3), Vegetation (4), Props (5), Materials (6), Atmosphere/Lighting (7), Performance (8), Testing (9), Packaging and publishing (10), Asset pipeline (11), Troubleshooting (12), References and glossary (13).</li>
+<li>Flowgraph, AI/Traffic, Scenarios/Missions have their own dedicated sections</li>
+</ul>

@@ -1,0 +1,436 @@
+<p>This page explains how to add speed traps and red light cameras to a level.</p>
+<p>Speed traps are created from normal level objects:</p>
+<ul>
+<li>A <code>BeamNGTrigger</code> object that detects vehicles.</li>
+<li>An optional light object, usually a <code>SpotLight</code>, used as the camera flash.</li>
+</ul>
+<p>The trigger contains dynamic fields that tell the game what type of speed trap it is and how it should behave.</p>
+<hr/>
+<h2 id="overview">
+
+  Overview
+</h2>
+<p>A speed trap setup usually contains:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">BeamNGTrigger
+</span></span><span class="line"><span class="cl">SpotLight
+</span></span></code></pre></div><p>The trigger is the functional part. The light is optional and is only used for a visual flash effect.</p>
+<p>When a vehicle enters the trigger, the game checks:</p>
+<ol>
+<li>Whether the trigger is configured as a speed trap or red light camera.</li>
+<li>Whether the vehicle is travelling in the trigger’s forward direction.</li>
+<li>Whether the vehicle is above the configured speed threshold.</li>
+<li>For red light cameras, whether the linked traffic signal is currently red.</li>
+<li>Whether an optional flash light should be activated.</li>
+</ol>
+<div class="bng-notice note">Speed trap speeds are configured in meters per second.</div>
+<hr/>
+<h2 id="creating-the-trigger">
+
+  Creating the trigger
+</h2>
+<p>In the World Editor, create a <code>BeamNGTrigger</code> and place it where the speed trap should detect vehicles.</p>
+<p>The trigger should:</p>
+<ul>
+<li>Cover the full width of the road or lane.</li>
+<li>Be a few meters deep in the direction of travel.</li>
+<li>Be rotated so its positive local Y axis points in the direction vehicles are expected to travel.</li>
+<li>Have a unique object name.</li>
+</ul>
+<div class="bng-notice warning">If the trigger is too thin, fast vehicles may pass through it without being detected reliably.</div>
+<hr/>
+<h2 id="trigger-direction">
+
+  Trigger direction
+</h2>
+<p>The trigger only activates for vehicles travelling in its positive local Y direction.</p>
+<p>In other words, the trigger has a forward direction. Vehicles travelling the opposite way are ignored.</p>
+<p>Make sure the trigger is rotated correctly:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Positive local Y axis = valid travel direction
+</span></span></code></pre></div><p>If the speed trap does not trigger, the trigger may be facing the wrong way.</p>
+<hr/>
+<h2 id="speed-trap-trigger-fields">
+
+  Speed trap trigger fields
+</h2>
+<p>Select the <code>BeamNGTrigger</code> and add the following dynamic fields.</p>
+<h3 id="required-fields">
+
+  Required fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>speedTrapType</code></td>
+<td><code>speed</code></td>
+<td>Marks this trigger as a speed trap.</td>
+</tr>
+<tr>
+<td><code>speedLimit</code></td>
+<td>Number, in m/s</td>
+<td>Speed limit used by the trap.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="optional-fields">
+
+  Optional fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>speedLimitTolerance</code></td>
+<td>Number, in m/s</td>
+<td>Extra speed above the limit before the trap triggers.</td>
+</tr>
+<tr>
+<td><code>speedTrapLightName</code></td>
+<td>Object name</td>
+<td>Name of the light object used for the flash effect.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">speedTrapType = speed
+</span></span><span class="line"><span class="cl">speedLimit = 13.89
+</span></span><span class="line"><span class="cl">speedLimitTolerance = 2.78
+</span></span><span class="line"><span class="cl">speedTrapLightName = speedTrapLight_01
+</span></span></code></pre></div><p>This example represents:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Speed limit: 13.89 m/s ≈ 50 km/h
+</span></span><span class="line"><span class="cl">Tolerance:   2.78 m/s ≈ 10 km/h
+</span></span><span class="line"><span class="cl">Trigger at:  16.67 m/s ≈ 60 km/h
+</span></span></code></pre></div><p>If <code>speedLimitTolerance</code> is not set, the game uses a default tolerance of 10% of the speed limit.</p>
+<hr/>
+<h2 id="red-light-camera-trigger-fields">
+
+  Red light camera trigger fields
+</h2>
+<p>A red light camera also uses a <code>BeamNGTrigger</code>, but with different dynamic fields.</p>
+<h3 id="required-fields-1">
+
+  Required fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>speedTrapType</code></td>
+<td><code>redLight</code></td>
+<td>Marks this trigger as a red light camera.</td>
+</tr>
+<tr>
+<td><code>trafficSignalId</code></td>
+<td>Signal name/id</td>
+<td>Traffic signal this camera belongs to.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="optional-fields-1">
+
+  Optional fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>triggerSpeed</code></td>
+<td>Number, in m/s</td>
+<td>Minimum speed required to trigger the camera.</td>
+</tr>
+<tr>
+<td><code>speedTrapLightName</code></td>
+<td>Object name</td>
+<td>Name of the light object used for the flash effect.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">speedTrapType = redLight
+</span></span><span class="line"><span class="cl">trafficSignalId = trafficSignal_01
+</span></span><span class="line"><span class="cl">triggerSpeed = 5
+</span></span><span class="line"><span class="cl">speedTrapLightName = redLightCameraFlash_01
+</span></span></code></pre></div><p>If <code>triggerSpeed</code> is not set, the default value is:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">5 m/s
+</span></span></code></pre></div><p>The camera only triggers if the linked traffic signal is currently red.</p>
+<hr/>
+<h2 id="red-light-camera-placement">
+
+  Red light camera placement
+</h2>
+<p>Place the red light camera trigger near the stop line or just after it, depending on the intersection layout.</p>
+<p>The trigger should detect vehicles that enter the intersection while moving through the red light.</p>
+<p>Recommended setup:</p>
+<ul>
+<li>Trigger covers the lane or lanes being monitored.</li>
+<li>Trigger is aligned with the valid travel direction.</li>
+<li>Trigger is deep enough to reliably detect fast vehicles.</li>
+<li>Trigger is placed so vehicles stopped correctly before the line do not trigger it.</li>
+</ul>
+<hr/>
+<h2 id="finding-the-traffic-signal-id">
+
+  Finding the traffic signal ID
+</h2>
+<p>For red light cameras, the trigger needs to know which traffic signal it belongs to.</p>
+<p>You can inspect traffic signal IDs by enabling traffic signal debug output from the console:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="n">core_trafficSignals.debugLevel</span> <span class="o">=</span> <span class="mi">2</span>
+</span></span></code></pre></div><p>Use the displayed signal name/id as the value for:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">trafficSignalId
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">trafficSignalId = trafficSignal_01
+</span></span></code></pre></div><hr/>
+<h2 id="creating-the-flash-light">
+
+  Creating the flash light
+</h2>
+<p>Create a light object near the speed trap or camera.</p>
+<p>A <code>SpotLight</code> is commonly used, but any suitable light object can be used if it supports being enabled and disabled.</p>
+<p>The light should:</p>
+<ul>
+<li>Have a unique object name.</li>
+<li>Be referenced by the trigger’s <code>speedTrapLightName</code> field.</li>
+<li>Start disabled.</li>
+</ul>
+<p>Set the light’s enabled field to:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">enabled = false
+</span></span></code></pre></div><p>You can configure the light visually as needed:</p>
+<ul>
+<li>Color</li>
+<li>Brightness</li>
+<li>Range</li>
+<li>Rotation</li>
+<li>Cone angle</li>
+<li>Flare type</li>
+</ul>
+<p>For a camera flash, it usually makes sense to use a bright white light with a flare.</p>
+<p>Example object name:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">speedTrapLight_01
+</span></span></code></pre></div><p>Then set this on the trigger:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">speedTrapLightName = speedTrapLight_01
+</span></span></code></pre></div><div class="bng-notice note">The light is optional. A speed trap can work without a flash object.</div>
+<hr/>
+<h2 id="speed-units">
+
+  Speed units
+</h2>
+<p>Speed trap values use meters per second.</p>
+<p>Useful conversions:</p>
+<table>
+<thead>
+<tr>
+<th>Speed</th>
+<th>Meters per second</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>30 km/h</td>
+<td>8.33 m/s</td>
+</tr>
+<tr>
+<td>50 km/h</td>
+<td>13.89 m/s</td>
+</tr>
+<tr>
+<td>60 km/h</td>
+<td>16.67 m/s</td>
+</tr>
+<tr>
+<td>80 km/h</td>
+<td>22.22 m/s</td>
+</tr>
+<tr>
+<td>100 km/h</td>
+<td>27.78 m/s</td>
+</tr>
+<tr>
+<td>120 km/h</td>
+<td>33.33 m/s</td>
+</tr>
+</tbody>
+</table>
+<p>Formula:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">km/h ÷ 3.6 = m/s
+</span></span></code></pre></div><p>For mph:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">mph × 0.44704 = m/s
+</span></span></code></pre></div><hr/>
+<h2 id="example-basic-speed-trap">
+
+  Example: basic speed trap
+</h2>
+<p>Objects:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">BeamNGTrigger: speedTrapTrigger_01
+</span></span><span class="line"><span class="cl">SpotLight:     speedTrapLight_01
+</span></span></code></pre></div><p>Trigger dynamic fields:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">speedTrapType = speed
+</span></span><span class="line"><span class="cl">speedLimit = 22.22
+</span></span><span class="line"><span class="cl">speedLimitTolerance = 2.78
+</span></span><span class="line"><span class="cl">speedTrapLightName = speedTrapLight_01
+</span></span></code></pre></div><p>This creates a speed trap with:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Speed limit: 80 km/h
+</span></span><span class="line"><span class="cl">Tolerance:   10 km/h
+</span></span><span class="line"><span class="cl">Trigger at:  90 km/h
+</span></span></code></pre></div><hr/>
+<h2 id="example-red-light-camera">
+
+  Example: red light camera
+</h2>
+<p>Objects:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">BeamNGTrigger: redLightCameraTrigger_01
+</span></span><span class="line"><span class="cl">SpotLight:     redLightCameraFlash_01
+</span></span><span class="line"><span class="cl">TrafficSignal: trafficSignal_01
+</span></span></code></pre></div><p>Trigger dynamic fields:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">speedTrapType = redLight
+</span></span><span class="line"><span class="cl">trafficSignalId = trafficSignal_01
+</span></span><span class="line"><span class="cl">triggerSpeed = 5
+</span></span><span class="line"><span class="cl">speedTrapLightName = redLightCameraFlash_01
+</span></span></code></pre></div><p>The camera triggers when:</p>
+<ul>
+<li>A vehicle enters the trigger.</li>
+<li>The vehicle is travelling in the trigger’s positive local Y direction.</li>
+<li>The vehicle speed is above <code>5 m/s</code>.</li>
+<li>The linked traffic signal is red.</li>
+</ul>
+<hr/>
+<h2 id="runtime-behavior">
+
+  Runtime behavior
+</h2>
+<p>When a configured trigger is entered, the game checks the speed trap data.</p>
+<p>For normal speed traps:</p>
+<ul>
+<li>The vehicle speed is compared against <code>speedLimit + speedLimitTolerance</code>.</li>
+<li>If the vehicle is too fast, the speed trap event is triggered.</li>
+<li>If a flash light is configured, the light briefly turns on and then off.</li>
+</ul>
+<p>For red light cameras:</p>
+<ul>
+<li>The vehicle speed is compared against <code>triggerSpeed</code>.</li>
+<li>The linked traffic signal is checked.</li>
+<li>The camera only triggers when the signal state is red.</li>
+<li>If a flash light is configured, the light flashes.</li>
+</ul>
+<p>Speed traps are ignored when the vehicle is too far away from the active camera.</p>
+<hr/>
+<h2 id="leaderboards">
+
+  Leaderboards
+</h2>
+<p>In freeroam, speed trap records may be saved per level.</p>
+<p>Records are stored by level and trigger name. Because of this, speed trap trigger names should be unique and stable.</p>
+<p>Avoid renaming a speed trap trigger after release unless you intentionally want it to use a new leaderboard entry.</p>
+<hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Use one <code>BeamNGTrigger</code> per speed trap or red light camera.</li>
+<li>Give every trigger and light a clear unique name.</li>
+<li>Make the trigger wide enough to cover the full detection area.</li>
+<li>Make the trigger several meters deep for reliable detection.</li>
+<li>Rotate the trigger so positive local Y points in the valid travel direction.</li>
+<li>Use meters per second for all speed values.</li>
+<li>Keep <code>speedTrapLightName</code> exactly the same as the light object’s name.</li>
+<li>Set the flash light to disabled by default.</li>
+<li>Use a visible flare type for camera flashes.</li>
+<li>Test with slow, normal, and fast vehicles.</li>
+<li>Test both travel directions to make sure only the intended direction triggers.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="speed-trap-does-not-trigger">
+
+  Speed trap does not trigger
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li><code>speedTrapType</code> is missing or misspelled.</li>
+<li>The vehicle is travelling opposite the trigger’s positive Y direction.</li>
+<li>The vehicle speed is below the trigger threshold.</li>
+<li>The trigger is too thin.</li>
+<li>The trigger does not cover the lane.</li>
+<li>The level is running a foreground mission that suppresses freeroam speed trap behavior.</li>
+</ul>
+<h3 id="speed-trap-triggers-from-the-wrong-direction">
+
+  Speed trap triggers from the wrong direction
+</h3>
+<p>The trigger is rotated incorrectly.</p>
+<p>Rotate the <code>BeamNGTrigger</code> so its positive local Y axis points in the intended travel direction.</p>
+<h3 id="flash-does-not-appear">
+
+  Flash does not appear
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li><code>speedTrapLightName</code> does not match the light object’s name.</li>
+<li>The light object does not exist.</li>
+<li>The light is too dim or too far away.</li>
+<li>The light has no suitable flare or range.</li>
+<li>The light is already enabled, making the flash hard to notice.</li>
+</ul>
+<h3 id="red-light-camera-does-not-trigger">
+
+  Red light camera does not trigger
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li><code>speedTrapType</code> is not set to <code>redLight</code>.</li>
+<li><code>trafficSignalId</code> is wrong.</li>
+<li>The traffic signal is not red.</li>
+<li><code>triggerSpeed</code> is too high.</li>
+<li>The trigger is facing the wrong direction.</li>
+<li>The trigger is not placed at the correct stop line or lane.</li>
+</ul>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p>To add a speed trap:</p>
+<ol>
+<li>Place a <code>BeamNGTrigger</code>.</li>
+<li>Rotate it so positive local Y points in the driving direction.</li>
+<li>Add <code>speedTrapType = speed</code>.</li>
+<li>Set <code>speedLimit</code> in meters per second.</li>
+<li>Optionally add <code>speedLimitTolerance</code>.</li>
+<li>Optionally add a disabled <code>SpotLight</code> and reference it with <code>speedTrapLightName</code>.</li>
+</ol>
+<p>To add a red light camera:</p>
+<ol>
+<li>Place a <code>BeamNGTrigger</code> near the stop line.</li>
+<li>Rotate it so positive local Y points in the monitored direction.</li>
+<li>Add <code>speedTrapType = redLight</code>.</li>
+<li>Set <code>trafficSignalId</code>.</li>
+<li>Optionally set <code>triggerSpeed</code>.</li>
+<li>Optionally add a disabled flash light and reference it with <code>speedTrapLightName</code>.</li>
+</ol>

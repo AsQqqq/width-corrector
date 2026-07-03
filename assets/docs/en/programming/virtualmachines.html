@@ -1,0 +1,182 @@
+<p>A virtual machine is each of the environments in which code can be executed. There’s 3 types of virtual machines:</p>
+<ul>
+<li><strong>Vehicle Lua</strong> VM (VLUA): runs code specific to a vehicle (such as turbo boost calculations or AI steering inputs).</li>
+<li><strong>GameEngine Lua</strong> VM (GELUA): runs general code that’s not specific to a vehicle (such as career mode, traffic vehicles orchestration or replays).</li>
+<li><strong>User Interface</strong> VM (UI): runs javascript/html to generate a visual interface (such as the main menu).</li>
+</ul>
+<p>The GELUA and Main Menu UI VMs always exist; however the rest of VMs depend on which vehicles you’re using (and in some cases even maps, or mods in general).</p>
+<h4 id="example">
+
+  Example
+</h4>
+<p>Let’s imagine you have spawned a modern taxi and a ’90s hatchback. You might have the following VMs:</p>
+<ul>
+<li>General VMs:
+<ul>
+<li>GELUA</li>
+<li>Main Menu UI</li>
+</ul>
+</li>
+<li>Taxi VMs:
+<ul>
+<li>VLUA</li>
+<li>Dashboard UI</li>
+<li>GPS navigator UI</li>
+<li>Infotainment UI</li>
+</ul>
+</li>
+<li>Hatchback VMs:
+<ul>
+<li>VLUA</li>
+</ul>
+</li>
+</ul>
+<p>That would be a total of 7 different VMs running in parallel.</p>
+<h3 id="source-code-location">
+
+  Source code location
+</h3>
+<p>Folder structure:</p>
+<ul>
+<li><code>/ui/</code>: UI VM code (javascript and html).</li>
+<li><code>/lua/vehicle/</code>: VLUA VM code.</li>
+<li><code>/lua/ge/</code>: GELUA VM code.</li>
+<li><code>/lua/common/</code>: libraries that can be used by both VLUA and GELUA.</li>
+</ul>
+<p>The libraries found in <code>/lua/common/</code> are a convenient way to avoid code duplication, however they are <strong>not</strong> a way to share or send information between different VMs. Please check <a data-doc="programming/virtualmachines" data-frag="communication" href="/docs/programming/virtualmachines#communication">communication</a>
+ if you want to share information.</p>
+<h3 id="threading">
+
+  Threading
+</h3>
+<p>Each VM runs in its own isolated environment:</p>
+<ul>
+<li>UI vms: they run in a separate process each.</li>
+<li>VLUA vms: they run in a separate thread each.</li>
+<li>GELUA VM: it runs in the main thread.</li>
+</ul>
+<h3 id="update-rate">
+
+  Update rate
+</h3>
+<p>Each VM can update at a different rate, depending on its purpose. As a general rule:</p>
+<ul>
+<li>VLUA: can run at physics frequency (2000Hz, see <code>lua/vehicle/main.lua</code>::<code>onPhysicsStep()</code>), or graphics frequency (see <code>lua/vehicle/main.lua</code>::<code>onGraphicsStep()</code>).</li>
+<li>GELUA: can run at graphics frequency (the current “framerate”, see <code>lua/ge/main.lua</code>::<code>update()</code>), or UI frequency (see <code>lua/ge/main.lua</code>::<code>onGuiUpdate</code> event).</li>
+<li>Main UI: runs at a variable rate. Ideally 60 FPS, but often 30 FPS or less. This depends on the available computer resources.</li>
+<li>Secondary UIs: run at a variable rate, often lower than the Main UI update rate.</li>
+</ul>
+<p>On top of that, you could conceivably implement your own <strong>fixed update</strong> rate. One way you can do this, is by hooking your code to the graphics update() call, and then manually skipping ticks based on basic time tracking. This way your code will run no more often than the graphics rate, typically at the fixed rate you have decided. However, we recommend against using fixed-rate logic due to performance reasons. Follow the link below for more information.</p>
+<p><em>Note: we understand that writing math that can work under extreme rate variations is hard. For this reason, the reported graphics “update rate” is guaranteed to be a minimum of 20Hz. When the computer is unable to reach 20fps, then the simulation will slow down as needed. This is a guarantee that helps you to program your math with a safe baseline rate.</em></p>
+<p>Picking the correct update rate for your code is essential to ensure your mod can work in a variety of computers. <strong>See <a data-doc="programming/performance" data-frag="update-rate" href="/docs/programming/performance#update-rate">Improving Framerate</a>
+ for more information</strong>.</p>
+<h3 id="reloading">
+
+  Reloading
+</h3>
+<p>During development of your mod, you may want to modify the source code that runs in a particular VM. To improve iteration times, BeamNG allows you to reload the VM of your choice on the fly, in order to test your new changes immediately without restarting the program:</p>
+<ul>
+<li>Main UI: press <kbd>F5</kbd>.</li>
+<li>GELUA: press <kbd>Ctrl-L</kbd>.</li>
+<li>VLUA: press <kbd>Tab</kbd> to the desired vehicle, then press <kbd>Ctrl-R</kbd>.</li>
+<li>VLUA (all of them): press <kbd>Ctrl-Shift-R</kbd>.</li>
+</ul>
+<p>These reloads will start with a clean slate, spinning up an entirely new VM from scratch and delete the old one; however BeamNG has a convenient feature: it will attempt to recover/resume where you left, by storing the old state, and loading it when the new VM is running.</p>
+<p>The idea is that you can continue development exactly where you were previously rather than, say, having to load your Career saved game again each time you edit some code.</p>
+<h3 id="communication">
+
+  Communication
+</h3>
+<p>Every virtual machine is running in parallel to the rest, and fully isolated from them all.</p>
+<p>If you want a piece of information from one VM to be available in other VM, you need to explicitly send the information from one VM to another VM.</p>
+<p>We offer these asynchronous communication methods:</p>
+<ul>
+<li><strong>Asynchronous queues in VLUA and GELUA</strong>: you enqueue a string of source code in the target LUA VM. This code contains the information you want. For example, you might enqueue the string <code>"input.event('throttle', 0.6)"</code> into a VLUA VM.</li>
+<li><strong>Asynchronous events in UI</strong>: you enqueue an event that javascript will be notified about, and various listeners can react to it. For example, you might enqueue the event <code>"MenuHide"</code>.</li>
+<li><strong>Asynchronous mailboxes in VLUA</strong>: VLUA vms can also read data from a virtual mailbox storage system: the sender writes data to the mailbox, and the recipient(s) can check what’s the last information available in that mailbox. This is a more performant way to communicate than queues, but you cannot run arbitrary code: instead, the recipient VM must manually check their mailbox in order to notice the information has been updated, and act upon it however they see fit.</li>
+</ul>
+<p><em>Note: if you were wondering about traditional communication methods (such as mutex, barrier…), those are <strong>intentionally</strong> not made available, for robustness and simplicity.</em></p>
+<p>Here’s a quick visual guide with the code needed to communicate between APIs:
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/programming/vmCommunicationSimple.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/programming/vmCommunicationSimple.png"/>
+</span></a></p>
+<p>And here’s the same information explained with plausible code examples:</p>
+<ul>
+<li>Sending events to <strong>UI</strong>:
+<ul>
+<li><code>guihooks.trigger("myEvent")</code> (from VLUA)</li>
+<li><code>guihooks.trigger("myEvent")</code> (from GELUA)</li>
+<li><code>$scope.$emit("myEvent")</code> (from UI)</li>
+</ul>
+</li>
+<li>Listening for events in a <strong>UI</strong>:
+<ul>
+<li><code>$scope.$on("myEvent", function() { myJavascriptCode() } )</code></li>
+</ul>
+</li>
+<li>Enqueing code to <strong>GELUA</strong>:
+<ul>
+<li><code>bngApi.engineLua('myLuaCode()')</code> (from UI)</li>
+<li><code>obj:queueGameEngineLua('myLuaCode()')</code> (from VLUA)</li>
+</ul>
+</li>
+<li>Enqueuing code to <strong>one particular VLUA</strong>:
+<ul>
+<li><code>bngApi.engineLua("be:getPlayerVehicle(0):queueLuaCommand('myLuaCode()')")</code> (from UI)</li>
+<li><code>be:getPlayerVehicle(0):queueLuaCommand('myLuaCode()')</code> (from GELUA)</li>
+</ul>
+</li>
+<li>Enqueuing code to <strong>all VLUA</strong>:
+<ul>
+<li><code>bngApi.engineLua("be:queueAllObjectLua('myLuaCode()')")</code> (from UI)</li>
+<li><code>be:queueAllObjectLua('myLuaCode()')</code> (from GELUA)</li>
+<li><code>BeamEngine:queueAllObjectLua('myLuaCode()')</code> (from VLUA)</li>
+</ul>
+</li>
+<li>Enqueuing code to <strong>all VLUA except one</strong>:
+<ul>
+<li><code>BeamEngine:queueAllObjectLuaExcept('myLuaCode()', exceptObjectID)</code> (from VLUA)</li>
+</ul>
+</li>
+<li>Leaving information in a <strong>VLUA mailbox</strong>:
+<ul>
+<li><code>be:sendToMailbox("myMailboxAddress", myData)</code> (from GELUA)</li>
+</ul>
+</li>
+<li>Reading information left in a <strong>VLUA mailbox</strong>:
+<ul>
+<li><code>local myData = obj:getLastMailbox("myMailboxAddress")</code></li>
+</ul>
+</li>
+</ul>
+<p>Note: reading data from a mailbox does not delete the information. It’s still available to be read in the future and by any other VLUA VM.</p>
+<p>We recommend you look at existing official code to get a better idea of the possibilities and to see working examples instead of the pseudoc-code listed above.</p>
+<h3 id="performance-considerations">
+
+  Performance considerations
+</h3>
+<p>Please refer to <a data-doc="programming/performance" data-frag="avoid-communication-between-virtual-machines" href="/docs/programming/performance#avoid-communication-between-virtual-machines">Improving Framerate</a>
+ for details on how to reduce the negative impact that VM communications can have.</p>
+<h1 class="anchored">
+
+  Full architecture
+</h1>
+<p>The sections above cover all the basics you need to know when programming your mods.</p>
+<p>However, if you want additional detail, there are additional components that link all these VMs together:</p>
+<ul>
+<li>C++ Game Engine: the “real” high-performance engine, written mostly in C++, and implementign features such as frame rendering, input handling, VR, audio generation, etc.</li>
+<li>C++ Physics Core: while VLUA VMs compute accessory parts of the physics that relate to vehicles (such as powertrain, etc), there’s also the core physics engine. This computes the soft-body physics, friction models, node-grabbing physics, etc. It also orchestrates the execution and synchronization of all VLUA VMs.</li>
+<li>TS VM: this component has not been completely removed yet, so remnants of the old TorqueScript VM still exist in our engine. It runs on the main thread and shouldn’t be used for any new development or mods.</li>
+</ul>
+<p>This is a detailed overview of all VMs, all conceptual sections of the engine, and which threads/processes each runs in:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/programming/vmCommunicationFull.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/programming/vmCommunicationFull.png"/>
+</span></a></p>
+<p>As you can see, in addition to the multiple threads from spawned vehicles and the different UI vms, the C++ Game Engine itself is internally multithreaded too (for tasks such as Vulkan rendering, audio tasks, etc). However, for modding purposes, you can ignore them all, and focus only on UI/VLUA/GELUA VMs.</p>
+<h5 id="programming-documentation-feedback">
+
+  Programming documentation feedback
+</h5>
+<p><em>If you feel this <strong>programming documentation</strong> is too high level, too low level, is missing important topics, is erroneous anywhere, etc, please write a 
+    <a class="link-ext" href="https://www.beamng.com/threads/new-beamng-drive-documentation.77939/" rel="noopener" target="_blank">post at this thread</a>
+ and ping me personally by typing <code>@stenyak</code> so I will get notified.</em></p>

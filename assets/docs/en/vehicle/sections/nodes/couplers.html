@@ -1,0 +1,352 @@
+<p><code>This feature is supported as of BeamNG.tech and .drive version 0.6.0 to latest.</code></p>
+<p>The coupler system is the feature of connecting two nodes together. Connected nodes will be within a closed position range from each other and will react to the same forces. Before connecting, the nodes will move towards each other when the distance between them reaches a specified range. It can work between nodes of the same vehicle or 2 different vehicles, either automatically or on key press. Some use cases of the system include rigid attachments between vehicle parts, tow hitches for trailers, and latches for vehicle doors, hoods, trunks and tailgates.</p>
+<p>For this system to work, you need a node with a couplerTag property, and another node with a Tag property of the same value. For the purpose of this section, we shall call them the “coupler node” and “tag node” respectively, to understand easier which properties are meant for which node. When connecting a vehicle to a trailer, the end of the tow hitch on the vehicle should be the coupler node while the end of the tow hitch receiver on the trailer should be the tag node. When attaching 2 different parts of the same vehicle, the order doesn’t matter.</p>
+<h3 id="functionality">
+
+  Functionality
+</h3>
+<p>The system will start working when the coupler node ends up in the Active state. Active coupler nodes and their respective tag nodes will be moved towards each other before being merged into one, the force will be the same in both directions. A connected coupler node is no longer referred to as Active. Broken coupler nodes cannot be switched to the Active state in any way and they will not connect to any tag nodes again.</p>
+<p>When connecting 2 nodes from the same vehicle on spawn, it is best if they have identical coordinates by default. One coupler node can only connect to one tag node at a time, but it can be disconnected and then connected to the same or different tag node. Similarly, a tag node can be connected to one coupler node at a time, but after disconnecting it can be connected to the same or different coupler node.</p>
+<p>The coupler system can also be controlled by the Advanced Coupler Control, which is too advanced for this section of documentation so it will not be covered here.
+Another system that can control couplers is Couplings, used on semi truck fifth wheel and trailers.</p>
+<p>For the system itself, there is no difference (other than slight performance differences which should not concern you) whether the nodes are parts of the same vehicle or different vehicles. There are however various sub-systems that will only work when the system is set up between 2 different vehicles, such as the camera zoom out when connecting a vehicle to a trailer.</p>
+<h3 id="coupler-toggle-system">
+
+  Coupler Toggle System
+</h3>
+<p>A system very closely related to this one, which allows to actually connect a trailer to a vehicle, is the Coupler Toggle System. It can be activated either by pressing a key binding assigned to it (L by default) or via the radial menu. Upon use, the system first checks if any of the nodes relevant for it are connected to other nodes. If there are any, it disconnects them, and if not, it sets the ones that are not in the Broken state to Active state and toggles a visualization of coupler nodes and tag nodes via color coded balls, the same tags and couplerTags will have the same colors.</p>
+<p>A node is relevant for the Coupler Toggle System if it has a couplerTag property, its state is not Broken, and it does not have the couplerLock or couplerWeld property. This means that only the nodes referred to as coupler nodes in this section can be relevant for this system.</p>
+<p>You can activate the Coupler Toggle System with a <a data-doc="vehicle/sections/triggers" href="/docs/vehicle/sections/triggers">trigger</a>
+. If you wish to activate it for all relevant couplers, use “beamstate.toggleCouplers()” without arguments as the function. However you can also provide arguments to it for specific functionality, for example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"beamstate.toggleCouplers('pintle', true, false, true)"</span><span class="p">,</span>
+</span></span></code></pre></div><p>The arguments used by the function are as follows:</p>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">couplerTag of the coupler to toggle</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">When empty, will work for all couplerTags.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Whether couplers with couplerLock property will also be detached</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Whether couplers with couplerWeld property will also be detached</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Whether to force attaching and detaching for couplers with the autoCoupling system</div>
+</div>
+</div>
+<p>Analogically you can use “beamstate.attachCouplers(_nodetag)” and “beamstate.detachCouplers(_nodetag, forceLocked, forceWelded)”.</p>
+<h3 id="nodes-section-arguments">
+
+  Nodes section arguments
+</h3>
+<h4 id="common">
+
+  Common
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Maximum force that can be applied on the nodes before they disconnect (N)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">If both the coupler node and the tag node have different couplerStrength values, then the lower one of the two will be the maximum force value.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Will break the nodes apart if the selected <a data-doc="vehicle/sections/beams" href="/docs/vehicle/sections/beams">breakGroup</a>
+ breaks</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Mostly applicable when connecting parts of the same vehicle. Breaking the nodes apart sets the coupler node state to Broken, making it unable to connect to the tag node again.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">List of electrics that will be transferred from the other vehicle to this vehicle</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Only relevant when connecting 2 different vehicles together. Mostly used when defining the tow hitch coupler on trailers. These are usually defined for the trailer, not for the towing vehicle. They can still be used on the towing vehicle, but keep in mind they will overwrite its own electrics.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"importElectrics"</span><span class="o">:</span> <span class="p">[</span><span class="s2">"lowhighbeam"</span><span class="p">,</span> <span class="s2">"reverse"</span><span class="p">,</span> <span class="s2">"signal_L"</span><span class="p">,</span> <span class="s2">"signal_R"</span><span class="p">],</span>
+</span></span></code></pre></div></div>
+</div>
+</div>
+<h4 id="coupler-node">
+
+  Coupler node
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The tag of the tag node that this coupler node will connect to</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Commonly used tags for coupling different vehicles together:</p>
+<ul>
+<li>“tow_hitch” - for standard car tow hitches and trailers</li>
+<li>“gooseneck_hitch” - for pickup truck gooseneck hitches and trailers</li>
+<li>“fifthwheel_v2” - for semi-truck trailers (legacy tag for old mods: “fifthwheel”)</li>
+<li>“pintle” - for pintle hitch and trailer converter dolly</li>
+<li>Tags used for shipping container coupling: “cp1_h” - bottom horizontal, “cp2_h” - top horizontal, “cp_v” - vertical</li>
+</ul>
+<p>You should avoid using these tags for coupling parts of the same vehicle.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The distance (meters) at which this node will try to connect with the other node when in Active state</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Most often used to connect cars and trailers together. Larger numbers make the car/trailer alignment more forgiving. You do not have to use this property when you are using couplerStartRadius instead.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The same as above, and additionally using this property will switch the coupler state to Active after spawn</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>This means that the nodes that are within this range with each other will try to connect immediately after the vehicle is spawned, without the need to toggle them. When this property is not used, Active will not be the default state, meaning that the nodes will need to be toggled in order to connect.</p>
+<p>This is most often used to connect parts of the same vehicle rather than trailers. It’s best if this value is very small, as is the distance between the parts on spawn which should ideally be 0, so that there is not much shifting right after spawn.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">When true, the node will not be relevant for the coupler system, but will still be able to change state via other means</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>This means that a node that is not active on spawn can only become active via lua code which is not related to the Coupler Toggle System. Similarly, a node that is active on spawn (uses the couplerStartRadius property) can only disconnect when its state changes to Broken or when lua code is used.</p>
+<p>This is useful for systems where a coupler needs to lock and unlock on demand, but should not be linked to the Coupler Toggle System and the use of advanced coupler control would be redundant. A good example is the lockable dump truck tailgate.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">When true, the node will not be relevant for the coupler system and will not be able to change state via any other means</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>This means that a node that is not active on spawn can never become active, and a node that is active on spawn (uses the couplerStartRadius property) can only disconnect when its state changes to Broken.</p>
+<p>This is often used when connecting together parts of lightweight rigid structures on the same vehicle, such as fiberglass body panels. With this property, couplerStartRadius should always be used, or else the nodes will never connect and couplerTag will do nothing.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.025<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The radius (meters) at which the two nodes are considered one and snap together while connected</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Should be left at default in the majority of cases to allow little amount of give between the nodes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.3<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Speed of the node latching force in Active state (m/s)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Should be left at default in most cases.</div>
+</div>
+</div>
+<h4 id="tag-node">
+
+  Tag node
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The couplerTag of the coupler node that this tag node will connect to</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Commonly used tags for coupling different vehicles together:</p>
+<ul>
+<li>“tow_hitch” - for standard car tow hitches and trailers</li>
+<li>“gooseneck_hitch” - for pickup truck gooseneck hitches and trailers</li>
+<li>“fifthwheel_v2” - for semi-truck trailers (legacy tag for old mods: “fifthwheel”)</li>
+<li>“pintle” - for pintle hitch and trailer converter dolly</li>
+<li>Tags used for shipping container coupling: “cp1_h” - bottom horizontal, “cp2_h” - top horizontal, “cp_v” - vertical</li>
+</ul>
+<p>You should avoid using these tags for coupling parts of the same vehicle.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">List of inputs that will be transfered from the other vehicle to this vehicle</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Only relevant when connecting 2 different vehicles together. Mostly used when defining the tow hitch coupler on trailers. These should be defined for the trailer, not for the towing vehicle.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"importInputs"</span><span class="o">:</span> <span class="p">[</span><span class="s2">"brake"</span><span class="p">,</span> <span class="s2">"parkingbrake"</span><span class="p">]</span>
+</span></span></code></pre></div></div>
+</div>
+</div>
+<h3 id="simple-example">
+
+  Simple Example
+</h3>
+<p>Connecting together 2 nodes of the same vehicle.</p>
+<p>Coupler node:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hd4l4"</span><span class="p">,</span>  <span class="mf">1.15</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.26</span><span class="p">,</span> <span class="mf">1.20</span><span class="p">,</span> <span class="p">{</span><span class="s2">"couplerTag"</span><span class="o">:</span><span class="s2">"hood_side_latch_L"</span><span class="p">,</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">"hood_side_latch_L"</span><span class="p">,</span><span class="s2">"couplerStrength"</span><span class="o">:</span><span class="mi">12000</span><span class="p">,</span><span class="s2">"couplerRadius"</span><span class="o">:</span><span class="mf">0.01</span><span class="p">,</span><span class="s2">"couplerStartRadius"</span><span class="o">:</span><span class="mf">0.01</span><span class="p">,</span><span class="s2">"couplerWeld"</span><span class="o">:</span><span class="kc">true</span><span class="p">}],</span>
+</span></span></code></pre></div><p>Tag node:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"sd1l"</span><span class="p">,</span>  <span class="mf">0.85</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.12</span><span class="p">,</span> <span class="mf">1.41</span><span class="p">,</span> <span class="p">{</span><span class="s2">"tag"</span><span class="o">:</span><span class="s2">"hood_side_latch_L"</span><span class="p">,</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">"hood_side_latch_L"</span><span class="p">}],</span>
+</span></span></code></pre></div>
+<h3 id="advanced-example">
+
+  Advanced Example
+</h3>
+<p>Connecting 2 vehicles together via tow hitch.</p>
+<p>Vehicle tow hitch (coupler node):</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"tw"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.76</span><span class="p">,</span> <span class="mf">0.58</span><span class="p">,{</span><span class="s2">"couplerTag"</span><span class="o">:</span><span class="s2">"tow_hitch"</span><span class="p">,</span><span class="s2">"couplerStrength"</span><span class="o">:</span><span class="mi">2001000</span><span class="p">,</span><span class="s2">"couplerRadius"</span><span class="o">:</span><span class="mi">1</span><span class="p">}],</span>
+</span></span></code></pre></div><p>Trailer tow ball end (tag node):</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"cf8"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.245</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="p">{</span><span class="s2">"tag"</span><span class="o">:</span><span class="s2">"tow_hitch"</span><span class="p">,</span><span class="s2">"couplerStrength"</span><span class="o">:</span><span class="mi">801000</span><span class="p">,</span><span class="s2">"importElectrics"</span><span class="o">:</span> <span class="p">[</span><span class="s2">"lowhighbeam"</span><span class="p">,</span> <span class="s2">"reverse"</span><span class="p">,</span> <span class="s2">"signal_L"</span><span class="p">,</span> <span class="s2">"signal_R"</span><span class="p">],</span><span class="s2">"importInputs"</span><span class="o">:</span> <span class="p">[</span><span class="s2">"brake"</span><span class="p">,</span> <span class="s2">"parkingbrake"</span><span class="p">]}],</span>
+</span></span></code></pre></div>

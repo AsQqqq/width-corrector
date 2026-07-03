@@ -1,0 +1,119 @@
+<h3 id="overview">
+
+  Overview
+</h3>
+<p><strong>Action maps</strong> are essentially groups of bindings, with a name.</p>
+<p>Their main purpose is to define the priorities of their bindings, and
+also to enable/disable all of them easily.</p>
+<h4 id="example">
+
+  Example
+</h4>
+<p>Let’s take the replay functionality as an example:</p>
+<blockquote>
+<p>All replay-related bindings are grouped into the same action map, named <code>"ReplayPlaybackActionMap"</code></p>
+</blockquote>
+<blockquote>
+<p>This action map is activated while you open a replay.</p>
+</blockquote>
+<blockquote>
+<p>It can also be given higher priority than the regular driving controls, so that the right arrow key won’t try to steer the vehicle, but will instead advance the replay 10 seconds forward.</p>
+</blockquote>
+<h3 id="action-map-execution-order">
+
+  Action map Execution Order
+</h3>
+<p>When an <a data-doc="input/introduction" data-frag="event" href="/docs/input/introduction#event">Event</a>
+ is generated, BeamNG.drive takes the first action map, and checks if it contains relevant bindings to execute:</p>
+<ul>
+<li>If there’s no <a href="https://documentation.beamng.com/modding/input/introuction/#binding" rel="noopener" target="_blank">bindings</a>
+ associated to this <a data-doc="input/introduction" data-frag="event" href="/docs/input/introduction#event">Event</a>
+, it will take the next action map in order, and check again (until there’s no more action maps left to check).</li>
+<li>If there is any relevant <a href="https://documentation.beamng.com/modding/input/introuction/#binding" rel="noopener" target="_blank">binding</a>
+, it/they will be executed, and no more action maps will be checked after that*.</li>
+</ul>
+<p><em>(* unless the <a href="#trapping-handled-events">trap flag</a>
+ has been set)</em></p>
+<h3 id="hierarchy">
+
+  Hierarchy
+</h3>
+<p>Action Maps can be active or inactive, and there’s a list for each. You can visualize both lists at any time, by running this command in the GE-Lua console:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="n">dump</span><span class="p">(</span><span class="n">ActionMap</span><span class="p">:</span><span class="n">getList</span><span class="p">())</span>
+</span></span></code></pre></div>
+<h4 id="list-of-active-action-maps">
+
+  List of Active Action Maps
+</h4>
+<p>These are the default action maps that are active right after starting the game, and their order;</p>
+<ol>
+<li>GlobalActionMap</li>
+<li>MenuActionMap</li>
+<li>GuiActionMap</li>
+<li>&lt;- <a href="#activating-and-deactivating-action-maps">activation point</a>
+ -</li>
+<li>VehicleSpecificActionMap</li>
+<li>VehicleCommonActionMap</li>
+<li>NormalActionMap</li>
+</ol>
+<p>The action maps on top are prioritized: they get a chance to process bindings before those at the bottom.</p>
+<h4 id="list-of-inactive-action-maps">
+
+  List of Inactive Action Maps
+</h4>
+<p>There’s a second one that lists all inactive action maps.</p>
+<p>Inactive maps are never taken into account, the end-user is unable to use any of their bindings, and therefore their ordering does not matter.</p>
+<p>At the time of writing this article, the inactive list typically contains:</p>
+<ul>
+<li>FlexmeshDebugActionMap</li>
+<li>ReplayPlaybackActionMap</li>
+<li>ExplorationGeneralActionMap</li>
+</ul>
+<h3 id="custom-action-maps">
+
+  Custom Action Maps
+</h3>
+<p>Additional action maps can be added by mods, by merely choosing a new <code>actionMap</code> field name in the <code>.json</code> <a data-doc="input/actions" data-frag="action-files-format" href="/docs/input/actions#action-files-format">action files</a>
+.</p>
+<p>That name + the suffix <code>"ActionMap"</code> will be used as its scene tree identifier. For example, using <code>'actionMap':'FunStuff'</code> will lead to the creation of an action map accessible via <code>scenetree.findObject('FunStuffActionMap')</code>.</p>
+<p>All additional actionMaps will be <a href="#list-of-inactive-action-maps">inactive</a>
+ by default.</p>
+<p>In order for the new actionMaps to be usable, they must be <a href="#activating-and-deactivating-action-maps">activated</a>
+ first (and later deactivated, if/when you’re finished with them).</p>
+<h3 id="activating-and-deactivating-action-maps">
+
+  Activating and Deactivating Action Maps
+</h3>
+<p>Activating an action map means moving it from the inactive list to the active list.</p>
+<p>In other words, the action map is <em><strong>pushed</strong></em> into, or <em><strong>popped</strong></em> out of, the active list.</p>
+<p>ActionMaps can be activated at any time, by running the following GE-Lua code:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">actionMapName</span> <span class="o">=</span> <span class="s2">"MyActionMap"</span>
+</span></span><span class="line"><span class="cl"><span class="n">scenetree.findObject</span><span class="p">(</span><span class="n">actionMapName</span><span class="p">):</span><span class="n">push</span><span class="p">()</span>
+</span></span></code></pre></div><p>In order to deactivate it later, use this:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">actionMapName</span> <span class="o">=</span> <span class="s2">"MyActionMap"</span>
+</span></span><span class="line"><span class="cl"><span class="n">scenetree.findObject</span><span class="p">(</span><span class="n">actionMapName</span><span class="p">):</span><span class="n">pop</span><span class="p">()</span>
+</span></span></code></pre></div><p>This will move the action map back to the inactive list.</p>
+<p>ActionMaps are activated (pushed) roughly right below the <code>GuiActionMap</code> (see <a href="#list-of-inactive-action-maps">List of active action maps</a>
+).</p>
+<p>Therefore, their priority is lower than the gui/menu/global action maps, and higher than previously activated action maps.</p>
+<p>In practice, this means that a mod can never override, for example, the <kbd>ALT+F4</kbd> binding that exits the game. This happens by design.</p>
+<h3 id="enabling-and-disabling-action-maps">
+
+  Enabling and Disabling Action Maps
+</h3>
+<p>This is shown as <code>enabled = true</code> or <code>enabled = false</code> when displaying the <a href="#hierarchy">action map hierarchy</a>
+.</p>
+<p>It’s a rarely used feature, but documented here for completeness. It allows to deactivate an action map <strong>without losing its position</strong> (priority) in the <a href="#list-of-inactive-action-maps">List of active action maps</a>
+ (without moving the action map from the active to the inactive list).</p>
+<p>The main purpose is allowing to disable all <code>Menu</code> action map bindings while the menus are closed (and re-enabling them if the end-user starts navigating the menus), while maintaining the proper priority of its bindings.</p>
+<h3 id="trapping-handled-events">
+
+  Trapping Handled Events
+</h3>
+<p>This boolean flag can be set for each action map. Its default value is <code>true</code>.</p>
+<p>It is shown as <code>trapHandledEvents = true</code> or <code>trapHandledEvents = false</code> when displaying the <a href="#hierarchy">action map hierarchy</a>
+.</p>
+<p>It’s another rarely used feature, again documented here for completeness.</p>
+<p>If this flag is <code>false</code>, then the <a href="#actionmap-execution-order">Action map execution order</a>
+ behaviour is altered: the lower-priority action maps will be checked even after a binding has been found in the current action map.</p>
+<p>E.g. if the first half of the action maps stack have this flag set to false, and the second half have this flag set to true, then all bindings in the first half will be processed. After that, the first action map with a matching binding will be processed, and the rest of action maps won’t be given the chance (since the event has just been trapped by this last matching action map).</p>

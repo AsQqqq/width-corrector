@@ -1,0 +1,280 @@
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/input/vehicle-specific-bindings/Canon-specific_bindings.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/input/vehicle-specific-bindings/Canon-specific_bindings_hu9fd106178415635e1fd4a635e9bef8aa_704313_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>It can be very useful to use a working example as reference, such as the official <code>cannon</code> vehicle.</em></p>
+<h3 id="overview">
+
+  Overview
+</h3>
+<p></p><div class="bng-notice note">You may want to first read the <a data-doc="input/introduction" href="/docs/input/introduction">Input Introduction</a>
+.</div>
+<br/>
+<p>Starting on version 0.5, BeamNG.drive supports vehicle-specific <a data-doc="input/introduction" data-frag="binding" href="/docs/input/introduction#binding">bindings</a>
+. These are special bindings that only apply to certain vehicle. For example, a binding to lift the arm of a crane; or a binding to shoot the ball in a cannon.</p>
+<p>Vehicle specific bindings can be customized by end users in the <code>Controls</code> → <code>Bindings</code> menu, just like any other binding (without editing any file at all).</p>
+<h3 id="defining-vehicle-specific-actions">
+
+  Defining Vehicle-Specific Actions
+</h3>
+<p>In order words, the file name can be <code>input_actions.json</code>, but can also have a suffix, such as: <code>input_actions_my_custom_suffix.json</code></p>
+<h4 id="action-file-format">
+
+  Action File Format
+</h4>
+<p>The specified action names (“action_name_a”, etc) must be unique within the current vehicle. If a different vehicle uses the exact same action name, they won’t interfere with each other, since they belong to different vehicles.</p>
+<p>These are the possible action arguments:</p>
+<div class="bng-table" id="input"><div class="bng-table-header"><div>Name</div><div>Mandatory</div><div>Type</div><div>Default Value</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">title</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">Yes</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style="">n/a</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Very short name of the action, will be displayed in various game menues</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">desc</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">Yes</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style="">n/a</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Full description, may be displayed as tool-tip, should be about one sentence long.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">order</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">Yes</div>
+</div><div>
+<div>Type</div>
+<div style="">number</div>
+</div><div>
+<div>Default Value</div>
+<div style="">n/a</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Can influence in which order actions are displayed on UI menues, with 1 coming first, and larger values (2, 3…) coming later.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">isBasic</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">No</div>
+</div><div>
+<div>Type</div>
+<div style="">boolean</div>
+</div><div>
+<div>Default Value</div>
+<div style="">true</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Whether it is shown by default in the Controls &gt; Binding menu (true) or user needs to check “List advanced bindings too” (false)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">isCentered</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">No</div>
+</div><div>
+<div>Type</div>
+<div style="">boolean</div>
+</div><div>
+<div>Default Value</div>
+<div style="">false</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">If false, the action will produce values in the range 0 to 1 (for example, it can be used for a brake pedal or handbrake). If true, generated values will be in the range of -1 to +1 (for example, it can be used for the steering, or for changing the camera height up and down).</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">onChange</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">No *</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style=""></div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Source code that will be executed when the input value changes (when a key is pressed, lifted, or each time an axis is slightly moved).</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">onDown</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">No *</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style=""></div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Source code that will be executed when a button or a key have been pressed down**.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">onUp</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">No *</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style=""></div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Source code that will be executed when a button or a key have been lifted up**.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">ctx</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">No</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style="">“vlua”</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;"><p>Where the code defined above will be run:</p>
+<ul>
+<li>“vlua” for active vehicle Lua (default for vehicle-specific actions)</li>
+<li>“tlua” for Game Engine Lua</li>
+<li>“bvlua” for all vehicle Lua contexts</li>
+<li>“elua” for asynchronous Game Engine Lua / legacy-special cases</li>
+</ul>
+<p>Deprecated contexts: “ui”, “ts”, and “slua”.</p>
+</div>
+</div></div></div>
+<p><strong>Footnotes:</strong></p>
+<p>* <code>onUp</code> and <code>onDown</code> code cannot be triggered by axes, only by buttons and keyboard keys. Using <code>onChange</code> is recommended, if possible.</p>
+<p>** At least one of these must be defined. More on this later, don’t worry about what to use just now.</p>
+<p>To add a new action, insert a new line, like this:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="nt">"shoot"</span><span class="p">:</span> <span class="p">{</span><span class="nt">"order"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="nt">"onChange"</span><span class="p">:</span><span class="s2">"electrics.values.shoot = VALUE"</span><span class="p">,</span> <span class="nt">"title"</span><span class="p">:</span><span class="s2">"Shoot ball"</span><span class="p">,</span> <span class="nt">"desc"</span><span class="p">:</span><span class="s2">"Shoots the cannon ball. Cannon will need to be reset to fire again"</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="modding-vehicle-specific-actions">
+
+  Modding Vehicle-Specific Actions
+</h3>
+<p>If you are modifying an existing vehicle that already contains vehicle-specific <a data-doc="input/introduction" data-frag="action" href="/docs/input/introduction#action">actions</a>
+, then starting at version 0.7.0.0 you can add extra actions (rather than simply replacing <code>vehicles/my_vehicle/input_actions.json</code>).</p>
+<p>To do that, create new files named <code>input_actions*.json</code> in that same directory. For example: <code>input_actions_my_mod.json</code>.</p>
+<p>All json files matching that filaname pattern will be read, allowing you to add any new actions you may need, spanning as many files as you want.</p>
+<h3 id="defining-some-default-bindings">
+
+  Defining Some Default Bindings
+</h3>
+<p>Now that we have the vehicle-specific input_actions.json file, you can create new <a data-doc="input/introduction" data-frag="binding" href="/docs/input/introduction#binding">bindings</a>
+ through the usual <code>Controls</code> → <code>Bindings</code> menu. This will generate inputmap files in the <code>settings/inputmaps/your_vehicle_name/</code> directory.</p>
+<p>When you are happy with your set of default bindings, you can rename the files from <code>*.diff</code> to <code>*.json</code>, and move them inside <code>vehicle/your_vehicle_name/inputmaps/</code>.</p>
+<p>Starting at BeamNG.drive v0.25, you also have the possibility of adding an arbitrary suffix to the file name, in order to avoid collisions with game-provided inputmap files. For example, if you are modding the pickup with additional bindings, it is a good practice of picking a custom suffix to avoid interfering with inputmaps from other mods or from defaults. For example, instead of <code>vehicles/pickup/inputmaps/keyboard.json</code>, you should use <code>vehicles/pickup/inputmaps/keyboard_MyCoolMod.json</code>. You can pick any suffix you want, just pick a name unique enough to not be used by other mods already.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/input/vehicle-specific-bindings/Default_bindings.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/input/vehicle-specific-bindings/Default_bindings.png"/>
+</span></a></p>
+<p>Vehicle-specific bindings will automatically appear on the top-right of the window after you load a level. This way, users can easily know how to use your vehicle specific bindings.</p>
+<div class="bng-notice note">After the initial release of your mod, for example in your second version of the mod, you can add more actions if you wish, and also add more default bindings. BeamNG.drive will make sure these new default bindings are available to all users, even if they have customized the bindings in the past.</div>
+<div class="bng-notice warning"><p><strong>Important</strong>: if you do not provide some default binding files, the user won’t be able to use your vehicle-specific functionality until he manually puts the effort to create the necessary bindings.</p>
+<p>Please, always provide default bindings, users will be thankful. Well, or at least they won’t be so confused about how to use your mod.</p>
+</div>
+<h3 id="making-the-vehicle-actually-do-stuff">
+
+  Making the Vehicle Actually Do Stuff
+</h3>
+<p>So far, we have defined some default bindings, and added some lines to the vehicle input_actions.json file, but all of the <code>onChange</code>/<code>onUp</code>/<code>onDown</code> arguments are empty, so we will fix that now.</p>
+<p>For the full explanation of the action-code format, contexts, placeholders such as <code>VALUE</code> and <code>FILTERTYPE</code>, and action maps, see <a data-doc="input/actions" data-frag="writing-action-code" href="/docs/input/actions#writing-action-code">Writing Action Code</a>
+.</p>
+<p>For clickable vehicle controls using <code>*.interaction.json</code>, see <a data-doc="input/interaction-maps" href="/docs/input/interaction-maps">Interaction Maps</a>
+.</p>
+<h4 id="simple-case">
+
+  Simple Case
+</h4>
+<p>The simplest case is using a thruster or a hydro. These elements can easily react to values travelling through the electric bus of the vehicle, so we will just write some LUA code that writes to this electrics bus.</p>
+<p>Let’s learn by example: If you have this inside input_actions.json:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="s2">"onChange"</span><span class="p">:</span><span class="s2">"electrics.values.shoot = VALUE"</span>
+</span></span></code></pre></div><p>Then you can make a hydro or a thruster react to it, like this:</p>
+<ul>
+<li>Inside the Hydros section of a .jbeam file:</li>
+</ul>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="s2">"inputSource"</span><span class="p">:</span><span class="s2">"shoot"</span>
+</span></span></code></pre></div><ul>
+<li>Or inside the Thrusters section of a .jbeam file:</li>
+</ul>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="s2">"control"</span><span class="p">:</span><span class="s2">"shoot"</span>
+</span></span></code></pre></div><p>Check the <code>cannon</code> vehicle for a working example of a thruster.</p>
+<h4 id="advanced-case">
+
+  Advanced Case
+</h4>
+<p>You can have complete control over what happens, if you are willing to write custom LUA code.</p>
+<h5 id="action-lua-code">
+
+  Action LUA Code
+</h5>
+<p>All of the <code>onChange</code>/<code>onUp</code>/<code>onDown</code> lua code can include some special symbols, that will be automatically replaced by the bindings system. You can write them in any order, any number of times. They are:</p>
+<ul>
+<li><code>VALUE</code>: will replaced with <code>1</code> in onDown, <code>0</code> in onUp, float values from <code>0</code> to <code>1</code> in onChange when isCentered argument is false, and float values from <code>-1</code> to <code>1</code> in onChange when isCentered argument is true.</li>
+<li><code>FILTERTYPE</code>: corresponds to the “Filter” option in the binding editor menu, and will be replaced by <code>0</code> for Key filter, <code>1</code> for Pad filter, and <code>2</code> for Direct filter.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/input/vehicle-specific-bindings/Filter_type.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/input/vehicle-specific-bindings/Filter_type.png"/>
+</span></a></li>
+<li><code>PLAYER</code>: if you are using an action argument <code>ctx</code> different than the default <code>"vlua"</code> (such as <code>"ts"</code>), this may be useful to direct actions at the vehicle of certain player when playing in <code>multiseat</code> mode. If the binding was triggered by the first player, it will be replaced by <code>0</code>, second player with <code>1</code>, third with <code>2</code>, etc.</li>
+</ul>
+<p>Basic example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="s2">"onChange"</span><span class="p">:</span><span class="s2">"input.event('throttle', VALUE, FILTERTYPE)"</span>
+</span></span></code></pre></div><p>Advanced fictional example, which makes no sense at all (it’s only intended to show you the theoretical possibilities):</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="s2">"onChange"</span><span class="p">:</span><span class="s2">"hydros.my_function(false, true, 1337, 'sample string',  VALUE,  -1 * VALUE / 5,  math.max(1, FILTERTYPE),  FILTERTYPE == 0)"</span>
+</span></span></code></pre></div>
+<h5 id="custom-lua-files">
+
+  Custom LUA Files
+</h5>
+<p>If your needs are complex enough, you may want to bundle some custom <code>.lua</code> file in your vehicle mod.</p>
+<p>These files can include some functions that will be called back by the game engine:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="n">M.onInit</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">M.onReset</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">M.updateGFX</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+</span></span></code></pre></div><p>They can also export any functions you want to be used by your custom input_actions.json code. For example a file named <code>vehicles/my_vehicle/lua/custom_lua_file.lua</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="n">M.enableWindshieldWipers</span><span class="p">(</span><span class="n">booleanValue</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">M.setTurboLimit</span><span class="p">(</span><span class="n">psi</span><span class="p">)</span>
+</span></span></code></pre></div><p>The action’s code can then call those exported functions, for example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="n">onChange</span><span class="p">:</span> <span class="s2">"custom_lua_file.setTurboLimit(30 * VALUE)"</span>
+</span></span></code></pre></div>
+<h3 id="working-example">
+
+  Working Example
+</h3>
+<p>Including a working example would involve attaching various files, that may end up out of date. It is better to take the existing <code>cannon</code> vehicle, which is bundled with BeamNG.drive, tested on each relase and is pretty simple, so serves as a very good starting point.</p>
+<p>You will find this vehicle in <code>SteamApps\common\BeamNG.drive\content\vehicles\cannon.zip</code>, unzip to a temporary directory and take a look at the various files and directories mentioned throughout this guide.</p>

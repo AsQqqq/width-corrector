@@ -1,0 +1,359 @@
+<p>This article gives the steps to create bus lines, a route for the bus, which is composed of a number of bus stops.</p>
+<h3 id="files-and-folders-setup">
+
+  Files and Folders setup
+</h3>
+<ol>
+<li>
+<p>Create two new folders in the level you want to modify:</p>
+<ul>
+<li>scenarios</li>
+<li>bus lines</li>
+</ul>
+<p>For example, if you are modifying the “smallgrid” level, create the folders in <code>..\levels\smallgrid\</code></p>
+</li>
+</ol>
+<div class="bng-notice info">If these folders already exist in the level you are modifying, skip this step.</div>
+<br/>
+<ol start="2">
+<li>
+<p>Inside the <em>scenarios</em> folder, create a new folder and name it <em>“bus”</em>.</p>
+<p>Inside the <em>bus</em> folder, you would need to create a <code>bus_level.json</code> file. The content of the files should be as follows:</p>
+</li>
+</ol>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"bus_level"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"bus_level"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"authors"</span><span class="p">:</span> <span class="s2">"Your Name"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"introType"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"difficulty"</span><span class="p">:</span> <span class="s2">"22"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"date"</span><span class="p">:</span> <span class="mi">1494325025</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"levelObjects"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"tod"</span> <span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"time"</span> <span class="p">:</span> <span class="mf">0.11</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"play"</span> <span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"vehicles"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"scenario_player0"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"playerUsable"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"startFocus"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"*"</span><span class="p">:</span> <span class="p">{</span><span class="nt">"playerUsable"</span><span class="p">:</span> <span class="kc">false</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"radiusMultiplierAI"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"extensions"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"busdriver"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"busdriver"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"routeID"</span><span class="p">:</span> <span class="s2">"1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"variance"</span><span class="p">:</span> <span class="s2">"a"</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"statistics"</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"disableEndUI"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><ul>
+<li>Modify the first two variables, <code>"name"</code> and <code>"description"</code> by
+replacing the level part with the name of your level, for instance,
+use <em>bus_utah.json</em> if you are modifying the level “Utah”.
+Remember that this naming rule <strong>is not strict</strong>. In this example
+the <code>"bus\_grid.json"</code> would be used for level <em>smallgrid</em>.</li>
+<li>The <code>"busdriver"</code> object should contain the default route that the
+should be played, hence modify the <code>"routeID"</code> and <code>"variance"</code>
+accordingly.</li>
+</ul>
+<div class="bng-notice info">If the a json file for the bus scenario exists in the bus folder, skip this step.</div>
+<br/>
+<ol start="3">
+<li>Create a simple text file in your <em>buslines</em> folder, with content similar to the template shown below.</li>
+</ol>
+<p>Save and name it <code>levelName.buslines.json</code>. Ensure that the <code>.json</code> filename is unique.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"version"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"routes"</span><span class="p">:[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"routeID"</span><span class="p">:</span><span class="s2">"1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"variance"</span><span class="p">:</span><span class="s2">"a"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"direction"</span><span class="p">:</span><span class="s2">"Rexoni Diner"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"routeColor"</span><span class="p">:</span> <span class="s2">"#3b9c00"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"vehicle"</span> <span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"model"</span><span class="p">:</span> <span class="s2">"citybus"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"config"</span><span class="p">:</span> <span class="s2">"base"</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"tasklist"</span><span class="p">:[</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_07"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_13"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_02"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_23"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_26"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="p">],</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"spawnLocation"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"pos"</span><span class="p">:</span> <span class="p">{</span><span class="nt">"x"</span><span class="p">:</span> <span class="mf">-613.572</span><span class="p">,</span><span class="nt">"y"</span><span class="p">:</span> <span class="mf">199.223</span><span class="p">,</span><span class="nt">"z"</span><span class="p">:</span> <span class="mf">113.173</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"rotAngAxisF"</span><span class="p">:</span> <span class="p">{</span><span class="nt">"x"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span><span class="nt">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span><span class="nt">"z"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span><span class="nt">"w"</span><span class="p">:</span> <span class="mf">224.173</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"requiredWaypoints"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"wcu_bs_29"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">"wp"</span><span class="p">:[</span><span class="s2">"wcu_cp_agave"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">"failmsg"</span><span class="p">:</span><span class="s2">"You got too far-off the route"</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"wcu_bs_27"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">"wp"</span><span class="p">:[</span><span class="s2">"wcu_cp_hwy"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">"failmsg"</span><span class="p">:</span><span class="s2">"You got too far-off the route"</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"navhelp"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"wcu_bs_13"</span><span class="p">:[</span><span class="s2">"wpTown_16"</span><span class="p">,</span><span class="s2">"Bridge36_3"</span><span class="p">,</span><span class="s2">"Bridge36_1"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"wcu_bs_26"</span><span class="p">:[</span><span class="s2">"bs_raceTrack_1"</span><span class="p">,</span><span class="s2">"Bridge4_B1"</span><span class="p">,</span><span class="s2">"Bridge4_A1"</span><span class="p">,</span><span class="s2">"Bridge4_A2"</span><span class="p">,</span><span class="s2">"countryside_road_1"</span><span class="p">,</span><span class="s2">"countryside_road_2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"wcu_bs_29"</span><span class="p">:[</span><span class="s2">"Junction_mountain_A"</span><span class="p">,</span><span class="s2">"Bridge1_B"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"wcu_bs_27"</span><span class="p">:[</span><span class="s2">"countryside_road_3"</span><span class="p">,</span><span class="s2">"Bridge2_A1"</span><span class="p">,</span><span class="s2">"Bridge2_A2"</span><span class="p">,</span><span class="s2">"Bridge2_A3"</span><span class="p">,</span><span class="s2">"Bridge17_A"</span><span class="p">,</span><span class="s2">"Bridge17_B"</span><span class="p">,</span><span class="s2">"Bridge17_E"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"wcu_bs_28"</span><span class="p">:[</span><span class="s2">"countryside_road_4"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"previews"</span><span class="p">:[</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"01_RexDiner.png"</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"routeID"</span><span class="p">:</span><span class="s2">"2"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"variance"</span><span class="p">:</span><span class="s2">"a"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"direction"</span><span class="p">:</span><span class="s2">"Khaki Bay"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"routeColor"</span><span class="p">:</span> <span class="s2">"#fff200"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"tasklist"</span><span class="p">:[</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_04"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_05_b"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_14_b"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_19_b"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_25_b"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_24_b"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_27_b"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_21"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"tmpl_bs_17"</span>
+</span></span><span class="line"><span class="cl">            <span class="p">],</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"vehicle"</span> <span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"model"</span><span class="p">:</span> <span class="s2">"citybus"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"config"</span><span class="p">:</span> <span class="s2">"base"</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"spawnLocation"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"pos"</span><span class="p">:</span> <span class="p">{</span><span class="nt">"x"</span><span class="p">:</span> <span class="mf">-337.572</span><span class="p">,</span><span class="nt">"y"</span><span class="p">:</span> <span class="mf">605.564</span><span class="p">,</span><span class="nt">"z"</span><span class="p">:</span> <span class="mf">75.0979</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"rotAngAxisF"</span><span class="p">:</span> <span class="p">{</span><span class="nt">"x"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span><span class="nt">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span><span class="nt">"z"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span><span class="nt">"w"</span><span class="p">:</span> <span class="mf">135.337</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"requiredWaypoints"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"wcu_bs_27"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">"wp"</span><span class="p">:[</span><span class="s2">"wcu_cp_hrzn"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="nt">"failmsg"</span><span class="p">:</span><span class="s2">"You got too far-off the route"</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"navhelp"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"wcu_bs_21"</span><span class="p">:[</span><span class="s2">"Bridge17b_A"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">"wcu_bs_17"</span><span class="p">:[</span><span class="s2">"tennis_1"</span><span class="p">,</span><span class="s2">"tennis_2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">"previews"</span><span class="p">:[</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">"02_KhahkiBay.png"</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h4 id="json-guidelines">
+
+  JSON Guidelines
+</h4>
+<p>A few guidelines to creating your <code>levelName.buslines.json</code> document may
+come in handy at this point.</p>
+<p>The <code>.json</code> file is made up of a json object that contains 2 variables:
+The “version” is a number that represents the version of bus lines
+file. The “routes” is an array of json objects, with each object
+defining a bus route. Now each bus route object contains:</p>
+<ul>
+<li><code>routesID</code> must be of string type, although it is actually a number e.g. <code>"routeID":"101"</code></li>
+<li><code>direction</code> ideally every route has two directions: one from A to B and another from B to A. This variable is used for display purposes. As a result, it is good to use naming conventions that can be easily recognized.</li>
+<li><code>variance</code> is a string that describes a specific variant of the route. This is needed and used internally when a route ID has more than one variant.</li>
+<li><code>routeColor</code> is a string representing route Color in html hexadecimal</li>
+<li><code>vehicle</code> is the vehicle to use. Keep  <code>model</code> as <strong>citybus</strong> and  <code>config</code> as <strong>base</strong></li>
+<li><code>tasklist</code> is a json array of strings (no space in between), which represents the triggers for your bus stops.</li>
+<li><code>requiredWaypoints</code> is an <strong>optional</strong> json object that indicates
+compulsory points the vehicle must go through, and failure message
+if the vehicle does not go through them. Each element of the
+required way point object is also an object that contains 2
+variables: an array containing the string-id of the way point that
+must be passed, and failure message that is displayed when the way
+point is not passed.</li>
+<li><code>spawnLocation</code> is a json object containing 2 objects: <code>"pos"</code> and
+<code>rotAngAxisF</code>, which represent the starting position and
+orientation of the vehicle. The rotation object could be either of
+two types:
+<ul>
+<li><code>rot</code>: a quaternion representation of rotation (given by LUA)</li>
+<li><code>rotAngAxisF</code>: “angle and axis” representation of rotation
+used in the editor. The <code>x, y, z</code> denote the axis of rotation
+and w , the angle in degrees. This type is recommended because
+it's easy to use.</li>
+</ul>
+</li>
+<li><code>navhelp</code> which is an <strong>optional</strong> json object that contains
+arrays named after the ids of the stops that require navigation
+help. These arrays contain waypoints (strings), through which the
+navigation arrow would pass.</li>
+</ul>
+<ol start="4">
+<li>
+<p>Rename and modify the variables and values in the
+<code>levelName.buslines.json</code> document, as desired and as directed in
+the previous step.</p>
+</li>
+<li>
+<p>Save the file.</p>
+</li>
+</ol>
+<h3 id="spawnpoints">
+
+  Spawnpoints
+</h3>
+<ol start="6">
+<li>
+<p>Load the game and go to <code>Play &gt; Bus Routes &gt; Select Map</code>. Then, select the map to be modified (where the new folders were created) and choose a direction (e.g.
+“Rexoni Diner”). Don’t worry if the vehicle spawns mid-air or underground, the next steps are going to adjust the spawnpoint.</p>
+</li>
+<li>
+<p>Press <kbd>Shift+C</kbd> to toggle <em>Free Camera</em>. Navigate through the map (using
+navigation keys <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>) till you choose and reach the desired
+location for starting the trip. Try to move the view as close to the
+ground as possible.</p>
+</li>
+<li>
+<p>Press <kbd>F11</kbd> to open the <em>World Editor</em>.</p>
+</li>
+<li>
+<p>Click the <strong>Camera</strong> tab, and click <strong>Place Player at Camera</strong>.</p>
+</li>
+</ol>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/buslines/buslines_step_9.jpg" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/buslines/buslines_step_9.jpg"/>
+</span></a></p>
+<ol start="10">
+<li>
+<p>Click on the vehicle to display the vehicle marker. If the marker is
+not showing, go to the <strong>Scene Tree</strong> editor’s tool (if not there, add it from the <strong>Window</strong> tab).</p>
+<p>Scroll down to the end to the <code>ScenarioObjectsGroup</code> folder. In
+this folder, select the <code>scenario\_player0</code>, and this should select
+your vehicle and display its marker.</p>
+</li>
+</ol>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/buslines/buslines_step_10.jpg" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/buslines/buslines_step_10.jpg"/>
+</span></a></p>
+<ol start="11">
+<li>You can set your position and rotation by typing the values directly
+in the Transform tab of the <strong>Inspector</strong> editor’s tool or by respectively using the <em>Translate</em> and <em>Rotate</em> editor tools.</li>
+</ol>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/buslines/buslines_step_11.jpg" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/buslines/buslines_step_11_hu516f475e4c63d4a750d7a21f8d25abaf_149590_0x300_resize_q85_bgfff_box.jpg"/>
+</span></a></p>
+<ol start="12">
+<li>
+<p>Once you are satisfied with your desired starting position and
+orientation, copy these values from the <strong>Inspector</strong>’s transform tab to
+<code>spawnLocation</code> in your <code>levelName.buslines.json</code> file.</p>
+</li>
+<li>
+<p>Save the file.</p>
+</li>
+</ol>
+<h3 id="bus-stops">
+
+  Bus stops
+</h3>
+<ol start="14">
+<li>In the <strong>Scene Tree</strong> click the <code>ScenarioObjectsGroup</code> folder and then the <em>New folder</em> icon in the top-left of the Scene Tree window.</li>
+</ol>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/buslines/buslines_step_14.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/buslines/buslines_step_14.png"/>
+</span></a></p>
+<p>Name the new folder <strong>busstops</strong> and open the folder.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/buslines/buslines_step_14_2.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/buslines/buslines_step_14_2.gif"/>
+</span></a></p>
+<ol start="15">
+<li>
+<p>In the game, press <kbd>Shift+C</kbd> to toggle <em>Free Camera</em> and return to the vehicle’s camera.
+Then navigate through the map till you reach the desired location
+for your bus stop.</p>
+</li>
+<li>
+<p>In the <strong>World Editor Toolbar</strong>:</p>
+</li>
+</ol>
+<ul>
+<li>Click the <em>Add Object</em> button</li>
+<li>Click the <em>BeamNG</em> icon in the toolbar that appears below the main one</li>
+<li>Click the <strong>LUA Trigger</strong> icon</li>
+<li>Click anywhere in the 3D view</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/buslines/buslines_step_16.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/buslines/buslines_step_16_hu44d92b43d04766264e5eb619c999ff41_379308_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>This creates a <strong>LUA trigger</strong> where you clicked in the 3D view, and the object will also appear in the Scene Tree list.</p>
+<p></p><div class="bng-notice note">LUA Triggers are visible only if selected, unless the <strong>Triggers</strong> option is enabled in the <strong>Visualization</strong> menu (Access this menu from the tab <em>Window</em> button
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/buslines/buslines_vis.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/buslines/buslines_vis.png"/>
+</span></a></div>
+<br/>
+<ol start="17">
+<li>
+<p>Modify the position, rotation and scale of the box trigger as
+described in <code>step 11</code>.</p>
+<p>In the scale of the trigger, make the “x” value accommodate the
+width of the vehicle and make the “y” value accommodate the length
+of the vehicle.</p>
+</li>
+</ol>
+<div class="bng-notice tip">Since this trigger will be activated when the trigger box contains the
+vehicle, give the box dimensions, such that it is big enough to contain
+the vehicle. Also, it is advisable to let the bounding box, go a little
+below ground level.</div>
+<br/>
+<ol start="18">
+<li>When the desired size and location is achieved, go to the <strong>Inspector</strong>
+window of the World Editor. Copy the trigger identifier from your
+<em>tasklist</em> in the <code>levelName.buslines.json</code> file (<em>e.g
+tmpl_bs_07</em>) and paste it by the name option in the Inspector
+panel.</li>
+</ol>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/buslines/buslines_triggerName.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/buslines/buslines_triggerName_hu2fb4e451f3c7bca2fdf26158ba758012_276183_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Remember that this identifier must be a single string with no space
+within it, as indicated in <code>step 3</code>. It is recommended to keep the name short.</p>
+<ol start="19">
+<li>With the trigger selected, go in the <strong>Inspector</strong> change the following in the <strong>Trigger</strong> section:
+<ul>
+<li><code>TriggerType &gt; Box</code></li>
+<li><code>TriggerMode &gt; Contains</code></li>
+<li><code>TriggerTestType &gt; Bounding box</code></li>
+<li><code>TickPeriod &gt; 1000</code></li>
+</ul>
+</li>
+</ol>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/buslines/buslines_triggerSetting.jpg" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/buslines/buslines_triggerSetting.jpg"/>
+</span></a></p>
+<ol start="20">
+<li>When this is done, scroll down the <strong>Inspector</strong> window to the <strong>Dynamic Fields</strong> section</li>
+</ol>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/buslines/buslines_dynamicFields.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/buslines/buslines_dynamicFields.png"/>
+</span></a></p>
+<ol start="21">
+<li>Insert <code>type</code> and click <strong>Add</strong>, then insert <code>busstop</code></li>
+</ol>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/buslines/buslines_dynamicFields_2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/buslines/buslines_dynamicFields_2.png"/>
+</span></a></p>
+<ol start="22">
+<li>
+<p>Add another entity to the Dynamic Fields named <code>stopName</code> and insert the actual name of the bus stop, which would be displayed in the game (<em>e.g. Fleet Street</em>)</p>
+</li>
+<li>
+<p>Repeat <code>steps 15 to 22</code> for each bus stop you want to create.</p>
+</li>
+<li>
+<div class="bng-notice info">Saving requires additional details</div>
+</li>
+</ol>

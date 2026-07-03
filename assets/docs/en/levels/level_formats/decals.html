@@ -1,0 +1,609 @@
+<p>This document describes the modern BeamNG decal data files used by levels:</p>
+<ul>
+<li><code>art/decals/managedDecalData.json</code> - decal type definitions</li>
+<li><code>*.decals.json</code> - placed decal instances, commonly <code>main.decals.json</code></li>
+</ul>
+<p>These files work together. <code>managedDecalData.json</code> defines <strong>what decal types exist</strong>, while <code>.decals.json</code> files define <strong>where decals are placed</strong> in the level.</p>
+<hr/>
+<h2 id="overview">
+
+  Overview
+</h2>
+<p>Decals are projected surface details used for things such as:</p>
+<ul>
+<li>Road markings</li>
+<li>Dirt and stains</li>
+<li>Cracks</li>
+<li>Tire marks</li>
+<li>Bullet holes</li>
+<li>Signs and labels</li>
+<li>Surface damage</li>
+<li>Painted markings</li>
+</ul>
+<p>A decal type defines the material, default size, atlas frame settings, fade behavior, and projection settings. A decal instance stores the position, normal, tangent, size, render priority, and selected texture frame.</p>
+<p>Typical structure:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example_level/
+</span></span><span class="line"><span class="cl">├── art/
+</span></span><span class="line"><span class="cl">│   └── decals/
+</span></span><span class="line"><span class="cl">│       └── managedDecalData.json
+</span></span><span class="line"><span class="cl">└── main.decals.json
+</span></span></code></pre></div><hr/>
+<h2 id="file-roles">
+
+  File roles
+</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>art/decals/managedDecalData.json</code></td>
+<td>Defines reusable decal types.</td>
+</tr>
+<tr>
+<td><code>*.decals.json</code></td>
+<td>Stores placed decal instances.</td>
+</tr>
+<tr>
+<td><code>.decals</code></td>
+<td>Legacy binary decal format. Deprecated.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice info">Modern decal instance files are JSON. Legacy binary decal files start with the <code>TDDF</code> identifier and should be resaved to the modern format.</div>
+<hr/>
+<h2 id="manageddecaldatajson">
+
+  managedDecalData.json
+</h2>
+<p><code>managedDecalData.json</code> defines decal datablocks. Each entry describes one decal type.</p>
+<h3 id="example">
+
+  Example
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"road_crack_large"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"DecalData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"DECAL_road_crack_large"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"size"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"randomize"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"texRows"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"texCols"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"frame"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"renderPriority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"clippingAngle"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fadeStartPixelSize"</span><span class="p">:</span> <span class="mi">-1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fadeEndPixelSize"</span><span class="p">:</span> <span class="mi">200</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The top-level key is the decal datablock name. This is the name used by <code>.decals.json</code> instance files.</p>
+<hr/>
+<h2 id="manageddecaldatajson-fields">
+
+  managedDecalData.json fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Should be <code>"DecalData"</code>.</td>
+</tr>
+<tr>
+<td><code>material</code></td>
+<td>string</td>
+<td>Material used by the decal. Must reference an existing material.</td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td>number</td>
+<td>Default decal width and height in meters before instance scaling.</td>
+</tr>
+<tr>
+<td><code>renderPriority</code></td>
+<td>integer</td>
+<td>Draw order when decals overlap. Higher/lower priority affects which decal appears on top depending on sorting.</td>
+</tr>
+<tr>
+<td><code>clippingAngle</code></td>
+<td>number</td>
+<td>Angle in degrees used to clip geometry facing away from the decal projection direction.</td>
+</tr>
+<tr>
+<td><code>fadeStartPixelSize</code></td>
+<td>number</td>
+<td>Pixel size where this decal type begins to fade out. Negative values disable LOD-based fading.</td>
+</tr>
+<tr>
+<td><code>fadeEndPixelSize</code></td>
+<td>number</td>
+<td>Pixel size where this decal type is fully faded out.</td>
+</tr>
+<tr>
+<td><code>frame</code></td>
+<td>integer</td>
+<td>Default texture frame index used from the decal atlas.</td>
+</tr>
+<tr>
+<td><code>randomize</code></td>
+<td>bool</td>
+<td>If true, each decal instance randomly selects a frame from the atlas.</td>
+</tr>
+<tr>
+<td><code>texRows</code></td>
+<td>integer</td>
+<td>Atlas grid value. See note below.</td>
+</tr>
+<tr>
+<td><code>texCols</code></td>
+<td>integer</td>
+<td>Atlas grid value. See note below.</td>
+</tr>
+<tr>
+<td><code>textureCoordCount</code></td>
+<td>integer</td>
+<td>Number of available texture frames. Usually generated from <code>texRows</code> and <code>texCols</code>.</td>
+</tr>
+<tr>
+<td><code>textureCoords</code></td>
+<td>RectF array</td>
+<td>Manual UV rectangles for irregular atlas layouts.</td>
+</tr>
+<tr>
+<td><code>annotation</code></td>
+<td>string</td>
+<td>Optional annotation/debug classification.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="texture-atlas-frames">
+
+  Texture atlas frames
+</h2>
+<p>A decal material can use a texture atlas containing multiple decal variations.</p>
+<p>For example, one texture may contain four crack variations in a 2×2 grid. The decal system can then select one frame per decal.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"randomize"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"texRows"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"texCols"</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>If <code>randomize</code> is enabled, each placed decal can use a random atlas frame.</p>
+<p>If <code>randomize</code> is disabled, the <code>frame</code> field selects the frame.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"frame"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"randomize"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="manual-texture-coordinates">
+
+  Manual texture coordinates
+</h3>
+<p>For irregular atlas layouts, use <code>textureCoords</code>.</p>
+<p>Each rectangle is:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">x y width height
+</span></span></code></pre></div><p>or:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"textureCoords"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>Use manual coordinates only when the frames are not arranged in a regular grid.</p>
+<div class="bng-notice note">Decal atlases support up to 16 texture frames.</div>
+<hr/>
+<h2 id="decalsjson-instance-files">
+
+  .decals.json instance files
+</h2>
+<p><code>.decals.json</code> files store placed decal instances.</p>
+<p>Common file:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/main.decals.json
+</span></span></code></pre></div>
+<h3 id="basic-structure">
+
+  Basic structure
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"header"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"DecalData File"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"version"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"comments"</span><span class="p">:</span> <span class="s2">"// Instances format: rectIdx, size, renderPriority, position.x, position.y, position.z, normal.x, normal.y, normal.z, tangent.x, tangent.y, tangent.z, uid"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"instances"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"road_crack_large"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">12345</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The <code>instances</code> object is grouped by decal datablock name. Each key must match a <code>DecalData</code> entry from <code>managedDecalData.json</code>.</p>
+<hr/>
+<h2 id="instance-array-format">
+
+  Instance array format
+</h2>
+<p>In version <code>2.0</code>, each decal instance is stored as an array with 13 values:</p>
+<table>
+<thead>
+<tr>
+<th align="right">Index</th>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">0</td>
+<td><code>rectIdx</code></td>
+<td>integer</td>
+<td>Texture atlas frame index.</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td><code>size</code></td>
+<td>number</td>
+<td>Final decal size in meters.</td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td><code>renderPriority</code></td>
+<td>integer</td>
+<td>Render priority for this instance.</td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td><code>position.x</code></td>
+<td>number</td>
+<td>World position X.</td>
+</tr>
+<tr>
+<td align="right">4</td>
+<td><code>position.y</code></td>
+<td>number</td>
+<td>World position Y.</td>
+</tr>
+<tr>
+<td align="right">5</td>
+<td><code>position.z</code></td>
+<td>number</td>
+<td>World position Z.</td>
+</tr>
+<tr>
+<td align="right">6</td>
+<td><code>normal.x</code></td>
+<td>number</td>
+<td>Projection normal X.</td>
+</tr>
+<tr>
+<td align="right">7</td>
+<td><code>normal.y</code></td>
+<td>number</td>
+<td>Projection normal Y.</td>
+</tr>
+<tr>
+<td align="right">8</td>
+<td><code>normal.z</code></td>
+<td>number</td>
+<td>Projection normal Z.</td>
+</tr>
+<tr>
+<td align="right">9</td>
+<td><code>tangent.x</code></td>
+<td>number</td>
+<td>Tangent X, controls decal rotation/orientation.</td>
+</tr>
+<tr>
+<td align="right">10</td>
+<td><code>tangent.y</code></td>
+<td>number</td>
+<td>Tangent Y.</td>
+</tr>
+<tr>
+<td align="right">11</td>
+<td><code>tangent.z</code></td>
+<td>number</td>
+<td>Tangent Z.</td>
+</tr>
+<tr>
+<td align="right">12</td>
+<td><code>uid</code></td>
+<td>unsigned integer</td>
+<td>Unique decal instance ID.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="example-instance">
+
+  Example instance
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">12345</span><span class="p">]</span>
+</span></span></code></pre></div><p>This means:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Frame:          0
+</span></span><span class="line"><span class="cl">Size:           5 m
+</span></span><span class="line"><span class="cl">Priority:       10
+</span></span><span class="line"><span class="cl">Position:       [100, 200, 0.1]
+</span></span><span class="line"><span class="cl">Normal:         [0, 0, 1]
+</span></span><span class="line"><span class="cl">Tangent:        [1, 0, 0]
+</span></span><span class="line"><span class="cl">UID:            12345
+</span></span></code></pre></div><hr/>
+<h2 id="header">
+
+  Header
+</h2>
+<p>Modern <code>.decals.json</code> files contain a header:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"header"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"DecalData File"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"comments"</span><span class="p">:</span> <span class="s2">"// Instances format: rectIdx, size, renderPriority, position.x, position.y, position.z, normal.x, normal.y, normal.z, tangent.x, tangent.y, tangent.z, uid"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Human-readable file identifier.</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>Decal file version. Version <code>2.0</code> includes instance UIDs.</td>
+</tr>
+<tr>
+<td><code>comments</code></td>
+<td>Optional description of the instance array layout.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice warning">Older JSON decal files without UIDs should be resaved in the editor. The modern format includes a <code>uid</code> value for each decal instance.</div>
+<hr/>
+<h2 id="decal-materials">
+
+  Decal materials
+</h2>
+<p>The <code>material</code> field in <code>managedDecalData.json</code> must point to a valid material.</p>
+<p>Example decal material:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"DECAL_road_crack_large"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"DECAL_road_crack_large"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"mapTo"</span><span class="p">:</span> <span class="s2">"unmapped_mat"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"/levels/example/art/decals/road_crack_b.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"/levels/example/art/decals/road_crack_nm.normal.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"opacityMap"</span><span class="p">:</span> <span class="s2">"/levels/example/art/decals/road_crack_o.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="s2">"/levels/example/art/decals/road_crack_r.data.png"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucent"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucentZWrite"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Decal materials commonly use:</p>
+<ul>
+<li>Base color</li>
+<li>Opacity</li>
+<li>Normal</li>
+<li>Roughness</li>
+<li>Ambient occlusion, when needed</li>
+</ul>
+<div class="bng-notice info">Decal rendering uses a decal-specific material path and supports decal fading. Clear coat is not used for decals.</div>
+<hr/>
+<h2 id="projection-orientation">
+
+  Projection orientation
+</h2>
+<p>Each placed decal stores:</p>
+<ul>
+<li><code>position</code></li>
+<li><code>normal</code></li>
+<li><code>tangent</code></li>
+</ul>
+<p>The <code>normal</code> defines the projection direction. The <code>tangent</code> defines rotation/orientation on the surface.</p>
+<p>For a decal on a flat horizontal surface:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">normal  = [0, 0, 1]
+</span></span><span class="line"><span class="cl">tangent = [1, 0, 0]
+</span></span></code></pre></div><p>If a decal appears rotated incorrectly, check the tangent vector.</p>
+<hr/>
+<h2 id="render-priority">
+
+  Render priority
+</h2>
+<p><code>renderPriority</code> controls draw ordering when decals overlap.</p>
+<p>This is useful for cases such as:</p>
+<ul>
+<li>Road markings over asphalt</li>
+<li>Dirt over road markings</li>
+<li>Cracks over painted lines</li>
+<li>Layered damage decals</li>
+</ul>
+<p>A consistent priority setup helps avoid flickering or incorrect overlap.</p>
+<hr/>
+<h2 id="fading">
+
+  Fading
+</h2>
+<p>Decal types can fade based on screen size:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"fadeStartPixelSize"</span><span class="err">:</span> <span class="mi">100</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"fadeEndPixelSize"</span><span class="err">:</span> <span class="mi">20</span>
+</span></span></code></pre></div><p>Typical behavior:</p>
+<ul>
+<li>Above <code>fadeStartPixelSize</code>: fully visible</li>
+<li>Between start and end: fading</li>
+<li>Below <code>fadeEndPixelSize</code>: hidden</li>
+</ul>
+<p>Use a negative <code>fadeStartPixelSize</code> to disable LOD-based fading:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"fadeStartPixelSize"</span><span class="err">:</span> <span class="mi">-1</span>
+</span></span></code></pre></div><hr/>
+<h2 id="clipping-angle">
+
+  Clipping angle
+</h2>
+<p><code>clippingAngle</code> controls how much surrounding geometry can receive the projected decal.</p>
+<p>Lower values limit the decal to surfaces facing the projection direction more closely. Higher values allow projection onto steeper angles.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"clippingAngle"</span><span class="err">:</span> <span class="mi">60</span>
+</span></span></code></pre></div><p>Use this to avoid decals wrapping too far around corners or projecting onto unwanted surfaces.</p>
+<hr/>
+<h2 id="loading-process">
+
+  Loading process
+</h2>
+<p>When a level loads, the decal system roughly follows this process:</p>
+<ol>
+<li>Load decal type definitions from <code>managedDecalData.json</code>.</li>
+<li>Load materials referenced by each decal type.</li>
+<li>Load <code>.decals.json</code> instance files.</li>
+<li>For each instance group:
+<ul>
+<li>Find the matching <code>DecalData</code> by name.</li>
+<li>Read each instance array.</li>
+<li>Create decal instance with position, normal, tangent, size, frame, and UID.</li>
+</ul>
+</li>
+<li>Add decals to spatial decal containers for rendering and editing.</li>
+</ol>
+<p>If a decal type is missing, the engine may create a temporary <code>_missing</code> decal datablock using <code>WarningMaterial</code>.</p>
+<hr/>
+<h2 id="legacy-binary-decals-files">
+
+  Legacy binary .decals files
+</h2>
+<p>Older decal files used a binary format starting with:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">TDDF
+</span></span></code></pre></div><p>These files are deprecated.</p>
+<p>When loaded, the engine attempts to convert them internally and marks the decal data as dirty so it can be resaved in the modern JSON format.</p>
+<div class="bng-notice warning">If a level still uses old binary <code>.decals</code> files, resave the level and remove the old file after verifying the new <code>.decals.json</code> output.</div>
+<hr/>
+<h2 id="minimal-example">
+
+  Minimal example
+</h2>
+<h3 id="art-decals-manageddecaldatajson">
+
+<code>art/decals/managedDecalData.json</code>
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"road_crack_large"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"DecalData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"DECAL_road_crack_large"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"size"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"randomize"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"texRows"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"texCols"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"renderPriority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"clippingAngle"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fadeStartPixelSize"</span><span class="p">:</span> <span class="mi">-1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fadeEndPixelSize"</span><span class="p">:</span> <span class="mi">200</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="maindecalsjson">
+
+<code>main.decals.json</code>
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"header"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"DecalData File"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"version"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"comments"</span><span class="p">:</span> <span class="s2">"// Instances format: rectIdx, size, renderPriority, position.x, position.y, position.z, normal.x, normal.y, normal.z, tangent.x, tangent.y, tangent.z, uid"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"instances"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"road_crack_large"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">12345</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">110.0</span><span class="p">,</span> <span class="mf">205.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.707</span><span class="p">,</span> <span class="mf">0.707</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">12346</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Use <code>managedDecalData.json</code> for decal definitions.</li>
+<li>Use <code>.decals.json</code> for saved decal instances.</li>
+<li>Keep decal material names valid and unique.</li>
+<li>Use atlases for decal variations instead of many separate materials.</li>
+<li>Keep atlas frame count at or below 16.</li>
+<li>Use opacity maps to control decal shape.</li>
+<li>Use appropriate <code>clippingAngle</code> values to avoid projection artifacts.</li>
+<li>Use render priorities consistently for overlapping decals.</li>
+<li>Resave old decal files to upgrade them to JSON format.</li>
+<li>Use cooked DDS textures for decal materials.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="decals-appear-as-warning-material">
+
+  Decals appear as warning material
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Missing decal material</li>
+<li>Invalid <code>material</code> field in <code>managedDecalData.json</code></li>
+<li>Material failed to load</li>
+</ul>
+<h3 id="decals-do-not-appear">
+
+  Decals do not appear
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Missing decal datablock</li>
+<li>Instance group name does not match any decal type</li>
+<li>Opacity map is black</li>
+<li>Decal is clipped by surface angle</li>
+<li>Fade settings hide the decal</li>
+<li>Invalid instance array</li>
+</ul>
+<h3 id="decal-appears-rotated-incorrectly">
+
+  Decal appears rotated incorrectly
+</h3>
+<p>Check the tangent vector in the instance data.</p>
+<h3 id="decal-projects-onto-unwanted-surfaces">
+
+  Decal projects onto unwanted surfaces
+</h3>
+<p>Lower <code>clippingAngle</code>.</p>
+<h3 id="atlas-frame-is-wrong">
+
+  Atlas frame is wrong
+</h3>
+<p>Check <code>rectIdx</code>, <code>frame</code>, <code>randomize</code>, <code>texRows</code>, <code>texCols</code>, and <code>textureCoords</code>.</p>
+<h3 id="editor-asks-to-resave-decals">
+
+  Editor asks to resave decals
+</h3>
+<p>The file may be an older format without UIDs. Resave the level to upgrade it.</p>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p>BeamNG decal data uses two main files:</p>
+<ul>
+<li><code>managedDecalData.json</code> defines decal types and materials.</li>
+<li><code>.decals.json</code> stores placed decal instances.</li>
+</ul>
+<p>The modern instance format is JSON, grouped by decal type, with each decal stored as a compact numeric array containing frame, size, priority, transform vectors, and UID.</p>

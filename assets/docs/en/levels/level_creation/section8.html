@@ -1,0 +1,176 @@
+<h3 id="81-purpose">
+
+  8.1 Purpose
+</h3>
+<p>Define performance targets, typical bottlenecks, and optimization techniques for levels.</p>
+<p>Optimization should happen throughout production, not only at the end. It is much easier to keep a level fast while building it than to fix an already fully dressed map.</p>
+<h3 id="82-core-concepts">
+
+  8.2 Core concepts
+</h3>
+<p>Performance is driven by a lot of different elements. The list below present some of the major areas to keep under control.</p>
+<ul>
+<li>
+<p>Draw calls</p>
+<ul>
+<li>A draw call is the CPU telling the GPU to render a batch of geometry with a specific mesh/submesh, material/shader, and render state. Changing material, submesh, render pass (base, shadow, depth), or camera view creates a new draw call. Each call has CPU cost, so many small or diverse objects can bottleneck.</li>
+<li>Quick examples
+<ul>
+<li>One mesh, one material: 1 draw call</li>
+<li>One mesh with 3 materials/submeshes: 3 draw calls.</li>
+<li>100 identical props:
+<ul>
+<li>Without batching/instancing: ~100 draw calls.</li>
+<li>With GPU instancing (same material): ~1 draw call.</li>
+</ul>
+</li>
+<li>UI using one atlas/material: often 1 draw call; separate materials: ~1 per element.</li>
+<li>Decals: typically ~1 draw call per decal.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Overdraw</p>
+<ul>
+<li>Overdraw is how many times the same screen pixel gets shaded because multiple triangles or transparent layers overlap there. Each extra layer re-runs the pixel shader (and often blending), increasing GPU fill-rate cost. Opaque geometry with depth testing can minimize overdraw; transparency usually increases it.</li>
+</ul>
+<p>Quick examples</p>
+<ul>
+<li>Dense alpha-blended foliage/grass cards: very high overdraw (many overlapping leaves).</li>
+<li>Particle smoke/fog: lots of overlapping quads = heavy overdraw.</li>
+<li>Multiple decals on the same surface: each decal adds another layer to shade.</li>
+<li>Looking through several glass/window panes: each pane adds a layer.</li>
+</ul>
+</li>
+<li>
+<p>Triangle count</p>
+</li>
+<li>
+<p>Texture memory</p>
+</li>
+<li>
+<p>Decalroads amount</p>
+</li>
+<li>
+<p>Dynamic lights</p>
+</li>
+<li>
+<p>Vegetation density</p>
+</li>
+<li>
+<p>Collisions complexity</p>
+</li>
+</ul>
+<p>Early, recurring profiling avoids costly late fixes.</p>
+<div class="bng-notice tip">Profile in representative places: a long vista, a dense forest, a dense urban area, a tunnel/interior, a road with many decals, and a night scene with lights.</div>
+<h3 id="83-guidelines-and-budgets">
+
+  8.3 Guidelines and budgets
+</h3>
+<ul>
+<li><strong>Geometry</strong>: keep triangle counts proportional to distance and importance; use LODs for large assets.</li>
+<li><strong>Materials</strong>: limit unique materials per view; reuse and atlas where possible.</li>
+<li><strong>Textures</strong>: Texture Cooker PNG only; use power-of-two sizes and mipmaps; choose the smallest size that holds up at driving distance.</li>
+<li><strong>Vegetation</strong>: control species count and density; prefer impostors/far LODs where available.</li>
+<li><strong>Lights</strong>: keep local dynamic light counts conservative.</li>
+</ul>
+<p>Practical rules:</p>
+<ul>
+<li>Reuse materials across related props instead of creating one-off materials for every object.</li>
+<li>Prefer atlases or trim sheets for small repeated details.</li>
+<li>Use Forest or GroundCover for repeated natural scatter instead of many separate static objects.</li>
+<li>Avoid high collision detail on objects that vehicles cannot reach.</li>
+<li>Add LODs for objects that remain visible at distance.</li>
+<li>Keep decal and DecalRoad overlap intentional; every extra layer has a cost.</li>
+</ul>
+<h3 id="831-what-to-optimize-first">
+
+  8.3.1 What to optimize first
+</h3>
+<p>When a scene is slow, check the biggest cost first:</p>
+<ol>
+<li>Too many unique materials or draw calls in view.</li>
+<li>Dense vegetation or ground cover.</li>
+<li>Too many dynamic lights or shadow-casting lights.</li>
+<li>High overdraw from transparent foliage, glass, particles, or decals.</li>
+<li>Very large textures or too many high-resolution textures visible together.</li>
+<li>Heavy collision meshes on frequently touched objects.</li>
+</ol>
+<p>Do not reduce visual quality randomly. Find the actual bottleneck, then adjust the content that causes it.</p>
+<h3 id="84-visibility-and-overdraw">
+
+  8.4 Visibility and overdraw
+</h3>
+<ul>
+<li>Avoid coplanar overlaps (roads/decals/intersections).</li>
+<li>Reduce large, opaque surfaces stacked in the same view.</li>
+<li>Use occlusion/visibility tools where applicable (e.g., tunnels, enclosed spaces).</li>
+</ul>
+<p>Overdraw is especially common in:</p>
+<ul>
+<li>Grass and leaf cards</li>
+<li>Dense bushes</li>
+<li>Layered decals</li>
+<li>Glass, fences, and alpha-tested materials</li>
+<li>Smoke, dust, fog, or rain effects</li>
+</ul>
+<p>For vegetation, fewer larger clumps are often cheaper than many tiny overlapping cards. For roads and markings, remove hidden decal layers below newer ones.</p>
+<h3 id="85-terrain-considerations">
+
+  8.5 Terrain considerations
+</h3>
+<ul>
+<li>Match heightmap resolution to level size.</li>
+<li>Tune terrain LOD and draw distance for target hardware.</li>
+<li>Keep terrain material layer count manageable.</li>
+</ul>
+<h3 id="851-collision-considerations">
+
+  8.5.1 Collision considerations
+</h3>
+<p>Collision is part of performance and gameplay quality.</p>
+<ul>
+<li>Use simple collision meshes for buildings, walls, props, and barriers.</li>
+<li>Avoid visible mesh collision unless the object really needs it.</li>
+<li>Split large collision objects logically when it improves stability.</li>
+<li>Disable collision for small decorative objects that vehicles should not hit.</li>
+<li>Test collision at speed, not only by slowly driving over it.</li>
+</ul>
+<p>Bad collision can feel like bad road design: invisible bumps, sticky edges, tire snags, or sudden impacts.</p>
+<h3 id="86-profiling">
+
+  8.6 Profiling
+</h3>
+<ul>
+<li>Use the in‑engine profiler and statistics overlays in representative areas (dense forest, urban cluster, long vistas).</li>
+<li>Verify frame time stability during sustained driving.</li>
+</ul>
+<p>Profile these cases before release:</p>
+<ul>
+<li>Default spawn view</li>
+<li>Fast drive through the main route</li>
+<li>Dense vegetation area</li>
+<li>Urban/detail-heavy area</li>
+<li>Night scene with active lights</li>
+<li>Water/reflection view</li>
+<li>Worst long-distance vista</li>
+</ul>
+<p>Keep notes while profiling. If a later change makes the level slower, you need to know which area changed.</p>
+<h3 id="87-validation-criteria">
+
+  8.7 Validation criteria
+</h3>
+<ul>
+<li>Stable frame times across dressed areas and long road sections.</li>
+<li>No hotspots caused by excessive materials, decals, or lights.</li>
+<li>Texture memory within acceptable limits for target hardware.</li>
+<li>Collision is simple enough to be stable and cheap.</li>
+<li>LODs, impostors, and draw distances do not produce obvious popping while driving.</li>
+<li>Performance remains acceptable after a full reload, not only during an editor session.</li>
+</ul>
+<p><strong>See also:</strong> <a data-doc="levels/level_creation/section5" href="/docs/levels/level_creation/section5">Props, buildings, and prefabs</a>
+, <a data-doc="levels/level_creation/section4" href="/docs/levels/level_creation/section4">Vegetation</a>
+, <a data-doc="levels/level_creation/section6" href="/docs/levels/level_creation/section6">Materials</a>
+, <a data-doc="levels/level_creation/section9" href="/docs/levels/level_creation/section9">Testing and validation</a>
+.</p>

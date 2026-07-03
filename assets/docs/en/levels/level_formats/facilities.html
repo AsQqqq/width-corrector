@@ -1,0 +1,471 @@
+<p>This page describes level facility files.</p>
+<p>Facilities define named gameplay locations such as garages, gas stations, dealerships, computers, private sellers, delivery providers, and drag strips. They give gameplay meaning to places in a level, while spatial data usually comes from <code>.sites.json</code> files and scene objects.</p>
+<p>For fuel and charging station setup, see <a data-doc="levels/fuelstations" href="/docs/levels/fuelstations">Fuel Stations</a>
+.</p>
+<h2 id="file-locations">
+
+  File locations
+</h2>
+<p>Facility data can be read from the level <code>info.json</code> and from facility files under the level’s <code>facilities</code> folder:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/info.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/*.facilities.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/**/*.facilities.json
+</span></span></code></pre></div><p>Examples:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/west_coast_usa/facilities/facilities.facilities.json
+</span></span><span class="line"><span class="cl">levels/west_coast_usa/facilities/dealerships.facilities.json
+</span></span><span class="line"><span class="cl">levels/west_coast_usa/facilities/delivery/shops.facilities.json
+</span></span></code></pre></div><p>Some feature folders can also contain facility-like files for their own systems, such as drag strip facility files. Treat those as feature-specific data unless they are also referenced by the facilities system.</p>
+<h2 id="loading-behavior">
+
+  Loading behavior
+</h2>
+<p>The facilities system builds a facility list for the current level by reading:</p>
+<ol>
+<li>The level’s <code>info.json</code>.</li>
+<li>Every <code>*.facilities.json</code> file under <code>levels/&lt;levelName&gt;/facilities/</code>, including nested subfolders.</li>
+</ol>
+<p>This means a level can keep simple facility entries in <code>info.json</code>, then split larger feature sets into separate files:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">facilities.facilities.json
+</span></span><span class="line"><span class="cl">dealerships.facilities.json
+</span></span><span class="line"><span class="cl">delivery/shops.facilities.json
+</span></span><span class="line"><span class="cl">delivery/warehouses.facilities.json
+</span></span></code></pre></div><p>Splitting files is useful when different systems or designers own different facility types. Facility ids still need to be stable and unique within the facility type after all files are loaded.</p>
+<h2 id="creating-facility-files">
+
+  Creating facility files
+</h2>
+<p>There is no single universal editor for every facility type. The recommended workflow is to create the spatial data in the World Editor, then write or edit the facility JSON that points at that spatial data.</p>
+<p>For most facility types:</p>
+<ol>
+<li>Create or choose the scene objects used by the facility, such as gameplay areas, POIs, doors, pumps, or visible signs.</li>
+<li>Create the required zones and parking spots in a <code>.sites.json</code> file, usually <code>facilities.sites.json</code> or a nearby feature-specific sites file.</li>
+<li>Create or edit a <code>*.facilities.json</code> file under <code>levels/&lt;levelName&gt;/facilities/</code>.</li>
+<li>Add the facility entry under the correct top-level array, such as <code>garages</code>, <code>dealerships</code>, or <code>deliveryProviders</code>.</li>
+<li>Reference the sites file, zone names, parking spot names, and scene object names.</li>
+<li>Reload the level or reload the gameplay system that consumes the facility.</li>
+<li>Test the facility in freeroam, career, big map, or the feature-specific UI.</li>
+</ol>
+<p>Use the dedicated editor or feature page when one exists. For example, fuel stations have a dedicated setup workflow, and drag strip facilities are best maintained through the drag racing tools where possible.</p>
+<h2 id="writing-facility-files-by-hand">
+
+  Writing facility files by hand
+</h2>
+<p>When writing by hand, start with the smallest valid entry and add feature-specific fields only after the facility appears in game.</p>
+<p>Recommended order:</p>
+<ol>
+<li>Add <code>id</code>, <code>name</code>, <code>description</code>, and <code>preview</code>.</li>
+<li>Add <code>sitesFile</code>, <code>zoneNames</code>, and <code>parkingSpotNames</code>.</li>
+<li>Test that the facility is discovered and has a usable position.</li>
+<li>Add type-specific fields such as dealership filters, doors, delivery metadata, or gas station pump data.</li>
+<li>Test the feature that consumes those type-specific fields.</li>
+</ol>
+<p>Avoid copying a large shipped facility entry and changing only the id. Shipped entries may contain career, economy, delivery, or vehicle-shopping fields that are not needed for a simpler facility.</p>
+<h2 id="naming-and-organization">
+
+  Naming and organization
+</h2>
+<p>Use stable ids and descriptive names:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">garage_downtown
+</span></span><span class="line"><span class="cl">dealership_city_used
+</span></span><span class="line"><span class="cl">delivery_warehouse_west
+</span></span><span class="line"><span class="cl">computer_service_station
+</span></span></code></pre></div><p>For large levels, split files by feature or owner:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">facilities/facilities.facilities.json
+</span></span><span class="line"><span class="cl">facilities/dealerships.facilities.json
+</span></span><span class="line"><span class="cl">facilities/delivery/warehouses.facilities.json
+</span></span><span class="line"><span class="cl">facilities/delivery/shops.facilities.json
+</span></span></code></pre></div><p>Keep related preview images and feature-specific sites files near the facility file when practical.</p>
+<h2 id="facility-types">
+
+  Facility types
+</h2>
+<p>The general facilities system recognizes these top-level arrays:</p>
+<table>
+<thead>
+<tr>
+<th>Facility type</th>
+<th>Array name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Garage</td>
+<td><code>garages</code></td>
+</tr>
+<tr>
+<td>Gas station / charging station</td>
+<td><code>gasStations</code></td>
+</tr>
+<tr>
+<td>Dealership</td>
+<td><code>dealerships</code></td>
+</tr>
+<tr>
+<td>Computer</td>
+<td><code>computers</code></td>
+</tr>
+<tr>
+<td>Private seller</td>
+<td><code>privateSellers</code></td>
+</tr>
+<tr>
+<td>Delivery provider</td>
+<td><code>deliveryProviders</code></td>
+</tr>
+<tr>
+<td>Drag strip</td>
+<td><code>dragstrips</code></td>
+</tr>
+</tbody>
+</table>
+<p>A file can contain one or more of these arrays.</p>
+<h2 id="common-structure">
+
+  Common structure
+</h2>
+<p>Most facility entries share a small common core:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"garages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"downtownGarage"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.downtownGarage"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.downtownGarage.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"downtownGarage.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"sitesFile"</span><span class="p">:</span> <span class="s2">"facilities.sites.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"zoneNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"downtownGarageZone"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"parkingSpotNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"downtownGarageParking01"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Feature-specific fields are allowed and depend on the facility type. For example, dealerships can have vehicle filters and test-drive data, while gas stations define supported energy types and pump object pairs.</p>
+<h2 id="structure-by-facility-type">
+
+  Structure by facility type
+</h2>
+<p>The examples below show the typical shape of each facility type. They are intentionally minimal; shipped levels may add extra career, economy, filtering, icon, or feature-specific fields.</p>
+<h3 id="garage">
+
+  Garage
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"garages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"garage_downtown"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.garage_downtown"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.garage_downtown.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"garage_downtown.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"sitesFile"</span><span class="p">:</span> <span class="s2">"facilities.sites.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"zoneNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"garage_downtown_zone"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"parkingSpotNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"garage_downtown_parking_01"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="dealership">
+
+  Dealership
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dealerships"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"dealership_city_used"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.dealership_city_used"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.dealership_city_used.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"dealership_city_used.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"doors"</span><span class="p">:</span> <span class="p">[[</span><span class="s2">"dealership_city_area"</span><span class="p">,</span> <span class="s2">"dealership_city_icon"</span><span class="p">,</span> <span class="mi">30</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"parkingSpotNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dealership_city_parking_01"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"filter"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"whiteList"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"Config Type"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Factory"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"blackList"</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><code>doors</code> entries usually reference an interaction area/object, a POI/icon object, and an interaction range. Vehicle filters are consumed by career vehicle-shopping systems; keep them conservative until the dealership opens correctly.</p>
+<h3 id="computer">
+
+  Computer
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"computers"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"computer_service_station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.computer_service_station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.computer_service_station.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"computer_service_station.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"doors"</span><span class="p">:</span> <span class="p">[[</span><span class="s2">"computer_service_area"</span><span class="p">,</span> <span class="s2">"computer_service_icon"</span><span class="p">,</span> <span class="mi">20</span><span class="p">]]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="private-seller">
+
+  Private seller
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"privateSellers"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"private_seller_hills"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.private_seller_hills"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.private_seller_hills.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"private_seller_hills.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"doors"</span><span class="p">:</span> <span class="p">[[</span><span class="s2">"private_seller_hills_area"</span><span class="p">,</span> <span class="s2">"private_seller_hills_icon"</span><span class="p">,</span> <span class="mi">20</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"parkingSpotNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"private_seller_hills_parking"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="delivery-provider">
+
+  Delivery provider
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"deliveryProviders"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"delivery_warehouse_west"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.delivery_warehouse_west"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.delivery_warehouse_west.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"delivery_warehouse_west.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"sitesFile"</span><span class="p">:</span> <span class="s2">"delivery/warehouses.sites.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"zoneNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"delivery_warehouse_west_zone"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"parkingSpotNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"delivery_warehouse_west_parking_01"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="drag-strip-facility">
+
+  Drag strip facility
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dragstrips"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"dragstrip_airfield"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.dragstrip_airfield"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.dragstrip_airfield.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"dragstrip_airfield.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"sitesFile"</span><span class="p">:</span> <span class="s2">"facilities.sites.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"zoneNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dragstrip_airfield_zone"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"parkingSpotNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dragstrip_airfield_parking"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="gas-station">
+
+  Gas station
+</h3>
+<p>Gas stations use the same facilities file family, but their pump and energy setup is more specific. See <a data-doc="levels/fuelstations" href="/docs/levels/fuelstations">Fuel Stations</a>
+ for the detailed structure.</p>
+<h2 id="common-facility-fields">
+
+  Common facility fields
+</h2>
+<p>Many facility entries use the same field patterns:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>Stable facility identifier used by gameplay, POIs, saves, and scripts.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>Display name or translation key.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Display description or translation key.</td>
+</tr>
+<tr>
+<td><code>preview</code></td>
+<td>Preview image shown by UI where supported.</td>
+</tr>
+<tr>
+<td><code>sitesFile</code></td>
+<td>Sites file used to resolve zones and parking spots.</td>
+</tr>
+<tr>
+<td><code>zoneNames</code></td>
+<td>Zones associated with the facility.</td>
+</tr>
+<tr>
+<td><code>parkingSpotNames</code></td>
+<td>Parking spots associated with the facility.</td>
+</tr>
+<tr>
+<td><code>icon</code> / <code>playModeIconName</code></td>
+<td>Optional icon identifiers used by UI or map markers.</td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>Optional metadata for filtering or feature-specific behavior.</td>
+</tr>
+</tbody>
+</table>
+<p>The facilities loader fills some defaults. If <code>id</code> is missing, a generated id may be produced from the file path and index, but this is not recommended for authored content because it is not stable across file reorganization.</p>
+<h2 id="spatial-references">
+
+  Spatial references
+</h2>
+<p>Facilities commonly reference spatial data rather than storing all positions inline.</p>
+<table>
+<thead>
+<tr>
+<th>Reference</th>
+<th>Usually resolves to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sitesFile</code></td>
+<td>A <code>.sites.json</code> file, usually <code>facilities.sites.json</code> or a file near the facility file.</td>
+</tr>
+<tr>
+<td><code>zoneNames</code></td>
+<td>Zones in the referenced sites file.</td>
+</tr>
+<tr>
+<td><code>parkingSpotNames</code></td>
+<td>Parking spots in the referenced sites file.</td>
+</tr>
+<tr>
+<td><code>doors</code></td>
+<td>Scene object pairs used by dealerships, computers, or other interaction points.</td>
+</tr>
+<tr>
+<td><code>pumps</code></td>
+<td>Fuel station gameplay area and POI object pairs.</td>
+</tr>
+</tbody>
+</table>
+<p>If <code>sitesFile</code> is missing, the loader falls back to <code>facilities.sites.json</code> where possible.</p>
+<p><code>sitesFile</code> can be a single file or, for advanced setups, a list of files. Use this when a facility must resolve parking spots or zones spread across multiple site files. Keep this rare; a single nearby sites file is easier to validate.</p>
+<h2 id="facility-type-notes">
+
+  Facility-type notes
+</h2>
+<h3 id="garages">
+
+  Garages
+</h3>
+<p>Garages commonly use <code>zoneNames</code> and <code>parkingSpotNames</code>. They are used by freeroam, career inventory, recovery/teleport workflows, and nearby service logic. Make sure parking spots are large enough and oriented correctly for expected vehicles.</p>
+<p>To create a simple garage, create at least one zone and one parking spot, then add a garage entry that references them. Test teleport/recovery with several vehicle sizes.</p>
+<h3 id="dealerships-and-private-sellers">
+
+  Dealerships and private sellers
+</h3>
+<p>Dealerships and private sellers often include vehicle filters, fee data, test-drive settings, and door or POI references. Vehicle filter fields are consumed by career vehicle-shopping logic, so preserve unknown filter keys when editing with tools.</p>
+<p>To create a dealership, first make the interaction door/area objects and parking spots, then add the dealership entry. Add filters only after the dealership appears and opens correctly.</p>
+<h3 id="computers">
+
+  Computers
+</h3>
+<p>Computer facilities are interaction points for career systems such as shopping, tuning, insurance, or other menus. They commonly use door/area references rather than parking-heavy data.</p>
+<p>For computers, the most important part is that the referenced interaction object exists and is reachable by the player.</p>
+<h3 id="delivery-providers">
+
+  Delivery providers
+</h3>
+<p>Delivery providers are consumed by delivery generation and organization logic. They commonly pair facility metadata with delivery-specific sites and parking spots. Nested files under <code>facilities/delivery/</code> are common in shipped content.</p>
+<p>Delivery providers are easiest to maintain when their sites file lives next to the provider file. This keeps delivery zones, pickup/drop-off locations, and facility entries together.</p>
+<h3 id="drag-strips">
+
+  Drag strips
+</h3>
+<p>Drag strip facilities connect freeroam/career UI to drag racing data. The drag racing gameplay still uses its own files under <code>dragstrips/</code>; the facility entry is the map/career integration layer.</p>
+<h3 id="gas-stations">
+
+  Gas stations
+</h3>
+<p>Gas stations and EV charging locations have a dedicated setup page. See <a data-doc="levels/fuelstations" href="/docs/levels/fuelstations">Fuel Stations</a>
+ for pump pairs, energy types, and price/display details.</p>
+<h2 id="preview-paths">
+
+  Preview paths
+</h2>
+<p>Preview images are usually stored next to the facility file or in the level folder:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/&lt;previewImage&gt;.jpg
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/&lt;previewImage&gt;.jpg
+</span></span></code></pre></div><p>If a preview is missing, the UI may fall back to a generic placeholder.</p>
+<h2 id="relationship-with-sites-and-pois">
+
+  Relationship with sites and POIs
+</h2>
+<p>Facilities are often visible in freeroam, career, and the big map. The displayed marker or interaction may come from:</p>
+<ul>
+<li>The facility entry.</li>
+<li>Zones or parking spots in a <code>.sites.json</code> file.</li>
+<li><code>BeamNGGameplayArea</code> and <code>BeamNGPointOfInterest</code> objects.</li>
+<li>Feature-specific systems such as gas stations, delivery providers, dealerships, or drag strips.</li>
+</ul>
+<p>Use <a data-doc="levels/level_formats/sites" href="/docs/levels/level_formats/sites">Sites</a>
+ for site data and <a data-doc="levels/level_classes/gameplayareas" href="/docs/levels/level_classes/gameplayareas">Gameplay Areas and Points of Interest</a>
+ for scene helper objects.</p>
+<h2 id="troubleshooting">
+
+  Troubleshooting
+</h2>
+<h3 id="facility-does-not-appear">
+
+  Facility does not appear
+</h3>
+<p>Check:</p>
+<ul>
+<li>The file is in <code>info.json</code> or under <code>levels/&lt;levelName&gt;/facilities/</code>.</li>
+<li>The file extension is <code>*.facilities.json</code>.</li>
+<li>The facility is inside the correct top-level array, such as <code>garages</code> or <code>dealerships</code>.</li>
+<li>The facility id is unique within its type.</li>
+<li>Required feature-specific fields are present.</li>
+</ul>
+<h3 id="facility-appears-but-has-no-usable-position">
+
+  Facility appears but has no usable position
+</h3>
+<p>Check:</p>
+<ul>
+<li><code>sitesFile</code> resolves to the expected <code>.sites.json</code> file.</li>
+<li>Every <code>zoneNames</code> entry exists in the sites file.</li>
+<li>Every <code>parkingSpotNames</code> entry exists in the sites file.</li>
+<li>Scene object references in fields such as <code>doors</code> or <code>pumps</code> exist.</li>
+</ul>
+<h3 id="facility-has-a-missing-preview">
+
+  Facility has a missing preview
+</h3>
+<p>Preview paths are resolved near the facility file and near the level folder. Keep preview images close to the facility file when possible.</p>
+<h2 id="validation-checklist">
+
+  Validation checklist
+</h2>
+<ul>
+<li>Facility ids are unique within their type.</li>
+<li>User-facing names and descriptions use translation keys where appropriate.</li>
+<li>Preview images exist or have acceptable fallbacks.</li>
+<li>Referenced <code>sitesFile</code> paths exist.</li>
+<li>Referenced zones and parking spots exist in the loaded sites file.</li>
+<li>Referenced scene objects, doors, pumps, or POIs exist in the level scene.</li>
+<li>Feature-specific fields are tested in the system that consumes them.</li>
+<li>Facility files remain valid after moving entries between files or subfolders.</li>
+</ul>
+<h2 id="related-pages">
+
+  Related pages
+</h2>
+<ul>
+<li><a data-doc="levels/level_formats/sites" href="/docs/levels/level_formats/sites">Sites (.sites.json)</a>
+</li>
+<li><a data-doc="levels/fuelstations" href="/docs/levels/fuelstations">Fuel Stations</a>
+</li>
+<li><a data-doc="levels/level_classes/gameplayareas" href="/docs/levels/level_classes/gameplayareas">Gameplay Areas and Points of Interest</a>
+</li>
+<li><a data-doc="levels/gameplay_data" href="/docs/levels/gameplay_data">Level Gameplay Data</a>
+</li>
+</ul>

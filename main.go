@@ -107,9 +107,10 @@ func main() {
 	if monacoSub, err := fs.Sub(monacoFS, "assets/vs"); err == nil {
 		mux.Handle("/vs/", monacoContentType(http.StripPrefix("/vs/", http.FileServer(http.FS(monacoSub)))))
 	}
-	// Документация - статика из встроенной FS на /docs/
+	// Документация: контент/картинки/дерево - статика из встроенной FS на /docassets/
+	// (сама страница /docs и /docs/<путь> отдаётся приложением - см. handleIndex, чтобы работали закладки)
 	if docsSub, err := fs.Sub(docsFS, "assets/docs"); err == nil {
-		mux.Handle("/docs/", http.StripPrefix("/docs/", http.FileServer(http.FS(docsSub))))
+		mux.Handle("/docassets/", docsContentType(http.StripPrefix("/docassets/", http.FileServer(http.FS(docsSub)))))
 	}
 	mux.HandleFunc("/api/pick-folder", srv.handlePickFolder)
 	mux.HandleFunc("/api/config", srv.handleConfig)
@@ -203,13 +204,38 @@ func onTrayExit() {
 // ---------- HTTP-обработчики ----------
 
 func (s *server) handleIndex(w http.ResponseWriter, r *http.Request) {
-	// "/" и "/editor" отдают одно приложение (фронт сам открывает редактор по пути)
-	if r.URL.Path != "/" && r.URL.Path != "/editor" {
+	// "/", "/editor" и "/docs[/...]" отдают одно приложение (фронт сам открывает
+	// нужный раздел по пути) - так URL можно закрепить/сохранить в закладки
+	p := r.URL.Path
+	if p != "/" && p != "/editor" && p != "/docs" && !strings.HasPrefix(p, "/docs/") {
 		http.NotFound(w, r)
 		return
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Write(indexHTML)
+}
+
+// docsContentType форсит корректный MIME для файлов документации (.webp/.svg на
+// Windows реестр может отдавать неверно) + кэш (имена файлов стабильны).
+func docsContentType(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case strings.HasSuffix(r.URL.Path, ".html"):
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		case strings.HasSuffix(r.URL.Path, ".json"):
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		case strings.HasSuffix(r.URL.Path, ".webp"):
+			w.Header().Set("Content-Type", "image/webp")
+		case strings.HasSuffix(r.URL.Path, ".svg"):
+			w.Header().Set("Content-Type", "image/svg+xml")
+		case strings.HasSuffix(r.URL.Path, ".gif"):
+			w.Header().Set("Content-Type", "image/gif")
+		}
+		if strings.HasPrefix(r.URL.Path, "/img/") || strings.Contains(r.URL.Path, "/img/") {
+			w.Header().Set("Cache-Control", "public, max-age=604800")
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (s *server) handleFavicon(w http.ResponseWriter, r *http.Request) {

@@ -1,0 +1,132 @@
+<p>One of the things that allows BeamNG car modifications is the system of components and slots.</p>
+<p>If you’ve used the part selector before, you know that there are multiple components, often with multiple options, which are split across levels, with some parts options being available or not depending on what you’ve chosen as the previous part</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/partslotsystem/PartSelector.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/partslotsystem/PartSelector_hu421d6b47c3f312141e14f1e2cca9fc80_78262_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="how-slots-and-components-are-defined">
+
+  How slots and components are defined
+</h3>
+<p>Everything related to what you can see in the parts selector is defined in the jbeam for each component. Here’s a small example :</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"autobello_suspension_F"</span><span class="o">:</span> <span class="p">{</span>             <span class="c1">//Internal name of the component
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>             <span class="c1">//Name in the part selectior
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Trailing Link Front Suspension"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">400</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span><span class="o">:</span><span class="s2">"autobello_suspension_F"</span><span class="p">,</span><span class="c1">//Slot Type
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="s2">"slots"</span><span class="o">:</span><span class="p">[</span>                           <span class="c1">//Slots
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">[</span><span class="s2">"type"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"autobello_brake_F"</span><span class="p">,</span><span class="s2">"autobello_brake_F"</span><span class="p">,</span> <span class="s2">"Front Brakes"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"wheel_F_4"</span><span class="p">,</span><span class="s2">"steelwheel_11b_13x5_F"</span><span class="p">,</span> <span class="s2">"Front Wheels"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"autobello_spring_F"</span><span class="p">,</span><span class="s2">"autobello_spring_F"</span><span class="p">,</span> <span class="s2">"Front Springs"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"autobello_steering"</span><span class="p">,</span><span class="s2">"autobello_steering"</span><span class="p">,</span> <span class="s2">"Steering"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div><p>Each part has an internal name, defined by the very first line of a part’s jbeam. This name will be used by the game to refer to that part, it is however not seen by the user. It is important for this name to be unique, in order to avoid issues like parts overriding each other.</p>
+<p>The information section shows some basic information on that component, including the name that will be shown in the parts selector.</p>
+<p>Each part also has a <a data-doc="vehicle/sections/slots" href="/docs/vehicle/sections/slots">slotType</a>
+, which identifies where in the vehicle it fits.</p>
+<p>The slot type allows you to have multiple parts with this specific slot type that would act as alternatives, with every part with an identical “slot type” appearing as different options of the same part in the part selector.</p>
+<p>One unique slot type is “main”, which refers to the base component of the vehicle. This identifies the component as being the “root” part of the vehicle and will be the first component loaded by the game. There can only be one part per car with that slot type.</p>
+<p>The slots section defines which components are the “children” of that component based on their slotType. If we follow with the example of our front suspension, you would find things like the front brakes, wheels, shocks, steering, etc.</p>
+<p>The end result is a parts selection tree, with the “main” part at the top, and multiple layers of “children” components.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/partslotsystem/PartTree.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/partslotsystem/PartTree_hu83f29821e3497becaa8f5816b9599984_114488_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="how-configurations-work">
+
+  How configurations work
+</h3>
+<p>One thing you have probably noticed when playing the game is that each car has preset configurations, with multiple trim levels, offroad and racing versions, etc.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/partslotsystem/Variants.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/partslotsystem/Variants_hu4b8e3818b2bded46a59376bd871dd18e_674701_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>The way those work is fairly simple, using what are called “configuration files”. Here’s a small example of what you can find if you open a config file.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"parts"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"coupe_enginemounts"</span><span class="o">:</span><span class="s2">"coupe_enginemounts_heavy"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"coupe_oilpan_I4"</span><span class="o">:</span><span class="s2">"coupe_oilpan_I4_race"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"coupe_engine_ecu"</span><span class="o">:</span><span class="s2">"coupe_engine_ecu_race"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"coupe_engine_internals"</span><span class="o">:</span><span class="s2">"coupe_engine_internals_stage2"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"coupe_taillight_L"</span><span class="o">:</span><span class="s2">"coupe_taillight_L"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"paint_design"</span><span class="o">:</span><span class="s2">"coupe_skin_nomi"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"vars"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"$trackoffset_R"</span><span class="o">:</span><span class="mf">0.02</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"$trackoffset_F"</span><span class="o">:</span><span class="mf">0.025</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"$lsdpreload_R"</span><span class="o">:</span><span class="mi">125</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div><p>Configuration files are essentially a json table that contains list of the various slots, along with the component that should be used in each slot. If a slot is not present in the configuration file, the default component will be used.</p>
+<p>The configuration files also define the values that will be used for the various <a data-doc="vehicle/sections/variables" href="/docs/vehicle/sections/variables">variables</a>
+.</p>
+<p>Along with configuration files, you will also often see an info file, which describes the various information that will be shown for that variant in the car selector, along with a thumbnail.</p>
+<h3 id="advanced-example-using-the-same-jbeam-component-for-multiple-parts">
+
+  Advanced example: Using the same Jbeam component for multiple parts
+</h3>
+<p>With a clever use of some advanced Jbeam mechanisms, such as <a data-doc="vehicle/sections/slots" data-frag="optional-arguments" href="/docs/vehicle/sections/slots#optional-arguments">Slot Variables</a>
+ and <a data-doc="vehicle/intro_jbeam/jbeamsyntax" data-frag="functions" href="/docs/vehicle/intro_jbeam/jbeamsyntax#functions">Functions</a>
+, it is possible to make 2 different Jbeam components defined by the same code, and select them at the same time. In order to do this, a string slot variable is required in the parent slots, like so:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"slots"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"type"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"reusable_part_slot1"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"Slot 1"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"nodeMove"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="s2">"variables"</span><span class="o">:</span><span class="p">{</span><span class="s2">"$prefix"</span><span class="o">:</span><span class="s2">"a"</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"reusable_part_slot2"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"Slot 2"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"nodeMove"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mi">2</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="s2">"variables"</span><span class="o">:</span><span class="p">{</span><span class="s2">"$prefix"</span><span class="o">:</span><span class="s2">"b"</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>Then in the reusable part itself, slotType should be a table which fits both of the presented types, and each unique string for the part such as group name and node name needs to be concatenated with the variable string, for example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"reusable_part"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Reusable Part"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="p">[</span><span class="s2">"reusable_part_slot1"</span><span class="p">,</span> <span class="s2">"reusable_part_slot2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"nodes"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"collision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">"$=$prefix..'_group'"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'1'"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'2'"</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'3'"</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'4'"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'5'"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"beams"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span> <span class="s2">"id2:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">461000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">140</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">40000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="mi">100000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'1'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'2'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'1'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'3'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'1'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'4'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'2'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'3'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'2'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'4'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'3'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'4'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'1'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'2'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'3'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'4'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"triangles"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span><span class="s2">"id2:"</span><span class="p">,</span><span class="s2">"id3:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'1'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'2'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'3'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'3'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'4'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'1'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'1'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'2'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'2'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'3'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'3'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'4'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'4'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'1'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div><p>You can also define additional Boolean Slot Variables and use them together with the <a data-doc="vehicle/intro_jbeam/jbeamsyntax" data-frag="disable-modifier" href="/docs/vehicle/intro_jbeam/jbeamsyntax#disable-modifier">Disable Modifier</a>
+ to toggle different rows of the Jbeam file depending on the slotType.</p>

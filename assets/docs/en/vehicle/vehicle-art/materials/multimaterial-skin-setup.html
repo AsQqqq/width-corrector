@@ -1,0 +1,46 @@
+<h2 id="overview">
+
+  Overview
+</h2>
+<p><strong>Setting up skins with multiple materials on one vehicle.</strong></p>
+<p>After following the <a data-doc="materials/vehicle/skinsystem/skintutorial" href="/docs/materials/vehicle/skinsystem/skintutorial">Skin Tutorial</a>
+ and getting everything right, it could be confusing to see a car having two body colored materials not handling the skins correctly.</p>
+<p>It’s not as complex as it may seem at first though, this article will guide you how to solve it.</p>
+<div class="line-inner-small"></div>
+<h2 id="organization">
+
+  Organization
+</h2>
+<p>Generally for skins, it’s always good to have a separate <code>skin.materials.json</code> file where they all are stored, it’s easier to keep it organized that way and is the usual setup we use on all our vehicles.</p>
+<p>How to specify which skin goes where (example with <code>midtruck</code>):
+</p><div class="bng-notice usage"><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl">  <span class="s2">"midtruck_main.skin.stripes"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">    <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"midtruck_main.skin.stripes"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">    <span class="s2">"mapTo"</span><span class="o">:</span> <span class="s2">"midtruck_main.skin.stripes"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">    <span class="s2">"class"</span><span class="o">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">  <span class="p">}</span>
+</span></span></code></pre></div></div>
+<div class="line-inner-small"></div>
+<h2 id="naming-setup">
+
+  Naming &amp; Setup
+</h2>
+<p>The skin material name is separated into three parts, which in this case are:</p>
+<ul>
+<li><code>midtruck_main</code> - the material this skin is mapped to. (usually the one specified in the 3D program like blender etc.)</li>
+<li><code>skin</code> - the skin group; to my understanding this gives you the ability to group the skin into a certain category - for various interior colors, for example, you can use <code>skin_interior</code> there</li>
+<li><code>stripes</code> - the skin name itself - this has to be the same along all bits of the skin (e.g. <code>midtruck_main.skin.stripes</code>, <code>midruck_shelter.skin.stripes</code>)</li>
+</ul>
+<p>So, logically, to have the <code>"stripes"</code> skin assigned to both materials (<code>"midtruck_main"</code> &amp; <code>"midtruck_shelter"</code>) you need to have them assigned to the same name.</p>
+<hr/>
+<p>The rest of the skin setup is pretty straight forward.</p>
+<p>In the JBeam you’ll have to set up the skin as usual and due to the correct material setup it should show up on the parts its intended to.</p>
+<div class="bng-notice usage"><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl">  <span class="s2">"midtruck_skin_stripes"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Stripes (Colorable)"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">500</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"paint_design"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl">    <span class="s2">"skinName"</span> <span class="o">:</span> <span class="s2">"stripes"</span>
+</span></span><span class="line"><span class="ln">9</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div></div>

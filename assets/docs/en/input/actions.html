@@ -1,0 +1,700 @@
+<h3 id="overview">
+
+  Overview
+</h3>
+<p>An <strong>Action</strong> is each of the in-game activities that can take place after the player has manipulated a <a data-doc="input/introduction" data-frag="control" href="/docs/input/introduction#control">Control</a>
+.</p>
+<p>E.g. steer left, change camera, toggle menu.</p>
+<p>Actions are defined in one or more .json files.</p>
+<p>It is possible to provide new extra actions through mods. Just remember that, if you don’t also provide some bindings, then the users of your mod will need to manually configure his controllers.</p>
+<p>There are two basic kinds of actions: <a href="#regular-actions">Regular actions</a>
+ and <a href="#vehicle-specific-actions">Vehicle-specific actions</a>
+:</p>
+<h3 id="regular-actions">
+
+  Regular Actions
+</h3>
+<p>Regular actions are those that can take place regardless of which vehicle is currently used.</p>
+<p>They can therefore be available for use even while in the main menu, before entering any level or spawning any vehicle.</p>
+<p>BeamNG.drive comes with many predefined <strong>regular actions</strong>. These are defined in:</p>
+<pre tabindex="0"><code>lua/ge/extensions/core/input/actions/*.json
+</code></pre><p>Mods can bundle additional regular actions. To do so, they must provide one or more additional json files following this naming convention:</p>
+<pre tabindex="0"><code>lua/ge/extensions/core/input/actions/*.json
+</code></pre><p>For example:</p>
+<pre tabindex="0"><code>lua/ge/extensions/core/input/actions/explosions_mod.json
+lua/ge/extensions/core/input/actions/advanced_menus.json
+</code></pre><p>Any actions defined there will be available to end-users in the <code>Options</code> → <code>Controls</code> menu, mixed in with the default actions provided by BeamNG.drive.</p>
+<div class="bng-notice note">While it is possible to override the default <code>input_actions.json</code> file with a customized one, this means the mod author will need to constantly update his modified file each time a BeamNG.drive update comes out with new actions (or modified actions, or removed ones). It is therefore strongly advised against.</div>
+<br/>
+<h3 id="vehicle-specific-actions">
+
+  Vehicle-specific Actions
+</h3>
+<p>Vehicle-specific actions are those that can only be triggered while driving an specific vehicle. If you switch to a different kind of vehicle, they’ll be replaced by the actions of the new vehicle.</p>
+<p>Some of BeamNG.drive official vehicles come with a few predefined vehicle-specific actions. For example, the Small Cannon provides the ability to open fire with your controller. These vehicle-specific actions are defined in:</p>
+<pre tabindex="0"><code>vehicles/vehicle_directory_name/input_actions.json
+</code></pre><p>Similarly to <a href="#regular-actions">Regular actions</a>
+, mods can bundle additional vehicle-specific actions too. The mod-provided files must follow this naming convention:</p>
+<pre tabindex="0"><code>vehicles/vehicle_directory_name/input_actions*.json
+</code></pre><p>For example:</p>
+<pre tabindex="0"><code>vehicles/hatch/input_actions_hydraulic_suspension.json
+vehicles/pickup/input_actions_winch_cable.json
+</code></pre><p>All of these actions will be typically found in the “Vehicle-specific” category of the <code>Options</code> → <code>Controls</code> menu.</p>
+<div class="bng-notice note">Again, it is necessary to use unique file names for your vehicle-specific actions, to make sure your actions are not overridden by other mods using the same file names.</div>
+<br/>
+<h3 id="action-files-format">
+
+  Action-files Format
+</h3>
+<p>Action files mostly follow the 
+    <a class="link-ext" href="https://en.wikipedia.org/wiki/JSON" rel="noopener" target="_blank">json format</a>
+. They must start with <code>{</code> and end with <code>}</code>. Here’s a sample of how the overall structure has to look like:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"an_action"</span>     <span class="o">:</span> <span class="p">{</span><span class="s2">"order"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>  <span class="s2">"title"</span><span class="o">:</span><span class="s2">"Do Something"</span><span class="p">,</span> <span class="p">...},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"another_action"</span><span class="o">:</span> <span class="p">{</span><span class="s2">"order"</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span>  <span class="s2">"title"</span><span class="o">:</span><span class="s2">"Do Something Else"</span><span class="p">,</span> <span class="p">...},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"third_action"</span>  <span class="o">:</span> <span class="p">{</span><span class="s2">"order"</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">"title"</span><span class="o">:</span><span class="s2">"Do More Things"</span><span class="p">,</span> <span class="p">...},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></div><p>Each line has two parts:</p>
+<ul>
+<li>The first string on each line is the action name. E.g. <code>"an_action"</code>.</li>
+<li>The rest of the line contains the parameters of the action. E.g. <code>"order"</code>, <code>"title"</code>, <code>"ctx"</code>, and more.</li>
+</ul>
+<p>Here’s more information about them:</p>
+<h4 id="action-names">
+
+  Action names
+</h4>
+<p><strong>Action names must be unique, otherwise they may get overridden by other mods using the same action names. Specifically:</strong></p>
+<ul>
+<li><a href="#regular-actions">Regular action</a>
+ names must be different from all other regular actions names.</li>
+<li><a href="#vehicle-specific-actions">Vehicle-specific</a>
+ action names must be unique within the current vehicle.</li>
+</ul>
+<p>The easiest way to ensure the action names are unique, is to use a unique prefix. For example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"extra-menus-mod_an_action"</span>     <span class="o">:</span> <span class="p">{</span> <span class="p">...</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"extra-menus-mod_another_action"</span><span class="o">:</span> <span class="p">{</span> <span class="p">...</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"extra-menus-mod_third_action"</span>  <span class="o">:</span> <span class="p">{</span> <span class="p">...</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></div>
+<h4 id="action-parameters">
+
+  Action Parameters
+</h4>
+<p>The parameters of an action controls what the action actually does and how it’s displayed in the menus. Here’s a table with all details:</p>
+<div class="bng-notice note"><a href="#vehicle-specific-actions">Vehicle-specific</a>
+ actions have some particularities, which are also described below</div>
+<br/>
+<div class="bng-table" id="input"><div class="bng-table-header"><div>Name</div><div>Mandatory</div><div>Type</div><div>Default Value</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">title</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">Yes</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style="">n/a</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Very short name of the action, will be displayed in various game menues</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">desc</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">Yes</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style="">n/a</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Full description, may be displayed as tool-tip, should be about one sentence long.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">isBasic</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">No</div>
+</div><div>
+<div>Type</div>
+<div style="">boolean</div>
+</div><div>
+<div>Default Value</div>
+<div style="">true</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Whether it is shown by default in the Controls &gt; Binding menu (true) or user needs to check “List advanced bindings too” (false)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">cat (regular actions)</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">Yes</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style="">n/a</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">See <a href="#action-categories">Action categories</a></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">cat (vehicle-specific actions)</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">No</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style="">“vehicle_specific”</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">See <a href="#action-categories">Action categories</a></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">order</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">Yes</div>
+</div><div>
+<div>Type</div>
+<div style="">number</div>
+</div><div>
+<div>Default Value</div>
+<div style="">n/a</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Can influence in which order actions are displayed on various UI menus, with 1 coming first, and larger values (2, 3…) coming later.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">isCentered</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">No</div>
+</div><div>
+<div>Type</div>
+<div style="">boolean</div>
+</div><div>
+<div>Default Value</div>
+<div style="">false</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">If false, the action will produce values in the range 0 to 1 (for example, it can be used for a brake pedal or handbrake). If true, generated values will be in the range of -1 to +1 (for example, it can be used for the steering, or for changing the camera height up and down).</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">actionMap (regular actions)</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">No</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style="">“Normal”</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;"><p>Determines which <a data-doc="input/introduction" data-frag="action-map" href="/docs/input/introduction#action-map">Action Map</a>
+ the action will be assigned into. Common action maps include:</p>
+<ul>
+<li>“Global” - works even when the UI has focus; use sparingly</li>
+<li>“Menu” - assigned automatically when <code>cat</code> is <code>menu</code></li>
+<li>“Normal” - default map for normal gameplay bindings</li>
+<li>“VehicleCommon” - assigned automatically when <code>ctx</code> is <code>vlua</code></li>
+<li>“VehicleSpecific” - assigned automatically for vehicle-specific action files</li>
+</ul>
+<p>Custom names can be specified, and the corresponding action map will be automatically created.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">actionMap (vehicle-specific actions)</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">No</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style="">“VehicleSpecific”</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">Determines which <a data-doc="input/introduction" data-frag="action-map" href="/docs/input/introduction#action-map">Action Map</a>
+ the action will be assigned into. Most vehicle-specific actions should use the default.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">ctx (regular actions)</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">No</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style="">“tlua”</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;"><p>Defines where the code in <code>onChange</code>, <code>onUp</code>, <code>onDown</code>, or <code>onRelative</code> runs:</p>
+<ul>
+<li>“tlua” for Game Engine Lua (default for regular actions)</li>
+<li>“vlua” for active vehicle Lua</li>
+<li>“bvlua” for all vehicle Lua contexts</li>
+<li>“elua” for asynchronous Game Engine Lua / legacy-special cases</li>
+</ul>
+<p>Deprecated contexts: “ui”, “ts”, and “slua”.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style="">ctx (vehicle-specific actions)</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">No</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style="">“vlua”</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;">See the description above</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Name</div>
+<div style=""><ul>
+<li>onChange</li>
+<li>onDown</li>
+<li>onUp</li>
+<li>onRelative</li>
+</ul>
+</div>
+</div><div>
+<div>Mandatory</div>
+<div style="">Yes</div>
+</div><div>
+<div>Type</div>
+<div style="">string</div>
+</div><div>
+<div>Default Value</div>
+<div style="">n/a</div>
+</div><div>
+<div>Description</div>
+<div style="text-align: left;"><p>Specifies which source code will be executed when the action is triggered. The code execution context is defined in the ctx parameter of the current action</p>
+<p>At least one of them must be defined. They are triggered like this:</p>
+<ul>
+<li>onChange: runs when the controller position changes. Supports: keys/buttons and axes</li>
+<li>onDown: runs when a key/button is pressed down. Supports: keys/buttons</li>
+<li>onUp: runs when a key/button is lifted up. Supports: keys/buttons</li>
+<li>onRelative: runs when holding the right mouse button and moving the mouse (don’t use unless you know what you’re doing)</li>
+</ul>
+</div>
+</div></div></div>
+<h3 id="writing-action-code">
+
+  Writing Action Code
+</h3>
+<p>The <code>onChange</code>, <code>onDown</code>, <code>onUp</code>, and <code>onRelative</code> fields contain short code snippets.</p>
+<p>They are not a separate scripting language. They are strings that contain Lua code, with a few special placeholder words replaced by the input system before the code is executed.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"my_mod_toggle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"cat"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"ctx"</span><span class="p">:</span> <span class="s2">"vlua"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"onDown"</span><span class="p">:</span> <span class="s2">"controller.getControllerSafe('myController').toggle()"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"My Mod Toggle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"Toggles a feature from my mod"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The action definition does two jobs:</p>
+<ol>
+<li>Describes how the action appears in the Controls menu.</li>
+<li>Provides code that runs when a binding triggers the action.</li>
+</ol>
+<hr/>
+<h2 id="action-event-fields">
+
+  Action event fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>When it runs</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>onChange</code></td>
+<td>Whenever the input value changes. Works with keys/buttons and axes.</td>
+<td>Analog controls, held buttons, values that should follow input.</td>
+</tr>
+<tr>
+<td><code>onDown</code></td>
+<td>When a key/button is pressed.</td>
+<td>Toggles, one-shot commands, mode changes.</td>
+</tr>
+<tr>
+<td><code>onUp</code></td>
+<td>When a key/button is released.</td>
+<td>Releasing held state, momentary controls.</td>
+</tr>
+<tr>
+<td><code>onRelative</code></td>
+<td>For relative input such as mouse movement where supported.</td>
+<td>Camera/mouse style controls.</td>
+</tr>
+</tbody>
+</table>
+<p>At least one of these fields must be present.</p>
+<p>Use <code>onChange</code> for axes and analog controls. Use <code>onDown</code> for simple button toggles.</p>
+<div class="bng-notice warning">Do not rely on <code>onDown</code> or <code>onUp</code> for axis-only controls. Axes should use <code>onChange</code>.</div>
+<hr/>
+<h2 id="placeholder-values">
+
+  Placeholder values
+</h2>
+<p>Before the action code is run, the input system replaces special placeholder words.</p>
+<p>Common placeholders:</p>
+<table>
+<thead>
+<tr>
+<th>Placeholder</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VALUE</code></td>
+<td>Current input value. Usually <code>1</code> on press, <code>0</code> on release, <code>0..1</code> for normal analog inputs, or <code>-1..1</code> when <code>isCentered</code> is true.</td>
+</tr>
+<tr>
+<td><code>FILTERTYPE</code></td>
+<td>Selected input filter type from the binding. Used by vehicle input functions.</td>
+</tr>
+<tr>
+<td><code>PLAYER</code></td>
+<td>Player index for multiseat-aware actions.</td>
+</tr>
+<tr>
+<td><code>ANGLE</code></td>
+<td>Steering wheel angle data where supplied by the binding/device.</td>
+</tr>
+<tr>
+<td><code>LOCKTYPE</code></td>
+<td>Steering lock type where supplied by the binding/device.</td>
+</tr>
+<tr>
+<td><code>OSCLOCKHP</code></td>
+<td>High precision timestamp used by some input paths.</td>
+</tr>
+</tbody>
+</table>
+<p>Programmatic action triggering can also replace:</p>
+<table>
+<thead>
+<tr>
+<th>Placeholder</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VEHICLEID</code></td>
+<td>Vehicle id passed to the action trigger helper.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"set_table"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"ctx"</span><span class="p">:</span> <span class="s2">"vlua"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"onChange"</span><span class="p">:</span> <span class="s2">"electrics.values.table = VALUE"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"Move Table"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"Moves the table with an analog input"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>With a centered control:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"move_platform"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"ctx"</span><span class="p">:</span> <span class="s2">"vlua"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"isCentered"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"onChange"</span><span class="p">:</span> <span class="s2">"controller.getControllerSafe('platform').move(VALUE)"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"Move Platform"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"Moves the platform in both directions"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><code>isCentered</code> changes the value range from <code>0..1</code> to <code>-1..1</code>.</p>
+<hr/>
+<h2 id="execution-context">
+
+  Execution context
+</h2>
+<p>The <code>ctx</code> field decides where the code runs.</p>
+<table>
+<thead>
+<tr>
+<th><code>ctx</code></th>
+<th>Runs in</th>
+<th>Common use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tlua</code></td>
+<td>Game Engine Lua. Default for regular actions.</td>
+<td>UI/gameplay systems, global commands, editor/tool actions.</td>
+</tr>
+<tr>
+<td><code>vlua</code></td>
+<td>Active vehicle Lua. Default for vehicle-specific actions.</td>
+<td>Vehicle controllers, electrics, powertrain, hydros, vehicle extensions.</td>
+</tr>
+<tr>
+<td><code>elua</code></td>
+<td>Game Engine Lua asynchronous path.</td>
+<td>Legacy/special cases. Prefer <code>tlua</code> for normal GE Lua actions.</td>
+</tr>
+<tr>
+<td><code>bvlua</code></td>
+<td>All vehicle Lua contexts.</td>
+<td>Broadcast a vehicle Lua command to all vehicles.</td>
+</tr>
+</tbody>
+</table>
+<p>Deprecated contexts:</p>
+<table>
+<thead>
+<tr>
+<th><code>ctx</code></th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ui</code></td>
+<td>Deprecated. Use <code>tlua</code> and <code>guihooks</code> instead.</td>
+</tr>
+<tr>
+<td><code>ts</code></td>
+<td>Deprecated. Use <code>tlua</code> instead.</td>
+</tr>
+<tr>
+<td><code>slua</code></td>
+<td>Deprecated alias that is replaced with <code>elua</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>If no <code>ctx</code> is specified for a regular action, the input system defaults to <code>tlua</code>. Vehicle-specific actions default to <code>vlua</code>.</p>
+<hr/>
+<h2 id="choosing-a-context">
+
+  Choosing a context
+</h2>
+<p>Use <code>vlua</code> when the action controls the current vehicle:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"onChange"</span><span class="err">:</span> <span class="s2">"input.event('throttle', VALUE, FILTERTYPE)"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"ctx"</span><span class="err">:</span> <span class="s2">"vlua"</span>
+</span></span></code></pre></div><p>Use <code>tlua</code> when the action controls game systems, UI, editor tools, or global gameplay:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"onDown"</span><span class="err">:</span> <span class="s2">"extensions.hook('onGameplayInteract')"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"ctx"</span><span class="err">:</span> <span class="s2">"tlua"</span>
+</span></span></code></pre></div><p>Use <code>bvlua</code> only when every vehicle should receive the command:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"onDown"</span><span class="err">:</span> <span class="s2">"electrics.set_warn_signal(true)"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"ctx"</span><span class="err">:</span> <span class="s2">"bvlua"</span>
+</span></span></code></pre></div><p>Do not call vehicle-only APIs from <code>tlua</code>, and do not call game-engine UI systems directly from <code>vlua</code>.</p>
+<hr/>
+<h2 id="actionmap">
+
+  actionMap
+</h2>
+<p><code>actionMap</code> controls which action map receives the binding.</p>
+<p>Default behavior:</p>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Action map</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cat</code> is <code>menu</code></td>
+<td><code>MenuActionMap</code></td>
+</tr>
+<tr>
+<td><code>ctx</code> is <code>vlua</code></td>
+<td><code>VehicleCommonActionMap</code></td>
+</tr>
+<tr>
+<td>vehicle-specific action</td>
+<td><code>VehicleSpecificActionMap</code></td>
+</tr>
+<tr>
+<td>otherwise</td>
+<td><code>NormalActionMap</code></td>
+</tr>
+</tbody>
+</table>
+<p>You can override this with:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"actionMap"</span><span class="err">:</span> <span class="s2">"BigMap"</span>
+</span></span></code></pre></div><p>The final scene object name is the action map name plus <code>ActionMap</code>, for example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">BigMapActionMap
+</span></span></code></pre></div><p>Special case:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"actionMap"</span><span class="err">:</span> <span class="s2">"MenuIndependent"</span>
+</span></span></code></pre></div><p>This creates a per-action menu-independent action map using the <code>MenuIndependent_</code> prefix.</p>
+<hr/>
+<h2 id="regular-action-example">
+
+  Regular action example
+</h2>
+<p>This regular action runs in Game Engine Lua and toggles a custom UI/tool feature:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"my_mod_toggle_tool"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"cat"</span><span class="p">:</span> <span class="s2">"menuExtra"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order"</span><span class="p">:</span> <span class="mi">900</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"ctx"</span><span class="p">:</span> <span class="s2">"tlua"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"actionMap"</span><span class="p">:</span> <span class="s2">"Normal"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"onDown"</span><span class="p">:</span> <span class="s2">"extensions.my_mod_tool.toggle()"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"Toggle My Tool"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"Opens or closes my custom tool"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Suggested location:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">lua/ge/extensions/core/input/actions/my_mod_actions.json
+</span></span></code></pre></div><p>Use a unique file name and unique action names to avoid conflicts with other mods.</p>
+<hr/>
+<h2 id="vehicle-specific-action-example">
+
+  Vehicle-specific action example
+</h2>
+<p>This vehicle-specific action writes a value to the vehicle electrics table:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"raise_arm"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"onChange"</span><span class="p">:</span> <span class="s2">"electrics.values.arm = VALUE"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"Raise Arm"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"Raises the vehicle arm"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Suggested location:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicles/&lt;vehicleName&gt;/input_actions_my_mod.json
+</span></span></code></pre></div><p>Vehicle-specific actions automatically:</p>
+<ul>
+<li>get namespaced internally to the current vehicle</li>
+<li>default to <code>ctx = "vlua"</code></li>
+<li>appear in the vehicle-specific controls category</li>
+</ul>
+<hr/>
+<h2 id="jbeam-event-actions">
+
+  JBeam event actions
+</h2>
+<p>Some vehicle parts define trigger/action data directly in JBeam <code>events</code> sections.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"events"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"title"</span><span class="p">,</span> <span class="s2">"desc"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"table_up"</span><span class="p">,</span> <span class="s2">"ui.inputActions.tiltdeck.table_up.title"</span><span class="p">,</span> <span class="s2">"ui.inputActions.tiltdeck.table_up.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span> <span class="nt">"onChange"</span><span class="p">:</span> <span class="s2">"electrics.values.table = VALUE"</span><span class="p">,</span> <span class="nt">"order"</span><span class="p">:</span> <span class="mi">6</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>The action code uses the same <code>onChange</code>, <code>onDown</code>, <code>onUp</code>, and placeholder behavior as <code>input_actions.json</code>.</p>
+<p>Use this when the action belongs tightly to a part or trigger setup. Use <code>input_actions*.json</code> when the action is a normal vehicle-level binding.</p>
+<hr/>
+<h2 id="interaction-maps">
+
+  Interaction maps
+</h2>
+<p>Vehicle interaction maps using <code>*.interaction.json</code> also use the same action-code format.</p>
+<p>They are useful for interactions such as doors, latches, vehicle features, or part-specific controls that need to appear in the interaction UI.</p>
+<p>See <a data-doc="input/interaction-maps" href="/docs/input/interaction-maps">Interaction Maps</a>
+ and the vehicle trigger/interaction documentation for examples.</p>
+<hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Use <code>onDown</code> for toggles.</li>
+<li>Use <code>onChange</code> for analog values and held controls.</li>
+<li>Keep action snippets short.</li>
+<li>Put complex behavior in a Lua module or controller function, then call that function from the action.</li>
+<li>Use translation keys for <code>title</code> and <code>desc</code> when shipping user-facing content.</li>
+<li>Use unique action names and unique file suffixes for mods.</li>
+<li>Provide default bindings for vehicle-specific actions when possible.</li>
+<li>Avoid deprecated contexts (<code>ui</code>, <code>ts</code>, <code>slua</code>).</li>
+<li>Test actions with keyboard and at least one analog device if the action supports analog input.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="action-does-not-appear-in-controls">
+
+  Action does not appear in Controls
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>JSON file is in the wrong folder.</li>
+<li>JSON syntax error.</li>
+<li>Duplicate action name was overridden.</li>
+<li>Invalid category.</li>
+<li>Vehicle-specific action is not active for the current vehicle.</li>
+</ul>
+<h3 id="binding-appears-but-does-nothing">
+
+  Binding appears but does nothing
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Action has no <code>onChange</code>, <code>onDown</code>, <code>onUp</code>, or <code>onRelative</code>.</li>
+<li>Wrong <code>ctx</code> was used.</li>
+<li>Code calls a Lua module that is not loaded in that context.</li>
+<li>Vehicle-specific controller name is wrong.</li>
+</ul>
+<h3 id="analog-control-behaves-like-a-button">
+
+  Analog control behaves like a button
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Action uses <code>onDown</code> instead of <code>onChange</code>.</li>
+<li><code>isCentered</code> is missing for a centered axis.</li>
+<li>Binding filter type is not appropriate.</li>
+</ul>
+<h3 id="action-categories">
+
+  Action Categories
+</h3>
+<p>The category of an action is a mandatory parameter with only cosmetic effects.</p>
+<p>It will influence where the action may be displayed in various in-game menus (such as the <code>Options</code> → <code>Controls</code> hierarchy of actions).</p>
+<p>To see a list of available categories, please refer to the following file:</p>
+<pre tabindex="0"><code>lua/ge/extensions/core/input/categories.lua
+</code></pre>

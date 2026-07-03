@@ -1,0 +1,401 @@
+<p><code>MeshRoad</code> is a spline-based road object that generates real mesh geometry from nodes.</p>
+<p>Use it when the road needs actual thickness, side faces, bridges, ramps, or geometry that is not just a decal projected onto terrain.</p>
+<p>For painted road surfaces, markings, AI paths, and terrain-projected roads, <code>DecalRoad</code> is usually the better first choice.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Basic example
+</h2>
+<p>A simple <code>MeshRoad</code> entry in <code>items.level.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"MeshRoad"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"bridge_meshroad_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"MissionGroup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"topMaterial"</span><span class="p">:</span> <span class="s2">"road_asphalt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"bottomMaterial"</span><span class="p">:</span> <span class="s2">"road_concrete"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sideMaterial"</span><span class="p">:</span> <span class="s2">"road_concrete"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"textureLength"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"breakAngle"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"widthSubdivisions"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Each node is stored as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[x, y, z, width, depth, normalX, normalY, normalZ]
+</span></span></code></pre></div><hr/>
+<h2 id="important-fields">
+
+  Important fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>"MeshRoad"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Scene object name.</td>
+</tr>
+<tr>
+<td><code>__parent</code></td>
+<td>string</td>
+<td>Parent group.</td>
+</tr>
+<tr>
+<td><code>topMaterial</code></td>
+<td>string</td>
+<td>Material for the upper road surface.</td>
+</tr>
+<tr>
+<td><code>bottomMaterial</code></td>
+<td>string</td>
+<td>Material for the underside.</td>
+</tr>
+<tr>
+<td><code>sideMaterial</code></td>
+<td>string</td>
+<td>Material for side, front, and back faces.</td>
+</tr>
+<tr>
+<td><code>textureLength</code></td>
+<td>number</td>
+<td>Length in meters before the material repeats along the road.</td>
+</tr>
+<tr>
+<td><code>breakAngle</code></td>
+<td>number</td>
+<td>Angle threshold in degrees used when generating road slices from the spline.</td>
+</tr>
+<tr>
+<td><code>widthSubdivisions</code></td>
+<td>integer</td>
+<td>Number of widthwise subdivisions for generated vertices.</td>
+</tr>
+<tr>
+<td><code>nodes</code></td>
+<td>array</td>
+<td>Ordered node list. Each node is <code>[x, y, z, width, depth, normalX, normalY, normalZ]</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="node-data">
+
+  Node data
+</h2>
+<p><code>MeshRoad</code> stores its shape as an ordered list of nodes.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>Each node contains:</p>
+<table>
+<thead>
+<tr>
+<th align="right">Index</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right"><code>0</code></td>
+<td>X position</td>
+</tr>
+<tr>
+<td align="right"><code>1</code></td>
+<td>Y position</td>
+</tr>
+<tr>
+<td align="right"><code>2</code></td>
+<td>Z position</td>
+</tr>
+<tr>
+<td align="right"><code>3</code></td>
+<td>Road width</td>
+</tr>
+<tr>
+<td align="right"><code>4</code></td>
+<td>Road depth/thickness</td>
+</tr>
+<tr>
+<td align="right"><code>5</code></td>
+<td>Normal X</td>
+</tr>
+<tr>
+<td align="right"><code>6</code></td>
+<td>Normal Y</td>
+</tr>
+<tr>
+<td align="right"><code>7</code></td>
+<td>Normal Z</td>
+</tr>
+</tbody>
+</table>
+<p>The road mesh is generated between consecutive nodes.</p>
+<div class="bng-notice warning">Do not treat <code>MeshRoad</code> nodes like <code>DecalRoad</code> nodes. <code>MeshRoad</code> nodes include depth and normal data.</div>
+<hr/>
+<h2 id="creating-meshroads">
+
+  Creating MeshRoads
+</h2>
+<p>In the World Editor, create a <code>MeshRoad</code> when you need generated road geometry instead of a projected road decal.</p>
+<p>Typical workflow:</p>
+<ol>
+<li>Create a <code>MeshRoad</code> object.</li>
+<li>Place nodes along the intended road centerline.</li>
+<li>Set node width and depth.</li>
+<li>Adjust node height and normal so the road deck follows the intended slope and banking.</li>
+<li>Assign <code>topMaterial</code>, <code>bottomMaterial</code>, and <code>sideMaterial</code>.</li>
+<li>Tune <code>textureLength</code>, <code>breakAngle</code>, and <code>widthSubdivisions</code>.</li>
+<li>Test visual smoothing, collision, and vehicle behavior in game.</li>
+</ol>
+<p>Use fewer, well-placed nodes for smooth roads. Add nodes where the road must intentionally change direction, width, depth, height, or banking.</p>
+<div class="bng-notice note"><code>MeshRoad</code> ignores normal object scale edits. Use nodes, width, depth, and generated geometry settings to shape the road.</div>
+<hr/>
+<h2 id="generation-and-smoothing">
+
+  Generation and smoothing
+</h2>
+<p><code>MeshRoad</code> does not connect nodes with straight mesh spans directly.</p>
+<p>When regenerated, the engine:</p>
+<ol>
+<li>Copies each node into a spline node containing position, width, depth, and normal.</li>
+<li>Builds a <code>CatmullRom&lt;MeshRoadSplineNode&gt;</code> spline from those nodes.</li>
+<li>Samples the spline between each pair of author nodes.</li>
+<li>Creates road slices along the sampled spline.</li>
+<li>Builds road segments between consecutive slices.</li>
+<li>Generates top, bottom, and side vertex/index buffers from those slices.</li>
+</ol>
+<p>This means the centerline, width, depth, and normal are all interpolated along the spline.</p>
+<hr/>
+<h2 id="catmull-rom-spline">
+
+  Catmull-Rom spline
+</h2>
+<p>The smoothing algorithm is Catmull-Rom interpolation.</p>
+<p>The engine builds a spline using the author nodes:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">position + width + depth + normal
+</span></span></code></pre></div><p>For each node span, it evaluates the spline and measures the approximate span length. The span is sampled into smaller steps before deciding where final road slices should be placed.</p>
+<p>Catmull-Rom interpolation gives smooth curves through the control nodes. It is convenient for road authoring, but it also means tight or uneven node spacing can create unwanted bends or overshoot.</p>
+<p>Good authoring practice:</p>
+<ul>
+<li>Keep node spacing reasonably even.</li>
+<li>Add support nodes before and after sharp transitions.</li>
+<li>Avoid extreme width/depth changes over very short distances.</li>
+<li>Check banking normals on curves and ramps.</li>
+</ul>
+<hr/>
+<h2 id="breakangle">
+
+  breakAngle
+</h2>
+<p><code>breakAngle</code> controls how many generated slices are kept from the sampled spline.</p>
+<p>During generation, the engine compares the current sampled direction with the direction at the last kept slice. A new slice is kept when:</p>
+<ul>
+<li>It is the start of a span.</li>
+<li>It is the final sample of the final span.</li>
+<li>The angle change is greater than <code>breakAngle</code>.</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"breakAngle"</span><span class="err">:</span> <span class="mi">3</span>
+</span></span></code></pre></div><p>Lower values create more slices and smoother generated geometry, especially on curves.</p>
+<p>Higher values create fewer slices, which can reduce geometry but may make curves more angular.</p>
+<div class="bng-notice warning">Very low <code>breakAngle</code> values can increase generated vertices, triangles, collision data, and editing cost. Use the lowest value that gives the required visual and driving smoothness.</div>
+<hr/>
+<h2 id="slice-orientation">
+
+  Slice orientation
+</h2>
+<p>Each generated slice gets a local frame:</p>
+<table>
+<thead>
+<tr>
+<th>Vector</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fvec</code></td>
+<td>Forward direction along the road.</td>
+</tr>
+<tr>
+<td><code>rvec</code></td>
+<td>Right direction across the road width.</td>
+</tr>
+<tr>
+<td><code>uvec</code></td>
+<td>Up direction from the node/spline normal.</td>
+</tr>
+</tbody>
+</table>
+<p>The engine uses the slice normal and neighboring slice positions to calculate these vectors.</p>
+<p>It then computes:</p>
+<table>
+<thead>
+<tr>
+<th>Point</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>p1</code></td>
+<td>Center point of the road slice.</td>
+</tr>
+<tr>
+<td><code>p0</code></td>
+<td>Top-left edge point.</td>
+</tr>
+<tr>
+<td><code>p2</code></td>
+<td>Top-right edge point.</td>
+</tr>
+<tr>
+<td><code>pb0</code></td>
+<td>Bottom-left edge point.</td>
+</tr>
+<tr>
+<td><code>pb2</code></td>
+<td>Bottom-right edge point.</td>
+</tr>
+</tbody>
+</table>
+<p>Width expands from the center along <code>rvec</code>. Depth extends downward along <code>uvec</code>.</p>
+<p>If normals are inconsistent, the generated frame can twist. This is the most common cause of banking or side-face artifacts on generated mesh roads.</p>
+<hr/>
+<h2 id="widthsubdivisions">
+
+  widthSubdivisions
+</h2>
+<p><code>widthSubdivisions</code> adds extra vertices across the top surface width.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"widthSubdivisions"</span><span class="err">:</span> <span class="mi">2</span>
+</span></span></code></pre></div><p>The top surface uses:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">2 + widthSubdivisions
+</span></span></code></pre></div><p>vertices per slice.</p>
+<p>This can help wide roads or banked sections shade and deform more smoothly across their width. It also increases vertex and triangle count.</p>
+<p>Bottom and side surfaces are not subdivided widthwise in the same way as the top surface.</p>
+<hr/>
+<h2 id="texture-mapping">
+
+  Texture mapping
+</h2>
+<p><code>textureLength</code> controls the V coordinate along the road.</p>
+<p>During vertex generation, the engine measures distance between consecutive slices and increments the texture coordinate by:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">sliceDistance / textureLength
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"textureLength"</span><span class="err">:</span> <span class="mi">8</span>
+</span></span></code></pre></div><p>Lower values make the texture repeat more often. Higher values stretch the texture over longer road distance.</p>
+<hr/>
+<h2 id="meshroad-vs-decalroad">
+
+  MeshRoad vs DecalRoad
+</h2>
+<table>
+<thead>
+<tr>
+<th>Use case</th>
+<th>Recommended class</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Road marking or surface projected onto terrain</td>
+<td><code>DecalRoad</code></td>
+</tr>
+<tr>
+<td>AI/navigation path data</td>
+<td><code>DecalRoad</code></td>
+</tr>
+<tr>
+<td>Bridge deck with visible sides</td>
+<td><code>MeshRoad</code></td>
+</tr>
+<tr>
+<td>Raised ramp or custom road geometry</td>
+<td><code>MeshRoad</code></td>
+</tr>
+<tr>
+<td>Road on existing mesh with decal material</td>
+<td><code>DecalRoad</code> with <code>overObjects</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>MeshRoad</code> creates geometry. <code>DecalRoad</code> renders a decal on existing geometry.</p>
+<hr/>
+<h2 id="materials">
+
+  Materials
+</h2>
+<p><code>MeshRoad</code> can use three separate materials:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"topMaterial"</span><span class="err">:</span> <span class="s2">"road_asphalt"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"bottomMaterial"</span><span class="err">:</span> <span class="s2">"road_concrete"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"sideMaterial"</span><span class="err">:</span> <span class="s2">"road_concrete"</span>
+</span></span></code></pre></div><p>Materials should tile cleanly along the road length.</p>
+<p><code>textureLength</code> controls how often the material repeats:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"textureLength"</span><span class="err">:</span> <span class="mi">8</span>
+</span></span></code></pre></div><hr/>
+<h2 id="tool-notes">
+
+  Tool notes
+</h2>
+<p>For tools that generate roads:</p>
+<ul>
+<li>Preserve all eight node values.</li>
+<li>Keep node order stable.</li>
+<li>Normalize node normals where possible.</li>
+<li>Generate reasonably even node spacing for smoother Catmull-Rom results.</li>
+<li>Add support nodes around sharp corners, steep ramps, or sudden width/depth changes.</li>
+<li>Tune <code>breakAngle</code> instead of blindly adding excessive author nodes.</li>
+<li>Use <code>DecalRoad</code> if the output is only a projected visual road.</li>
+<li>Use <code>MeshRoad</code> when generated geometry, thickness, or bridge-like behavior is required.</li>
+<li>Validate collision and vehicle behavior in game after changing generated nodes.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<ul>
+<li>Road twists because node normals are wrong or inconsistent.</li>
+<li>Materials stretch because <code>textureLength</code> is too large.</li>
+<li>Road has missing side/bottom visuals because <code>sideMaterial</code> or <code>bottomMaterial</code> is missing.</li>
+<li>Tool-generated nodes use the four-value <code>DecalRoad</code> format instead of the eight-value <code>MeshRoad</code> format.</li>
+<li>Curves look angular because <code>breakAngle</code> is too high.</li>
+<li>Mesh is too dense because <code>breakAngle</code> is too low or node spacing is excessive.</li>
+</ul>
+<hr/>
+<h2 id="validation-criteria">
+
+  Validation criteria
+</h2>
+<ul>
+<li>All nodes have eight numeric values.</li>
+<li>Top, side, and bottom materials exist.</li>
+<li>Road geometry follows the intended path without twisting.</li>
+<li>Curves are smooth enough at normal driving speed.</li>
+<li>Generated geometry and collision remain reasonable for the road length.</li>
+<li>Vehicles can drive over the generated surface as intended.</li>
+<li>Decal roads and AI paths are added separately when navigation data is required.</li>
+</ul>
+<p><strong>See also:</strong> <a data-doc="levels/level_classes/decalorad" href="/docs/levels/level_classes/decalorad">DecalRoad</a>
+, <a data-doc="file_formats/materials" href="/docs/file_formats/materials">Material file format</a>
+, <a data-doc="levels/level_formats/map" href="/docs/levels/level_formats/map">Navigation map (<code>map.json</code>)</a>
+, <a data-doc="levels/level_formats/items" href="/docs/levels/level_formats/items">Level object files (<code>items.level.json</code>)</a>
+.</p>

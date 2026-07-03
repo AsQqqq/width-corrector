@@ -1,0 +1,127 @@
+<h2 id="legacy-normal-map-packing">
+
+  Legacy Normal Map Packing
+</h2>
+<p>Older BeamNG content and third party assets may use different normal map channel layouts depending on the compression format and type. Modern workflows standardize this to <strong>BC5 (RG)</strong> normal maps, but legacy formats may require conversion to work correctly.</p>
+<h3 id="channel-packing-formats">
+
+  Channel packing formats
+</h3>
+<p>Different formats store the X and Y components of the normal in different channels:</p>
+<p>
+</p><div class="bng-table" id="table-1783007350246154033"><div class="bng-table-header"><div>Format</div><div>XY Channels</div><div>Description</div><div>Conversion to Standard (BC5 RG)</div></div>
+<div class="bng-table-row"><div>
+<div style="">Format</div>
+<div style=""><strong>GFXFormatBC5</strong></div>
+</div><div>
+<div style="">XY Channels</div>
+<div style="">R, G</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Modern standard normal map format. Stores X in Red and Y in Green.</div>
+</div><div>
+<div style="">Conversion to Standard (BC5 RG)</div>
+<div style="">No conversion needed</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Format</div>
+<div style=""><strong>GFXFormat3Dc</strong></div>
+</div><div>
+<div style="">XY Channels</div>
+<div style="">G, R</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Legacy format with swapped channels.</div>
+</div><div>
+<div style="">Conversion to Standard (BC5 RG)</div>
+<div style="">Swap channels: R = G, G = R</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Format</div>
+<div style=""><strong>GFXFormatDXT5nm</strong></div>
+</div><div>
+<div style="">XY Channels</div>
+<div style="">A, G</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Old packing using Alpha for X and Green for Y.</div>
+</div><div>
+<div style="">Conversion to Standard (BC5 RG)</div>
+<div style="">Repack channels: R = A, G = G</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Format</div>
+<div style=""><strong>PNG/JPG/BMP</strong></div>
+</div><div>
+<div style="">XY Channels</div>
+<div style="">R, G</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Uncompressed formats typically using standard channel layout.</div>
+</div><div>
+<div style="">Conversion to Standard (BC5 RG)</div>
+<div style="">Ensure R = X, G = Y and save as *.normal.png</div>
+</div></div></div>
+<br/>
+<h3 id="modern-standard">
+
+  Modern standard
+</h3>
+<p>The engine expects:</p>
+<ul>
+<li><strong>BC5 compression</strong></li>
+<li><strong>X → Red channel</strong></li>
+<li><strong>Y → Green channel</strong></li>
+<li><strong>OpenGL tangent space (Y+)</strong></li>
+</ul>
+<h3 id="converting-legacy-normal-maps">
+
+  Converting legacy normal maps
+</h3>
+<p>When working with older assets, you may need to repack channels:</p>
+<ul>
+<li>
+<p><strong>3Dc (G,R)</strong><br/>
+Swap channels → <strong>R = G, G = R</strong></p>
+</li>
+<li>
+<p><strong>DXT5nm (A,G)</strong><br/>
+Move channels →<br/>
+<strong>R = Alpha</strong>,<br/>
+<strong>G = Green</strong></p>
+</li>
+<li>
+<p><strong>Incorrect Y direction</strong><br/>
+If lighting appears inverted, flip the green channel (Y).</p>
+</li>
+</ul>
+<p>After conversion:</p>
+<ul>
+<li>Save as <code>*.normal.png</code></li>
+<li>Let the <a data-doc="materials/texture_cooker" href="/docs/materials/texture_cooker">Texture Cooker</a>
+ convert it to <strong>BC5</strong></li>
+</ul>
+<h3 id="recommended-workflow">
+
+  Recommended workflow
+</h3>
+<ul>
+<li>Always use <strong>RGB 8-bit PNG</strong> as source</li>
+<li>Store normals in <strong>R (X)</strong> and <strong>G (Y)</strong></li>
+<li>Keep textures in <strong>linear color space</strong></li>
+<li>Avoid manually creating DDS unless necessary</li>
+</ul>
+<h3 id="common-issues">
+
+  Common issues
+</h3>
+<ul>
+<li><strong>Wrong lighting direction</strong> → Y channel inverted</li>
+<li><strong>Flat or broken shading</strong> → incorrect channel packing</li>
+<li><strong>Artifacts or compression issues</strong> → not using BC5</li>
+</ul>
+<h3 id="notes">
+
+  Notes
+</h3>
+<div class="bng-notice warning">Do not rely on legacy formats like DXT5nm or 3Dc for new content. Always try to use Texture Cooker for correct rendering and optimal quality.</div>

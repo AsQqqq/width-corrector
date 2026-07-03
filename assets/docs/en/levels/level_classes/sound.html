@@ -1,0 +1,933 @@
+<p><code>SFXSpace</code> and <code>SFXEmitter</code> are scene audio objects.</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SFXSpace</code></td>
+<td>Defines a 3D ambient audio zone/volume.</td>
+</tr>
+<tr>
+<td><code>SFXEmitter</code></td>
+<td>Places a positional or non-positional sound source in the level.</td>
+</tr>
+</tbody>
+</table>
+<p>Use <code>SFXSpace</code> for area-based ambience changes, such as tunnels, interiors, caves, forests, or reverb/ambience zones.</p>
+<p>Use <code>SFXEmitter</code> for actual sound playback at a point in the world, such as machinery hums, waterfalls, birds, sirens, loops, one-shots, or local environmental sounds.</p>
+<hr/>
+
+<p><code>SFXSpace</code> is a 3D volume that defines an ambient sound zone.</p>
+<p>It is usually used to change the listener’s ambience when the listener enters or overlaps the volume. For example:</p>
+<ul>
+<li>Interior room ambience</li>
+<li>Tunnel reverb/ambience</li>
+<li>Cave ambience</li>
+<li>Forest ambience</li>
+<li>Underpass ambience</li>
+<li>Industrial area ambience</li>
+<li>Local environmental sound zones</li>
+</ul>
+<p><code>SFXSpace</code> is a scene object with position, rotation, and scale. Its default object scale is:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[10, 10, 10]
+</span></span></code></pre></div><p>Its local object box is a unit cube from <code>-0.5</code> to <code>0.5</code>, so the final zone size is controlled by <code>scale</code>.</p>
+<hr/>
+<h2 id="basic-sfxspace-example">
+
+  Basic SFXSpace example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXSpace"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"tunnel_audio_space"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">120</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"soundAmbience"</span><span class="p">:</span> <span class="s2">"TunnelAmbience"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>This creates a box-shaped audio zone centered at <code>[120, 45, 8]</code>.</p>
+<hr/>
+<h2 id="sfxspace-fields">
+
+  SFXSpace fields
+</h2>
+<p><code>SFXSpace</code> inherits most of its useful fields from its scene object and ambient sound mixin behavior.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>"SFXSpace"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Scene object name.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Center position of the audio volume.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Orientation of the audio volume.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Size of the SFXSpace volume.</td>
+</tr>
+<tr>
+<td><code>soundAmbience</code></td>
+<td>object/datablock name</td>
+<td>Ambience assigned to the space, where supported by the ambient sound object implementation.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="shape-and-scale">
+
+  Shape and scale
+</h2>
+<p><code>SFXSpace</code> is box-based.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>
+</span></span></code></pre></div><p>This produces a volume approximately:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">30 meters wide
+</span></span><span class="line"><span class="cl">20 meters long
+</span></span><span class="line"><span class="cl">6 meters tall
+</span></span></code></pre></div><p>Use scale to fit the zone around the area where the ambience should apply.</p>
+<hr/>
+<h2 id="editor-visibility">
+
+  Editor visibility
+</h2>
+<p><code>SFXSpace</code> rendering is disabled by default:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">getStaticClassRep</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">mIsRenderEnabled</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span></span></code></pre></div><p>This means SFXSpaces are not normally visible as rendered objects. They are primarily editor/helper volumes.</p>
+<p>The editor solid color can come from the assigned ambience:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">getSoundAmbience</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">getEditorColor</span><span class="p">()</span>
+</span></span></code></pre></div><p>If no ambience is assigned, it uses the default parent editor color.</p>
+<hr/>
+<h2 id="common-sfxspace-uses">
+
+  Common SFXSpace uses
+</h2>
+<h3 id="tunnel-ambience">
+
+  Tunnel ambience
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXSpace"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"tunnel_reverb_space"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"soundAmbience"</span><span class="p">:</span> <span class="s2">"Ambience_Tunnel"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="garage-interior-ambience">
+
+  Garage/interior ambience
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXSpace"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"garage_audio_space"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">-20</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"soundAmbience"</span><span class="p">:</span> <span class="s2">"Ambience_Garage"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="forest-zone-ambience">
+
+  Forest zone ambience
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXSpace"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"forest_audio_zone"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-300</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">180</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"soundAmbience"</span><span class="p">:</span> <span class="s2">"Ambience_Forest"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h1 class="anchored">
+
+  SFXEmitter
+</h1>
+<p><code>SFXEmitter</code> is an invisible 3D scene object that emits sound.</p>
+<p>It can play:</p>
+<ul>
+<li>An existing <code>SFXTrack</code></li>
+<li>A directly assigned sound file</li>
+<li>A 3D positional sound</li>
+<li>A non-positional sound</li>
+<li>Looping or non-looping audio</li>
+<li>Streaming or buffered audio, depending on settings</li>
+</ul>
+<p>For level ambience, a <code>LevelInfo</code> ambience setup or <code>SFXSpace</code> may be simpler. Use <code>SFXEmitter</code> when the sound has a specific location or needs explicit playback behavior.</p>
+<hr/>
+<h2 id="basic-sfxemitter-example">
+
+  Basic SFXEmitter example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXEmitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"waterfall_emitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"track"</span><span class="p">:</span> <span class="s2">"WaterfallLoop"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"playOnAdd"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"useTrackDescriptionOnly"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>This emitter plays the <code>WaterfallLoop</code> track when the level loads.</p>
+<hr/>
+<h2 id="file-based-sfxemitter-example">
+
+  File-based SFXEmitter example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXEmitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"generator_hum"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"fileName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/sound/generator_loop.ogg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"playOnAdd"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"is3D"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isLooping"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isStreaming"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"volume"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pitch"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"referenceDistance"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxDistance"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"fadeInTime"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"fadeOutTime"</span><span class="p">:</span> <span class="mf">1.0</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="sfxemitter-media-fields">
+
+  SFXEmitter media fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>track</code></td>
+<td><code>SFXTrack</code> name</td>
+<td>Existing track/event/profile to play. Takes precedence over <code>fileName</code>.</td>
+</tr>
+<tr>
+<td><code>fileName</code></td>
+<td>string path</td>
+<td>Sound file to play directly. Used when <code>track</code> is not assigned.</td>
+</tr>
+</tbody>
+</table>
+<p>Use either <code>track</code> or <code>fileName</code>.</p>
+<p>If both are assigned:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">track wins
+</span></span></code></pre></div><hr/>
+<h2 id="sfxemitter-sound-fields">
+
+  SFXEmitter sound fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>playOnAdd</code></td>
+<td>bool</td>
+<td>Starts playback automatically when the emitter is added/loaded.</td>
+</tr>
+<tr>
+<td><code>useTrackDescriptionOnly</code></td>
+<td>bool</td>
+<td>If true, emitter fields do not override the assigned track description.</td>
+</tr>
+<tr>
+<td><code>isLooping</code></td>
+<td>bool</td>
+<td>Whether <code>fileName</code> playback loops. Ignored when <code>track</code> is assigned.</td>
+</tr>
+<tr>
+<td><code>isStreaming</code></td>
+<td>bool</td>
+<td>Whether <code>fileName</code> uses streamed playback. Ignored when <code>track</code> is assigned.</td>
+</tr>
+<tr>
+<td><code>sourceGroup</code></td>
+<td><code>SFXSource</code> name</td>
+<td>Optional source/channel/group to parent the sound under.</td>
+</tr>
+<tr>
+<td><code>volume</code></td>
+<td>number</td>
+<td>Playback volume multiplier.</td>
+</tr>
+<tr>
+<td><code>pitch</code></td>
+<td>number</td>
+<td>Pitch multiplier. <code>1</code> is normal pitch.</td>
+</tr>
+<tr>
+<td><code>fadeInTime</code></td>
+<td>number</td>
+<td>Fade-in time in seconds.</td>
+</tr>
+<tr>
+<td><code>fadeOutTime</code></td>
+<td>number</td>
+<td>Fade-out time in seconds.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="sfxemitter-3d-sound-fields">
+
+  SFXEmitter 3D sound fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>is3D</code></td>
+<td>bool</td>
+<td>Whether <code>fileName</code> is played as positional 3D sound. Ignored when <code>track</code> is assigned.</td>
+</tr>
+<tr>
+<td><code>referenceDistance</code></td>
+<td>number</td>
+<td>Distance where attenuation begins.</td>
+</tr>
+<tr>
+<td><code>maxDistance</code></td>
+<td>number</td>
+<td>Distance where attenuation reaches its far limit. Also used for emitter bounds/editor scale.</td>
+</tr>
+<tr>
+<td><code>scatterDistance</code></td>
+<td>array[3]</td>
+<td>Random offset bounds for initial 3D sound position.</td>
+</tr>
+<tr>
+<td><code>coneInsideAngle</code></td>
+<td>integer</td>
+<td>Inner directional cone angle in degrees.</td>
+</tr>
+<tr>
+<td><code>coneOutsideAngle</code></td>
+<td>integer</td>
+<td>Outer directional cone angle in degrees.</td>
+</tr>
+<tr>
+<td><code>coneOutsideVolume</code></td>
+<td>number</td>
+<td>Volume multiplier outside the outer cone.</td>
+</tr>
+<tr>
+<td><code>rangeSphereColor</code></td>
+<td>color[4]</td>
+<td>Editor visualization color for range sphere.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="default-sfxemitter-behavior">
+
+  Default SFXEmitter behavior
+</h2>
+<p>The constructor initializes emitters with these defaults:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>playOnAdd</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>is3D</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>isLooping</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>isStreaming</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>fadeInTime</code></td>
+<td><code>-1</code></td>
+</tr>
+<tr>
+<td><code>fadeOutTime</code></td>
+<td><code>-1</code></td>
+</tr>
+</tbody>
+</table>
+<p>The default object box is:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[-1, -1, -1] to [1, 1, 1]
+</span></span></code></pre></div><p>On add/update, the emitter scale is set from <code>maxDistance</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">scale = [maxDistance, maxDistance, maxDistance]
+</span></span></code></pre></div><hr/>
+<h1 class="anchored">
+
+  Using track vs fileName
+</h1>
+<h2 id="using-track">
+
+  Using <code>track</code>
+</h2>
+<p>Use <code>track</code> when the audio setup already exists as a datablock/event/profile.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXEmitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"factory_loop"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"track"</span><span class="p">:</span> <span class="s2">"FactoryMachineryLoop"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"playOnAdd"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"useTrackDescriptionOnly"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Advantages:</p>
+<ul>
+<li>Centralized audio setup</li>
+<li>Reusable sound definitions</li>
+<li>Good for FMOD events or configured SFX tracks</li>
+<li>Description settings can be shared across emitters</li>
+</ul>
+<hr/>
+<h2 id="using-filename">
+
+  Using <code>fileName</code>
+</h2>
+<p>Use <code>fileName</code> for simple level-local sounds without creating a separate track.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXEmitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"buzzing_light"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"fileName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/sound/light_buzz.ogg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"playOnAdd"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"is3D"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isLooping"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"volume"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"referenceDistance"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxDistance"</span><span class="p">:</span> <span class="mi">12</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Advantages:</p>
+<ul>
+<li>Quick setup</li>
+<li>Good for simple placed sounds</li>
+<li>Does not require a separate track datablock</li>
+</ul>
+<hr/>
+<h2 id="usetrackdescriptiononly">
+
+  useTrackDescriptionOnly
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"useTrackDescriptionOnly"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>When enabled, the emitter uses the track’s sound description and ignores most local emitter sound fields.</p>
+<p>This is useful when a track is already authored with correct:</p>
+<ul>
+<li>3D/2D behavior</li>
+<li>Looping</li>
+<li>Distance attenuation</li>
+<li>Cone settings</li>
+<li>Volume/pitch/fade behavior</li>
+</ul>
+<p>Only <code>playOnAdd</code> and <code>track</code> remain relevant on the emitter.</p>
+<div class="bng-notice info">If the assigned track does not allow description overrides, the emitter also uses the track description.</div>
+<hr/>
+<h1 class="anchored">
+
+  3D attenuation
+</h1>
+<p>For 3D sounds, distance behavior is controlled primarily by:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"referenceDistance"</span><span class="err">:</span> <span class="mi">5</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"maxDistance"</span><span class="err">:</span> <span class="mi">60</span>
+</span></span></code></pre></div><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>referenceDistance</code></td>
+<td>Near distance where the sound is at full or reference volume.</td>
+</tr>
+<tr>
+<td><code>maxDistance</code></td>
+<td>Far distance used for attenuation and editor visualization.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"referenceDistance"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxDistance"</span><span class="p">:</span> <span class="mi">40</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Use smaller values for quiet/local sounds, larger values for loud environmental sounds.</p>
+<hr/>
+<h2 id="emitter-scale-and-maxdistance">
+
+  Emitter scale and maxDistance
+</h2>
+<p>In the editor, scaling an <code>SFXEmitter</code> changes <code>maxDistance</code>.</p>
+<p>The implementation averages the scale axes:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">maxDistance = (scale.x + scale.y + scale.z) / 3
+</span></span></code></pre></div><p>Then it clamps to at least <code>referenceDistance</code>.</p>
+<p>The final object scale is forced to:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[maxDistance, maxDistance, maxDistance]
+</span></span></code></pre></div><p>This means emitters behave as spherical range objects rather than arbitrary box-shaped audio objects.</p>
+<hr/>
+<h1 class="anchored">
+
+  Directional sound cones
+</h1>
+<p>SFXEmitter supports directional 3D cone settings.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"coneInsideAngle"</span><span class="err">:</span> <span class="mi">90</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"coneOutsideAngle"</span><span class="err">:</span> <span class="mi">180</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"coneOutsideVolume"</span><span class="err">:</span> <span class="mf">0.25</span>
+</span></span></code></pre></div><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>coneInsideAngle</code></td>
+<td>Full-volume cone angle.</td>
+</tr>
+<tr>
+<td><code>coneOutsideAngle</code></td>
+<td>Outer transition cone angle.</td>
+</tr>
+<tr>
+<td><code>coneOutsideVolume</code></td>
+<td>Volume outside the outer cone.</td>
+</tr>
+</tbody>
+</table>
+<p>Use cones for directional sounds such as:</p>
+<ul>
+<li>Speakers</li>
+<li>Sirens</li>
+<li>Vents</li>
+<li>Machinery exhaust</li>
+<li>Waterfalls facing a direction</li>
+<li>Loudspeakers or PA systems</li>
+</ul>
+<p>If both cone angles are near <code>360</code>, the sound is effectively omnidirectional.</p>
+<hr/>
+<h2 id="directional-emitter-example">
+
+  Directional emitter example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXEmitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"speaker_emitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"fileName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/sound/speaker_loop.ogg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"playOnAdd"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"is3D"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isLooping"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"volume"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"referenceDistance"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxDistance"</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"coneInsideAngle"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"coneOutsideAngle"</span><span class="p">:</span> <span class="mi">140</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"coneOutsideVolume"</span><span class="p">:</span> <span class="mf">0.15</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The emitter’s transform orientation matters for cone direction.</p>
+<hr/>
+<h1 class="anchored">
+
+  Playback lifecycle
+</h1>
+<p>When an <code>SFXEmitter</code> is added:</p>
+<ol>
+<li>The emitter validates its sound description.</li>
+<li>It creates or updates its internal <code>SFXSource</code>.</li>
+<li>It applies transform and velocity to the source.</li>
+<li>It sets volume, pitch, fade times, distance, and cone settings where allowed.</li>
+<li>If <code>playOnAdd</code> is true, playback starts.</li>
+</ol>
+<p>When removed, the emitter deletes its internal source.</p>
+<hr/>
+<h2 id="manual-playback">
+
+  Manual playback
+</h2>
+<p><code>SFXEmitter</code> supports manual playback methods:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">play</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">stop</span><span class="p">()</span>
+</span></span></code></pre></div><p>Legacy console methods exist:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-ts" data-lang="ts"><span class="line"><span class="cl"><span class="nx">emitter</span><span class="p">.</span><span class="nx">play</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="nx">emitter</span><span class="p">.</span><span class="nx">stop</span><span class="p">();</span>
+</span></span></code></pre></div><p>Lua bindings also expose emitter behavior.</p>
+<hr/>
+<h1 class="anchored">
+
+  Lua API
+</h1>
+<p><code>SFXEmitter</code> is exposed to Lua as a <code>SceneObject</code> subclass.</p>
+<h2 id="creating-an-emitter">
+
+  Creating an emitter
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">emitter</span> <span class="o">=</span> <span class="n">SFXEmitter</span><span class="p">()</span>
+</span></span></code></pre></div><p>The object is owned by C++ once registered/added through normal engine object workflows.</p>
+<hr/>
+<h2 id="static-variables">
+
+  Static variables
+</h2>
+<table>
+<thead>
+<tr>
+<th>Lua name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SFXEmitter.renderEmitters</code></td>
+<td>bool</td>
+<td>Enables emitter debug rendering.</td>
+</tr>
+<tr>
+<td><code>SFXEmitter.renderFarEmitters</code></td>
+<td>bool</td>
+<td>Forces far emitters to render in editor debug view.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="n">SFXEmitter.renderEmitters</span> <span class="o">=</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="n">SFXEmitter.renderFarEmitters</span> <span class="o">=</span> <span class="kc">true</span>
+</span></span></code></pre></div><hr/>
+<h2 id="lua-methods">
+
+  Lua methods
+</h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>setVolumePitchCT(volume, pitch, color, texture)</code></td>
+<td>Sets volume, pitch, and <code>color</code>/<code>texture</code> parameters on the source.</td>
+</tr>
+<tr>
+<td><code>setPosition(position)</code></td>
+<td>Sets emitter position.</td>
+</tr>
+<tr>
+<td><code>setVelocity(velocity)</code></td>
+<td>Sets emitter velocity.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="n">emitter</span><span class="p">:</span><span class="n">setPosition</span><span class="p">(</span><span class="n">Point3F</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">emitter</span><span class="p">:</span><span class="n">setVelocity</span><span class="p">(</span><span class="n">Point3F</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">emitter</span><span class="p">:</span><span class="n">setVolumePitchCT</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+</span></span></code></pre></div><p><code>setVolumePitchCT</code> only affects the emitter if its internal <code>SFXSource</code> exists.</p>
+<hr/>
+<h1 class="anchored">
+
+  Editor visualization
+</h1>
+<p><code>SFXEmitter</code> renders debug visuals only while editing the mission.</p>
+<p>It can show:</p>
+<ul>
+<li>Max range sphere</li>
+<li>Reference/min distance sphere</li>
+<li>Forward/up orientation arrows</li>
+<li>Directional cone visualization</li>
+<li>Color changes based on playing/stopped and in-range/out-of-range state</li>
+</ul>
+<p>The range sphere color is controlled by:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"rangeSphereColor"</span><span class="err">:</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]</span>
+</span></span></code></pre></div><p>The emitter only renders debug visuals if:</p>
+<ul>
+<li>The world editor is active, and</li>
+<li>The emitter is selected or <code>SFXEmitter.renderEmitters</code> is true, and</li>
+<li>The sound is 3D</li>
+</ul>
+<hr/>
+<h1 class="anchored">
+
+  Common examples
+</h1>
+<h2 id="waterfall-loop">
+
+  Waterfall loop
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXEmitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"waterfall_sound"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">300</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">18</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"fileName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/sound/waterfall_loop.ogg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"playOnAdd"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"is3D"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isLooping"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isStreaming"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"volume"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pitch"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"referenceDistance"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxDistance"</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"fadeInTime"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"fadeOutTime"</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="small-electrical-hum">
+
+  Small electrical hum
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXEmitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"electrical_box_hum"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"fileName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/sound/electrical_hum.ogg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"playOnAdd"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"is3D"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isLooping"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isStreaming"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"volume"</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pitch"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"referenceDistance"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxDistance"</span><span class="p">:</span> <span class="mi">15</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="bird-ambience-point">
+
+  Bird ambience point
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXEmitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"birds_tree_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-40</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"track"</span><span class="p">:</span> <span class="s2">"BirdsTreeLoop"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"playOnAdd"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"useTrackDescriptionOnly"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="non-positional-level-sound">
+
+  Non-positional level sound
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXEmitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"global_alarm_loop"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"fileName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/sound/alarm_loop.ogg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"playOnAdd"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"is3D"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isLooping"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isStreaming"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"volume"</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pitch"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><div class="bng-notice info">For general background ambience, prefer <code>LevelInfo</code> ambience or <code>SFXSpace</code> when possible. Use non-3D <code>SFXEmitter</code>s when explicit placed playback control is needed.</div>
+<hr/>
+<h1 class="anchored">
+
+  SFXSpace vs SFXEmitter
+</h1>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Change ambience/reverb when entering an area</td>
+<td><code>SFXSpace</code></td>
+</tr>
+<tr>
+<td>Place a looping sound at a position</td>
+<td><code>SFXEmitter</code></td>
+</tr>
+<tr>
+<td>Play a machine hum from an object</td>
+<td><code>SFXEmitter</code></td>
+</tr>
+<tr>
+<td>Define tunnel/cave/room audio zone</td>
+<td><code>SFXSpace</code></td>
+</tr>
+<tr>
+<td>Directional speaker/siren/waterfall sound</td>
+<td><code>SFXEmitter</code></td>
+</tr>
+<tr>
+<td>Global ambient audio for whole level</td>
+<td><code>LevelInfo</code> ambience or non-3D emitter depending on use case</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h1 class="anchored">
+
+  Best practices
+</h1>
+<h2 id="sfxspace">
+
+  SFXSpace
+</h2>
+<ul>
+<li>Use spaces for areas, not point sounds.</li>
+<li>Match the volume scale to the real physical area.</li>
+<li>Use clear names such as <code>tunnel_audio_space</code> or <code>garage_reverb_space</code>.</li>
+<li>Avoid many overlapping spaces unless the intended blend/priority behavior is well understood.</li>
+<li>Use ambience editor colors to make audio zones easier to identify.</li>
+</ul>
+<h2 id="sfxemitter">
+
+  SFXEmitter
+</h2>
+<ul>
+<li>Prefer <code>track</code> for reusable or FMOD-authored sounds.</li>
+<li>Use <code>fileName</code> for simple local sound files.</li>
+<li>Keep <code>maxDistance</code> as small as practical.</li>
+<li>Use <code>isStreaming</code> for long audio files or ambience loops.</li>
+<li>Use non-streaming playback for short sounds.</li>
+<li>Use <code>useTrackDescriptionOnly</code> when the track is already authored correctly.</li>
+<li>Use directional cones for speakers, sirens, vents, or other directional sources.</li>
+<li>Avoid too many long-range looping emitters in one area.</li>
+<li>Use fade times to avoid abrupt starts/stops.</li>
+</ul>
+<hr/>
+<h1 class="anchored">
+
+  Common issues
+</h1>
+<h2 id="sfxemitter-does-not-play">
+
+  SFXEmitter does not play
+</h2>
+<p>Possible causes:</p>
+<ul>
+<li><code>playOnAdd</code> is false.</li>
+<li><code>track</code> points to a missing track.</li>
+<li><code>fileName</code> path is invalid.</li>
+<li>Both <code>track</code> and <code>fileName</code> are empty.</li>
+<li>Audio device/system is not initialized.</li>
+<li>The sound is 3D and listener is outside <code>maxDistance</code>.</li>
+<li>Volume is <code>0</code>.</li>
+<li>Source group/channel volume is muted.</li>
+</ul>
+<hr/>
+<h2 id="filename-is-ignored">
+
+  fileName is ignored
+</h2>
+<p>If <code>track</code> is assigned, it takes precedence.</p>
+<p>Remove <code>track</code> if you want to use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"fileName"</span><span class="err">:</span> <span class="s2">"/path/to/sound.ogg"</span>
+</span></span></code></pre></div><hr/>
+<h2 id="emitter-settings-do-not-affect-the-sound">
+
+  Emitter settings do not affect the sound
+</h2>
+<p>If using a track, check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"useTrackDescriptionOnly"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>When enabled, local emitter fields such as volume, pitch, 3D distance, and cone settings are ignored in favor of the track description.</p>
+<p>Also, some tracks may not allow their descriptions to be overridden.</p>
+<hr/>
+<h2 id="sound-is-not-positional">
+
+  Sound is not positional
+</h2>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"is3D"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>If using <code>track</code>, the track’s own <code>SFXDescription</code> controls whether the sound is 3D.</p>
+<hr/>
+<h2 id="sound-fades-out-too-early">
+
+  Sound fades out too early
+</h2>
+<p>Increase:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"maxDistance"</span><span class="err">:</span> <span class="mi">100</span>
+</span></span></code></pre></div><p>or check the track’s distance settings if <code>track</code> is used.</p>
+<hr/>
+<h2 id="directional-cone-points-the-wrong-way">
+
+  Directional cone points the wrong way
+</h2>
+<p>The cone follows the emitter transform orientation.</p>
+<p>Rotate the emitter so its forward direction points where the sound should project.</p>
+<hr/>
+<h2 id="sfxspace-has-no-audible-effect">
+
+  SFXSpace has no audible effect
+</h2>
+<p>Possible causes:</p>
+<ul>
+<li>No ambience assigned.</li>
+<li>Listener is outside the volume.</li>
+<li>The volume scale is too small or placed incorrectly.</li>
+<li>Environment raycast/reverb behavior or ambience blending settings override or disable space behavior.</li>
+<li>Another audio space or ambience has priority depending on the audio setup.</li>
+</ul>
+<hr/>
+<h1 class="anchored">
+
+  Summary
+</h1>
+<p><code>SFXSpace</code> and <code>SFXEmitter</code> serve different audio placement roles.</p>
+<ul>
+<li><code>SFXSpace</code> defines an ambient audio zone volume.</li>
+<li><code>SFXEmitter</code> creates and controls a sound source in the scene.</li>
+</ul>
+<p>Use <code>SFXSpace</code> for area ambience and reverb-style zones. Use <code>SFXEmitter</code> for actual sound playback from a point or orientation in the world. For reusable or FMOD-authored sounds, assign a <code>track</code>; for simple local sounds, use <code>fileName</code>.</p>

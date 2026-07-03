@@ -1,0 +1,424 @@
+<p>This document describes the <code>items.level.json</code> file format used by BeamNG levels to store scene objects.</p>
+<p><code>items.level.json</code> files are used inside level object folders such as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/main/items.level.json
+</span></span></code></pre></div><p>They store serialized scene objects as <strong>line-delimited JSON</strong>, meaning each line is one complete JSON object.</p>
+<p>This page describes the file format. For object behavior and class-specific fields, see <a data-doc="levels/level_classes" href="/docs/levels/level_classes">Level Object Classes</a>
+.</p>
+<hr/>
+<h2 id="overview">
+
+  Overview
+</h2>
+<p>BeamNG levels store many scene objects as JSON objects. Instead of writing one large JSON array, the engine writes one object per line.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SimGroup"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"Environment"</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"TSStatic"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"garage"</span><span class="p">,</span><span class="nt">"shapeName"</span><span class="p">:</span><span class="s2">"/levels/example/art/shapes/garage.dae"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"PointLight"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"garage_light"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"intensity"</span><span class="p">:</span><span class="mi">800</span><span class="p">}</span>
+</span></span></code></pre></div><p>This format is used because it is easy to stream, edit, diff, merge, and serialize incrementally.</p>
+<hr/>
+<h2 id="file-location">
+
+  File location
+</h2>
+<p>The main level object file is usually:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/main/items.level.json
+</span></span></code></pre></div><p>Additional object groups may be stored in subfolders:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/main/
+</span></span><span class="line"><span class="cl">├── items.level.json
+</span></span><span class="line"><span class="cl">├── Environment/
+</span></span><span class="line"><span class="cl">│   └── items.level.json
+</span></span><span class="line"><span class="cl">├── Buildings/
+</span></span><span class="line"><span class="cl">│   └── items.level.json
+</span></span><span class="line"><span class="cl">└── Gameplay/
+</span></span><span class="line"><span class="cl">    └── items.level.json
+</span></span></code></pre></div><p>Each folder can contain its own <code>items.level.json</code>.</p>
+<hr/>
+<h2 id="line-delimited-json">
+
+  Line-delimited JSON
+</h2>
+<p><code>items.level.json</code> is not a normal JSON array.</p>
+<p>Correct:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SimGroup"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"Buildings"</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"TSStatic"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"building_01"</span><span class="p">,</span><span class="nt">"shapeName"</span><span class="p">:</span><span class="s2">"/levels/example/art/shapes/building_01.dae"</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"TSStatic"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"building_02"</span><span class="p">,</span><span class="nt">"shapeName"</span><span class="p">:</span><span class="s2">"/levels/example/art/shapes/building_02.dae"</span><span class="p">}</span>
+</span></span></code></pre></div><p>Incorrect:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SimGroup"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"Buildings"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"TSStatic"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"building_01"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"TSStatic"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"building_02"</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><div class="bng-notice warning">Do not wrap <code>items.level.json</code> contents in <code>[</code> <code>]</code>. Each line must be a standalone JSON object.</div>
+<hr/>
+<h2 id="recursive-loading">
+
+  Recursive loading
+</h2>
+<p>The engine loads <code>items.level.json</code> recursively.</p>
+<p>When it finds a <code>SimGroup</code> object, it checks whether a folder with the same name exists. If it does, the engine loads that folder’s <code>items.level.json</code> as well.</p>
+<p>Example root file:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SimGroup"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"Buildings"</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SimGroup"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"Gameplay"</span><span class="p">}</span>
+</span></span></code></pre></div><p>This causes the loader to look for:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">main/Buildings/items.level.json
+</span></span><span class="line"><span class="cl">main/Gameplay/items.level.json
+</span></span></code></pre></div><p>This allows large levels to organize objects into folders and groups.</p>
+<hr/>
+<h2 id="object-structure">
+
+  Object structure
+</h2>
+<p>Each line is a JSON object representing one serialized scene object.</p>
+<p>Most objects contain at least:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Object class name, such as <code>TSStatic</code>, <code>SimGroup</code>, <code>PointLight</code>, <code>TerrainBlock</code>, etc.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Object name in the Scene Tree.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Object position <code>[x, y, z]</code>, when applicable.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Object rotation as a 3×3 matrix, when applicable.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Object scale <code>[x, y, z]</code>, when applicable.</td>
+</tr>
+</tbody>
+</table>
+<p>Different object classes can include many additional fields.</p>
+<hr/>
+<h2 id="common-object-examples">
+
+  Common object examples
+</h2>
+<p>These examples show how different object classes appear in <code>items.level.json</code>. For full behavior details, use the matching class reference page.</p>
+<h3 id="simgroup">
+
+  SimGroup
+</h3>
+<p>A group object used for organization.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SimGroup"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"Buildings"</span><span class="p">}</span>
+</span></span></code></pre></div><p>If a folder named <code>Buildings</code> exists next to the current <code>items.level.json</code>, it can contain its own nested object file:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Buildings/items.level.json
+</span></span></code></pre></div>
+<h3 id="tsstatic">
+
+  TSStatic
+</h3>
+<p>A static mesh object.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TSStatic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"garage"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/garage.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Important fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shapeName</code></td>
+<td>Path to the shape file.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>Object position.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>Object rotation.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>Object scale.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="terrainblock">
+
+  TerrainBlock
+</h3>
+<p>A terrain object.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TerrainBlock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"theTerrain"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"terrainFile"</span><span class="p">:</span> <span class="s2">"/levels/example/terrain/main.ter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxHeight"</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"squareSize"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Important fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>terrainFile</code></td>
+<td>Path to the terrain data file.</td>
+</tr>
+<tr>
+<td><code>maxHeight</code></td>
+<td>Maximum terrain height. Defaults to <code>2048</code> if missing.</td>
+</tr>
+<tr>
+<td><code>squareSize</code></td>
+<td>Size of one terrain square. Defaults to <code>1</code> if missing.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="spawnsphere">
+
+  SpawnSphere
+</h3>
+<p>A spawn point.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SpawnSphere"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"default_spawn"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Spawn points are collected by name and position. The engine also adds a fallback spawn point named <code>Zero</code> at the origin.</p>
+<h3 id="waterplane">
+
+  WaterPlane
+</h3>
+<p>A water plane object.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterPlane"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"lake"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="transform-fields">
+
+  Transform fields
+</h2>
+<p>Many scene objects use these transform fields:</p>
+<h3 id="position">
+
+  position
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"position"</span><span class="err">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</span></span></code></pre></div><p>A 3-value array:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[x, y, z]
+</span></span></code></pre></div>
+<h3 id="rotationmatrix">
+
+  rotationMatrix
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"rotationMatrix"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>A 9-value 3×3 rotation matrix.</p>
+<h3 id="scale">
+
+  scale
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre></div><p>A 3-value scale vector:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[x, y, z]
+</span></span></code></pre></div><p>If invalid transform values are found, the loader may default them to safe values such as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">position = [0, 0, 0]
+</span></span><span class="line"><span class="cl">rotation = identity matrix
+</span></span><span class="line"><span class="cl">scale = [1, 1, 1]
+</span></span></code></pre></div><hr/>
+<h2 id="serialization-order">
+
+  Serialization order
+</h2>
+<p>When writing line-object files, the engine can sort objects before saving.</p>
+<p>There are two sorting modes:</p>
+<h3 id="sort-by-serializeorder">
+
+  Sort by serializeOrder
+</h3>
+<p>If enabled, objects with a string <code>serializeOrder</code> field are sorted numerically.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"TSStatic"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"a"</span><span class="p">,</span><span class="nt">"serializeOrder"</span><span class="p">:</span><span class="s2">"10"</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"TSStatic"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"b"</span><span class="p">,</span><span class="nt">"serializeOrder"</span><span class="p">:</span><span class="s2">"20"</span><span class="p">}</span>
+</span></span></code></pre></div><p>The <code>serializeOrder</code> field is removed before writing the final object line.</p>
+<h3 id="sort-by-class-and-name">
+
+  Sort by class and name
+</h3>
+<p>If <code>serializeOrder</code> sorting is not used, objects are sorted by:</p>
+<ol>
+<li><code>class</code></li>
+<li><code>name</code></li>
+</ol>
+<p>This gives stable output and makes files easier to diff.</p>
+<hr/>
+<h2 id="namespaced-saving">
+
+  Namespaced saving
+</h2>
+<p>The engine can save objects into namespace folders.</p>
+<p>For example, an object namespace list may be saved as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">main/
+</span></span><span class="line"><span class="cl">├── Environment/
+</span></span><span class="line"><span class="cl">│   └── items.level.json
+</span></span><span class="line"><span class="cl">├── Gameplay/
+</span></span><span class="line"><span class="cl">│   └── items.level.json
+</span></span><span class="line"><span class="cl">└── Buildings/
+</span></span><span class="line"><span class="cl">    └── items.level.json
+</span></span></code></pre></div><p>Each namespace becomes a folder, and the entries inside it are written to that folder’s <code>items.level.json</code>.</p>
+<hr/>
+<h2 id="relationship-to-level-loading">
+
+  Relationship to level loading
+</h2>
+<p>During level loading, the engine starts from:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/main/
+</span></span></code></pre></div><p>It then recursively loads:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">items.level.json
+</span></span></code></pre></div><p>from the main folder and any discovered <code>SimGroup</code> subfolders.</p>
+<p>The resulting object list is then used to create scene objects.</p>
+<hr/>
+<h2 id="valid-json-object-requirements">
+
+  Valid JSON object requirements
+</h2>
+<p>Each line should:</p>
+<ul>
+<li>Contain exactly one JSON object</li>
+<li>Include a valid <code>class</code> field</li>
+<li>Use valid JSON syntax</li>
+<li>Use arrays for transform data</li>
+<li>Avoid trailing commas</li>
+<li>Avoid wrapping the whole file in an array</li>
+</ul>
+<p>Invalid lines are skipped and logged.</p>
+<hr/>
+<h2 id="editing-recommendations">
+
+  Editing recommendations
+</h2>
+<p>Manual editing is possible, but use care.</p>
+<p>Recommended workflow:</p>
+<ol>
+<li>Edit the level in the World Editor.</li>
+<li>Save the level.</li>
+<li>Use manual edits only for batch cleanup or advanced tooling.</li>
+<li>Validate JSON syntax line by line.</li>
+<li>Keep object names unique where possible.</li>
+<li>Avoid changing class names unless you know the target object type.</li>
+</ol>
+<div class="bng-notice warning">A single invalid line can prevent that object from loading. Check the console or log if objects disappear after manual edits.</div>
+<hr/>
+<h2 id="minimal-level-object-file">
+
+  Minimal level object file
+</h2>
+<p>Example <code>levels/example/main/items.level.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SimGroup"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"Environment"</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SpawnSphere"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"default_spawn"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"TSStatic"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"test_cube"</span><span class="p">,</span><span class="nt">"shapeName"</span><span class="p">:</span><span class="s2">"/levels/example/art/shapes/test_cube.dae"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">5</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]}</span>
+</span></span></code></pre></div><p>Optional nested file:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example/main/Environment/items.level.json
+</span></span></code></pre></div><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"PointLight"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"env_light"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"intensity"</span><span class="p">:</span><span class="mi">1000</span><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="objects-do-not-load">
+
+  Objects do not load
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>File is missing</li>
+<li>Invalid JSON line</li>
+<li>Object is wrapped in an array</li>
+<li>Missing or invalid <code>class</code></li>
+<li>Wrong folder structure</li>
+<li>Subfolder name does not match <code>SimGroup</code> name</li>
+</ul>
+<h3 id="nested-group-does-not-load">
+
+  Nested group does not load
+</h3>
+<p>Check that the parent <code>items.level.json</code> contains:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SimGroup"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"GroupName"</span><span class="p">}</span>
+</span></span></code></pre></div><p>and that the folder exists:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">GroupName/items.level.json
+</span></span></code></pre></div>
+<h3 id="object-appears-at-origin">
+
+  Object appears at origin
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Invalid <code>position</code> array</li>
+<li>Non-numeric position values</li>
+<li>Missing transform data</li>
+</ul>
+<h3 id="object-has-wrong-rotation">
+
+  Object has wrong rotation
+</h3>
+<p>Check that <code>rotationMatrix</code> has exactly 9 numeric values.</p>
+<h3 id="object-has-wrong-scale">
+
+  Object has wrong scale
+</h3>
+<p>Check that <code>scale</code> has exactly 3 numeric values.</p>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p><code>items.level.json</code> files store level objects as line-delimited JSON.</p>
+<p>Key points:</p>
+<ul>
+<li>Each line is one JSON object.</li>
+<li>Files are loaded recursively through <code>SimGroup</code> folders.</li>
+<li>Do not wrap contents in an array.</li>
+<li>Transform data commonly uses <code>position</code>, <code>rotationMatrix</code>, and <code>scale</code>.</li>
+<li>Objects may be sorted by <code>serializeOrder</code>, or by <code>class</code> and <code>name</code>.</li>
+<li>Invalid lines are logged and skipped.</li>
+</ul>
+<p>This format is compact, tool-friendly, and suitable for large levels with many scene objects.</p>
+<p><strong>See also:</strong> <a data-doc="levels/level_classes/simgroup" href="/docs/levels/level_classes/simgroup">SimGroup</a>
+, <a data-doc="levels/level_classes/tsstatic" href="/docs/levels/level_classes/tsstatic">TSStatic</a>
+, <a data-doc="levels/level_classes/terrainblock" href="/docs/levels/level_classes/terrainblock">TerrainBlock</a>
+, <a data-doc="levels/level_classes/prefab" href="/docs/levels/level_classes/prefab">Prefab</a>
+, <a data-doc="levels/level_classes" href="/docs/levels/level_classes">Level Object Classes</a>
+.</p>

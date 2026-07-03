@@ -1,0 +1,510 @@
+<p>This document describes <code>groundmodels.json</code>, the file format used to define physical surface behavior in BeamNG.</p>
+<p>Ground models describe how tires, wheels, props, and other physics objects interact with surfaces such as asphalt, gravel, sand, mud, snow, grass, or water-like materials.</p>
+<p>They affect:</p>
+<ul>
+<li>Tire grip</li>
+<li>Sliding friction</li>
+<li>Rolling resistance / roughness</li>
+<li>Deformation and sinking</li>
+<li>Hydrodynamic/fluid resistance</li>
+<li>Particle/collision material type</li>
+<li>Skid mark behavior</li>
+</ul>
+<hr/>
+<h2 id="file-locations">
+
+  File locations
+</h2>
+<p>The common/global ground model file is:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/art/groundmodels.json
+</span></span></code></pre></div><p>Levels can add or override ground models with JSON files inside:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/groundModels/*.json
+</span></span></code></pre></div><p>During level load, the engine:</p>
+<ol>
+<li>Loads the common file:</li>
+</ol>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/art/groundmodels.json
+</span></span></code></pre></div><ol start="2">
+<li>Searches the current level folder for:</li>
+</ol>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">groundModels/*.json
+</span></span></code></pre></div><ol start="3">
+<li>Merges level ground models into the common set.</li>
+<li>Submits all ground models to the physics engine.</li>
+</ol>
+<p>Level files can override common ground models by using the same name.</p>
+<hr/>
+<h2 id="basic-structure">
+
+  Basic structure
+</h2>
+<p>A ground model file is a JSON object where each key is the ground model name.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"asphalt_special"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessCoefficient"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"staticFrictionCoefficient"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"slidingFrictionCoefficient"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"hydrodynamicFriction"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"stribeckVelocity"</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"strength"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"collisiontype"</span><span class="p">:</span> <span class="s2">"ASPHALT"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fluidDensity"</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"flowConsistencyIndex"</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"flowBehaviorIndex"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dragAnisotropy"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"skidMarks"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"defaultDepth"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"shearStrength"</span><span class="p">:</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="ground-model-names">
+
+  Ground model names
+</h2>
+<p>Ground model names are converted to uppercase when loaded.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"asphalt_special"</span><span class="err">:</span> <span class="p">{}</span>
+</span></span></code></pre></div><p>becomes:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">ASPHALT_SPECIAL
+</span></span></code></pre></div><p>Names longer than 31 characters are truncated.</p>
+<div class="bng-notice warning">Keep ground model names short and unique. Names longer than 31 characters are cut during loading.</div>
+<hr/>
+<h2 id="aliases">
+
+  Aliases
+</h2>
+<p>A ground model can define aliases:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"asphalt_special"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aliases"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"road_special"</span><span class="p">,</span> <span class="s2">"tarmac_extra"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"staticFrictionCoefficient"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"slidingFrictionCoefficient"</span><span class="p">:</span> <span class="mf">0.9</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>This registers multiple names for the same ground model data:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">ASPHALT_SPECIAL
+</span></span><span class="line"><span class="cl">ROAD_SPECIAL
+</span></span><span class="line"><span class="cl">TARMAC_EXTRA
+</span></span></code></pre></div><p>Aliases are useful when different systems, terrain materials, or older content use different names for the same surface behavior.</p>
+<hr/>
+<h2 id="fields">
+
+  Fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aliases</code></td>
+<td>array[string]</td>
+<td><code>[]</code></td>
+<td>Additional names for this ground model.</td>
+</tr>
+<tr>
+<td><code>roughnessCoefficient</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Surface roughness used by physics interaction.</td>
+</tr>
+<tr>
+<td><code>defaultDepth</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Default surface depth, used for deformable/soft terrain behavior.</td>
+</tr>
+<tr>
+<td><code>staticFrictionCoefficient</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Static friction coefficient. Affects grip before sliding.</td>
+</tr>
+<tr>
+<td><code>slidingFrictionCoefficient</code></td>
+<td>number</td>
+<td><code>0.7</code></td>
+<td>Sliding/dynamic friction coefficient. Affects grip while sliding.</td>
+</tr>
+<tr>
+<td><code>hydrodynamicFriction</code></td>
+<td>number</td>
+<td><code>0.01</code></td>
+<td>Resistance from fluid-like/deformable ground behavior.</td>
+</tr>
+<tr>
+<td><code>stribeckVelocity</code></td>
+<td>number</td>
+<td><code>6</code></td>
+<td>Velocity parameter for friction transition behavior.</td>
+</tr>
+<tr>
+<td><code>strength</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Surface strength/resistance.</td>
+</tr>
+<tr>
+<td><code>collisiontype</code></td>
+<td>string</td>
+<td><code>0</code></td>
+<td>Particle/collision material name. Resolved through the particle material table.</td>
+</tr>
+<tr>
+<td><code>fluidDensity</code></td>
+<td>number</td>
+<td><code>200</code></td>
+<td>Density used for fluid-like ground interaction.</td>
+</tr>
+<tr>
+<td><code>flowConsistencyIndex</code></td>
+<td>number</td>
+<td><code>10000</code></td>
+<td>Flow consistency parameter for non-Newtonian/deformable surfaces.</td>
+</tr>
+<tr>
+<td><code>flowBehaviorIndex</code></td>
+<td>number</td>
+<td><code>0.5</code></td>
+<td>Flow behavior parameter for non-Newtonian/deformable surfaces.</td>
+</tr>
+<tr>
+<td><code>dragAnisotropy</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Directional drag anisotropy.</td>
+</tr>
+<tr>
+<td><code>skidMarks</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Whether this surface can create skid marks.</td>
+</tr>
+<tr>
+<td><code>shearStrength</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Shear strength of the surface.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="deprecated-typo-fields">
+
+  Deprecated / typo fields
+</h2>
+<p>The loader detects some old misspelled fields and logs errors.</p>
+<p>Use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"hydrodynamicFriction"</span>
+</span></span></code></pre></div><p>not:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"hydrodnamicFriction"</span>
+</span></span></code></pre></div><p>Use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"flowBehaviorIndex"</span>
+</span></span></code></pre></div><p>not:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"flowBehaviourIndex"</span>
+</span></span></code></pre></div><p>The old names may still be read for compatibility, but they should be fixed.</p>
+<hr/>
+<h2 id="unknown-fields">
+
+  Unknown fields
+</h2>
+<p>Unknown attributes are ignored and logged as errors.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Unknown ground model attribute: myCustomValue - IGNORED
+</span></span></code></pre></div><p>Only supported fields should be used.</p>
+<hr/>
+<h2 id="friction-fields">
+
+  Friction fields
+</h2>
+<h3 id="staticfrictioncoefficient">
+
+  staticFrictionCoefficient
+</h3>
+<p>Controls grip when the tire/contact patch is not sliding.</p>
+<p>Higher values generally mean more grip.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"staticFrictionCoefficient"</span><span class="err">:</span> <span class="mf">1.0</span>
+</span></span></code></pre></div>
+<h3 id="slidingfrictioncoefficient">
+
+  slidingFrictionCoefficient
+</h3>
+<p>Controls grip while sliding.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"slidingFrictionCoefficient"</span><span class="err">:</span> <span class="mf">0.8</span>
+</span></span></code></pre></div><p>Usually this is lower than static friction.</p>
+<hr/>
+<h2 id="roughness">
+
+  Roughness
+</h2>
+<p><code>roughnessCoefficient</code> controls physical roughness of the surface.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"roughnessCoefficient"</span><span class="err">:</span> <span class="mf">0.05</span>
+</span></span></code></pre></div><p>Rougher surfaces can make driving feel bumpier or less smooth, depending on vehicle and tire interaction.</p>
+<hr/>
+<h2 id="depth-and-soft-ground">
+
+  Depth and soft ground
+</h2>
+<p><code>defaultDepth</code> is used for ground models that represent soft or deformable surfaces.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"defaultDepth"</span><span class="err">:</span> <span class="mf">0.15</span>
+</span></span></code></pre></div><p>This is useful for:</p>
+<ul>
+<li>Mud</li>
+<li>Sand</li>
+<li>Snow</li>
+<li>Gravel</li>
+<li>Deep dirt</li>
+</ul>
+<hr/>
+<h2 id="fluid-deformable-parameters">
+
+  Fluid/deformable parameters
+</h2>
+<p>These fields control more advanced fluid-like or deformable ground behavior:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"fluidDensity"</span><span class="err">:</span> <span class="mi">800</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"flowConsistencyIndex"</span><span class="err">:</span> <span class="mi">12000</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"flowBehaviorIndex"</span><span class="err">:</span> <span class="mf">0.6</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"hydrodynamicFriction"</span><span class="err">:</span> <span class="mf">0.05</span>
+</span></span></code></pre></div><p>They are useful for surfaces such as:</p>
+<ul>
+<li>Mud</li>
+<li>Wet sand</li>
+<li>Deep snow</li>
+<li>Water-like resistance zones</li>
+</ul>
+<hr/>
+<h2 id="collision-type">
+
+  Collision type
+</h2>
+<p><code>collisiontype</code> links the ground model to a particle/collision material name.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"collisiontype"</span><span class="err">:</span> <span class="s2">"DIRT"</span>
+</span></span></code></pre></div><p>The value is resolved through the particle materials table.</p>
+<p>This can affect effects such as:</p>
+<ul>
+<li>Particles</li>
+<li>Dust</li>
+<li>Debris</li>
+<li>Surface interaction visuals</li>
+</ul>
+<hr/>
+<h2 id="skid-marks">
+
+  Skid marks
+</h2>
+<p><code>skidMarks</code> controls whether skid marks are allowed on this ground model.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"skidMarks"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>Typical usage:</p>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>skidMarks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Asphalt</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td>Concrete</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td>Dirt</td>
+<td>depends</td>
+</tr>
+<tr>
+<td>Grass</td>
+<td>usually <code>false</code></td>
+</tr>
+<tr>
+<td>Water</td>
+<td><code>false</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="level-specific-ground-models">
+
+  Level-specific ground models
+</h2>
+<p>Levels can override or add ground models by placing JSON files in:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/groundModels/
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example/groundModels/wet_surfaces.json
+</span></span></code></pre></div><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"wet_asphalt"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aliases"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rain_asphalt"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"staticFrictionCoefficient"</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"slidingFrictionCoefficient"</span><span class="p">:</span> <span class="mf">0.55</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessCoefficient"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"hydrodynamicFriction"</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"collisiontype"</span><span class="p">:</span> <span class="s2">"ASPHALT"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"skidMarks"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Level files are merged after the common file, so they can replace common definitions if they use the same name.</p>
+<hr/>
+<h2 id="relationship-with-terrain-materials">
+
+  Relationship with terrain materials
+</h2>
+<p>Terrain materials can reference a ground model using:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">groundmodelName
+</span></span></code></pre></div><p>Example terrain material field:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"groundmodelName"</span><span class="err">:</span> <span class="s2">"grass"</span>
+</span></span></code></pre></div><p>When a vehicle drives over terrain using that material, the corresponding ground model controls the physical surface behavior.</p>
+<hr/>
+<h2 id="relationship-with-object-materials">
+
+  Relationship with object materials
+</h2>
+<p>Materials can also define ground/collision behavior through their physical material settings, depending on object type and collision setup.</p>
+<p>For terrain specifically, <code>TerrainMaterial.groundmodelName</code> is the important link.</p>
+<hr/>
+<h2 id="reloading">
+
+  Reloading
+</h2>
+<p>Ground models are loaded during mission start.</p>
+<p>They can also reload when one of the loaded ground model JSON files changes. When that happens, the environment system reloads ground models and collision may be reloaded so the new values take effect.</p>
+<hr/>
+<h2 id="minimal-example">
+
+  Minimal example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"asphalt_special"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aliases"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"road_special"</span><span class="p">,</span> <span class="s2">"tarmac_extra"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessCoefficient"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"staticFrictionCoefficient"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"slidingFrictionCoefficient"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"hydrodynamicFriction"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"stribeckVelocity"</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"strength"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"collisiontype"</span><span class="p">:</span> <span class="s2">"ASPHALT"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fluidDensity"</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"flowConsistencyIndex"</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"flowBehaviorIndex"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dragAnisotropy"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"skidMarks"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"defaultDepth"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"shearStrength"</span><span class="p">:</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"mud_deeper"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aliases"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"deep_mud"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessCoefficient"</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"defaultDepth"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"staticFrictionCoefficient"</span><span class="p">:</span> <span class="mf">0.55</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"slidingFrictionCoefficient"</span><span class="p">:</span> <span class="mf">0.35</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"hydrodynamicFriction"</span><span class="p">:</span> <span class="mf">0.08</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"stribeckVelocity"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"strength"</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"collisiontype"</span><span class="p">:</span> <span class="s2">"MUD"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fluidDensity"</span><span class="p">:</span> <span class="mi">900</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"flowConsistencyIndex"</span><span class="p">:</span> <span class="mi">15000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"flowBehaviorIndex"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dragAnisotropy"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"skidMarks"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"shearStrength"</span><span class="p">:</span> <span class="mf">0.2</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Keep names short and descriptive.</li>
+<li>Use aliases for backwards compatibility or alternate names.</li>
+<li>Use level-specific files only for level-specific behavior.</li>
+<li>Keep static friction higher than sliding friction in most cases.</li>
+<li>Use <code>skidMarks</code> only where marks make sense.</li>
+<li>Use <code>defaultDepth</code> and fluid/deformable parameters for soft terrain.</li>
+<li>Avoid unknown fields; they are ignored.</li>
+<li>Fix typo/deprecated fields when found in logs.</li>
+<li>Test vehicle behavior after changing friction or depth values.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="ground-model-does-not-apply">
+
+  Ground model does not apply
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Terrain material has wrong <code>groundmodelName</code></li>
+<li>Ground model name was truncated</li>
+<li>Ground model file did not load</li>
+<li>Name mismatch after uppercase conversion</li>
+<li>Material/collision setup does not use that ground model</li>
+</ul>
+<h3 id="warning-about-unknown-attribute">
+
+  Warning about unknown attribute
+</h3>
+<p>The JSON contains an unsupported field. Remove or rename it.</p>
+<h3 id="warning-about-misspelled-field">
+
+  Warning about misspelled field
+</h3>
+<p>Replace old typo fields:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">hydrodnamicFriction → hydrodynamicFriction
+</span></span><span class="line"><span class="cl">flowBehaviourIndex → flowBehaviorIndex
+</span></span></code></pre></div>
+<h3 id="surface-has-too-much-grip">
+
+  Surface has too much grip
+</h3>
+<p>Lower:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"staticFrictionCoefficient"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"slidingFrictionCoefficient"</span>
+</span></span></code></pre></div>
+<h3 id="surface-feels-too-soft-or-deep">
+
+  Surface feels too soft or deep
+</h3>
+<p>Reduce:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"defaultDepth"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"hydrodynamicFriction"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"fluidDensity"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"flowConsistencyIndex"</span>
+</span></span></code></pre></div>
+<h3 id="skid-marks-missing">
+
+  Skid marks missing
+</h3>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"skidMarks"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>and verify that the material/ground interaction supports skid marks.</p>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p><code>groundmodels.json</code> defines physical surface behavior.</p>
+<p>It controls how vehicles and physics objects interact with surfaces through friction, roughness, depth, drag, particle collision type, and skid mark settings.</p>
+<p>The common file is loaded first:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/art/groundmodels.json
+</span></span></code></pre></div><p>Level-specific overrides are loaded from:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/groundModels/*.json
+</span></span></code></pre></div><p>Ground models are linked to terrain through <code>TerrainMaterial.groundmodelName</code>.</p>

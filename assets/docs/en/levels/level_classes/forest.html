@@ -1,0 +1,977 @@
+<p><code>Forest</code> is the scene object responsible for rendering, culling, collision, and wind interaction for forest items in a level.</p>
+<p>The Forest system is designed for very large numbers of repeated static objects, such as:</p>
+<ul>
+<li>Trees</li>
+<li>Bushes</li>
+<li>Rocks</li>
+<li>Grass clumps</li>
+<li>Logs</li>
+<li>Small natural props</li>
+<li>Repeated scatter assets</li>
+</ul>
+<p>Forest items are usually more efficient than placing thousands of individual <code>TSStatic</code> objects. For repeated vegetation and scatter assets, use the Forest system whenever possible.</p>
+<hr/>
+<h2 id="relationship-to-forest-files">
+
+  Relationship to forest files
+</h2>
+<p>The <code>Forest</code> object does not usually store individual item placement directly inside <code>items.level.json</code>.</p>
+<p>Instead, it loads forest placement files from the level folder:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/forest/*.forest4.json
+</span></span></code></pre></div><p>Forest item type definitions are stored separately in:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/art/forest/managedItemData.json
+</span></span></code></pre></div><p>The two systems work together:</p>
+<table>
+<thead>
+<tr>
+<th>File / Object</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Forest</code> object</td>
+<td>Scene object that loads and manages forest data.</td>
+</tr>
+<tr>
+<td><code>managedItemData.json</code></td>
+<td>Defines forest item types, such as tree/rock/bush definitions.</td>
+</tr>
+<tr>
+<td><code>*.forest4.json</code></td>
+<td>Stores placed forest instances.</td>
+</tr>
+<tr>
+<td><code>ForestItemData</code></td>
+<td>Runtime/editor object representing one forest item type.</td>
+</tr>
+<tr>
+<td><code>ForestWindEmitter</code></td>
+<td>Applies wind to nearby/global forest items.</td>
+</tr>
+<tr>
+<td><code>ForestBrush</code> / <code>ForestBrushElement</code></td>
+<td>Editor-only brush setup for painting forest items.</td>
+</tr>
+</tbody>
+</table>
+<p>For the file format itself, see the <code>Forest Data (.forest4.json) and managedItemData.json</code> documentation.</p>
+<hr/>
+<h2 id="basic-forest-object">
+
+  Basic Forest object
+</h2>
+<p>A typical level has one Forest object, usually named:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">theForest
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Forest"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"theForest"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"lodReflectScalar"</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The Forest object uses global bounds and its transform position is not normally meaningful for item placement.</p>
+<div class="bng-notice info">Forest items are stored in forest data files. Moving the <code>Forest</code> object is not how you move forest items.</div>
+<hr/>
+<h2 id="important-forest-fields">
+
+  Important Forest fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dataFile</code></td>
+<td>string</td>
+<td>Legacy source forest data file field. Hidden/no serialization in modern usage.</td>
+</tr>
+<tr>
+<td><code>lodReflectScalar</code></td>
+<td>number</td>
+<td>LOD scalar used when rendering forest into reflections.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="lodreflectscalar">
+
+  lodReflectScalar
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"lodReflectScalar"</span><span class="err">:</span> <span class="mi">2</span>
+</span></span></code></pre></div><p><code>lodReflectScalar</code> changes the far clip / LOD behavior when the forest is rendered in reflection passes.</p>
+<p>Higher values can make forest reflections use lower detail or cull differently, improving reflection performance.</p>
+<p>This is mainly a performance/quality control for reflected forests.</p>
+<hr/>
+<h2 id="loading-behavior">
+
+  Loading behavior
+</h2>
+<p>When the <code>Forest</code> object is added to the scene, it:</p>
+<ol>
+<li>Sets global bounds.</li>
+<li>Adds itself to the scene.</li>
+<li>Searches for forest placement files.</li>
+<li>Loads modern <code>.forest4.json</code> files if available.</li>
+<li>Falls back to older formats if necessary.</li>
+<li>Preloads forest item data.</li>
+<li>Builds internal spatial cells and render batches as needed.</li>
+</ol>
+<p>Modern files are preferred:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.forest4.json
+</span></span></code></pre></div><p>Older formats are deprecated:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.forest
+</span></span><span class="line"><span class="cl">*.forest.json
+</span></span></code></pre></div><p>If old files are found, the engine logs warnings asking the level author to resave and remove old files.</p>
+<hr/>
+<h2 id="multiple-forest-files">
+
+  Multiple forest files
+</h2>
+<p>Modern forest data is usually split by forest item type.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example/forest/oak_large.forest4.json
+</span></span><span class="line"><span class="cl">levels/example/forest/pine_small.forest4.json
+</span></span><span class="line"><span class="cl">levels/example/forest/rock_large.forest4.json
+</span></span></code></pre></div><p>When saving, the Forest system groups items by their <code>ForestItemData</code> internal name and writes one <code>.forest4.json</code> file per type.</p>
+<p>Unused forest files may be deleted or backed up when saving, depending on whether any forest items remain.</p>
+<hr/>
+<h2 id="forest-cells">
+
+  Forest cells
+</h2>
+<p>Forest items are organized into spatial cells.</p>
+<p>The cell system is used for:</p>
+<ul>
+<li>Fast lookup</li>
+<li>Culling</li>
+<li>Rendering batches</li>
+<li>Collision</li>
+<li>Raycasts</li>
+<li>Editor selection</li>
+<li>Wind queries</li>
+</ul>
+<p>Cells can subdivide when they contain too many items. This forms a spatial hierarchy, allowing the engine to quickly skip areas outside the camera view or query region.</p>
+<hr/>
+<h2 id="buckets-and-spatial-lookup">
+
+  Buckets and spatial lookup
+</h2>
+<p>Forest data uses top-level buckets based on item position. Each bucket contains a <code>ForestCell</code>.</p>
+<p>When adding an item:</p>
+<ol>
+<li>The item position is converted into a bucket key.</li>
+<li>A bucket/cell is found or created.</li>
+<li>The item is inserted into that cell.</li>
+<li>If the cell has too many items, it splits into subcells.</li>
+</ol>
+<p>This makes queries faster than scanning every forest item in the level.</p>
+<hr/>
+<h2 id="item-lookup">
+
+  Item lookup
+</h2>
+<p>Forest items can be found by:</p>
+<ul>
+<li>Internal forest key</li>
+<li>UID</li>
+<li>Position/bucket</li>
+<li>Box query</li>
+<li>Radius query</li>
+<li>Frustum query</li>
+<li>Polygon query</li>
+</ul>
+<p>This is used by:</p>
+<ul>
+<li>Rendering</li>
+<li>Collision</li>
+<li>Selection</li>
+<li>Brush editing</li>
+<li>Biome tools</li>
+<li>Wind updates</li>
+<li>Scripting/tools</li>
+</ul>
+<hr/>
+<h2 id="forestitemdata">
+
+  ForestItemData
+</h2>
+<p><code>ForestItemData</code> defines one forest item type.</p>
+<p>It includes:</p>
+<ul>
+<li>Shape file</li>
+<li>Collision settings</li>
+<li>Placement radius</li>
+<li>Wind settings</li>
+<li>Terrain alignment settings</li>
+<li>Annotation</li>
+</ul>
+<p>Important fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shapeFile</code></td>
+<td>Shape used by this forest item type.</td>
+</tr>
+<tr>
+<td><code>collidable</code></td>
+<td>Whether items of this type contribute collision.</td>
+</tr>
+<tr>
+<td><code>radius</code></td>
+<td>Placement radius used to avoid crowding.</td>
+</tr>
+<tr>
+<td><code>snapRotationToTerrain</code></td>
+<td>Aligns placed items to the surface normal.</td>
+</tr>
+<tr>
+<td><code>windScale</code></td>
+<td>Overall wind influence.</td>
+</tr>
+<tr>
+<td><code>trunkBendScale</code></td>
+<td>Trunk bend amount.</td>
+</tr>
+<tr>
+<td><code>branchAmp</code></td>
+<td>Branch wind amplitude.</td>
+</tr>
+<tr>
+<td><code>detailAmp</code></td>
+<td>Leaf/frond/detail wind amplitude.</td>
+</tr>
+<tr>
+<td><code>detailFreq</code></td>
+<td>Leaf/frond/detail wind frequency.</td>
+</tr>
+<tr>
+<td><code>mass</code></td>
+<td>Used by wind spring simulation.</td>
+</tr>
+<tr>
+<td><code>rigidity</code></td>
+<td>Resistance to wind force.</td>
+</tr>
+<tr>
+<td><code>tightnessCoefficient</code></td>
+<td>Resistance to bending.</td>
+</tr>
+<tr>
+<td><code>dampingCoefficient</code></td>
+<td>Damps oscillation over time.</td>
+</tr>
+<tr>
+<td><code>annotation</code></td>
+<td>Annotation/debug classification.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="shape-loading">
+
+  Shape loading
+</h2>
+<p>Each <code>ForestItemData</code> references a shape:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"shapeFile"</span><span class="err">:</span> <span class="s2">"/levels/example/art/shapes/trees/oak_large.dae"</span>
+</span></span></code></pre></div><p>The shape is loaded once and shared by all items of that type.</p>
+<p>This is one of the main reasons Forest is efficient for repeated assets.</p>
+<hr/>
+<h2 id="rendering">
+
+  Rendering
+</h2>
+<p>Forest rendering is optimized for many repeated instances.</p>
+<p>The renderer:</p>
+<ol>
+<li>Finds visible forest cells.</li>
+<li>Culls cells outside the camera/frustum.</li>
+<li>Groups visible items by type.</li>
+<li>Chooses LOD per item.</li>
+<li>Uses instancing/batching for repeated items.</li>
+<li>Uses imposters/billboards where possible.</li>
+</ol>
+<p>When the Scene Static Manager is enabled, forest rendering may be routed through that optimized path.</p>
+<hr/>
+<h2 id="forest-vs-tsstatic">
+
+  Forest vs TSStatic
+</h2>
+<p>Use Forest for many repeated objects.</p>
+<p>Use <code>TSStatic</code> for individually placed objects.</p>
+<table>
+<thead>
+<tr>
+<th>Use case</th>
+<th>Recommended</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thousands of trees</td>
+<td>Forest</td>
+</tr>
+<tr>
+<td>Repeated rocks/bushes</td>
+<td>Forest</td>
+</tr>
+<tr>
+<td>Grass/vegetation scatter</td>
+<td>Forest / GroundCover depending use</td>
+</tr>
+<tr>
+<td>Single building</td>
+<td>TSStatic</td>
+</tr>
+<tr>
+<td>Unique bridge</td>
+<td>TSStatic</td>
+</tr>
+<tr>
+<td>Manually placed prop</td>
+<td>TSStatic</td>
+</tr>
+<tr>
+<td>Object needing custom transform/material behavior</td>
+<td>TSStatic</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice info">Forest is usually the most lightweight option for large numbers of repeated static objects. <code>TSStatic</code> is better for individual placed meshes.</div>
+<hr/>
+<h2 id="lod-and-billboards">
+
+  LOD and billboards
+</h2>
+<p>Forest items use the LODs stored in their shape files.</p>
+<p>At render time, the engine estimates the item’s screen-space size and chooses an appropriate detail level. If the lowest detail is a billboard/imposter, the item can be rendered as a batched imposter.</p>
+<p>A whole forest cell may be rendered as imposter batches if the largest item in the cell can be billboarded at the current distance.</p>
+<p>This improves performance significantly for distant vegetation.</p>
+<hr/>
+<h2 id="imposter-batching">
+
+  Imposter batching
+</h2>
+<p>Forest cells can build imposter batches.</p>
+<p>A batch groups items that share the same last-detail/imposter type.</p>
+<p>This reduces draw overhead for distant forests.</p>
+<p>Batching is used when:</p>
+<ul>
+<li>The item type supports a billboard/imposter detail.</li>
+<li>The cell is far enough away.</li>
+<li>Imposters are not disabled.</li>
+</ul>
+<p>Debug settings can force or disable imposters internally:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Forest::smForceImposters
+</span></span><span class="line"><span class="cl">Forest::smDisableImposters
+</span></span></code></pre></div><hr/>
+<h2 id="reflection-rendering">
+
+  Reflection rendering
+</h2>
+<p>Forest uses <code>lodReflectScalar</code> to adjust rendering in reflection passes.</p>
+<p>In reflections, forest detail may be reduced or culled sooner to improve performance.</p>
+<p>This is important because rendering forests into reflection passes can be expensive.</p>
+<hr/>
+<h2 id="collision">
+
+  Collision
+</h2>
+<p>Forest can provide collision for forest items if their <code>ForestItemData</code> is collidable.</p>
+<p>The collision system:</p>
+<ol>
+<li>Queries forest cells near the collision area.</li>
+<li>Finds relevant forest items.</li>
+<li>Uses each item’s collision details.</li>
+<li>Builds or reuses cached collision data per shape.</li>
+<li>Adds transformed collision meshes to physics.</li>
+</ol>
+<p>Collision data is cached by shape file to avoid rebuilding the same collision repeatedly for every item.</p>
+<div class="bng-notice warning">Collidable forest items can become expensive if the shape collision is too complex or the item density is very high.</div>
+<hr/>
+<h2 id="raycasts">
+
+  Raycasts
+</h2>
+<p>Forest supports raycasts against forest items.</p>
+<p>Raycasts can use:</p>
+<ul>
+<li>Collision/LOS details</li>
+<li>Rendered mesh detail, when requested</li>
+</ul>
+<p>This is used by:</p>
+<ul>
+<li>Selection</li>
+<li>Collision queries</li>
+<li>Gameplay raycasts</li>
+<li>Editor tools</li>
+</ul>
+<p>If the ray hits a forest item, the returned object is the <code>Forest</code> object, and additional internal item data may be used by tools.</p>
+<hr/>
+<h2 id="decals">
+
+  Decals
+</h2>
+<p>Forest does not support decal projection in the same way terrain and static meshes do.</p>
+<p>For decal poly list queries, Forest returns false.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">PLC_Decal → false
+</span></span></code></pre></div><p>This means road decals and other projected decals should not rely on forest item geometry as decal receivers.</p>
+<hr/>
+<h2 id="wind">
+
+  Wind
+</h2>
+<p>Forest items can react to wind if their shape/material setup supports it.</p>
+<p>Wind requires:</p>
+<ul>
+<li><code>windScale &gt; 0</code></li>
+<li>Shape vertex color data for wind weighting</li>
+<li>Material features that support wind deformation</li>
+<li>Active <code>ForestWindEmitter</code> or global wind source</li>
+</ul>
+<p>Wind affects:</p>
+<ul>
+<li>Trunk bending</li>
+<li>Branch movement</li>
+<li>Leaf/frond detail movement</li>
+<li>Local impulse response</li>
+</ul>
+<hr/>
+<h2 id="forestwindemitter">
+
+  ForestWindEmitter
+</h2>
+<p><code>ForestWindEmitter</code> defines wind in a level.</p>
+<p>It can act as:</p>
+<ul>
+<li>Global directional wind</li>
+<li>Local radial wind source</li>
+</ul>
+<p>Important fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>windEnabled</code></td>
+<td>Enables this emitter.</td>
+</tr>
+<tr>
+<td><code>radialEmitter</code></td>
+<td>If true, wind is local/radial instead of global direction.</td>
+</tr>
+<tr>
+<td><code>strength</code></td>
+<td>Wind strength.</td>
+</tr>
+<tr>
+<td><code>radius</code></td>
+<td>Radius for radial emitters.</td>
+</tr>
+<tr>
+<td><code>gustStrength</code></td>
+<td>Maximum gust strength.</td>
+</tr>
+<tr>
+<td><code>gustFrequency</code></td>
+<td>Gust frequency in seconds.</td>
+</tr>
+<tr>
+<td><code>gustYawAngle</code></td>
+<td>Direction drift angle.</td>
+</tr>
+<tr>
+<td><code>gustYawFrequency</code></td>
+<td>Direction drift frequency.</td>
+</tr>
+<tr>
+<td><code>gustWobbleStrength</code></td>
+<td>Random wobble added to gusts/turbulence.</td>
+</tr>
+<tr>
+<td><code>turbulenceStrength</code></td>
+<td>Turbulence strength.</td>
+</tr>
+<tr>
+<td><code>turbulenceFrequency</code></td>
+<td>Turbulence frequency.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestWindEmitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"forest_wind"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windEnabled"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radialEmitter"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"strength"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gustStrength"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gustFrequency"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gustYawAngle"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gustYawFrequency"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"turbulenceStrength"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"turbulenceFrequency"</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="wind-update-radius">
+
+  Wind update radius
+</h2>
+<p>The wind manager only gathers nearby wind-reactive trees around the camera.</p>
+<p>This is controlled by the engine settings, such as wind effect radius.</p>
+<p>Items with:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">windScale &lt; 0.001
+</span></span></code></pre></div><p>are skipped from wind update placement info.</p>
+<p>This avoids spending CPU time on static rocks or non-wind vegetation.</p>
+<hr/>
+<h2 id="radial-impulses">
+
+  Radial impulses
+</h2>
+<p>Forest can apply radial impulses to nearby wind-reactive items.</p>
+<p>This is used for effects like:</p>
+<ul>
+<li>Explosions</li>
+<li>Strong local forces</li>
+<li>Wind gust interactions</li>
+</ul>
+<p>The impulse affects local wind accumulators and causes nearby vegetation to bend/react temporarily.</p>
+<hr/>
+<h2 id="forest-editor">
+
+  Forest Editor
+</h2>
+<p>The Forest Editor uses the <code>Forest</code> object named:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">theForest
+</span></span></code></pre></div><p>If no active forest exists, the editor can create one.</p>
+<p>The editor modifies forest data through tools such as:</p>
+<ul>
+<li>Paint</li>
+<li>Erase</li>
+<li>Erase selected</li>
+<li>Snap to terrain</li>
+<li>Biome placement tools</li>
+</ul>
+<p>Changes are stored in the forest data and saved to <code>.forest4.json</code> files.</p>
+<hr/>
+<h2 id="forestbrush">
+
+  ForestBrush
+</h2>
+<p>A <code>ForestBrush</code> is an editor-only container for <code>ForestBrushElement</code> objects.</p>
+<p>It is stored under:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">ForestBrushGroup
+</span></span></code></pre></div><p>The brush defines which forest item types can be painted and with what placement rules.</p>
+<hr/>
+<h2 id="forestbrushelement">
+
+  ForestBrushElement
+</h2>
+<p>A <code>ForestBrushElement</code> defines placement parameters for one forest item type.</p>
+<p>Important fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>forestItemData</code></td>
+<td>Forest item type to place.</td>
+</tr>
+<tr>
+<td><code>probability</code></td>
+<td>Relative probability for random selection.</td>
+</tr>
+<tr>
+<td><code>rotationRange</code></td>
+<td>Random yaw rotation range.</td>
+</tr>
+<tr>
+<td><code>scaleMin</code></td>
+<td>Minimum random scale.</td>
+</tr>
+<tr>
+<td><code>scaleMax</code></td>
+<td>Maximum random scale.</td>
+</tr>
+<tr>
+<td><code>scaleExponent</code></td>
+<td>Bias between min and max scale.</td>
+</tr>
+<tr>
+<td><code>sinkMin</code></td>
+<td>Minimum sink amount.</td>
+</tr>
+<tr>
+<td><code>sinkMax</code></td>
+<td>Maximum sink amount.</td>
+</tr>
+<tr>
+<td><code>sinkRadius</code></td>
+<td>Radius used for slope sinking.</td>
+</tr>
+<tr>
+<td><code>slopeMin</code></td>
+<td>Minimum allowed slope.</td>
+</tr>
+<tr>
+<td><code>slopeMax</code></td>
+<td>Maximum allowed slope.</td>
+</tr>
+<tr>
+<td><code>elevationMin</code></td>
+<td>Minimum allowed elevation.</td>
+</tr>
+<tr>
+<td><code>elevationMax</code></td>
+<td>Maximum allowed elevation.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="forestbrushtool">
+
+  ForestBrushTool
+</h2>
+<p><code>ForestBrushTool</code> is the editor tool used to paint, erase, and adjust forest items.</p>
+<p>Important brush tool fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mode</code></td>
+<td>Paint, erase, erase selected, or snap-to-terrain mode.</td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td>Brush radius.</td>
+</tr>
+<tr>
+<td><code>pressure</code></td>
+<td>Density/strength of brush stroke.</td>
+</tr>
+<tr>
+<td><code>hardness</code></td>
+<td>Brush falloff/hardness.</td>
+</tr>
+<tr>
+<td><code>depthOffset</code></td>
+<td>Offset above/below terrain relative to item pivot.</td>
+</tr>
+<tr>
+<td><code>forceAlignToTerrain</code></td>
+<td>Forces alignment to terrain normal.</td>
+</tr>
+<tr>
+<td><code>snapSinkEnabled</code></td>
+<td>Enables sinking when snapping to terrain.</td>
+</tr>
+<tr>
+<td><code>snapSink</code></td>
+<td>Sink amount for snap operation.</td>
+</tr>
+<tr>
+<td><code>snapAnyForestItemType</code></td>
+<td>Snap all item types instead of selected types only.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="paint-mode">
+
+  Paint mode
+</h2>
+<p>Paint mode places forest items randomly inside the brush circle.</p>
+<p>The process roughly:</p>
+<ol>
+<li>Calculate brush area.</li>
+<li>Multiply by <code>pressure</code>.</li>
+<li>Pick item types based on <code>ForestBrushElement.probability</code>.</li>
+<li>Randomize scale and rotation.</li>
+<li>Raycast to terrain/static surface.</li>
+<li>Check slope/elevation limits.</li>
+<li>Check nearby items using placement radius.</li>
+<li>Apply sink/depth offset.</li>
+<li>Add item with undo support.</li>
+</ol>
+<p>This produces natural randomized scatter.</p>
+<hr/>
+<h2 id="erase-modes">
+
+  Erase modes
+</h2>
+<p>Erase mode removes forest items inside the brush.</p>
+<p>Modes:</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Erase</code></td>
+<td>Erases any forest item under the brush.</td>
+</tr>
+<tr>
+<td><code>EraseSelected</code></td>
+<td>Erases only selected/active forest item types.</td>
+</tr>
+</tbody>
+</table>
+<p>Erase amount is influenced by brush pressure.</p>
+<hr/>
+<h2 id="snap-to-terrain">
+
+  Snap to terrain
+</h2>
+<p>Snap-to-terrain mode moves existing forest items onto terrain/static surface.</p>
+<p>It can also:</p>
+<ul>
+<li>Apply sink</li>
+<li>Align to terrain normal</li>
+<li>Respect selected item types</li>
+</ul>
+<p>This is useful after terrain edits or when items float/clip incorrectly.</p>
+<hr/>
+<h2 id="biome-placement">
+
+  Biome placement
+</h2>
+<p>The Forest tools include advanced biome placement workflows.</p>
+<p>Biome tools can place or replace forest items based on:</p>
+<ul>
+<li>Terrain material index</li>
+<li>Grayscale mask image</li>
+<li>Lasso/polygon areas</li>
+<li>Slope range</li>
+<li>Elevation range</li>
+<li>Falloff regions</li>
+<li>Exclusion zones</li>
+<li>Edge placement rules</li>
+</ul>
+<p>These tools are useful for large-scale vegetation generation.</p>
+<p>Example uses:</p>
+<ul>
+<li>Fill grass material with bushes</li>
+<li>Place rocks along biome edges</li>
+<li>Scatter trees only on certain slopes</li>
+<li>Replace old biome items in a selected area</li>
+<li>Use masks to control vegetation density</li>
+</ul>
+<hr/>
+<h2 id="context-ids">
+
+  Context IDs
+</h2>
+<p>Forest items can store a tool context ID.</p>
+<p>Examples include:</p>
+<ul>
+<li>Normal editor placement</li>
+<li>Biome-generated placement</li>
+</ul>
+<p>This lets tools identify which items were created by biome tools and selectively remove/replace only those items.</p>
+<hr/>
+<h2 id="saving">
+
+  Saving
+</h2>
+<p>When saving, forest items are grouped by item type and written to:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/forest/&lt;type&gt;.forest4.json
+</span></span></code></pre></div><p>The filename is made safe from the forest item type/internal name.</p>
+<p>If an item type no longer has any items:</p>
+<ul>
+<li>If the forest is empty, the file may be deleted.</li>
+<li>Otherwise, unused files may be renamed/backed up.</li>
+</ul>
+<hr/>
+<h2 id="dirty-state">
+
+  Dirty state
+</h2>
+<p>Forest data tracks whether it has been modified.</p>
+<p>The editor uses this to know whether forest data needs saving.</p>
+<p>Useful commands/methods include:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">save()
+</span></span><span class="line"><span class="cl">reload()
+</span></span><span class="line"><span class="cl">clear()
+</span></span><span class="line"><span class="cl">regenCells()
+</span></span><span class="line"><span class="cl">isDirty()
+</span></span></code></pre></div><hr/>
+<h2 id="zoning">
+
+  Zoning
+</h2>
+<p>Forest cells update their zone visibility state when scene zoning changes.</p>
+<p>This allows forest cells to be culled correctly for indoor/outdoor visibility systems.</p>
+<hr/>
+<h2 id="debug-stats">
+
+  Debug stats
+</h2>
+<p>The Forest system exposes some debug stats:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">$Forest::totalCells
+</span></span><span class="line"><span class="cl">$Forest::cellsRendered
+</span></span><span class="line"><span class="cl">$Forest::cellItemsRendered
+</span></span><span class="line"><span class="cl">$Forest::cellsBatched
+</span></span><span class="line"><span class="cl">$Forest::cellItemsBatched
+</span></span></code></pre></div><p>These can help diagnose forest rendering performance.</p>
+<p>Additional debug drawing can show forest cells and bounds.</p>
+<hr/>
+<h2 id="minimal-forest-object-example">
+
+  Minimal Forest object example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Forest"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"theForest"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"lodReflectScalar"</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="minimal-forestitemdata-example">
+
+  Minimal ForestItemData example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pine_small"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestItemData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"internalName"</span><span class="p">:</span> <span class="s2">"pine_small"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"shapeFile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/trees/pine_small.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"collidable"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"radius"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"snapRotationToTerrain"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"windScale"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"trunkBendScale"</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"branchAmp"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"detailAmp"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"detailFreq"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"mass"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"rigidity"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"tightnessCoefficient"</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dampingCoefficient"</span><span class="p">:</span> <span class="mf">0.7</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Use Forest for repeated natural/scatter assets.</li>
+<li>Use <code>TSStatic</code> for individual unique objects.</li>
+<li>Keep forest item shapes optimized.</li>
+<li>Use LODs and billboard/imposter details for trees.</li>
+<li>Keep collision meshes simple.</li>
+<li>Disable collision for decorative foliage when possible.</li>
+<li>Use <code>radius</code> to prevent overcrowding.</li>
+<li>Use wind only for assets that need it.</li>
+<li>Set <code>windScale</code> to <code>0</code> for rocks/static props.</li>
+<li>Use biome tools for large-scale placement.</li>
+<li>Save forest data after major edits.</li>
+<li>Remove old <code>.forest</code> / <code>.forest.json</code> files after upgrading.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="forest-items-do-not-appear">
+
+  Forest items do not appear
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Missing <code>Forest</code> object</li>
+<li>Missing <code>.forest4.json</code> files</li>
+<li>Missing <code>managedItemData.json</code></li>
+<li><code>ForestItemData</code> internal name mismatch</li>
+<li>Invalid <code>shapeFile</code></li>
+<li>Shape failed to load</li>
+</ul>
+<h3 id="some-items-are-missing">
+
+  Some items are missing
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Missing item type definition</li>
+<li>Renamed/deleted <code>ForestItemData</code></li>
+<li>Invalid lines in <code>.forest4.json</code></li>
+<li>Scale below minimum</li>
+</ul>
+<h3 id="forest-collision-is-too-heavy">
+
+  Forest collision is too heavy
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Too many collidable items</li>
+<li>Complex collision meshes</li>
+<li>Dense placement</li>
+<li>Collision enabled for small decorative foliage</li>
+</ul>
+<h3 id="wind-does-not-affect-trees">
+
+  Wind does not affect trees
+</h3>
+<p>Check:</p>
+<ul>
+<li><code>windScale</code> is greater than <code>0</code></li>
+<li>Shape has vertex color data for wind weighting</li>
+<li>Material supports wind deformation</li>
+<li><code>ForestWindEmitter</code> exists and is enabled</li>
+<li>Item is within wind effect radius</li>
+</ul>
+<h3 id="items-float-above-terrain">
+
+  Items float above terrain
+</h3>
+<p>Use Snap to Terrain, check item pivot, or adjust sink/depth offset.</p>
+<h3 id="items-are-buried-too-deeply">
+
+  Items are buried too deeply
+</h3>
+<p>Reduce sink values or check asset pivot.</p>
+<h3 id="forest-editor-says-no-forest-exists">
+
+  Forest editor says no Forest exists
+</h3>
+<p>Create or add a <code>Forest</code> object named <code>theForest</code>.</p>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p><code>Forest</code> is the main system for rendering and managing large numbers of repeated static items in a level.</p>
+<p>It loads placement data from <code>.forest4.json</code> files, uses <code>ForestItemData</code> definitions from <code>managedItemData.json</code>, organizes items into spatial cells, supports culling and batching, can provide collision, and supports wind deformation for vegetation.</p>
+<p>Use Forest for large-scale repeated natural assets, and use <code>TSStatic</code> for individually placed static meshes.</p>

@@ -1,0 +1,880 @@
+<p><code>DecalRoad</code> is a strip-shaped decal object defined by a chain of road nodes. It is mainly used for roads, paths, painted surface strips, tire tracks, markings, and other long decal-like surfaces that follow terrain or static meshes.</p>
+<p>A <code>DecalRoad</code> is not road geometry. It is projected/clipped onto existing surfaces, usually terrain, and rendered as a decal.</p>
+<p>It is also one of the main sources of AI/navigation data. Roads with positive <code>drivability</code> can contribute to the navigation graph used by AI, traffic, and routing systems.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Basic example
+</h2>
+<p>A simple <code>DecalRoad</code> entry in <code>items.level.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"DecalRoad"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"road_main_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"road_asphalt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"textureLength"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"autoLanes"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"renderPriority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Each node is stored as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[x, y, z, width]
+</span></span></code></pre></div><hr/>
+<h2 id="important-fields">
+
+  Important fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>"DecalRoad"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Scene object name.</td>
+</tr>
+<tr>
+<td><code>material</code></td>
+<td>string</td>
+<td>Material used to render the road decal.</td>
+</tr>
+<tr>
+<td><code>nodes</code></td>
+<td>array</td>
+<td>Road node list. Each node is <code>[x, y, z, width]</code>.</td>
+</tr>
+<tr>
+<td><code>textureLength</code></td>
+<td>number</td>
+<td>Length in meters before the material texture repeats.</td>
+</tr>
+<tr>
+<td><code>renderPriority</code></td>
+<td>integer</td>
+<td>Draw order. DecalRoads are rendered in descending priority order.</td>
+</tr>
+<tr>
+<td><code>zBias</code></td>
+<td>number</td>
+<td>Additional depth/render bias.</td>
+</tr>
+<tr>
+<td><code>decalBias</code></td>
+<td>number</td>
+<td>Height/bias above the clipped surface.</td>
+</tr>
+<tr>
+<td><code>distanceFade</code></td>
+<td>array[2]</td>
+<td>Distance fading parameters.</td>
+</tr>
+<tr>
+<td><code>startEndFade</code></td>
+<td>array[2]</td>
+<td>Fade length at start and end of the road.</td>
+</tr>
+<tr>
+<td><code>overObjects</code></td>
+<td>bool</td>
+<td>Allows clipping over static mesh objects, not only terrain.</td>
+</tr>
+<tr>
+<td><code>hiddenInNavi</code></td>
+<td>bool</td>
+<td>Hides this road from navigation display where supported.</td>
+</tr>
+<tr>
+<td><code>persistentId</code></td>
+<td>string</td>
+<td>Editor/engine persistent ID. Usually generated automatically.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="node-data">
+
+  Node data
+</h2>
+<p><code>DecalRoad</code> stores its shape as an ordered list of nodes.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>Each node contains:</p>
+<table>
+<thead>
+<tr>
+<th align="right">Index</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right"><code>0</code></td>
+<td>X position</td>
+</tr>
+<tr>
+<td align="right"><code>1</code></td>
+<td>Y position</td>
+</tr>
+<tr>
+<td align="right"><code>2</code></td>
+<td>Z position</td>
+</tr>
+<tr>
+<td align="right"><code>3</code></td>
+<td>Road width</td>
+</tr>
+</tbody>
+</table>
+<p>The road is generated between consecutive nodes.</p>
+<p>The node width controls road width at that point. Width is interpolated along the road.</p>
+<div class="bng-notice info">When <code>overObjects</code> is disabled, node height is projected to terrain height during regeneration.</div>
+<hr/>
+<h2 id="terrain-projection">
+
+  Terrain projection
+</h2>
+<p>By default, <code>DecalRoad</code> projects onto terrain.</p>
+<p>It samples terrain height and adjusts generated edges to sit on the terrain surface.</p>
+<p>This means the node Z value is often less important for terrain roads, because the road is snapped to terrain during regeneration.</p>
+<p>If the level does not contain terrain and <code>overObjects</code> is not enabled, the road cannot generate correctly.</p>
+<hr/>
+<h2 id="overobjects">
+
+  overObjects
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"overObjects"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>When enabled, <code>DecalRoad</code> can project over static mesh objects as well as terrain.</p>
+<p>This is useful for:</p>
+<ul>
+<li>Bridges</li>
+<li>Overpasses</li>
+<li>Tunnels</li>
+<li>Roads on mesh geometry</li>
+<li>Parking structures</li>
+<li>Custom road meshes</li>
+</ul>
+<p>When disabled, the road expects terrain.</p>
+<div class="bng-notice warning">If a map has no terrain and the road does not use <code>overObjects</code>, the road may fail to generate.</div>
+<hr/>
+<h2 id="material">
+
+  Material
+</h2>
+<p>The <code>material</code> field references a <code>Material</code> datablock.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"material"</span><span class="err">:</span> <span class="s2">"road_asphalt"</span>
+</span></span></code></pre></div><p>The material should be authored for decal road rendering and usually tile along the road length.</p>
+<p>Important material expectations:</p>
+<ul>
+<li>The texture should tile vertically/along the road.</li>
+<li>Opacity can be used for soft edges or markings.</li>
+<li>Normal/roughness can be used for road surface detail.</li>
+<li>Clear coat is not used for decal road materials.</li>
+</ul>
+<p>If the material cannot be found, the road uses a warning material.</p>
+<hr/>
+<h2 id="texture-length">
+
+  Texture length
+</h2>
+<p><code>textureLength</code> controls how often the road material repeats along the road.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"textureLength"</span><span class="err">:</span> <span class="mi">8</span>
+</span></span></code></pre></div><p>This means the texture repeats approximately every 8 meters.</p>
+<p>Use lower values for dense repeating patterns, higher values for large markings or long texture spans.</p>
+<hr/>
+<h2 id="render-priority">
+
+  Render priority
+</h2>
+<p><code>renderPriority</code> controls ordering between overlapping decal roads.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"renderPriority"</span><span class="err">:</span> <span class="mi">10</span>
+</span></span></code></pre></div><p>Decal roads are rendered in descending priority order.</p>
+<p>Use render priority when layering:</p>
+<ul>
+<li>Lane markings over asphalt</li>
+<li>Crosswalks over road surface</li>
+<li>Tire marks over road surface</li>
+<li>Patch decals over base roads</li>
+</ul>
+<hr/>
+<h2 id="zbias-and-decalbias">
+
+  zBias and decalBias
+</h2>
+<p><code>zBias</code> and <code>decalBias</code> affect how the decal road is offset/depth-biased against the target surface.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"zBias"</span><span class="err">:</span> <span class="mi">0</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"decalBias"</span><span class="err">:</span> <span class="mi">0</span>
+</span></span></code></pre></div><p>These help avoid z-fighting, where the road flickers against the surface underneath.</p>
+<p>Use small values. Large values can cause visible hovering or sorting artifacts.</p>
+<hr/>
+<h2 id="distancefade">
+
+  distanceFade
+</h2>
+<p><code>distanceFade</code> controls distance-based fading.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"distanceFade"</span><span class="err">:</span> <span class="p">[</span><span class="mi">300</span><span class="p">,</span> <span class="mi">50</span><span class="p">]</span>
+</span></span></code></pre></div><p>The first value is the main fade distance, and the second value is the fade range.</p>
+<p>If <code>distanceFade</code> is not set, the default is:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[300, 50]
+</span></span></code></pre></div><p>The first value should generally be greater than the second.</p>
+<div class="bng-notice warning">Invalid fade values can make roads disappear too early or behave unexpectedly.</div>
+<hr/>
+<h2 id="startendfade">
+
+  startEndFade
+</h2>
+<p><code>startEndFade</code> fades the road at its beginning and end.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"startEndFade"</span><span class="err">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span></span></code></pre></div><p>This is useful for blending road decals into other surfaces or avoiding abrupt ends.</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First value</td>
+<td>Fade distance at the start of the road.</td>
+</tr>
+<tr>
+<td>Second value</td>
+<td>Fade distance at the end of the road.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="spline-settings">
+
+  Spline settings
+</h2>
+<p><code>DecalRoad</code> can generate edges using either legacy or improved spline logic.</p>
+<h3 id="improvedspline">
+
+  improvedSpline
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"improvedSpline"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>Uses the newer Catmull-Rom-based spline generation.</p>
+<h3 id="smoothness">
+
+  smoothness
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"smoothness"</span><span class="err">:</span> <span class="mf">0.5</span>
+</span></span></code></pre></div><p>Controls spline smoothness:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>More linear</td>
+</tr>
+<tr>
+<td><code>0.5</code></td>
+<td>Medium smoothness</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>Fully smooth</td>
+</tr>
+</tbody>
+</table>
+<h3 id="detail">
+
+  detail
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"detail"</span><span class="err">:</span> <span class="mf">0.1</span>
+</span></span></code></pre></div><p>Controls spline sampling step.</p>
+<p>Smaller values create more subdivisions. For example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">0.1 = every 10%
+</span></span><span class="line"><span class="cl">0.2 = every 20%
+</span></span><span class="line"><span class="cl">0.5 = midpoint only
+</span></span></code></pre></div>
+<h3 id="looped">
+
+  looped
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"looped"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>Connects the end of the road back to the start.</p>
+<p>Useful for closed tracks or loops.</p>
+<h3 id="starttangent-endtangent">
+
+  startTangent / endTangent
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"startTangent"</span><span class="err">:</span> <span class="kc">true</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"endTangent"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>Uses the first/last point as tangent markers for smoother endpoints.</p>
+<hr/>
+<h2 id="spline-generation-modes">
+
+  Spline generation modes
+</h2>
+<p><code>DecalRoad</code> supports two spline generation modes:</p>
+<ul>
+<li>Legacy spline mode</li>
+<li>Improved spline mode</li>
+</ul>
+<p>Both modes convert the road’s control nodes into generated road edges. These generated edges are then used for terrain/static clipping, UV generation, rendering, and AI/navigation data.</p>
+<hr/>
+<h3 id="legacy-spline-mode">
+
+  Legacy spline mode
+</h3>
+<p>Legacy mode is used when:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"improvedSpline"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre></div><p>or when the field is not enabled.</p>
+<p>Legacy mode builds a Catmull-Rom spline through the road nodes and then decides where to place generated edges based on curve direction changes.</p>
+<p>The process is roughly:</p>
+<ol>
+<li>Build a Catmull-Rom spline from the node positions.</li>
+<li>Build a second spline for road width.</li>
+<li>Walk along the spline between each pair of control nodes.</li>
+<li>Add a generated edge when:
+<ul>
+<li>it is the start of a segment,</li>
+<li>it is the end of the road,</li>
+<li>or the direction change exceeds <code>breakAngle</code>.</li>
+</ul>
+</li>
+</ol>
+<p>This means <code>breakAngle</code> controls how densely the road is subdivided on curves.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"improvedSpline"</span><span class="err">:</span> <span class="kc">false</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"breakAngle"</span><span class="err">:</span> <span class="mi">3</span>
+</span></span></code></pre></div><p>Lower <code>breakAngle</code> values create more generated edges on curves, improving shape accuracy but increasing generated geometry.</p>
+<p>Higher values create fewer edges, which can be cheaper but may look less smooth.</p>
+<hr/>
+<h3 id="improved-spline-mode">
+
+  Improved spline mode
+</h3>
+<p>Improved mode is used when:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"improvedSpline"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>This mode also uses Catmull-Rom interpolation, but subdivision is controlled more directly by <code>detail</code> and <code>smoothness</code>.</p>
+<p>The process is roughly:</p>
+<ol>
+<li>Read node positions and widths.</li>
+<li>Optionally treat the first/last nodes as tangent markers if <code>startTangent</code> or <code>endTangent</code> are enabled.</li>
+<li>If <code>looped</code> is enabled, wrap node indices so the road forms a closed loop.</li>
+<li>Evaluate the Catmull-Rom curve at regular intervals.</li>
+<li>Generate an edge at each interval.</li>
+<li>Interpolate road width along the same curve.</li>
+<li>Project generated points to terrain/static surface height.</li>
+</ol>
+<p>In improved mode:</p>
+<ul>
+<li><code>smoothness</code> controls Catmull-Rom curve tension.</li>
+<li><code>detail</code> controls sampling density.</li>
+<li><code>looped</code> allows closed roads/tracks.</li>
+<li><code>startTangent</code> and <code>endTangent</code> improve endpoint direction control.</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"improvedSpline"</span><span class="err">:</span> <span class="kc">true</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"smoothness"</span><span class="err">:</span> <span class="mf">0.5</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"detail"</span><span class="err">:</span> <span class="mf">0.1</span>
+</span></span></code></pre></div><p>Here, <code>detail: 0.1</code> means the curve is sampled roughly every 10% of each segment.</p>
+<hr/>
+<h3 id="choosing-a-mode">
+
+  Choosing a mode
+</h3>
+<p>Use <strong>improved spline</strong> for new roads when possible. It gives more predictable control over smoothness, loop behavior, and subdivision.</p>
+<p>Use <strong>legacy mode</strong> mainly for old content or when you need to preserve the exact shape of an existing road.</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Best use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Legacy</td>
+<td>Existing old roads, compatibility.</td>
+</tr>
+<tr>
+<td>Improved</td>
+<td>New roads, smoother curves, loops, better control.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice warning">Switching an existing road from legacy to improved spline mode can slightly change its shape. Check road edges, UVs, decals, and AI/navigation behavior after changing the mode.</div>
+<hr/>
+<h2 id="breakangle">
+
+  breakAngle
+</h2>
+<p><code>breakAngle</code> is used by the legacy spline algorithm.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"breakAngle"</span><span class="err">:</span> <span class="mi">3</span>
+</span></span></code></pre></div><p>The road is subdivided when the curve angle exceeds this threshold.</p>
+<p>Smaller values generate more edge slices on curves.</p>
+<hr/>
+<h2 id="generated-edges">
+
+  Generated edges
+</h2>
+<p>During regeneration, the road nodes are converted into road edges.</p>
+<p>Each generated edge contains:</p>
+<ul>
+<li>Center point</li>
+<li>Left/right edge points</li>
+<li>Width</li>
+<li>Forward vector</li>
+<li>Right vector</li>
+<li>Up vector</li>
+<li>Parent node index</li>
+</ul>
+<p>These edges are then used to capture/clamp underlying terrain/static mesh triangles.</p>
+<hr/>
+<h2 id="geometry-capture">
+
+  Geometry capture
+</h2>
+<p><code>DecalRoad</code> does not create a flat road mesh directly. Instead, it:</p>
+<ol>
+<li>Builds a strip from road edges.</li>
+<li>Creates clipping planes for each segment.</li>
+<li>Captures terrain/static mesh triangles inside the road strip.</li>
+<li>Generates decal road vertices and indices.</li>
+<li>Assigns UVs based on road width and <code>textureLength</code>.</li>
+<li>Splits the road into batches for rendering.</li>
+</ol>
+<p>This allows the road to follow the underlying surface.</p>
+<hr/>
+<h2 id="batching-and-rendering">
+
+  Batching and rendering
+</h2>
+<p>Decal roads are grouped by material and render priority.</p>
+<p>The static decal road manager rebuilds and batches road geometry for efficient rendering.</p>
+<p>Roads are split into render nodes/batches for:</p>
+<ul>
+<li>Culling</li>
+<li>Distance fade</li>
+<li>Render priority ordering</li>
+<li>Large road data management</li>
+</ul>
+<p>This is important because levels can contain many decal road segments.</p>
+<hr/>
+<h2 id="packed-vertex-range">
+
+  Packed vertex range
+</h2>
+<p>The decal road renderer packs vertex positions relative to block origins.</p>
+<p>Large decal road batches are split into blocks so packed local positions remain within a supported range.</p>
+<p>If a road produces a batch that is too large or spans too far, errors may be logged about packed position range or vertex count.</p>
+<p>For best results:</p>
+<ul>
+<li>Avoid extremely long single roads with huge uninterrupted spans.</li>
+<li>Split very large roads into smaller sections.</li>
+<li>Avoid very wide roads with complex clipping across many objects.</li>
+</ul>
+<hr/>
+<h2 id="terrain-and-static-object-updates">
+
+  Terrain and static object updates
+</h2>
+<p>Decal roads can regenerate when the underlying surface changes.</p>
+<p>Examples:</p>
+<ul>
+<li>Terrain height changes</li>
+<li>Static object with <code>overObjects</code> moves</li>
+<li>Road nodes change</li>
+<li>Material changes</li>
+<li>Spline settings change</li>
+<li>Bias/fade settings change</li>
+</ul>
+<p>When terrain changes overlap a road, the road may be marked for regeneration.</p>
+<hr/>
+
+<p><code>DecalRoad</code> can contribute to AI/navigation data.</p>
+<p>Important pathfinding fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>drivability</code></td>
+<td>number</td>
+<td>Determines whether/how AI uses this road.</td>
+</tr>
+<tr>
+<td><code>autoLanes</code></td>
+<td>bool</td>
+<td>Automatically generates lane data.</td>
+</tr>
+<tr>
+<td><code>lanesLeft</code></td>
+<td>integer</td>
+<td>Manual lane count on one side.</td>
+</tr>
+<tr>
+<td><code>lanesRight</code></td>
+<td>integer</td>
+<td>Manual lane count on one side.</td>
+</tr>
+<tr>
+<td><code>oneWay</code></td>
+<td>bool</td>
+<td>Marks the road as one-way.</td>
+</tr>
+<tr>
+<td><code>flipDirection</code></td>
+<td>bool</td>
+<td>Reverses logical driving direction.</td>
+</tr>
+<tr>
+<td><code>gatedRoad</code></td>
+<td>bool</td>
+<td>Marks the road as gated/private.</td>
+</tr>
+<tr>
+<td><code>autoJunction</code></td>
+<td>bool</td>
+<td>Allows automatic junction connections.</td>
+</tr>
+<tr>
+<td><code>useSubdivisions</code></td>
+<td>bool</td>
+<td>Generates higher-detail AI road data.</td>
+</tr>
+<tr>
+<td><code>hiddenInNavi</code></td>
+<td>bool</td>
+<td>Hides road from navigation display where supported.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="drivability">
+
+  drivability
+</h2>
+<p><code>drivability</code> controls if and how the road is used by AI/navigation.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"drivability"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre></div><p>Typical values:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-1</code></td>
+<td>Not used for AI/navigation.</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>Normal/optimal road.</td>
+</tr>
+<tr>
+<td><code>0.5</code></td>
+<td>Less preferred road, often dirt or rough road.</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td>Very poor route, generally avoided.</td>
+</tr>
+</tbody>
+</table>
+<p>If you want AI traffic to use the road, set <code>drivability</code> above <code>0</code>.</p>
+<p>If the road is visual only, use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"drivability"</span><span class="err">:</span> <span class="mi">-1</span>
+</span></span></code></pre></div><hr/>
+<h2 id="autolanes">
+
+  autoLanes
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoLanes"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>When enabled, lanes are generated automatically from road width and road rules.</p>
+<p>When disabled, use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"lanesLeft"</span><span class="err">:</span> <span class="mi">1</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"lanesRight"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre></div><p>Manual lane settings are interpreted together with the level’s <code>roadRules.rightHandDrive</code> setting from <code>info.json</code>.</p>
+<hr/>
+<h2 id="oneway-and-flipdirection">
+
+  oneWay and flipDirection
+</h2>
+<p><code>oneWay</code> makes the road one-way:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"oneWay"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>By default, direction follows node order.</p>
+<p><code>flipDirection</code> reverses the logical direction:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"flipDirection"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>Use <code>flipDirection</code> if AI drives the wrong way.</p>
+<hr/>
+<h2 id="gatedroad">
+
+  gatedRoad
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gatedRoad"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>Marks the road as gated/private.</p>
+<p>This is used for:</p>
+<ul>
+<li>Private roads</li>
+<li>Restricted roads</li>
+<li>Dirt tracks</li>
+<li>Race tracks</li>
+<li>Non-public routes</li>
+</ul>
+<p>In navigation processing, private/gated roads are treated differently from normal public roads.</p>
+<hr/>
+<h2 id="autojunction">
+
+  autoJunction
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoJunction"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>When enabled, the navigation system may automatically connect paths when they intersect.</p>
+<p>Disable it for roads where automatic merging would create bad connections:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoJunction"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre></div><p>Useful for:</p>
+<ul>
+<li>Overpasses</li>
+<li>Tunnels</li>
+<li>Parallel roads</li>
+<li>Complex intersections</li>
+<li>Close roads at different heights</li>
+</ul>
+<hr/>
+<h2 id="usesubdivisions">
+
+  useSubdivisions
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"useSubdivisions"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>When enabled, the AI/navigation graph can use higher-detail road edge subdivision data instead of only road control nodes.</p>
+<p>This can improve navigation path fidelity on curved roads.</p>
+<hr/>
+<h2 id="hiddeninnavi">
+
+  hiddenInNavi
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"hiddenInNavi"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>Hides the road in navigation display where supported while still allowing it to exist in the graph depending on system behavior.</p>
+<hr/>
+<h2 id="serialization">
+
+  Serialization
+</h2>
+<p>In modern <code>items.level.json</code>, road nodes are stored in the <code>nodes</code> array:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>Older TorqueScript serialization used repeated <code>Node = "x y z width";</code> fields. Modern JSON should use the <code>nodes</code> array.</p>
+<hr/>
+<h2 id="minimal-road-example">
+
+  Minimal road example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"DecalRoad"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"road_asphalt_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"road_asphalt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"textureLength"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"renderPriority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"autoLanes"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"autoJunction"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="one-way-road-example">
+
+  One-way road example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"DecalRoad"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"highway_ramp_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"road_asphalt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"textureLength"</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"flipDirection"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"autoLanes"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"lanesLeft"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"lanesRight"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">160</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="bridge-overobjects-example">
+
+  Bridge / overObjects example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"DecalRoad"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"bridge_decal_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"road_asphalt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"overObjects"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"textureLength"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"autoJunction"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="visual-only-marking-example">
+
+  Visual-only marking example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"DecalRoad"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"painted_line_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"road_line_white"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"textureLength"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"renderPriority"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">-1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"decalBias"</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Use <code>DecalRoad</code> for road decals and pathing surfaces, not raised road geometry.</li>
+<li>Use <code>TSStatic</code> or terrain for actual physical geometry.</li>
+<li>Use <code>overObjects</code> for bridges, overpasses, tunnels, or mesh roads.</li>
+<li>Keep <code>textureLength</code> matched to the material’s intended scale.</li>
+<li>Use <code>renderPriority</code> for layered markings.</li>
+<li>Set <code>drivability</code> correctly:
+<ul>
+<li><code>1</code> for normal roads</li>
+<li><code>0.5</code> for rough/dirt roads</li>
+<li><code>-1</code> for visual-only decals</li>
+</ul>
+</li>
+<li>Disable <code>autoJunction</code> for stacked roads, overpasses, or close parallel paths.</li>
+<li>Use proper lane settings for AI/traffic.</li>
+<li>Split very long or complex roads into manageable sections.</li>
+<li>Regenerate roads after terrain or node changes.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="road-does-not-render">
+
+  Road does not render
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Fewer than two nodes</li>
+<li>Invalid or missing material</li>
+<li>No terrain and <code>overObjects</code> is false</li>
+<li>Road captured no underlying geometry</li>
+<li>Distance fade hides it</li>
+<li>Material is <code>road_invisible</code></li>
+</ul>
+<h3 id="road-flickers-or-z-fights">
+
+  Road flickers or z-fights
+</h3>
+<p>Adjust:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"decalBias"</span><span class="err">:</span> <span class="mf">0.001</span>
+</span></span></code></pre></div><p>or check material/render priority.</p>
+<h3 id="road-floats-above-terrain">
+
+  Road floats above terrain
+</h3>
+<p><code>decalBias</code> may be too high, or the road is projected over an unexpected object.</p>
+<h3 id="road-does-not-follow-bridge-mesh">
+
+  Road does not follow bridge/mesh
+</h3>
+<p>Enable:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"overObjects"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div>
+<h3 id="ai-does-not-use-the-road">
+
+  AI does not use the road
+</h3>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"drivability"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre></div><p>Also check lane settings and whether the road contributes to the navgraph.</p>
+<h3 id="ai-drives-the-wrong-direction">
+
+  AI drives the wrong direction
+</h3>
+<p>Toggle:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"flipDirection"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>or check node order.</p>
+<h3 id="roads-connect-incorrectly">
+
+  Roads connect incorrectly
+</h3>
+<p>Set:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoJunction"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre></div><p>on problematic roads.</p>
+<h3 id="texture-repeats-too-often-or-too-slowly">
+
+  Texture repeats too often or too slowly
+</h3>
+<p>Adjust:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"textureLength"</span><span class="err">:</span> <span class="mi">8</span>
+</span></span></code></pre></div><p>Lower values repeat more often. Higher values stretch/repeat less often.</p>
+<h3 id="road-disappears-in-distance">
+
+  Road disappears in distance
+</h3>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"distanceFade"</span><span class="err">:</span> <span class="p">[</span><span class="mi">300</span><span class="p">,</span> <span class="mi">50</span><span class="p">]</span>
+</span></span></code></pre></div><p>or increase the fade distance.</p>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p><code>DecalRoad</code> is a terrain/static-surface projected road decal object.</p>
+<p>It is used both visually and for AI/navigation. Visually, it renders a textured strip clipped onto terrain or static meshes. For gameplay, it can contribute road/lane/drivability data to the navigation graph.</p>
+<p>Use it for roads, paths, markings, and navigation-connected surfaces. For actual raised geometry, use <code>TSStatic</code> or terrain, with <code>DecalRoad</code> projected on top when needed.</p>
+<p><strong>See also:</strong> <a data-doc="file_formats/materials" href="/docs/file_formats/materials">Material file format</a>
+, <a data-doc="levels/level_formats/decals" href="/docs/levels/level_formats/decals">Decals format</a>
+, <a data-doc="levels/level_formats/map" href="/docs/levels/level_formats/map">Navigation map (<code>map.json</code>)</a>
+, <a data-doc="levels/level_classes/meshroad" href="/docs/levels/level_classes/meshroad">MeshRoad</a>
+.</p>

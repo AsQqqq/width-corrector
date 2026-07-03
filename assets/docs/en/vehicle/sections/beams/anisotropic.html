@@ -1,0 +1,113 @@
+<p>Anisotropic beams are beam which have different properties depending if they are being compressed or expanded beyond their spawned length. Their main purpose in the current game is for tire’s sidewalls, which need to be allowed to compress to absorb bumps, but not expand beyond their initial length under centrifugal forces.</p>
+<p>Those beams can also be used for other structures like ropes.</p>
+<p>The transitionZone property can be used to fine tune the behavior of the beam under expansion, with a ramp between the standard compression values, and the expansion values.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/beams/anisotropic/Anisotropic.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/beams/anisotropic/Anisotropic_hu361874a838490d643008e596d8c2ae25_60388_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="required-arguments">
+
+  Required arguments
+</h3>
+<p>See the <a data-doc="vehicle/sections/beams" href="/docs/vehicle/sections/beams">beams page</a>
+.</p>
+<p>The standard spring and damp arguments will be used when the beam is compressed.</p>
+<h3 id="optional-arguments">
+
+  Optional arguments
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">beamSpring<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Rigidity of the beam when expanded beyond spawned length (N/m).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">beamDamp<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Damping of the beam when expanded beyond spawned length (N/m/s).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">When this bound is exceeded, the beam automatically breaks.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">0.0 would mean the beam breaks if it expands at all. 0.5 would mean the beam breaks after expanding to 150% of its spawned length. 1.0 would mean the beam breaks after expanding to 200% of its spawned length.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">This defines a range where the spring and damp move to springExpansion and dampExpansion.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">By default, the beam properties change instantly beyond spawned length, but adding a transitionZone causes the values to ramp up over a zone. 0.1 would create a zone of 10% of beam spawned length.</div>
+</div>
+</div>
+<p>Anisotropic beams also support the same optional arguments as <a data-doc="vehicle/sections/beams" data-frag="optional-arguments" href="/docs/vehicle/sections/beams#optional-arguments">standard beams</a>
+.</p>
+<h3 id="simple-examples">
+
+  Simple Examples
+</h3>
+<p>Bounded beams being used for a soft top vehicle roof.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|ANISOTROPIC"</span><span class="p">,</span> <span class="s2">"transitionZone"</span><span class="o">:</span><span class="mf">0.05</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">5100</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">150</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"springExpansion"</span><span class="o">:</span><span class="mi">41000</span><span class="p">,</span><span class="s2">"dampExpansion"</span><span class="o">:</span><span class="mi">150</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">3500</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="mi">8000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"deformLimitExpansion"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf1rr"</span><span class="p">,</span><span class="s2">"rf2rr"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf2rr"</span><span class="p">,</span><span class="s2">"rf3rr"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf3rr"</span><span class="p">,</span><span class="s2">"rf4rr"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf4rr"</span><span class="p">,</span><span class="s2">"rf4r"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf6rr"</span><span class="p">,</span><span class="s2">"rf7rr"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf7rr"</span><span class="p">,</span><span class="s2">"rf7r"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf1ll"</span><span class="p">,</span><span class="s2">"rf2ll"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf2ll"</span><span class="p">,</span><span class="s2">"rf3ll"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf3ll"</span><span class="p">,</span><span class="s2">"rf4ll"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf4ll"</span><span class="p">,</span><span class="s2">"rf4l"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf6ll"</span><span class="p">,</span><span class="s2">"rf7ll"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf7ll"</span><span class="p">,</span><span class="s2">"rf7l"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span></code></pre></div>

@@ -1,0 +1,111 @@
+<h3 id="quick-triage">
+
+  Quick triage
+</h3>
+<p>When something breaks, check in this order:</p>
+<ol>
+<li>Console/log errors after level load.</li>
+<li>Missing files or wrong paths.</li>
+<li>Invalid JSON syntax.</li>
+<li>Missing materials or <code>mapTo</code> mismatches.</li>
+<li>Object placement/scale problems.</li>
+<li>Cache after large folder or material changes.</li>
+</ol>
+<p>Fix the earliest error first. Later warnings are often caused by the first missing asset or invalid file.</p>
+<h3 id="121-materials-textures">
+
+  12.1 Materials/textures
+</h3>
+<p><strong>Orange/no-texture surfaces</strong></p>
+<p>Cause: bad path, missing texture, <code>mapTo</code> mismatch, or material file not loaded.</p>
+<p>Fix:</p>
+<ul>
+<li>Check the texture path in the material file.</li>
+<li>Check that the material name and <code>mapTo</code> match the mesh material slot.</li>
+<li>Verify the texture exists in the packaged level/mod.</li>
+<li>Reload the level after material changes.</li>
+</ul>
+<p><strong>Surfaces look flat or faceted</strong></p>
+<p>Cause: normal map orientation, missing tangents, hard smoothing splits, or incorrect exported normals.</p>
+<p>Fix:</p>
+<ul>
+<li>Verify normal map orientation.</li>
+<li>Export normals and tangents.</li>
+<li>Check smoothing/edge split setup in the source mesh.</li>
+</ul>
+<p><strong>Reflections look overly strong</strong></p>
+<p>Cause: cubemap intensity or roughness values are too low for the surface.</p>
+<p>Fix: reduce reflection/cubemap intensity, increase roughness, or use a less reflective material setup.</p>
+<div class="bng-notice info">On High settings or higher reflections are set to use Level option by default</div>
+<h3 id="122-geometry-roads">
+
+  12.2 Geometry/roads
+</h3>
+<ul>
+<li>Symptom: flicker at intersections.
+Cause: coplanar overlaps. Fix: adjust offsets and decal layering.</li>
+<li>Symptom: bumps/gaps on bridges.
+Cause: discontinuous MeshRoad collision. Fix: review spans and collision continuity.</li>
+<li>Symptom: MeshRoad curves look angular.
+Cause: <code>breakAngle</code> is too high or nodes are poorly spaced. Fix: lower <code>breakAngle</code> or add support nodes.</li>
+<li>Symptom: props are wrong scale.
+Cause: unapplied transforms or wrong export units. Fix: apply transforms and export in meters.</li>
+</ul>
+<h3 id="123-vegetation-props">
+
+  12.3 Vegetation/props
+</h3>
+<ul>
+<li>Symptom: trees floating or sunk.
+Cause: pivot/scale mismatch or terrain edits after placement. Fix: snap or re‑place; verify pivots.</li>
+<li>Symptom: heavy FPS drops in forests.
+Cause: species/material count, density, or missing impostors/LODs. Fix: reduce variety/density; add LODs.</li>
+<li>Symptom: repeated props are expensive.
+Cause: too many unique <code>TSStatic</code> objects or materials. Fix: use Forest, prefabs, material reuse, or simpler LODs where appropriate.</li>
+</ul>
+<h3 id="124-terrain-water">
+
+  12.4 Terrain/water
+</h3>
+<ul>
+<li>Symptom: banding on slopes.
+Cause: 8‑bit sources or resampling artifacts. Fix: ensure 16‑bit heightmap; re‑export cleanly.</li>
+<li>Symptom: water edges shimmer.
+Cause: alignment or overlap issues. Fix: adjust edges, ensure clean shoreline integration.</li>
+<li>Symptom: terrain materials look wrong after import.
+Cause: layer maps/material texture set mismatch. Fix: check terrain material setup and reload.</li>
+</ul>
+<h3 id="125-packaging-loading">
+
+  12.5 Packaging/loading
+</h3>
+<ul>
+<li>Symptom: level fails on a clean profile.
+Cause: external dependencies, missing files. Fix: ensure self‑contained .zip; verify paths.</li>
+<li>Symptom: changes not visible.
+Cause: stale cache. Fix: clear cache and relaunch.</li>
+<li>Symptom: packaged level works only while the unpacked folder exists.
+Cause: package missing assets. Fix: move the working folder away and test only the <code>.zip</code>.</li>
+<li>Symptom: level does not appear in selector.
+Cause: missing or invalid <code>info.json</code> / folder layout. Fix: verify metadata and package structure.</li>
+</ul>
+<h3 id="126-logging">
+
+  12.6 Logging
+</h3>
+<ul>
+<li>Use the console/log to identify missing asset warnings, path errors, or invalid JSON entries.</li>
+<li>Search for your level name and the missing file name in the log.</li>
+<li>If an object does not appear, check the <code>items.level.json</code> file that should contain it.</li>
+</ul>
+<h3 id="127-when-to-reauthor">
+
+  12.7 When to re‑author
+</h3>
+<ul>
+<li>If repeated fixes fail, reassess asset scale, collision complexity, or material count against the performance guidance.</li>
+</ul>
+<p><strong>See also:</strong> <a data-doc="levels/level_creation/section9" href="/docs/levels/level_creation/section9">Testing and validation</a>
+, <a data-doc="levels/level_formats/items" href="/docs/levels/level_formats/items">Level object files (<code>items.level.json</code>)</a>
+, <a data-doc="file_formats/materials" href="/docs/file_formats/materials">Material JSON files</a>
+.</p>

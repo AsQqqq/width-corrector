@@ -1,0 +1,79 @@
+<p>When programming mods for BeamNG, you’ll likely be using these languages:</p>
+<ul>
+<li>Lua: is the main programming language, and is typically used to calculate as much logic as possible. For example, gameplay logic, various vehicle behaviours, parts of the physics, etc.</li>
+<li>Javascript/Html: is used for displaying information in the User Interface. As a rule of thumb, we recommend it only for UI display purposes, leaving as much logic as possible to be calculated in Lua. The Lua side would then send the result of all calculations to the UI side, where Javascript/Html would merely display it. This typically helps make your code more robust.</li>
+</ul>
+
+<ul>
+<li><a data-doc="programming/extensions" href="/docs/programming/extensions">LUA Extensions</a>
+: this is BeamNG’s module system. It features serialization, events, etc.</li>
+<li><a data-doc="programming/virtualmachines" href="/docs/programming/virtualmachines">Virtual Machines</a>
+: BeamNG runs several independent Lua systems in parallel as well as multiple UI instances, which we call VMs.</li>
+<li><a data-doc="programming/virtualmachines" data-frag="communication" href="/docs/programming/virtualmachines#communication">Virtual Machines Queues</a>
+: BeamNG’s main system to communicate between virtual machines.</li>
+<li><a data-doc="programming/virtualmachines" data-frag="communication" href="/docs/programming/virtualmachines#communication">Virtual Machines Mailboxes</a>
+`: BeamNG’s secondary system to communicate between VLUA virtual machines.</li>
+</ul>
+<h1 class="anchored">
+
+  BeamNG Code Conventions
+</h1>
+<h4 id="style">
+
+  Style
+</h4>
+<ul>
+<li>Folder naming example: <strong>ge/someFolderHere/lowerCamelCase/</strong></li>
+<li>File naming example: <strong>lowerCamelCase.lua</strong></li>
+<li>Indenting: <strong>2 spaces (not tabs)</strong></li>
+<li>Trim trailing spaces <strong>ON</strong></li>
+<li>Function and variable names, <strong>camelCase</strong></li>
+<li>"Class" names, upper camel case (PascalCase), example: <strong>MyCoolClass</strong></li>
+</ul>
+<h4 id="source-code-location">
+
+  Source code location
+</h4>
+<p>Please check <a data-doc="programming/virtualmachines" data-frag="source-code-location" href="/docs/programming/virtualmachines#source-code-location">source code location</a>
+ for information about where your files should go.</p>
+<h1 class="anchored">
+
+  Lua language basics
+</h1>
+<p>While you should learn how to program and how to program Lua on your own, here’s the most absolute basics of the language:</p>
+<h4 id="basic-terminology">
+
+  Basic Terminology
+</h4>
+<ul>
+<li><code>Table</code>: The basic and only type of container used in Lua. Depending on how you use a table, the table will resemble an array (a list) or a dictionary (a map).</li>
+<li><code>Array</code>: A Lua table that contains only integer keys from 1 to infinity. Can be counted correctly with <code>#tbl</code></li>
+<li><code>Dictionary</code> (<code>dict</code>): A lua table that contains all kinds of keys. Cannot be counted with <code>#tbl</code>.</li>
+<li><code>Module</code>: The traditional Lua <code>module</code> is deprecated. Do not use it</li>
+<li><code>Package</code>: the normal 
+    <a class="link-ext" href="https://www.lua.org/manual/5.3/manual.html#6.3" rel="noopener" target="_blank">Lua package</a>
+. Used, but please use Extensions if possible. See 
+    <a class="link-ext" href="http://lua-users.org/wiki/ModulesTutorial" rel="noopener" target="_blank"><em>here</em></a>
+ and also 
+    <a class="link-ext" href="http://lua-users.org/wiki/TheEssenceOfLoadingCode" rel="noopener" target="_blank"><em>here</em></a>
+.</li>
+</ul>
+<h4 id="syntactic-sugar">
+
+  Syntactic Sugar
+</h4>
+<p>For convenience, the Lua language sometimes offers different ways to identically behaving code. For example:</p>
+<ul>
+<li><code>myTable.ident</code> is equivalent to <code>myTable['ident']</code></li>
+<li><code>myObject:name(args)</code> is syntactic sugar for <code>myObject.name(myObject, args)</code></li>
+<li><code>myFunction{fields}</code> is syntactic sugar for <code>myFunction({fields})</code></li>
+<li><code>myFunction'string'</code> (or <code>myFunction"string"</code> or <code>myFunction[[string]]</code>) is syntactic sugar for <code>myFunction('string')</code></li>
+<li><code>function t.a.b.c:foobar(params) body end</code> is syntactic sugar for <code>t.a.b.c.foobar = function(self, params) body end</code></li>
+</ul>
+<h5 id="programming-documentation-feedback">
+
+  Programming documentation feedback
+</h5>
+<p><em>If you feel this <strong>programming documentation</strong> is too high level, too low level, is missing important topics, is erroneous anywhere, etc, please write a 
+    <a class="link-ext" href="https://www.beamng.com/threads/new-beamng-drive-documentation.77939/" rel="noopener" target="_blank">post at this thread</a>
+ and ping me personally by typing <code>@stenyak</code> so I will get notified.</em></p>

@@ -1,0 +1,68 @@
+<h3 id="description">
+
+  Description
+</h3>
+<p>Lua BeamNG extensions are an easy and scalable way to extend functionality. BeamNG extensions allow to mesh multiple pieces of code together, without needing to modify any official files (which would likely create issues after each official update, and would make your mod inadmissible in the 
+    <a class="link-ext" href="https://www.beamng.com/resources" rel="noopener" target="_blank">official BeamNG mod repository</a>
+).</p>
+<p>For example: you could write a mod that reacts when the slow-motion system is used by the player, without needing to edit the official slow-motion source files to insert explicit calls to your mod.</p>
+<p>This is achieved using the “hook” functionality, where extensions can subscribe to various events, and can trigger events themselves too.</p>
+<h3 id="show-me-the-code">
+
+  Show me the code
+</h3>
+<p>A BeamNG Lua extension is essentially a Lua file that returns a table. For example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">  <span class="kd">local</span> <span class="n">M</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="n">M.myData</span> <span class="o">=</span> <span class="mi">10</span>
+</span></span><span class="line"><span class="cl">  <span class="n">M.myFunction</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span> <span class="n">print</span><span class="p">(</span><span class="s2">"hello world"</span><span class="p">)</span> <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">return</span> <span class="n">M</span>
+</span></span></code></pre></div><p>Once your mod is packed into a zip file, the extension files should land somewhere in:</p>
+<pre tabindex="0"><code>  (someMod.zip) /lua/common/extensions/
+  (someMod.zip) /lua/ge/extensions/
+  (someMod.zip) /lua/vehicle/extensions/
+</code></pre><p>Your choice will dictate in which <a data-doc="programming/virtualmachines" href="/docs/programming/virtualmachines">Lua virtual machine</a>
+ the BeamNG extension can be used. See <a data-doc="programming/virtualmachines" data-frag="source-code-location" href="/docs/programming/virtualmachines#source-code-location">source code location</a>
+ for additional context.</p>
+<h3 id="using-an-extension">
+
+  Using an extension
+</h3>
+<p>An extension you create won’t be loaded until you write explicit code for it to be loaded. For example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">  <span class="n">extensions.load</span><span class="p">(</span><span class="s2">"myMod_myExtension"</span><span class="p">)</span>       <span class="c1">-- this loads extensions/myMod/myExtension.lua</span>
+</span></span></code></pre></div><p>Once a BeamNG extension has been loaded, you can access its table:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">  <span class="n">myMod_myExtension.myFunction</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="n">myMod_myExtension.myData</span> <span class="o">=</span> <span class="mi">20</span>
+</span></span></code></pre></div><p>You can also run a function in all the extensions that are currently loaded in this Lua virtual machine:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">  <span class="n">extensions.hook</span><span class="p">(</span><span class="s2">"myCustomEvent"</span><span class="p">)</span>        <span class="c1">-- this will call myMod_myExtension.myCustomEvent(), and it will myCustomEvent() in all other loaded extensions</span>
+</span></span></code></pre></div><p>When you no longer require an extension, you must unload it:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">  <span class="n">extensions.unload</span><span class="p">(...)</span>
+</span></span></code></pre></div><p>Keeping extensions loaded when they aren’t necessary will waste computer resources and lower the framerate, so avoid it.</p>
+<p>Note 1:
+There’s a syntax in the form of <code>extensions.myMod_myExtension.foo()</code>. Avoid this syntax, because
+a) it will lower frame rates compared to <code>myMod_myExtension.foo()</code>, and…
+b) it automatically loads the extension if it was not loaded. As a general rule, you shouldn’t need to automatically load an extension, you should do it explicitly.</p>
+<p>Note 2:
+Your extension may explicitly define which other extensions it depends on. This is done with:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">  <span class="n">M.dependencies</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">"foo_bar"</span><span class="p">,</span> <span class="s2">"baz_qux"</span><span class="p">,</span> <span class="p">...}</span>
+</span></span></code></pre></div><p>This will tell the BeamNG extension system to load/unload these dependencies for you. It will also organize the hook function calls, so they follow the tree of dependencies in the appropriate order. In other words, a hook will run in the dependencies first, then in your own extension, and so on.</p>
+<h3 id="common-extension-functions-data">
+
+  Common extension functions/data
+</h3>
+<p>In addition to your own really specific “myFunction”, “myData” members, your table can contain more common members.</p>
+<p>For example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">  <span class="n">M.onExtensionLoaded</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span> <span class="p">...</span> <span class="kr">end</span>   <span class="c1">-- called when the extension is loaded</span>
+</span></span><span class="line"><span class="cl">  <span class="n">M.onUpdate</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span> <span class="p">...</span> <span class="kr">end</span>            <span class="c1">-- called once per GFX frame</span>
+</span></span><span class="line"><span class="cl">  <span class="n">M.onGuiUpdate</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span> <span class="p">...</span> <span class="kr">end</span>         <span class="c1">-- called once per UI frame</span>
+</span></span><span class="line"><span class="cl">  <span class="n">M.state</span> <span class="o">=</span> <span class="p">{</span> <span class="n">foo</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bar</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="p">...</span> <span class="p">}</span>            <span class="c1">-- may be used to save+load extension state during a reload of the Lua virtual machine</span>
+</span></span><span class="line"><span class="cl">  <span class="n">M.onSerialize</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span> <span class="p">...</span> <span class="kr">end</span>         <span class="c1">-- may be used to save+load extension state during a reload of the Lua virtual machine using a custom serializing function</span>
+</span></span><span class="line"><span class="cl">  <span class="n">M.dependencies</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">"core_camera"</span><span class="p">,</span> <span class="p">...</span> <span class="p">}</span>    <span class="c1">-- may be used to automatically load other extensions</span>
+</span></span><span class="line"><span class="cl">  <span class="n">etc</span>
+</span></span></code></pre></div><p>There’s no centralized list with those special functions and variables; the source code IS the documentation(tm). For example, you may research the code inside lua/ge/main.lua, lua/common/extensions.lua, etc. See who’s calling extension hooks, or observe how other extensions have been written, etc.</p>
+<h5 id="programming-documentation-feedback">
+
+  Programming documentation feedback
+</h5>
+<p><em>If you feel this <strong>programming documentation</strong> is too high level, too low level, is missing important topics, is erroneous anywhere, etc, please write a 
+    <a class="link-ext" href="https://www.beamng.com/threads/new-beamng-drive-documentation.77939/" rel="noopener" target="_blank">post at this thread</a>
+ and ping me personally by typing <code>@stenyak</code> so I will get notified.</em></p>

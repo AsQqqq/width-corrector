@@ -1,0 +1,187 @@
+<hr/>
+<h3 id="general">
+
+  General
+</h3>
+<p>Variables can be used to store data inside a graph or the whole Flowgraph project.<br/>
+You can view them in the “Variables” window:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/variables/1.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/variables/1_huaee27624532377857e61473af20a091b_45007_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>The main sections are:</p>
+<ul>
+<li><strong>Current Graph:</strong><br/>
+Variables are only accessible in the currently viewed graph.</li>
+<li><strong>Manager Variables:</strong><br/>
+Variables are accessible in the entire Flowgraph project.</li>
+</ul>
+<p>Variables can have the same types as pins, with some exceptions like “Table” and “Flow”.<br/>
+You can use your variables in your flowgraph by using the “Get” and “Set” nodes. You can create them in different ways:</p>
+<ul>
+<li>
+<p>Pressing the <kbd>Getter</kbd> or <kbd>Setter</kbd> buttons in the “Variables” window.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/variables/2.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/variables/2.gif"/>
+</span></a></p>
+</li>
+<li>
+<p>Using any other possible method for node creation:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/variables/3.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/variables/3.gif"/>
+</span></a></p>
+</li>
+</ul>
+<br/>
+<h3 id="things-to-look-out-for">
+
+  Things to look out for
+</h3>
+<br/>
+<h4 id="frame-delay">
+
+  Frame Delay
+</h4>
+<p>One thing to keep in mind when working with variables is that they are only actually set at the end of the frame. This means if you set a variable at the start of a graph and try to retrieve that new value at a later point, it will still hold the previous value of the variable, if there was one.<br/>
+The “Variables” example project showcases how to handle this kind of problem.<br/>
+If there are variables or general values that you want to pass on between states, you can use transition variables. You can read more about them on the <a data-doc="flowgraph/introduction-to-flowgraph/elements" href="/docs/flowgraph/introduction-to-flowgraph/elements">Elements</a>
+ page.</p>
+<br/>
+<h4 id="multiple-setters">
+
+  Multiple Setters
+</h4>
+<p>Another thing to be mindful about when working with variables is, setting a variable multiple times per frame.<br/>
+Because Flowgraph allows for multiple active states and general branching, there is no way to ensure the order in which the values of the variable will be set. This can lead to unwanted behaviour and is why we do not recommend using variables in this way.</p>
+<p>To give you more control over how your variable will behave in this kind of situation, you can choose from different options for “Merging” in the “Variables” window.<br/>
+There are different options for the behaviour, depending on the variable’s type.</p>
+<div class="bng-table" id="var"><div class="bng-table-header"><div>Type</div><div>Option</div><div>Result</div></div>
+<div class="bng-table-row"><div>
+<div>Type</div>
+<div style="color:#ff6600;text-align:left;">Generic</div>
+</div><div>
+<div>Option</div>
+<div style="text-align:left;height:4rem;">readOnly</div>
+</div><div>
+<div>Result</div>
+<div style="text-align:left;font-style:italic">The variable cannot receive a new value from a Setter node only constant values through the Variables window.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Type</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Option</div>
+<div style="text-align:left;height:4rem;">first</div>
+</div><div>
+<div>Result</div>
+<div style="text-align:left;font-style:italic">The first value that was set will be the new value.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Type</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Option</div>
+<div style="text-align:left;height:4rem;">last</div>
+</div><div>
+<div>Result</div>
+<div style="text-align:left;font-style:italic">The last value that was set will be the new value.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Type</div>
+<div style="color:#ff6600;text-align:left;">Number</div>
+</div><div>
+<div>Option</div>
+<div style="text-align:left;height:4rem;">min</div>
+</div><div>
+<div>Result</div>
+<div style="text-align:left;font-style:italic">The lowest of the values will be the new value.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Type</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Option</div>
+<div style="text-align:left;height:4rem;">max</div>
+</div><div>
+<div>Result</div>
+<div style="text-align:left;font-style:italic">The highest of the values will be the new value.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Type</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Option</div>
+<div style="text-align:left;height:4rem;">average</div>
+</div><div>
+<div>Result</div>
+<div style="text-align:left;font-style:italic">The average of the values will be the new value.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Type</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Option</div>
+<div style="text-align:left;height:4rem;">sum</div>
+</div><div>
+<div>Result</div>
+<div style="text-align:left;font-style:italic">The sum of all values will be the new value.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Type</div>
+<div style="color:#ff6600;text-align:left;">Bool</div>
+</div><div>
+<div>Option</div>
+<div style="text-align:left;height:4rem;">or</div>
+</div><div>
+<div>Result</div>
+<div style="text-align:left;font-style:italic">The logical or of all set values will be the new value.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Type</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Option</div>
+<div style="text-align:left;height:4rem;">and</div>
+</div><div>
+<div>Result</div>
+<div style="text-align:left;font-style:italic">The logical and of all set values will be the new value.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Type</div>
+<div style="color:#ff6600;text-align:left;">String</div>
+</div><div>
+<div>Option</div>
+<div style="text-align:left;height:4rem;">concat</div>
+</div><div>
+<div>Result</div>
+<div style="text-align:left;font-style:italic">All set values will be concatenated directly.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Type</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Option</div>
+<div style="text-align:left;height:4rem;">concatComma</div>
+</div><div>
+<div>Result</div>
+<div style="text-align:left;font-style:italic">All set values will be concatenated with a comma as the separator.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Type</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Option</div>
+<div style="text-align:left;height:4rem;">concatSpace</div>
+</div><div>
+<div>Result</div>
+<div style="text-align:left;font-style:italic">All set values will be concatenated with a space as the separator.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Type</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Option</div>
+<div style="text-align:left;height:4rem;">concatNewline</div>
+</div><div>
+<div>Result</div>
+<div style="text-align:left;font-style:italic">All the set values will be concatenated with a newline as the separator.</div>
+</div></div></div>

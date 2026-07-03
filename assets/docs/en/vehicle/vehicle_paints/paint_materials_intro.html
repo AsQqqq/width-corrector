@@ -1,0 +1,53 @@
+<p>BeamNG uses a <strong>PBR (Physically-Based Rendering)</strong> materials system. For the purposes of this page, it means that the car paint has a few basic properties that define the way it looks and reacts to lighting, including:</p>
+<ul>
+<li>Color</li>
+<li>Metallic factor</li>
+<li>Roughness factor</li>
+<li>Clear coat factor</li>
+<li>Clear coat roughness factor</li>
+</ul>
+<p><a data-doc="materials/materials_1.5" href="/docs/materials/materials_1.5">You can visit this page for an overview of the PBR material properties.</a>
+</p>
+<p>The material definition, present inside the <code>materials.json</code> file, defines how each of these properties is set:</p>
+<ul>
+<li>It can be a single value for the entire material. For example, we can set the paint color of a school bus to yellow, and it will not be colorable by the user. In practice, we don’t use this approach for paint materials.</li>
+<li>It can be a texture overlaid on the vehicle’s UV map, essentially deciding which parts of the vehicle’s 3D model have which paint properties. For example, a school bus paint can have a yellow color for most of the body, and black text and decals on some parts. This approach is used, for example, on non-colorable skins.</li>
+<li>It can be fully or partially colorable - this means that some or all of the parameters are fully or partially controlled by one or more of the three available color palettes. For example, the player can choose the main paint color of the school bus, but some text and decals always stay black. This is the most common approach used on paint materials, both for the base paint and for skins. This material type is what we will focus on in this page.</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/paint_materials_intro/colorPalette.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/paint_materials_intro/colorPalette_huedb94f8724ea63a8649920ad0ed74de4_176772_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>One of the color palettes visualized inside the in-game paint selector. The ‘Chrominess’ property is a legacy feature and is not functional with physically based rendering materials.</em></p>
+<h3 id="colorable-paint-material">
+
+  Colorable paint material
+</h3>
+<p>Inside the <code>materials.json</code> file, the <code>instanceDiffuse</code> property decides whether the material is colorable (true) or not (false). If it is set to true, a <code>color palette map</code> will determine which parts of the UV map are affected by which one of the three color palettes. Full RGBA color values are used:</p>
+<ul>
+<li>Red means the first color palette will be used</li>
+<li>Green means the second color palette will be used</li>
+<li>Blue means the third color palette will be used</li>
+<li>Transparent means no color palette will be used (that part is not colorable)</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/paint_materials_intro/roamer_skin_twotone_uv1.color.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/paint_materials_intro/roamer_skin_twotone_uv1.color_hu9cac4eedbb86f94d2bc06a73caa39777_10501_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>Example of a color palette map for a two-tone paint setup.</em></p>
+<p>Mixing different colors allows for gradient effects formed by the paint colors chosen by the user on different palettes.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/paint_materials_intro/scintilla_main_skin_gradient.color.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/paint_materials_intro/scintilla_main_skin_gradient.color_hu2e59fde860d09ca7a34ad9f18811150a_3564294_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>Example of a color palette map with a gradient effect.</em></p>
+<p>The color set by the user on the palette is then multiplied by the material properties. For example, the value on the metallic slider will be multiplied by the color value on the <code>metallicMap</code> and the number value in <code>metallicFactor</code>. In practice, for vehicle paints the multiplier colors are set to full white, and the values to 1, in order to prevent unwanted color mixing.</p>
+<p>Usually, the way paint materials are set up on a vehicle is that a full red texture is used for the color palette map, overlaid by an <code>opacity map</code>. The white parts of the opacity map dictate which parts of the vehicle are covered by the paint, making them colorable with the first color palette. This setup makes it easy to introduce skins on the second UV map. <a data-doc="materials/vehicle/typicalmaterials" href="/docs/materials/vehicle/typicalmaterials">Check this page for more information.</a>
+</p>
+<h3 id="color-palette-map-properties">
+
+  Color palette map properties
+</h3>
+<p>There are some additional properties inside the <code>materials.json</code> file that affect the way the color palette map works:</p>
+<ul>
+<li><code>colorPaletteMapUseUV</code>: When set to 1, which is usually the case for paint materials, the second UV map will be used. This makes it easier to lay out skins.</li>
+<li><code>paletteBaseColor</code>: Defaults to true, if set to false then the color setting of the color palette will NOT work, and the material will instead use the default color values set for the material in the base color map and/or the base color factor, rather than multiplying it with the one set by the palette. This means that the color palette will only affect the metallic, roughness, clear coat, and clear coat roughness values, rather than the color of the paint.</li>
+<li>Equivalent properties exist for the other color palette values: <code>paletteClearCoat</code>, <code>paletteClearCoatRoughness</code>, <code>paletteMetallic</code>, <code>paletteRoughness</code>.</li>
+</ul>

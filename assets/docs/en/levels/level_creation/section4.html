@@ -1,0 +1,99 @@
+<p>This section describes how to populate and manage vegetation at scale while maintaining readability and performance.</p>
+<h3 id="41-core-concepts">
+
+  4.1 Core concepts
+</h3>
+<ul>
+<li>The Forest system instantiates vegetation with density, randomness, and environmental filters</li>
+<li>Vegetation assets require correct pivots, scale, and optional simplified collisions</li>
+<li>Impostors/billboards are used for far-distance representation where available</li>
+</ul>
+<h3 id="42-requirements-and-conventions">
+
+  4.2 Requirements and conventions
+</h3>
+<ul>
+<li>Vegetation assets should be authored at real scale with pivots at logical bases (e.g., tree roots)</li>
+<li>Collisions should be lightweight where needed, omitted for small clutter where safe</li>
+<li>Species and variants should be limited to control draw calls and memory</li>
+</ul>
+<h3 id="43-biome-composition">
+
+  4.3 Biome composition
+</h3>
+<ul>
+<li>Organize vegetation into logical layers (canopy, understory, ground clutter)</li>
+<li>Use slope and altitude constraints to place species believably</li>
+<li>Maintain a controlled palette to avoid visual noise</li>
+<li><a href="https://documentation.beamng.com/world_editor/tools/biome_tool/" rel="noopener" target="_blank"><strong>Biome tool</strong></a>
+ can help setup everything for the modder</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section4/foresttool.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Forest tool and Biome tool interface" loading="lazy" src="/docassets/img/modding/levels/level_creation/section4/foresttool_hu20211936c07e0dc51a05d1dd5aebf2f6_470668_0x300_resize_q85_bgfff_box.jpeg"/>
+</span><span class="text" style="text-align: left;">Forest tool and Biome tool interface</span></a></p>
+<h3 id="44-lod-and-impostors">
+
+  4.4 LOD and impostors
+</h3>
+<ul>
+<li>If the modder wants to create a personal foliage element, LODs need to be provided for heavy meshes. Use impostors or distant representations where available and see how to setup the wind control to make it more believable</li>
+</ul>
+<div class="bng-notice note"><p>Foliage wind interaction is setup through vertex painting in Blender directly on the mesh. User can only change the Wind parameters controls on already available assets.</p>
+<p>Wind setup on custom foliage meshes is an advanced feature that can’t be changed inside World Editor. An external authoring software like Blender is needed.</p>
+</div>
+<ul>
+<li>Set fade distances to minimize popping at driving speeds</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section4/shapetool.gif" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Foliage wind setup with the shape tool" loading="lazy" src="/docassets/img/modding/levels/level_creation/section4/shapetool.gif"/>
+</span><span class="text" style="text-align: left;">Foliage wind setup with the shape tool</span></a></p>
+<h3 id="45-setup-the-forest-tool">
+
+  4.5 Setup the Forest tool
+</h3>
+<ul>
+<li>First step is to add Meshes that modder wants to use as Brushes. Meshes are simply a list to pick from and setup the parameters for every single forest element added</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section4/forestitem.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Forest tool Meshes list" loading="lazy" src="/docassets/img/modding/levels/level_creation/section4/forestitem_hu60587f88f7fdbfe2dc7fe0c8abf4ab29_202576_0x300_resize_q85_bgfff_box.jpeg"/>
+</span><span class="text" style="text-align: left;">Forest tool Meshes list</span></a></p>
+<ul>
+<li>When the Meshes list is setup the modder can move to Brushes tab and add single or group of brushes that can control through selection per placement</li>
+<li>Select one or more Brushes to place more forest objects at once and control the placement amount through Size of the brush and Density sliders</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section4/forestitem2.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Forest tool Brushes tab" loading="lazy" src="/docassets/img/modding/levels/level_creation/section4/forestitem2_huff19646a4ece86969e2236aaa958705b_452621_0x300_resize_q85_bgfff_box.jpeg"/>
+</span><span class="text" style="text-align: left;">Forest tool Brushes tab</span></a></p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section4/brush.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Forest brush size and density controls" loading="lazy" src="/docassets/img/modding/levels/level_creation/section4/brush.jpeg"/>
+</span><span class="text" style="text-align: left;">Forest brush size and density controls</span></a></p>
+<h3 id="46-performance-guidance">
+
+  4.6 Performance guidance
+</h3>
+<ul>
+<li>Limit unique species and materials in any given view</li>
+<li>Favour atlases for small plants and clutter to reduce draw calls</li>
+<li>Balance density against readability; leave sightlines along roads and key vistas</li>
+</ul>
+<h3 id="47-data-locations">
+
+  4.7 Data locations
+</h3>
+<ul>
+<li>Vegetation meshes: /YourMap/art/shapes/trees for map‑specific items</li>
+<li>The managed forest item list is saved in <code>managedItemData.json</code>: /YourMap/art/forest</li>
+<li>Per-item placement data is saved as <code>*.forest4.json</code> files in /YourMap/forest</li>
+</ul>
+<h3 id="48-common-issues">
+
+  4.8 Common issues
+</h3>
+<ul>
+<li>Over‑dense areas causing frame drops</li>
+<li>Floating or buried assets due to pivot issues or terrain changes</li>
+<li>Repetition patterns visible from elevated viewpoints</li>
+</ul>
+<p><strong>See also:</strong> <a data-doc="levels/level_formats/forest" href="/docs/levels/level_formats/forest">Forest format</a>
+, <a data-doc="levels/level_formats/forestbrush" href="/docs/levels/level_formats/forestbrush">Forest brush</a>
+.</p>

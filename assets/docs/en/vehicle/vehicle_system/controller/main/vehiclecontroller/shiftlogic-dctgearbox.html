@@ -1,0 +1,478 @@
+<h3 id="summary">
+
+  Summary
+</h3>
+<p>The DCT gearbox shift logic controller handles all the shifting related function of the gearbox, including the different gearbox modes, gear pre-selection, rev matching, etc.</p>
+<p>It is an extension of the <a href="https://documentation.beamng.com/modding/vehicle/vehicle_system/controller/vehiclecontroller/" rel="noopener" target="_blank">vehicle controller</a>
+ and automatically gets called if a vehicle is equipped with a <a href="https://documentation.beamng.com/modding/vehicle/vehicle_system/powertrain/gearbox/gearboxdct/" rel="noopener" target="_blank">DCT transmission</a>
+.</p>
+<hr/>
+<h3 id="file-info">
+
+  File Info
+</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Filename</strong></td>
+<td><em>shiftLogic-dctGearbox.lua</em></td>
+</tr>
+<tr>
+<td><strong>Path</strong></td>
+<td><em>/lua/vehicle/controller/shiftLogic-dctGearbox.lua</em></td>
+</tr>
+<tr>
+<td><strong>Usage type</strong></td>
+<td><em>Specific to vehicleController</em></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="jbeam-properties">
+
+  JBeam Properties
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">2000<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Minimum RPM for the clutch to start a launch behavior</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">3000<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The RPM the clutch tries to maintain during the launch behavior.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.5<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">How much throttle is applied when downshifting.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">PRNDS21M<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The available shifting modes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">N<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Initial transmission gear when the car spawns.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">true<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Enables automatic downshifting when the engine RPM reaches 1.2 times idle RPM.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.05<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">How quickly the transmission actuates the clutch when shifting (s)</div>
+</div>
+</div>
+<hr/>
+<h3 id="electrics">
+
+  Electrics
+</h3>
+<div class="bng-table" id="table-1783007355235249557"><div class="bng-table-header"><div>Name</div><div>Units/Values</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">clutchRatio1</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates the position of the clutch on the first transmission shaft. 0 means it’s disengaged, while 1 means it’s fully engaged.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">clutchRatio2</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates the position of the clutch on the second transmission shaft. 0 means it’s disengaged, while 1 means it’s fully engaged.</div>
+</div></div></div>
+<hr/>
+<h3 id="public-functions">
+
+  Public Functions
+</h3>
+<div class="bng-table" id="table-1783007355235418359"><div class="bng-table-header"><div>Function name</div><div>Parameters</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">gearboxBehaviorChanged</div>
+</div><div>
+<div style="">Parameters</div>
+<div style="">behavior</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Switches between arcade and realistic gearbox modes.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">shiftUp</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Switches to the next position on the gear lever.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">shiftDown</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Switches to the previous position on the gear lever.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">shiftToGearIndex</div>
+</div><div>
+<div style="">Parameters</div>
+<div style="">index</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Shifts the gear lever to the selected position.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">getGearName</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Current gear the transmission is in.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">getGearPosition</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Current position of the automatic shifter.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">setDefaultForwardMode</div>
+</div><div>
+<div style="">Parameters</div>
+<div style="">mode</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Changes the gearbox’s default forward mode.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">sendTorqueData</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Sends torque and power related data to the UI.</div>
+</div></div></div>
+<hr/>
+<h3 id="public-properties">
+
+  Public Properties
+</h3>
+<div class="bng-table" id="table-1783007355235753509"><div class="bng-table-header"><div>Name</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">brake</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Brake input</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">checkEngine</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates if the engine is disabled.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">clutchRatio</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates clutch input. 1 is fully engaged, 0 is fully disengaged.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">currentGearIndex</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Current gear index of the gearbox.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">energyStorages</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Energy storage(s) associated to the engine</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">engineLoad</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Engine load</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">engineThrottle</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Throttle input.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">engineTorque</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Engine combustion torque, before friction losses.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">flywheelTorque</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Engine output torque.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">gearboxHandling</div>
+</div><div>
+<div style="">Description</div>
+<div style="">List containing many of the parameters which influence gearbox shifting behavior.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">gearboxTorque</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Gearbox output torque.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">idleRPM</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Engine idle RPM</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">ignition</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates that the ignition is on.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">inputValues</div>
+</div><div>
+<div style="">Description</div>
+<div style="">List containing the brake, throttle and clutch values.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">isArcadeSwitched</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates if the gearbox is in arcade mode.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">isEngineRunning</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates the engine is running</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">isSportModeActive</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates if sport mode is active.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">maxRPM</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Engine maximum RPM</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">oilTemp</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Oil temperature of the engine.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">rpm</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Current engine RPM</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">shiftPreventionData</div>
+</div><div>
+<div style="">Description</div>
+<div style="">List containing the slip thresholds to prevent shifting.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">shiftBehavior</div>
+</div><div>
+<div style="">Description</div>
+<div style="">List containing the current optimal shift points defined by the vehicle controller.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">smoothedValues</div>
+</div><div>
+<div style="">Description</div>
+<div style="">List containing a smoothed version of some properties.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">smoothedAvgAVInput</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Smoothed angular velocity of the gearbox input (rad/s)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">throttle</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Throttle input</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">timer</div>
+</div><div>
+<div style="">Description</div>
+<div style="">List containing current time values</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">timerConstants</div>
+</div><div>
+<div style="">Description</div>
+<div style="">List containing target values for the different timers, as set in the jbeam</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">waterTemp</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Coolant temperature of the engine.</div>
+</div></div></div>
+<hr/>
+<h3 id="example-usage">
+
+  Example Usage
+</h3>
+<p>A vehicle controller section with parameters specific to this sub controller, defined within a transmission’s jbeam.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"vehicleController"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"automaticModes"</span><span class="o">:</span><span class="s2">"PRNDSM"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"calculateOptimalLoadShiftPoints"</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"shiftDownRPMOffsetCoef"</span><span class="o">:</span><span class="mf">1.2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"aggressionHoldOffThrottleDelay"</span><span class="o">:</span><span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"lowShiftDownRPM"</span><span class="o">:</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2200</span><span class="p">,</span><span class="mi">2500</span><span class="p">,</span><span class="mi">2500</span><span class="p">,</span><span class="mi">25002500</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"lowShiftUpRPM"</span><span class="o">:</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">4300</span><span class="p">,</span><span class="mi">4200</span><span class="p">,</span><span class="mi">4050</span><span class="p">,</span><span class="mi">4000</span><span class="p">,</span><span class="mi">3800</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clutchLaunchStartRPM"</span><span class="o">:</span> <span class="mi">3500</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clutchLaunchTargetRPM"</span><span class="o">:</span> <span class="mi">4000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"autoDownShiftInM"</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div>

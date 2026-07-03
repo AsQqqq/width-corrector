@@ -1,0 +1,46 @@
+<p>The paint distribution system is used to generate a realistic distribution of paint colors among traffic vehicles. In the future, this system is planned to be also used for the various random vehicle spawning systems in career mode, such as race opponents and dealership inventory.</p>
+<h3 id="implementation">
+
+  Implementation
+</h3>
+<p>In the main <code>info.json</code> file of vehicles that are meant to be used for traffic, we add some new properties:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"defaultRandomPaintProbability"</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"defaultRandomMultiPaintProbability"</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"randomPaintDistribution"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"white"</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"silver"</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"gray"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"black"</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Old White"</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Pearl Black"</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Old Black"</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Metallic Blue"</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Dark Blue"</span><span class="o">:</span><span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Blue Silver"</span><span class="o">:</span><span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Teal"</span><span class="o">:</span><span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"randomMultiPaintDistribution"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"team_offroad_colors"</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"rennspecht_green_colors"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div><p>This adds weights to the random paint selection function used for traffic cars. <code>defaultRandomPaintProbability</code> is the default weight applied to each available paint. Then in the <code>randomPaintDistribution</code> list, certain paints have their weights overwritten in order to make them more or less likely to spawn in traffic. The same concept applies to <code>defaultRandomMultiPaintProbability</code> and <code>randomMultiPaintDistribution</code>.</p>
+<p>Individual configurations can use the same properties. They will overwrite the ones declared in the main info.json file. New paint weights can be added, and individual existing ones can be replaced, but other weights will be inherited from the main info.json file. For example, you can make a single configuration 10 times more likely to spawn in a certain color by overwriting the weight for this color in its info file.</p>
+<p>Additionally, configuration info files can use a new <code>ignoreModelRandomPaintDistribution</code> property. If set to true, this will replace the whole <code>randomPaintDistribution</code> list for this specific configuration. You can use it to restrict certain colors from being used on certain configurations. There is an equivalent <code>ignoreModelRandomMultiPaintDistribution</code> option for <a data-doc="vehicle/vehicle_paints/multi_paint_setup" href="/docs/vehicle/vehicle_paints/multi_paint_setup">multi-paint setup</a>
+ as well.</p>
+<h3 id="testing">
+
+  Testing
+</h3>
+<p>Manually verifying weighted paint distribution can be troublesome, so a console command is available for automated testing:</p>
+<p><code>core_vehiclePaints.testRandomPaint('model', 'config', #samples)</code></p>
+<p>The parameters are the vehicle’s internal model name, its config name (can be set to nil to test all the configs on the vehicle), and the number of samples to test. The console will emulate spawning the set amount of vehicles/configs (without actually physically spawning them) and list the repeating paints. Each one will be listed with number spawned, percentage, type (paint or multi-paint setup), and the paint names used on all three color palettes.</p>
+<p>Example 1: 1000 paints for simple_traffic model
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/paint_distribution/dist_vehicle.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/paint_distribution/dist_vehicle_hu77bac01404017dbb51996a513e02f788_652454_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>core_vehiclePaints.testRandomPaint(‘simple_traffic’, nil, 1000)</em></p>
+<p>Example 2: 1000 paints for simple_traffic model with the van_delivery config
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/paint_distribution/dist_config.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/paint_distribution/dist_config_hub2b9b63c758b1cad725c5f13666de0f8_752735_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>core_vehiclePaints.testRandomPaint(‘simple_traffic’, ‘van_delivery’, 1000)</em></p>

@@ -1,0 +1,483 @@
+<p>This page describes level-local crawl data.</p>
+<p>Crawl data defines off-road trail gameplay through companion files for trails, paths, boundaries, and starting positions. Some crawl missions can also carry mission-local crawl files under <code>gameplay/missions/</code>.</p>
+<h2 id="file-location">
+
+  File location
+</h2>
+<p>Level crawl data is stored under:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/crawls/
+</span></span></code></pre></div><p>Common file names:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">&lt;crawlName&gt;.trail.json
+</span></span><span class="line"><span class="cl">&lt;crawlName&gt;.path.json
+</span></span><span class="line"><span class="cl">&lt;crawlName&gt;.boundary.json
+</span></span><span class="line"><span class="cl">&lt;crawlName&gt;.startingPosition.json
+</span></span><span class="line"><span class="cl">presets.json
+</span></span></code></pre></div><p>The crawl save/load system recognizes files by suffix. Keep the suffixes exact:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">.trail.json
+</span></span><span class="line"><span class="cl">.path.json
+</span></span><span class="line"><span class="cl">.boundary.json
+</span></span><span class="line"><span class="cl">.startingPosition.json
+</span></span></code></pre></div>
+<h2 id="creating-crawl-files-with-editor-tools">
+
+  Creating crawl files with editor tools
+</h2>
+<p>Use the Crawl Data Editor for new crawl content when possible. It writes the companion files in the format expected by the crawl system.</p>
+<p>Recommended workflow:</p>
+<ol>
+<li>Open the level in World Editor.</li>
+<li>Open the Crawl Data Editor.</li>
+<li>Create or edit the path by placing route nodes along the intended trail.</li>
+<li>Add recovery checkpoint flags where the player should be able to recover.</li>
+<li>Create a boundary that contains the intended route.</li>
+<li>Create a starting position and verify its icon position.</li>
+<li>Save the path, boundary, starting position, and trail files to <code>levels/&lt;levelName&gt;/crawls/</code>.</li>
+<li>Test the crawl from a fresh start and recovery point.</li>
+</ol>
+<p>If you are converting older race/path data, use the conversion tools first, then manually review the generated files.</p>
+<h2 id="writing-crawl-files-manually">
+
+  Writing crawl files manually
+</h2>
+<p>Manual authoring works best when you create the companion files in this order:</p>
+<ol>
+<li><code>*.path.json</code></li>
+<li><code>*.boundary.json</code></li>
+<li><code>*.startingPosition.json</code></li>
+<li><code>*.trail.json</code></li>
+</ol>
+<p>The trail file should be last because it references the other files.</p>
+<p>Minimal folder layout:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/crawls/example.path.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/crawls/example.boundary.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/crawls/example.startingPosition.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/crawls/example.trail.json
+</span></span></code></pre></div><p>Use matching base names where possible. Matching names are not strictly required, but they make authoring and debugging much easier.</p>
+<h2 id="file-roles">
+
+  File roles
+</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*.trail.json</code></td>
+<td>High-level trail descriptor. References path, boundary, starting position, preview, rules, and optional prefabs.</td>
+</tr>
+<tr>
+<td><code>*.path.json</code></td>
+<td>Ordered route nodes, checkpoint data, radii, rotations, and node flags.</td>
+</tr>
+<tr>
+<td><code>*.boundary.json</code></td>
+<td>Playable area polygon/volume data.</td>
+</tr>
+<tr>
+<td><code>*.startingPosition.json</code></td>
+<td>Spawn/recovery transform and icon position.</td>
+</tr>
+<tr>
+<td><code>presets.json</code></td>
+<td>Optional editor presets for crawl authoring.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="trail-references">
+
+  Trail references
+</h2>
+<p>A trail file links the companion files together with fields such as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pathId"</span><span class="p">:</span> <span class="s2">"/levels/example/crawls/example.path.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"boundaryId"</span><span class="p">:</span> <span class="s2">"/levels/example/crawls/example.boundary.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"startingPositionId"</span><span class="p">:</span> <span class="s2">"/levels/example/crawls/example.startingPosition.json"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Use level-rooted paths and keep referenced files in sync when renaming a crawl.</p>
+<p>Trail files are the highest-level crawl files. They do not usually contain the full path or boundary inline; they point at the companion files. This makes it possible to reuse or swap path, boundary, or starting position data, but it also means broken references can make an otherwise valid crawl invisible or unusable.</p>
+<p>When writing a trail manually, start with only the required references and add optional metadata later:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"trail.example.title"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pathId"</span><span class="p">:</span> <span class="s2">"/levels/example/crawls/example.path.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"boundaryId"</span><span class="p">:</span> <span class="s2">"/levels/example/crawls/example.boundary.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"startingPositionId"</span><span class="p">:</span> <span class="s2">"/levels/example/crawls/example.startingPosition.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pathReversed"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Add preview, thumbnail, rules, and prefabs after the trail loads successfully.</p>
+<h3 id="trailjson-fields">
+
+<code>*.trail.json</code> fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Recommended</td>
+<td>Display name or translation key.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Optional</td>
+<td>Description or translation key.</td>
+</tr>
+<tr>
+<td><code>pathId</code></td>
+<td>Yes</td>
+<td>Path to <code>*.path.json</code>.</td>
+</tr>
+<tr>
+<td><code>boundaryId</code></td>
+<td>Yes</td>
+<td>Path to <code>*.boundary.json</code>.</td>
+</tr>
+<tr>
+<td><code>startingPositionId</code></td>
+<td>Yes</td>
+<td>Path to <code>*.startingPosition.json</code>.</td>
+</tr>
+<tr>
+<td><code>startingPositionIdReversed</code></td>
+<td>Optional</td>
+<td>Reverse-direction starting position.</td>
+</tr>
+<tr>
+<td><code>pathReversed</code></td>
+<td>Optional</td>
+<td>Whether the path should be read in reverse.</td>
+</tr>
+<tr>
+<td><code>thumbnail</code></td>
+<td>Optional</td>
+<td>UI thumbnail path.</td>
+</tr>
+<tr>
+<td><code>preview</code></td>
+<td>Optional</td>
+<td>UI preview path.</td>
+</tr>
+<tr>
+<td><code>rules</code></td>
+<td>Optional</td>
+<td>Crawl rule settings.</td>
+</tr>
+<tr>
+<td><code>prefabs</code></td>
+<td>Optional</td>
+<td>Supporting prefab references.</td>
+</tr>
+<tr>
+<td><code>metadata</code></td>
+<td>Optional</td>
+<td>Created/modified/version information.</td>
+</tr>
+<tr>
+<td><code>isFromMission</code></td>
+<td>Optional</td>
+<td>Marks mission-owned trail data.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="path-files">
+
+  Path files
+</h2>
+<p>Path files store ordered route nodes. Nodes can include:</p>
+<ul>
+<li>A display/debug name.</li>
+<li>Position.</li>
+<li>Rotation.</li>
+<li>Radius.</li>
+<li>Flags such as recovery checkpoint data or side padding.</li>
+</ul>
+<p>The path should follow the intended driving direction. If a trail supports reverse driving, prefer using explicit reverse settings rather than duplicating nearly identical paths unless the reverse route needs different checkpoints.</p>
+<p>For hand-written paths:</p>
+<ul>
+<li>Keep nodes ordered from start to finish.</li>
+<li>Use readable node names.</li>
+<li>Use larger radii for difficult off-road sections.</li>
+<li>Add recovery checkpoint flags where failing would be frustrating.</li>
+<li>Test with the slowest and largest vehicles expected for the crawl.</li>
+</ul>
+<p>Minimal <code>*.path.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"example_path"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"Example crawl path"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Start"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"rotation"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"flags"</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Checkpoint 1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"rotation"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"flags"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"isRecoveryCheckpoint"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"recovery"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="pathjson-fields">
+
+<code>*.path.json</code> fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Recommended</td>
+<td>Internal/display name.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Optional</td>
+<td>Editor/debug description.</td>
+</tr>
+<tr>
+<td><code>nodes</code></td>
+<td>Yes</td>
+<td>Ordered array of path nodes.</td>
+</tr>
+<tr>
+<td><code>nodes[].name</code></td>
+<td>Recommended</td>
+<td>Useful for debugging and conversion.</td>
+</tr>
+<tr>
+<td><code>nodes[].position</code></td>
+<td>Yes</td>
+<td>World position as <code>[x, y, z]</code>.</td>
+</tr>
+<tr>
+<td><code>nodes[].rotation</code></td>
+<td>Optional</td>
+<td>Quaternion array.</td>
+</tr>
+<tr>
+<td><code>nodes[].radius</code></td>
+<td>Recommended</td>
+<td>Checkpoint/route radius.</td>
+</tr>
+<tr>
+<td><code>nodes[].flags</code></td>
+<td>Optional</td>
+<td>Recovery, padding, normal, or other gameplay flags.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="boundary-files">
+
+  Boundary files
+</h2>
+<p>Boundary files define the playable area for the crawl. Keep the boundary generous enough for normal driving mistakes, but not so large that players can bypass the intended challenge.</p>
+<p>If the boundary clips the route, players may fail or reset unexpectedly. If it is too loose, the crawl may lose its challenge definition.</p>
+<p>Create boundaries in the editor where possible. Manual boundary editing is error-prone because vertex order and placement matter.</p>
+<p>Minimal <code>*.boundary.json</code> shape:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"example_boundary"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vertices"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">-10</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">-10</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"bot"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"active"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normal"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">-1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">-10</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"top"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"active"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normal"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"customFields"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"names"</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"tags"</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"types"</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"values"</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The boundary format is shared with site zone serialization. If possible, create it through the Sites or Crawl tools.</p>
+<h2 id="starting-position-files">
+
+  Starting position files
+</h2>
+<p>Starting position files define where the player starts or recovers. They commonly include:</p>
+<ul>
+<li>A transform position.</li>
+<li>A transform rotation.</li>
+<li>A radius.</li>
+<li>An icon position for UI or map display.</li>
+</ul>
+<p>Place starts on stable, flat-enough ground and test them with the vehicle classes expected for the crawl.</p>
+<p>When writing manually, remember that <code>iconPosition</code> is for UI/map display and is not necessarily the same as the actual spawn transform.</p>
+<p>Minimal <code>*.startingPosition.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Example Start"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"Start for the example crawl"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"transform"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"rotation"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">5</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"iconPosition"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"metadata"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"created"</span><span class="p">:</span> <span class="s2">"2026-06-08"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"modified"</span><span class="p">:</span> <span class="s2">"2026-06-08"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="startingpositionjson-fields">
+
+<code>*.startingPosition.json</code> fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Recommended</td>
+<td>Display/debug name.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Optional</td>
+<td>Description.</td>
+</tr>
+<tr>
+<td><code>transform.position</code></td>
+<td>Yes</td>
+<td>Actual spawn/recovery position.</td>
+</tr>
+<tr>
+<td><code>transform.rotation</code></td>
+<td>Yes</td>
+<td>Quaternion orientation.</td>
+</tr>
+<tr>
+<td><code>transform.radius</code></td>
+<td>Recommended</td>
+<td>Spawn/recovery radius.</td>
+</tr>
+<tr>
+<td><code>iconPosition</code></td>
+<td>Recommended</td>
+<td>UI/map icon position.</td>
+</tr>
+<tr>
+<td><code>metadata</code></td>
+<td>Optional</td>
+<td>Created/modified data.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="mission-local-crawl-data">
+
+  Mission-local crawl data
+</h2>
+<p>Some crawl gameplay lives under modern mission folders:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">gameplay/missions/&lt;levelName&gt;/crawl/&lt;missionName&gt;/
+</span></span></code></pre></div><p>Mission-local crawl data can use the same concepts as level-local crawl data. Check the mission folder before assuming all crawl files are in <code>levels/&lt;levelName&gt;/crawls/</code>.</p>
+<h2 id="conversion-notes">
+
+  Conversion notes
+</h2>
+<p>Some crawl files are converted from older <code>race.race.json</code> data. Converted files often keep descriptions such as “Converted from race.race.json”. After conversion, treat the generated path, boundary, trail, and starting-position files as the active crawl data.</p>
+<p>When converting, review the result manually. Converted path node names, recovery checkpoints, side padding, and boundaries may be technically valid but still need gameplay tuning.</p>
+<h2 id="presets">
+
+  Presets
+</h2>
+<p><code>presets.json</code> is editor/tooling data. It can store reusable crawl authoring presets and should be kept with the level only when those presets are useful for future editing.</p>
+<p>Do not rely on presets as gameplay data. The active crawl should be represented by the trail, path, boundary, and starting-position files.</p>
+<h2 id="troubleshooting">
+
+  Troubleshooting
+</h2>
+<h3 id="trail-does-not-appear">
+
+  Trail does not appear
+</h3>
+<p>Check:</p>
+<ul>
+<li>The file suffix is <code>.trail.json</code>.</li>
+<li>The trail references existing <code>pathId</code>, <code>boundaryId</code>, and <code>startingPositionId</code> files.</li>
+<li>The referenced paths are level-rooted and use the correct level name.</li>
+<li>The feature or mission that should expose the trail is enabled.</li>
+</ul>
+<h3 id="player-spawns-badly">
+
+  Player spawns badly
+</h3>
+<p>Check:</p>
+<ul>
+<li>The starting position transform is on the intended ground surface.</li>
+<li>The rotation faces the first section of the route.</li>
+<li>The radius is appropriate for the vehicle size.</li>
+<li>The icon position is not confused with the actual spawn transform.</li>
+</ul>
+<h3 id="crawl-fails-unexpectedly">
+
+  Crawl fails unexpectedly
+</h3>
+<p>Check:</p>
+<ul>
+<li>The boundary contains the intended driving line.</li>
+<li>Recovery checkpoint flags are placed where needed.</li>
+<li>Path node radii are large enough for the route.</li>
+<li>Mission-local files are not overriding or replacing level-local data.</li>
+</ul>
+<h2 id="validation-checklist">
+
+  Validation checklist
+</h2>
+<ul>
+<li><code>*.trail.json</code> references valid path, boundary, and starting-position files.</li>
+<li><code>*.path.json</code> has ordered nodes with reasonable radii and rotations.</li>
+<li><code>*.boundary.json</code> covers the intended route and does not clip normal driving.</li>
+<li><code>*.startingPosition.json</code> points to a safe spawn/recovery position.</li>
+<li>Preview and thumbnail paths exist when used.</li>
+<li>Mission-local crawl files are kept with the mission that owns them.</li>
+<li>Converted files are reviewed and tuned after conversion.</li>
+</ul>
+<h2 id="related-pages">
+
+  Related pages
+</h2>
+<ul>
+<li><a data-doc="levels/level_formats/sites" href="/docs/levels/level_formats/sites">Sites (.sites.json)</a>
+</li>
+<li><a data-doc="levels/gameplay_data" href="/docs/levels/gameplay_data">Level Gameplay Data</a>
+</li>
+</ul>

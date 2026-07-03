@@ -1,0 +1,283 @@
+<p>To make your own skins there are a few things that you will need :</p>
+<ul>
+<li>A skin template. All vanilla cars should have a png file with a name like “skin_UVs” in their folder. This file will be used as the reference for drawing your skin.</li>
+<li>A graphical editor. While you can use MS Paint to make skins, it’s heavily suggested that you learn to use a program that supports layers. GIMP and Paint.Net are very good free options.</li>
+<li>A template materials and jbeam file. For the materials you should start with the car’s main.materials.json file, found in the car’s zip file. For the jbeam file you can use <a href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/skinJbeamTemplate.jbeam" rel="noopener" target="_blank">this one</a>
+</li>
+</ul>
+<p>This tutorial includes examples for the 3 most common use cases when it comes to vehicle skins :</p>
+<ul>
+<li>Fully colorable skins, where the color of the entire skin can be adjusted using the color selector.</li>
+<li>Partially colorable skins, where most of the skin can be adjusted using the color selector, but some sections like badges and logos are a fixed color.</li>
+<li>Non colorable skins, which aren’t affected by the color selector.</li>
+</ul>
+<h3 id="intro-to-the-uv-and-layer-systems">
+
+  Intro to the UV and layer systems.
+</h3>
+<p>A small particularity of most vanilla cars is that they have 2 different UV maps, and 2 separate layers on the main material.</p>
+<p>The 2 layers consist of a base layer that has all elements of the vehicle, and a second layer with only the car’s painted areas, along with a opacity map.</p>
+<p>When playing in the material editor, you should only edit the second layer, and leave the first layer as is.</p>
+<p>As for the UV maps, each of the vanilla cars is set-up with 2. The first UV one, called UV map 0, is mirrored, and is designed to optimize the use of UV space for mechanical components, normal map details and others.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/VivaceUV0.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/VivaceUV0_hu98b51e173bd998d479da1a3442958a95_856533_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>This is why all vanilla cars have a second UV map, referred to as UV map 1, which is not mirrored and is designed specifically for making paint schemes. You should always be using this UV map when making skins.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/VivaceUV1.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/VivaceUV1_hu8b8830250631bc3cb90db9179cf4dec1_938688_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>That UV map also has all the various option components mapped on top of each other, to make all option parts compatible with the various skins.</p>
+<p>You can find the paint template for most vanilla cars inside of their zip file. It’s going to be a PNG file with a name that usually contains “skin UVs”</p>
+<p>If you want to make skins for modded content, check if the mod’s creator has included a similar template in his files. Keep in mind that some mods haven’t been UV mapped in a way that allows for making skins. If the mod has included skins but no template, you can ask the mod’s creator if he can add one to the mod.</p>
+<h3 id="creating-the-folder-structure">
+
+  Creating the folder structure
+</h3>
+<p>The first step when making a skin, as with any mod, is to create a folder within the unpacked folder inside your mod folder.</p>
+<p>The first folder should be the name of your mod, with a vehicles folder inside of it, then the car’s folder, then a subfolder inside.</p>
+<p>The end result should look like this:
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/skinTutorialPath.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/skinTutorialPath.png"/>
+</span></a></p>
+<p>The car’s folder is the same as the name of the car’s zip file inside the content folder.</p>
+<p>Once that is done, you can copy over the jbeam and material files into the newly created folder.</p>
+<h3 id="setting-up-the-jbeam-file">
+
+  Setting up the jbeam file
+</h3>
+<p>After copying the jbeam file, make sure to rename it to a unique name so it doesn’t overwrite anything.</p>
+<p>For the jbeam file, the changes you need to do are :</p>
+<ul>
+<li>Give the component a unique name</li>
+<li>Change the information parameters to your liking. The name will be what appears in the part selector.</li>
+<li>Change the globalSkin value to an other unique value, as this will also be used in the materials file.</li>
+</ul>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"tutorialSkin"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Tutorial Skin"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">1000</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"paint_design"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"globalSkin"</span> <span class="o">:</span> <span class="s2">"TutorialSkin"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>If you need to create multiple skins, you can copy the part multiple times, making sure that the name and globalSkin values are always unique. As with any jbeam, make sure that the brackets are correct. The file should always have a starting and ending bracket. Here is an example with multiple skins.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"tutorialSkin"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Tutorial Skin"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">1000</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"paint_design"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"globalSkin"</span> <span class="o">:</span> <span class="s2">"TutorialSkin"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"tutorialSkin2"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Tutorial Skin 2"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">1000</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"paint_design"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"globalSkin"</span> <span class="o">:</span> <span class="s2">"TutorialSkin2"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="setting-up-the-json-file">
+
+  Setting up the json file
+</h3>
+<p>As with the jbeam file, the first step is to remove every single material except the one we will be using as our reference.</p>
+<p>Keep an eye on the syntax of your file, especially brackets and commas. If you’re unsure, you can copy over the entire content of your materials file in 
+    <a class="link-ext" href="https://jsonlint.com/" rel="noopener" target="_blank">this JSON checking tool.</a>
+</p>
+<p>Usually the material that you will be using as the reference point will be the material labelled as “main”. Here’s what the content of your file should look like.</p>
+<div class="border border-default collapse-wrapper">
+<a class="d-flex py-2 collapse-head" data-toggle="collapse" href="#uid14" role="button">
+    Material definition Example <i class="ti-plus ml-auto"></i>
+</a>
+<div class="collapse" id="uid14"><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vivace_main"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"vivace_main"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"mapTo"</span><span class="p">:</span> <span class="s2">"vivace"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"persistentId"</span><span class="p">:</span> <span class="s2">"c149d182-981e-4864-8d0d-6449b0372ece"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_b.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_m.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"vehicles/vivace/vivace_n.dds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_r.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"instanceDiffuse"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"colorPaletteMapUseUV"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatRoughnessFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_cc.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_n.dds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"opacityMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_c.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"colorPaletteMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_p.color.png"</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"activeLayers"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dynamicCubemap"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"materialTag0"</span><span class="p">:</span> <span class="s2">"beamng"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"materialTag1"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order_simset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span></code></pre></div></div>
+</div>
+<p>If you want to make multiple skins, you can also create copies of that material within your file.</p>
+<p>The first step is to modify the materials identifier, name and mapTo, adding “.skin.globalSkin” at the end, with globalSkin being the same value that you defined in the jbeam earlier.</p>
+<p></p><div class="bng-notice note">The first part of the name should match the “mapTo” value in the original file, not the “name”</div>
+<br/>
+The result should look like this for all of your materials.
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"vivace.skin.TutorialSkin"</span> <span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"name"</span> <span class="o">:</span> <span class="s2">"vivace.skin.TutorialSkin"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"mapTo"</span> <span class="o">:</span> <span class="s2">"vivace.skin.TutorialSkin"</span><span class="p">,</span>
+</span></span></code></pre></div><p>Most of the rest of the other parameters will be left as-is, since we only want to change the color of the body shell, and nothing else. Those changes will be done using the in-game material editor.</p>
+<h3 id="the-material-editor">
+
+  The material editor
+</h3>
+<p>The material editor will be used for all other changes required for your skins to work, as it is much more user friendly than editing the JSON manually.</p>
+<p>To edit skins in the material editor, it must first be applied to the car, meaning you must select your skin part in the parts selector first.</p>
+<p>You can then access the material editor can be accessed within the editor, which is accessed with <kbd>F11</kbd></p>
+<p>Then go in “Windows”-&gt;“Material Editor”. You should see a new window with a list of materials. Click on the car in the world editor to get the list of materials that apply to it.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/MaterialEditor.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/MaterialEditor_hu148335881828a1b5d2365fbdb08cb7dc_1319069_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>You can then select your skin’s material in the list to see it’s properties. If the material doesn’t appear, check the syntax of your materials file and then restart the game.</p>
+<p>When you save the file, it should appear inside the /vehicles/<em>VEHICLENAME</em>/ folder.</p>
+<h3 id="the-texture-cooker">
+
+  The texture cooker
+</h3>
+<p>The texture cooker is a tool that converts .png files into the appropriate .dds files.</p>
+<p>As not all software (especially free software) is compatible with some of the newer types of .dds file compression, this workflow is heavily recommended, and is what this tutorial is based around.</p>
+<p>For more information, you can check out the <a data-doc="materials/texture_cooker" href="/docs/materials/texture_cooker">texture cooker</a>
+ page.</p>
+<p></p><div class="bng-notice note"><p>The most important aspect when using the texture cooker is proper texture naming.</p>
+<p>In our case we’ll only be creating full color images, which have to end with .color.png</p>
+<p>So for example : “CustomRacingSkin.color.png”</p>
+</div>
+<br/>
+<h3 id="fully-colorable-skin">
+
+  Fully colorable skin
+</h3>
+<p>Fully colorable skins are the most common and the simplest. They work by defining a new colorPalette, using the different color channels to create a livery.</p>
+<p>Each slider in the color selector corresponds to an RGB channel in the color palette map, with Red being mapped to the first slider, Green to the second, and Blue to the last. This means that each pixel will get recolored based on it’s color.</p>
+<p>This is an example of a typical color palette map for a skin that is entirely colorable.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/fullyColorable_p.color.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/fullyColorable_p.color_hu630a06f7c1995acbd4c3726907a8b81b_56991_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Channels can also be mixed, to help with aliasing on edges, or to create interesting patterns like this fade.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/ColorChannelMixingExample.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/ColorChannelMixingExample.png"/>
+</span></a></p>
+<p>The texture should have a name that ends in .color.png, so the texture cooker recognizes them as colored textures.</p>
+<p>As for the materials, the only thing that needs to be changed is the path to the color palette map on the second layer :
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/ColorableMaterial.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/ColorableMaterial_hu1a42516941e5053447042b1362d93277_145447_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Using the previously defined textures, the in-game result should look like this.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/Colorable.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/Colorable_hu98d55da2c1d207bd4fe5ce3e3947055e_623767_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="colorable-skins-with-uncolorable-sections">
+
+  Colorable skins with uncolorable sections
+</h3>
+<p>These skins are common for things like racing liveries, where most of the skin is colorable with the exception of sponsor logos and race numbers.</p>
+<p>They make use of both a colorPalette and a baseColorMap. The colorPalette map is made mostly the same way as before, with the exception of the areas which are not colorable, which should be transparent
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/partlyColorable_p.color.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/partlyColorable_p.color_hu5b0b84d45546c318c98c5c414af37560_46642_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>As for the baseColorMap, the only important aspect is that all the colorable areas should be white, to make sure those areas will only be the chosen color. There should not be any transparent areas on this skin.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/partlyColorable_b.color.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/partlyColorable_b.color_hu934fdec1301f1889988074a88f0b6ebf_55715_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Both textures should have a name that ends in .color.png, so the texture cooker recognizes them as colored textures.</p>
+<p>As for the material, the colorpalettemap’s path will need to be changed, and a baseColorMap should be added, you’ll also need to change the baseColorMap on the second layer to use UVMap 1.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/PartialColorMaterial.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/PartialColorMaterial_hufde52a4d94a733dacdce73d449309747_122075_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Using the previously defined textures, the in-game result should look like this.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/PartialColor.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/PartialColor_hu947caa26cd86cea611b938d2dbb3f249_624510_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p></p><div class="bng-notice note">If either texture doesn’t appear correctly on the vehicle, like areas are the wrong color, make sure that your baseColorMap and colorPaletteMap are set to use UV layer 1.</div>
+<br/>
+<h3 id="non-colorable-skins">
+
+  Non colorable skins
+</h3>
+<p>This category includes things like emergency vehicles, where all the colors on the livery are fixed.</p>
+<p>These skins only use a baseColorMap, and will not have adjustable roughness, metallicity or clearCoat parameters in the color selector, meaning you might want to adjust them in the materials file.</p>
+<p>An example texture file would be this.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/nonColorable_b.color.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/nonColorable_b.color_hu4e2897659557607f85de42811e7523ff_55781_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>As for the materials file, you will need to add a baseColorMap, and  change the baseColorMap on the second layer to use UVMap 1. You also need to un-tick “Instance BaseColor”, so the base color doesn’t get affected by the color selector.</p>
+<p>Keep in mind that doing only those changes will result in a matte looking skin. You can adjust the metallicity, roughness and clearcoat of the material using their respective factor sliders in the material editor.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/NonColorMaterial.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/NonColorMaterial_hu9644245971965822bda396c7727fe79b_122544_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>As usual, you should only make changes on the second layer.</p>
+<p>Using the previously defined textures, the in-game result should look like this.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/NonColor.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/NonColor_hu8dcd40041f5befa9948d89a17f7a9d8e_569860_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p></p><div class="bng-notice note">If the texture doesn’t appear correctly on the vehicle, like areas are the wrong color, make sure that your baseColorMap is set to use UV layer 1.</div>
+<br/>
+<h3 id="troubleshooting">
+
+  Troubleshooting
+</h3>
+<p>This interactive part of the tutorial will cover some common issues you can encounter when making skins.</p>
+<noscript>
+    Please enable JavaScript in your browser.
+</noscript>
+<div class="bngadventure" style="display:none">
+
+</div>
+<h3 id="preparing-the-mod-for-release">
+
+  Preparing the mod for release
+</h3>
+<p>Once you have completed all the edits to your materials, and everything works correctly, it’s now time to do the finishing touches to prepare your skin mod for release.</p>
+<p>The first step, if you haven’t done so already, is to copy over the modified materials file.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/CopyOverMaterialsFile.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/CopyOverMaterialsFile_huc46e65ee756fe92a71d4cfb9c86c7563_64432_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Then, we need to copy over the .dds files created by the texture cooker. You can find them in the temp folder. Just copy them over to your mod’s folder.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/CopyOverDDSFiles.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/CopyOverDDSFiles.png"/>
+</span></a></p>
+<p>Once you’ve copied over the .dds files, you have to remove the png files from your mod’s folder.</p>
+<p>You can do this by checking which png files have a .dds file with matching name.</p>
+<p>You should also remove the files that aren’t required for the mod to function, like project files for your image editor and reference images.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/CleanupModFolder.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/CleanupModFolder.png"/>
+</span></a></p>
+<p></p><div class="bng-notice note">It is good practice to keep a copy of your original png files somewhere if you plan on working on your mod again in the future.</div>
+<br/>
+<p>The last step is to pack the mod into a zip file. To do so, go in the game, inside “Repository” -&gt; “Mod Manager”. You can then select the mod in the list, and click on “Pack”</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/skinsystem/skintutorial/PackingMod.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/skinsystem/skintutorial/PackingMod.png"/>
+</span></a></p>
+<p>There should now be a zip file of your skin mod within the “mods” folder, which you can share with your friends, or with the rest of the community using the repository.</p>

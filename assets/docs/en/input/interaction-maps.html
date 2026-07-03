@@ -1,0 +1,402 @@
+<p>Interaction maps define vehicle interaction actions in files ending with:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.interaction.json
+</span></span></code></pre></div><p>They use the same action-code format as <code>input_actions.json</code>, but they are primarily used by vehicle interactive triggers, especially <code>triggers2</code> and <code>triggerEventLinks2</code>.</p>
+<p>Common uses include:</p>
+<ul>
+<li>door, hood, trunk, hatch, and tailgate handles</li>
+<li>trailer feet and fifth wheel controls</li>
+<li>upfit levers</li>
+<li>police equipment controls</li>
+<li>hydraulic controls</li>
+<li>winches, latches, locks, and other clickable vehicle features</li>
+</ul>
+<hr/>
+<h2 id="file-location">
+
+  File location
+</h2>
+<p>Interaction maps are stored in vehicle folders:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicles/&lt;vehicleName&gt;/*.interaction.json
+</span></span></code></pre></div><p>Examples:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicles/cannon/cannon_default.interaction.json
+</span></span><span class="line"><span class="cl">vehicles/us_semi/us_semi_default.interaction.json
+</span></span><span class="line"><span class="cl">vehicles/common/common_default.interaction.json
+</span></span></code></pre></div><p>There can be multiple interaction map files per vehicle.</p>
+<p>The common vehicle folder can define shared actions that other vehicles can reference.</p>
+<hr/>
+<h2 id="basic-structure">
+
+  Basic structure
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"fileversion"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"actions"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"tailgate"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"order"</span><span class="p">:</span> <span class="mf">1005.1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"onDown"</span><span class="p">:</span> <span class="s2">"controller.getControllerSafe('tailgateCoupler').toggleGroup()"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"vehicle.interaction.tailgate.toggle.title"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"vehicle.interaction.tailgate.toggle.desc"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The <code>actions</code> object contains the same kind of action entries used by <code>input_actions.json</code>.</p>
+<hr/>
+<h2 id="top-level-fields">
+
+  Top-level fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fileversion</code></td>
+<td>integer</td>
+<td>Interaction map format version. Current shipped files commonly use <code>2</code>.</td>
+</tr>
+<tr>
+<td><code>actions</code></td>
+<td>object</td>
+<td>Map of action ids to action definitions.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="action-fields">
+
+  Action fields
+</h2>
+<p>Each entry inside <code>actions</code> is an input action.</p>
+<p>Common fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>order</code></td>
+<td>number</td>
+<td>Display/sorting order.</td>
+</tr>
+<tr>
+<td><code>onChange</code></td>
+<td>string</td>
+<td>Code run when the input value changes.</td>
+</tr>
+<tr>
+<td><code>onDown</code></td>
+<td>string</td>
+<td>Code run when a key/button/trigger is pressed.</td>
+</tr>
+<tr>
+<td><code>onUp</code></td>
+<td>string</td>
+<td>Code run when a key/button/trigger is released.</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>string</td>
+<td>Translation key or short display title.</td>
+</tr>
+<tr>
+<td><code>desc</code></td>
+<td>string</td>
+<td>Translation key or short description.</td>
+</tr>
+<tr>
+<td><code>isCentered</code></td>
+<td>bool</td>
+<td>Uses <code>-1..1</code> input values instead of <code>0..1</code>.</td>
+</tr>
+<tr>
+<td><code>icon</code></td>
+<td>string</td>
+<td>Optional UI/icon hint used by some interaction systems.</td>
+</tr>
+</tbody>
+</table>
+<p>For the full action-code model, see <a data-doc="input/actions" data-frag="writing-action-code" href="/docs/input/actions#writing-action-code">Writing Action Code</a>
+.</p>
+<hr/>
+<h2 id="action-code">
+
+  Action code
+</h2>
+<p>Interaction actions usually run in vehicle Lua.</p>
+<p>Example toggle:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"door_FR"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"order"</span><span class="p">:</span> <span class="mf">1000.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"onDown"</span><span class="p">:</span> <span class="s2">"controller.getControllerSafe('door_FR_coupler').toggleGroup()"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"vehicle.interaction.doors.FR.toggle.title"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"vehicle.interaction.doors.FR.toggle.desc"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Example analog / held action:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"lift"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"order"</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"onChange"</span><span class="p">:</span> <span class="s2">"custom_input.liftBarrel(VALUE)"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"ui.inputActions.cannon.lift.title"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"ui.inputActions.cannon.lift.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isCentered"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><code>VALUE</code> is replaced by the current input value before the code runs.</p>
+<p>Use:</p>
+<ul>
+<li><code>onDown</code> for toggles and one-shot actions.</li>
+<li><code>onChange</code> for levers, sliders, analog inputs, and held controls.</li>
+<li><code>onUp</code> for release behavior.</li>
+</ul>
+<hr/>
+<h2 id="relationship-with-triggers2">
+
+  Relationship with triggers2
+</h2>
+<p><code>triggers2</code> defines clickable trigger volumes on a vehicle.</p>
+<p><code>triggerEventLinks2</code> connects those trigger volumes to input actions.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"triggerEventLinks2"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"triggerId:triggers2"</span><span class="p">,</span> <span class="s2">"triggerInput"</span><span class="p">,</span> <span class="s2">"inputAction"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"door_R"</span><span class="p">,</span> <span class="s2">"action0"</span><span class="p">,</span> <span class="s2">"door_FR"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>This means:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>triggerId:triggers2</code></td>
+<td>The id of the trigger volume.</td>
+</tr>
+<tr>
+<td><code>triggerInput</code></td>
+<td>Which trigger input activates it, such as <code>action0</code>.</td>
+</tr>
+<tr>
+<td><code>inputAction</code></td>
+<td>The interaction/action id to run.</td>
+</tr>
+</tbody>
+</table>
+<p>Common <code>triggerInput</code> values:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>action0</code></td>
+<td>Left mouse button / primary action.</td>
+</tr>
+<tr>
+<td><code>action1</code></td>
+<td>Secondary action, often shift + left mouse or right mouse depending context.</td>
+</tr>
+<tr>
+<td><code>action2</code></td>
+<td>Middle mouse button / tertiary action.</td>
+</tr>
+</tbody>
+</table>
+<p><code>inputAction</code> usually points to an action in a <code>*.interaction.json</code> file.</p>
+<div class="bng-notice note"><code>triggerEventLinks2</code> does not point to legacy <code>events</code>. It points to input actions.</div>
+<hr/>
+<h2 id="common-actions">
+
+  Common actions
+</h2>
+<p>The common interaction file:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicles/common/common_default.interaction.json
+</span></span></code></pre></div><p>defines many shared actions, such as door, hood, trunk, latch, lightbar, coupling, trailer, hydraulic, and container actions.</p>
+<p>Vehicle parts can reference these actions from <code>triggerEventLinks2</code>.</p>
+<p>When a <code>common:</code> prefix is used in a trigger link, the action is resolved from the common action map / common action set rather than only the current vehicle’s interaction map.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"door_R"</span><span class="p">,</span> <span class="s2">"action0"</span><span class="p">,</span> <span class="s2">"common:door_FR"</span><span class="p">]</span>
+</span></span></code></pre></div><p>Use common actions when the behavior is already provided and matches your part.</p>
+<hr/>
+<h2 id="actionsenabled">
+
+  actionsEnabled
+</h2>
+<p>Interaction actions can be hidden or disabled from the UI until the vehicle part declares that they are available.</p>
+<p>Use the JBeam <code>actionsEnabled</code> section:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"actionsEnabled"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"tiltUp"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"tiltDown"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"extend"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"retract"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>This is useful for vehicles with many optional parts. Only actions for installed parts should be shown to the player.</p>
+<div class="bng-notice warning">If an action is missing from <code>actionsEnabled</code>, its tooltip or binding legend may not appear even if the action exists.</div>
+<hr/>
+<h2 id="interaction-map-vs-input-actionsjson">
+
+  Interaction map vs input_actions.json
+</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Main use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>input_actions.json</code> / <code>input_actions*.json</code></td>
+<td>General vehicle-specific bindings.</td>
+</tr>
+<tr>
+<td><code>*.interaction.json</code></td>
+<td>Vehicle interaction actions, especially clickable <code>triggers2</code> controls.</td>
+</tr>
+<tr>
+<td>JBeam <code>events</code></td>
+<td>Legacy part-local action definitions used with old <code>triggers</code> / <code>triggerEventLinks</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>For new clickable vehicle interactions, prefer:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">triggers2 + triggerEventLinks2 + *.interaction.json
+</span></span></code></pre></div><p>Use <code>input_actions*.json</code> for normal vehicle controls that do not belong to a clickable interaction map.</p>
+<hr/>
+<h2 id="legacy-triggers-and-events">
+
+  Legacy triggers and events
+</h2>
+<p>Older trigger setups use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">triggers
+</span></span><span class="line"><span class="cl">triggerEventLinks
+</span></span><span class="line"><span class="cl">events
+</span></span></code></pre></div><p>In that system, <code>events</code> defines the action code directly inside the JBeam part.</p>
+<p>Newer <code>triggers2</code> setups use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">triggers2
+</span></span><span class="line"><span class="cl">triggerEventLinks2
+</span></span><span class="line"><span class="cl">*.interaction.json
+</span></span><span class="line"><span class="cl">actionsEnabled
+</span></span></code></pre></div><p>The action code moves out of JBeam <code>events</code> and into an interaction map.</p>
+<hr/>
+<h2 id="default-bindings">
+
+  Default bindings
+</h2>
+<p>Interaction actions can have normal input bindings.</p>
+<p>Default binding files live in:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicles/&lt;vehicleName&gt;/inputmaps/
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicles/cannon/inputmaps/keyboard.json
+</span></span><span class="line"><span class="cl">vehicles/cannon/inputmaps/xidevice.json
+</span></span></code></pre></div><p>Use the Controls menu to create bindings, then move/rename the generated <code>.diff</code> files into the vehicle’s <code>inputmaps</code> folder as default <code>.json</code> files when appropriate.</p>
+<p>Use a unique suffix for mod-provided binding files:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicles/my_vehicle/inputmaps/keyboard_my_mod.json
+</span></span></code></pre></div><hr/>
+<h2 id="minimal-example">
+
+  Minimal example
+</h2>
+<p>Interaction map:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"fileversion"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"actions"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"open_toolbox"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"order"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"onDown"</span><span class="p">:</span> <span class="s2">"controller.getControllerSafe('toolboxLatch').toggleGroup()"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"vehicle.interaction.toolbox.open.title"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"vehicle.interaction.toolbox.open.desc"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>JBeam link:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"actionsEnabled"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"open_toolbox"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="s2">"triggerEventLinks2"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"triggerId:triggers2"</span><span class="p">,</span> <span class="s2">"triggerInput"</span><span class="p">,</span> <span class="s2">"inputAction"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"toolbox_handle"</span><span class="p">,</span> <span class="s2">"action0"</span><span class="p">,</span> <span class="s2">"open_toolbox"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>The <code>toolbox_handle</code> trigger calls the <code>open_toolbox</code> action from the interaction map.</p>
+<hr/>
+<h2 id="tool-notes">
+
+  Tool notes
+</h2>
+<p>For tools that generate or modify interactions:</p>
+<ul>
+<li>Preserve <code>fileversion</code>.</li>
+<li>Preserve action ids referenced by <code>triggerEventLinks2</code> and <code>actionsEnabled</code>.</li>
+<li>Preserve unknown action fields.</li>
+<li>Keep action ids unique within the vehicle.</li>
+<li>Do not move action code back into legacy <code>events</code> unless intentionally converting to the old trigger system.</li>
+<li>Validate every <code>inputAction</code> reference in <code>triggerEventLinks2</code>.</li>
+<li>Validate every <code>actionsEnabled</code> entry against available actions.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="clickable-trigger-does-nothing">
+
+  Clickable trigger does nothing
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li><code>triggerEventLinks2.inputAction</code> does not match an action id.</li>
+<li>The interaction map file is missing or invalid.</li>
+<li>Action code calls a missing controller.</li>
+<li>The trigger uses the wrong <code>triggerInput</code>.</li>
+</ul>
+<h3 id="binding-legend-does-not-show-the-action">
+
+  Binding legend does not show the action
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Action is not listed in <code>actionsEnabled</code>.</li>
+<li>The action is not usable for the currently installed part.</li>
+<li>No binding exists for the action.</li>
+</ul>
+<h3 id="action-works-from-keyboard-but-not-from-clicking-the-trigger">
+
+  Action works from keyboard but not from clicking the trigger
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Keyboard binding points to the action, but <code>triggerEventLinks2</code> points to a different id.</li>
+<li>Trigger volume is misplaced.</li>
+<li>Trigger action input (<code>action0</code>, <code>action1</code>, <code>action2</code>) is wrong.</li>
+</ul>
+<hr/>
+<h2 id="validation-criteria">
+
+  Validation criteria
+</h2>
+<ul>
+<li>Interaction JSON parses correctly.</li>
+<li>Every <code>triggerEventLinks2</code> action resolves.</li>
+<li>Every displayed interaction is listed in <code>actionsEnabled</code>.</li>
+<li>Clickable triggers activate the intended action.</li>
+<li>Keyboard/gamepad bindings still work if default inputmaps are provided.</li>
+<li>Missing optional parts do not show irrelevant actions.</li>
+</ul>
+<p><strong>See also:</strong> <a data-doc="input/actions" href="/docs/input/actions">Actions</a>
+, <a data-doc="input/bindings" href="/docs/input/bindings">Bindings</a>
+, <a data-doc="input/vehicle-specific-bindings" href="/docs/input/vehicle-specific-bindings">Vehicle-Specific Bindings</a>
+, <a data-doc="vehicle/sections/triggers/triggers2" href="/docs/vehicle/sections/triggers/triggers2">Triggers2</a>
+.</p>

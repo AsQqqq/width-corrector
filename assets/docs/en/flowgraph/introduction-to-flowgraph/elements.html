@@ -1,0 +1,464 @@
+<h2 id="nodes">
+
+  Nodes
+</h2>
+<p>Nodes are the basic building stones of your flowgraph.<br/>
+Every node provides some kind of functionality, that is based around the concept of processing input and giving output.
+A good example of this, is the “Expression” node:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/1.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/1.png"/>
+</span></a></p>
+<p>It receives the values “a” and “b” on its input pins, processes them and gives back “value” on its output pin.<br/>
+With the wide variety of nodes provided by Flowgraph, you can build complex scenarios to bring interaction to your levels.<br/>
+There are also nodes that are only used for putting out values without having any input pins:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/2.png"/>
+</span></a></p>
+<p>This “Number” node provides a value, that can be set in internally and is not provided from an input pin.<br/>
+On the other hand there are nodes that only take in data through input pins and process it, but do not provide any output pins. They could for example be storing the input in a variable or cause a reaction in the game world.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/3.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/3.png"/>
+</span></a></p>
+<p>This “Message” node for example takes in a message and a duration and then displays this message in the ingame UI to the player. It does not provide any kind of output.<br/>
+Most nodes require “flow” to function. You can learn more about flow <a data-doc="flowgraph/introduction-to-flowgraph/flow" href="/docs/flowgraph/introduction-to-flowgraph/flow">here</a>
+.</p>
+<h4 id="creating-nodes">
+
+  Creating Nodes
+</h4>
+<p>There are multiple ways to add nodes to you graph.<br/>
+The simplest way is pressing <kbd>Right Click</kbd> on a free space in the graph and selecting the node you want from the context menu.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/27.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/27.gif"/>
+</span></a></p>
+<p>Another way to add a new node is by pressing <kbd>Left Click</kbd> and dragging a link from a pin to a free space in the graph. This will directly connect the newly created node to the pin.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/16.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/16.gif"/>
+</span></a></p>
+<p>At last you can also create nodes through the “Node Library” window. You can learn more about it on the <a data-doc="flowgraph/editor/windows" href="/docs/flowgraph/editor/windows">Windows</a>
+ page.</p>
+<h4 id="removing-nodes">
+
+  Removing Nodes
+</h4>
+<p>You can remove nodes by either:</p>
+<ul>
+<li>Selecting them and pressing the <kbd>Delete</kbd> key.</li>
+<li>Pressing <kbd>Right Click</kbd> on them and selecting <kbd>Delete</kbd> in the menu.</li>
+</ul>
+<br/>
+<h4 id="node-behaviours">
+
+  Node Behaviours
+</h4>
+<p>The different nodes of Flowgraph provide a wide variety of different functionalities, that you can use for your project. To give you a better understanding on how to interact with a node and how it will behave we introduced <strong>Node Behaviours</strong>.</p>
+<p>You can see the behaviours of a node as icons in the top right corner of the title bar. When hovering the node you see a detailed explanation of what these behaviours mean:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/27.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/27_hu3f10d9fe6137d18564d53a79680e4ffe_31550_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>The following node behaviours currently exist in Flowgraph:</p>
+<ul>
+<li><strong>Once</strong> <img loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/refresh.svg"/><br/>
+This node only provides its functionality once, then has to be reset.</li>
+<li><strong>Duration</strong> <img loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/hourglass_empty.svg"/><br/>
+This node takes longer than one frame to provide its functionality.</li>
+<li><strong>Simple</strong> <img loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/widgets.svg"/><br/>
+This node does not require flow to function.</li>
+</ul>
+<h4 id="dynamic-nodes">
+
+  Dynamic Nodes
+</h4>
+<p>The standard behaviour for nodes in Flowgraph is that they provide their functionality repeatedly as long as they are receiving flow. But we have already seen that for some nodes it makes sense, to only function once, like the “Spawn Vehicle” node. We wouldn’t want it to spawn a vehicle on every frame. We can recognize these nodes by their <img loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/refresh.svg"/> flag.<br/>
+Between “repeat” and “once” behaviour there are nodes, that in different use cases, could use both functionalities. Lets look at the “Set Gravity” node as an example.</p>
+<h6 class="anchored">
+
+  1. “Repeat” Use-case
+</h6>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/41.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/41.png"/>
+</span></a></p>
+<p>In this situation we are setting the gravity on every frame, as long as the node is receiving flow. This could be useful in a scenario, where we are gradually changing the value input and want the gravity to be constantly updated.</p>
+<h6 class="anchored">
+
+  2. “Once” Use-case
+</h6>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/42.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/42_hu2768242775f469f5a6cc6f31a64067d2_18262_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>In this situation we are setting the gravity only once, even if there is constant flow incoming. After that the node has to be reset by using the “reset” pin to work again. This can be useful in scenarios, where the player reaches a new game state and gravity has to be adjusted just once.</p>
+<p>In earlier versions of Flowgraph, if you wanted the “Once” behaviour, you would have to add an additional “Once” node before the node, so the flow gets converted to impulse.<br/>
+To give you more control over how you want to use your nodes, we added “Dynamic” nodes. These nodes are able to switch between the “Repeat” and the “Once” behaviour depending on what you need.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/43.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/43.gif"/>
+</span></a></p>
+<p>To switch behaviours you can simply select the node and view it in the “Properties” window.<br/>
+Here you can see a <kbd>Set Once</kbd> or <kbd>Set Repeat</kbd> button that will dynamically change the behaviour of the node.</p>
+<hr/>
+<h2 id="pins">
+
+  Pins
+</h2>
+<p>Pins define the input and output of a node.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/4.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/4.png"/>
+</span></a></p>
+<p>The pins on the left side of a node are the input pins, while the pins on the right side are the output pins. To bring interaction and flow into your flowgraph, you can connect the input and output pins of different nodes with each other to create so called Links. You can read more about them below.<br/>
+To define what kind of input and output a node has, each pin has a type:</p>
+<div class="bng-table" id="pin"><div class="bng-table-header"><div>Symbol</div><div>Type</div><div>Values</div><div>Examples</div></div>
+<div class="bng-table-row"><div>
+<div>Symbol</div>
+<div style="color:#ff6600;text-align:left;"><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/flow.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/flow.png"/>
+</span></a> <a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/impulse.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/impulse.png"/>
+</span></a></div>
+</div><div>
+<div>Type</div>
+<div style="text-align:left;height:4rem;">Flow</div>
+</div><div>
+<div>Values</div>
+<div style="text-align:left;font-style:italic;">Flow or No Flow</div>
+</div><div>
+<div>Examples</div>
+<div style="text-align:left;font-style:italic;">Flow</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Symbol</div>
+<div style="color:#ff6600;text-align:left;"><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/bool.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/bool.png"/>
+</span></a></div>
+</div><div>
+<div>Type</div>
+<div style="text-align:left;height:4rem;">Bool</div>
+</div><div>
+<div>Values</div>
+<div style="text-align:left;font-style:italic;">True or False</div>
+</div><div>
+<div>Examples</div>
+<div style="text-align:left;font-style:italic;">True</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Symbol</div>
+<div style="color:#ff6600;text-align:left;"><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/number.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/number.png"/>
+</span></a></div>
+</div><div>
+<div>Type</div>
+<div style="text-align:left;height:4rem;">Number</div>
+</div><div>
+<div>Values</div>
+<div style="text-align:left;font-style:italic;">Any numerical value</div>
+</div><div>
+<div>Examples</div>
+<div style="text-align:left;font-style:italic;">1.5</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Symbol</div>
+<div style="color:#ff6600;text-align:left;"><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/string.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/string.png"/>
+</span></a></div>
+</div><div>
+<div>Type</div>
+<div style="text-align:left;height:4rem;">String</div>
+</div><div>
+<div>Values</div>
+<div style="text-align:left;font-style:italic;">Any text</div>
+</div><div>
+<div>Examples</div>
+<div style="text-align:left;font-style:italic;">‘Hello World!’</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Symbol</div>
+<div style="color:#ff6600;text-align:left;"><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/vec3.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/vec3.png"/>
+</span></a></div>
+</div><div>
+<div>Type</div>
+<div style="text-align:left;height:4rem;">Vec3</div>
+</div><div>
+<div>Values</div>
+<div style="text-align:left;font-style:italic;">Any 3D-Vector like position or scale</div>
+</div><div>
+<div>Examples</div>
+<div style="text-align:left;font-style:italic;">{1.0; -2.0; 3.5}</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Symbol</div>
+<div style="color:#ff6600;text-align:left;"><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/quat.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/quat.png"/>
+</span></a></div>
+</div><div>
+<div>Type</div>
+<div style="text-align:left;height:4rem;">Quat</div>
+</div><div>
+<div>Values</div>
+<div style="text-align:left;font-style:italic;">Any Quaternion representing a rotation or rotation offset</div>
+</div><div>
+<div>Examples</div>
+<div style="text-align:left;font-style:italic;">{0.1; 4.3; -2.1; 0.0}</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Symbol</div>
+<div style="color:#ff6600;text-align:left;"><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/color.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/color.png"/>
+</span></a></div>
+</div><div>
+<div>Type</div>
+<div style="text-align:left;height:4rem;">Color</div>
+</div><div>
+<div>Values</div>
+<div style="text-align:left;font-style:italic;">4 color components (RGBA)</div>
+</div><div>
+<div>Examples</div>
+<div style="text-align:left;font-style:italic;">{0.3; 0.4; 0.2; 1.0}</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Symbol</div>
+<div style="color:#ff6600;text-align:left;"><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/any.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/any.png"/>
+</span></a></div>
+</div><div>
+<div>Type</div>
+<div style="text-align:left;height:4rem;">Any</div>
+</div><div>
+<div>Values</div>
+<div style="text-align:left;font-style:italic;">Takes any type of value</div>
+</div><div>
+<div>Examples</div>
+<div style="text-align:left;font-style:italic;">‘Hello’ or -5.3 or True</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Symbol</div>
+<div style="color:#ff6600;text-align:left;"><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/table.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/table.png"/>
+</span></a></div>
+</div><div>
+<div>Type</div>
+<div style="text-align:left;height:4rem;">Table</div>
+</div><div>
+<div>Values</div>
+<div style="text-align:left;font-style:italic;">Multiple values</div>
+</div><div>
+<div>Examples</div>
+<div style="text-align:left;font-style:italic;">{5; 6; 8; 10; 22; 9}</div>
+</div></div></div>
+<br/>
+<p>With these types we can make sure, that a “number” input pin can only receive a number from a “number” output pin and any other pin won’t be able to create a link to it.<br/>
+If you are unsure about the functionality of a certain pin, you can always hover over it to see the tooltips given by the node’s creator.</p>
+<br/>
+<h4 id="pin-visibility">
+
+  Pin Visibility
+</h4>
+<p>Since there are many situations in which you do not need all pins in a node, it can be useful to hide pins that are unnecessary in the current situation.<br/>
+We can achieve this by selecting a node and viewing it in the “Properties” window. Here you can toggle its visibility with the <img loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/visibility.svg"/> icon.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/39.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/39.gif"/>
+</span></a></p>
+<h4 id="hardcoded-pins">
+
+  Hardcoded Pins
+</h4>
+<p>Another common situation is also that we want a constant input value for a pin, that does not need to be controlled by another pin. For example a message string, that is always the same “Hello World!”. To achieve this we can use so called “hardcoded” pins.<br/>
+You can turn a normal pin into a hardcoded pin, by viewing the node it belongs to in the “Properties” window. Clicking on the pin symbol of the pin, will cause it to turn into a  <img loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/lock_outline.svg"/> symbol.<br/>
+Now you can modify the value of this pin directly instead of giving it an input from another pin.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/40.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/40.gif"/>
+</span></a></p>
+<hr/>
+<h2 id="links">
+
+  Links
+</h2>
+<p>Links define the flow of your flowgraph by connecting the pins of different nodes with each other.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/13.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/13.png"/>
+</span></a></p>
+<p>When you create a link, you define that the output pin it is connected to will receive its input values from the input node the link is connected to.<br/>
+A link can only be created between two pins, if they have the fitting type. Depending on the type of the nodes the link will have a different coloration:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/14.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/14.png"/>
+</span></a></p>
+<br/>
+<h4 id="creating-links">
+
+  Creating Links
+</h4>
+<p>Links can be created in many different ways:</p>
+<ul>
+<li>
+<p>Pressing <kbd>Left Click</kbd> on a pin and dragging the link to another pin. You can only connect input to output pins:
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/15.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/15.gif"/>
+</span></a></p>
+<br/>
+</li>
+<li>
+<p>Pressing <kbd>Left Click</kbd> on a pin, dragging the link to a free space in the graph and selecting a node to create. This will automatically create a link between the pin and the new node. You are only able to select nodes, that have an appropriate pin for the type of link you are creating:
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/16.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/16.gif"/>
+</span></a></p>
+<br/>
+</li>
+<li>
+<p>Holding <kbd>Ctrl</kbd>, selecting two nodes and pressing <kbd>C</kbd>. This will automatically connect all similar pins with each other.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/17.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/17.gif"/>
+</span></a></p>
+<br/>
+</li>
+</ul>
+<h4 id="removing-links">
+
+  Removing Links
+</h4>
+<p>Links can be removed in many different ways:</p>
+<ul>
+<li>
+<p>The simplest way to remove a link is by selecting it and pressing <kbd>Delete</kbd>.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/33.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/33.gif"/>
+</span></a></p>
+<br/>
+</li>
+<li>
+<p>You can also remove a link by pressing <kbd>Right Click</kbd> on it and selecting <kbd>Delete</kbd> in the menu.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/34.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/34.gif"/>
+</span></a></p>
+<br/>
+</li>
+<li>
+<p>You can remove <strong>all</strong> links that are attached to a node by selecting that node and pressing <kbd>X</kbd>.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/35.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/35.gif"/>
+</span></a></p>
+<br/>
+</li>
+<li>
+<p>If you hold <kbd>Ctrl</kbd> and select multiple nodes, pressing <kbd>X</kbd> once will remove all links that are not between these nodes and pressing <kbd>X</kbd> a second time will remove all links inside that group of nodes.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/36.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/36.gif"/>
+</span></a></p>
+<br/>
+</li>
+<li>
+<p>You can of course also remove a link, by simply deleting one of the nodes, it is attached to.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/37.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/37.gif"/>
+</span></a></p>
+</li>
+</ul>
+<h4 id="hiding-links">
+
+  Hiding Links
+</h4>
+<p>To improve the readability of your flowgraph, you are able to hide links.<br/>
+This can be achieved in multiple ways:</p>
+<ul>
+<li>
+<p>Press <kbd>Right Click</kbd> on the link and select <kbd>Hide Link</kbd> in the menu.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/28.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/28.gif"/>
+</span></a></p>
+</li>
+<li>
+<p>Press <kbd>H</kbd> while one or multiple links are selected.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/29.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/29.gif"/>
+</span></a></p>
+</li>
+<li>
+<p>Press <kbd>H</kbd> while one or multiple nodes are selected. This will hide all links connected to the nodes.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/30.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/30.gif"/>
+</span></a></p>
+</li>
+</ul>
+<br/>
+<p>There are also multiple ways to unhide links again:</p>
+<ul>
+<li>
+<p>If you just hid the link, you can press <kbd>H</kbd> again.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/31.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/31.gif"/>
+</span></a></p>
+</li>
+<li>
+<p>Selecting a node, will make the “ghost” of the link appear. Selecting this ghost will unhide it.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/32.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/32.gif"/>
+</span></a></p>
+</li>
+<li>
+<p>Pressing <kbd>Ctrl+H</kbd> while one or multiple nodes are selected. This will unhide all connected links.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/33.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/33.gif"/>
+</span></a></p>
+</li>
+</ul>
+<hr/>
+<h2 id="graphs">
+
+  Graphs
+</h2>
+<p>Graphs are the containers of your Flowgraph project.</p>
+<p>Your project is made up out of different types of graphs, that together create the logic of your project. The best reason for having multiple graphs is increasing the readability of your project. Instead of having the whole project in one large graph, you can spread it out over many graphs, each with their own functionality.<br/>
+Let’s take a look at the different types of graphs that exist in Flowgraph.</p>
+<h4 id="flowgraphs">
+
+  Flowgraphs
+</h4>
+<p>Flowgraphs are the most basic type of graphs in Flowgraph.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/23.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/23_hu433e6b21eaea97293ee6834c3c04f0b9_65662_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>An active flowgraph will put out <a data-doc="flowgraph/introduction-to-flowgraph/flow" href="/docs/flowgraph/introduction-to-flowgraph/flow">flow</a>
+ through its “<em>on Update</em>” node. This flow can activate other nodes and therefore create functionality within the flowgraph.
+The “<em>On Update</em>” node has 3 flow output pins:</p>
+<ul>
+<li><strong>enterState:</strong><br/>
+Puts out flow once, when the graph is activated. This is useful for initializing the graph or general startup behaviour.</li>
+<li><strong>flow:</strong><br/>
+Puts out flow every frame. Since many nodes need constant flow to function, this will give power to the main part of your flowgraph.</li>
+<li><strong>exitState:</strong><br/>
+Puts out flow once, when the graph is exited. This is useful for cleanup tasks before entering the next flowgraph. The exitState is triggered, when the “Transition” node is used to leave the graph.</li>
+</ul>
+<h4 id="stategraph">
+
+  Stategraph
+</h4>
+<p>Every Flowgraph project has atleast one stategraph.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/24.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/24.png"/>
+</span></a></p>
+<p>A stategraph does not have flow like a flowgraph, but only consists of states, that are either active or inactive. The “<em>State Entry</em>” node serves as the starting point for a stategraph.<br/>
+Multiple states can be active at the same time and all of them will be come inactive once the “<em>State Exit</em>” is triggered.<br/>
+A state can be one of two things:</p>
+<ul>
+<li><strong>Flowgraph</strong><br/>
+When the flowgraph is activated, its “<em>On Update</em>” node will start putting out flow.</li>
+<li><strong>Groupstate</strong><br/>
+A groupstate behaves just like a stategraph and when activated, it will start at its “<em>State Entry</em>” node.<br/>
+This allows for more clarity by for example grouping all the main activities of your project into one groupstate.</li>
+</ul>
+<p>A state transition is either triggered by a “<em>Transition</em>” node in a flowgraph or by a “<em>State Exit</em>” node in a groupstate.</p>
+<p>States can have different output pins for transitioning. This can be useful to differentiate between the different reasons for a transition, like a success or a failure. You can modify these output pins of a state by selecting it and viewing it in the “Properties” window.<br/>
+You can then modify the transition that should trigger inside the “<em>Transition</em>” or the “<em>State Exit</em>” node.</p>
+<h4 id="transition-stack">
+
+  Transition Stack
+</h4>
+<p>In many situations you want to communicate a value between states all within the same frame.<br/>
+This can be achieved by using the “Transition Stack”. The transition stack is passed onto subsequent states and contains values indexed by their name.<br/>
+You can add a value to the stack by using the “<em>Transition</em>” node. In the “Properties” window for the node you can add or remove transition variables.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/25.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/25_hu985951f942da2ef15c4108977a30a8f1_27470_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>These variables can be accessed in later states by the use of the “<em>Get Transition Variables</em>” node.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/elements/26.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/elements/26_huf45bcf756399b15924e17c9823cc18c2_29474_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Because values on the transition stack are indexed by their name, the string for storing and retrieving the transition variable has to be identical.<br/>
+Should an already existing variable be set again, its old value will be overwritten.</p>

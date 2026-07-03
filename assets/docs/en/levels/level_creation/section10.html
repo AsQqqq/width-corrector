@@ -1,0 +1,148 @@
+<h3 id="101-purpose">
+
+  10.1 Purpose
+</h3>
+<ul>
+<li>Define how a level is prepared for distribution and submission to the in‑game Repository.</li>
+<li>Make sure the level is self-contained and does not depend on files outside the package.</li>
+</ul>
+<h3 id="102-package-contents">
+
+  10.2 Package contents
+</h3>
+<ul>
+<li>Include: /levels/YourMap and required /art folders referenced by the level.</li>
+<li>Exclude: /source and any working files, caches, or editor autosaves.</li>
+</ul>
+<p>Typical package layout:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">your_map.zip
+</span></span><span class="line"><span class="cl">└── levels/
+</span></span><span class="line"><span class="cl">    └── your_map/
+</span></span><span class="line"><span class="cl">        ├── info.json
+</span></span><span class="line"><span class="cl">        ├── preview.png
+</span></span><span class="line"><span class="cl">        ├── main/
+</span></span><span class="line"><span class="cl">        ├── art/
+</span></span><span class="line"><span class="cl">        ├── forest/
+</span></span><span class="line"><span class="cl">        ├── main.materials.json
+</span></span><span class="line"><span class="cl">        └── other level files
+</span></span></code></pre></div><p>Do not include:</p>
+<ul>
+<li><code>/source</code> authoring files</li>
+<li>Blender/Photoshop/Substance project files</li>
+<li>temporary exports</li>
+<li>texture cache files</li>
+<li>editor backup/autosave files</li>
+<li>files from another mod unless you have permission and include them intentionally</li>
+</ul>
+<h3 id="103-metadata-and-presentation">
+
+  10.3 Metadata and presentation
+</h3>
+<ul>
+<li>info.json: author, version, description, tags.</li>
+<li>preview.png: representative screenshot at recommended resolution.</li>
+</ul>
+<p>The metadata should describe what the level is and what players can expect.</p>
+<p>Check:</p>
+<ul>
+<li>Level title is readable and not only an internal folder name.</li>
+<li>Author and version are correct.</li>
+<li>Description is concise.</li>
+<li>Preview image represents normal gameplay.</li>
+<li>Spawn points listed in <code>info.json</code> exist in the level.</li>
+</ul>
+<h3 id="104-structure-and-paths">
+
+  10.4 Structure and paths
+</h3>
+<ul>
+<li>Ensure all material and mesh references use relative paths within the package.</li>
+<li>Keep naming consistent and lowercase_with_underscores.</li>
+</ul>
+<p>Before packaging, search for local absolute paths such as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">C:\
+</span></span><span class="line"><span class="cl">D:\
+</span></span></code></pre></div><p>These paths work only on the creator’s machine and will fail for other players.</p>
+<p>Also check for references to files in:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/source
+</span></span><span class="line"><span class="cl">/temp
+</span></span></code></pre></div><p>unless they are intentionally shipped game paths.</p>
+<h3 id="105-verification">
+
+  10.5 Verification
+</h3>
+<ul>
+<li>Test the .zip on a clean install/profile with no other mods enabled.</li>
+<li>Confirm load success, materials present, and expected performance.</li>
+</ul>
+<p>Recommended verification pass:</p>
+<ol>
+<li>Create the <code>.zip</code>.</li>
+<li>Move the unpacked working folder out of the user levels/mods path.</li>
+<li>Install only the packaged <code>.zip</code>.</li>
+<li>Clear cache if you changed material or folder structure.</li>
+<li>Start the game fresh and load the level.</li>
+<li>Check the log for missing files and invalid JSON.</li>
+<li>Drive the main route and visit dense areas.</li>
+</ol>
+<p>If the packaged version works only while the working folder is present, the package is missing files.</p>
+<h3 id="106-versioning-and-updates">
+
+  10.6 Versioning and updates
+</h3>
+<ul>
+<li>Increment versions clearly (e.g., 1.0.0 → 1.1.0 for content changes).</li>
+<li>Provide a changelog and keep backward‑compatibility notes where relevant.</li>
+</ul>
+<p>Use version increments consistently:</p>
+<table>
+<thead>
+<tr>
+<th>Change type</th>
+<th>Example version change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Small fix</td>
+<td><code>1.0.0</code> → <code>1.0.1</code></td>
+</tr>
+<tr>
+<td>New area/content</td>
+<td><code>1.0.0</code> → <code>1.1.0</code></td>
+</tr>
+<tr>
+<td>Major rebuild or compatibility break</td>
+<td><code>1.0.0</code> → <code>2.0.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>For updates, avoid renaming stable spawn points, waypoints, or gameplay references unless necessary.</p>
+<h3 id="107-publishing-criteria">
+
+  10.7 Publishing criteria
+</h3>
+<ul>
+<li>Self‑contained package; no external dependencies.</li>
+<li>No missing assets or path errors on first load.</li>
+<li>Clear metadata and preview image.</li>
+<li>Default spawn works.</li>
+<li>No obvious warning materials.</li>
+<li>Main roads and collision are usable.</li>
+<li>Performance is acceptable in dense areas.</li>
+</ul>
+<h3 id="108-common-packaging-issues">
+
+  10.8 Common packaging issues
+</h3>
+<ul>
+<li>Missing textures because <code>main.materials.json</code> references a file outside the level.</li>
+<li>Missing meshes because the <code>.dae</code> or <code>.cdae</code> was not included.</li>
+<li>Spawn selection broken because <code>info.json</code> references a missing <code>SpawnSphere</code>.</li>
+<li>Level works unpacked but not zipped because a dependency was outside the package.</li>
+<li>Wrong folder nesting, for example <code>your_map.zip/your_map/levels/your_map/...</code> instead of <code>your_map.zip/levels/your_map/...</code>.</li>
+</ul>
+<p><strong>See also:</strong> <a data-doc="levels/level_formats/info" href="/docs/levels/level_formats/info">Level metadata (info.json)</a>
+, <a data-doc="file_formats/materials" href="/docs/file_formats/materials">Material JSON files</a>
+, <a data-doc="levels/level_creation/section9" href="/docs/levels/level_creation/section9">Testing and validation</a>
+.</p>

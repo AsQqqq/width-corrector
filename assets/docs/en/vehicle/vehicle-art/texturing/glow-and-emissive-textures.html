@@ -1,0 +1,118 @@
+<h2 id="overview">
+
+  Overview
+</h2>
+<p>This Workflow requires <strong>Blender</strong> and <strong>Substance Painter</strong> - nothing else. The result will be a baked glowmap which gives the user an impression of bounced light.</p>
+<p>The focus here is on 3D Lights - depending on the use case, Flat 2D light may require a slightly different technique.</p>
+<div class="bng-notice note"><p>The example here is based on the Bastion Project.</p>
+<p>You can find all the files used here in <code>vehicle_artwork/bastion/source/lights_updated</code></p>
+</div>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/1.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/2.png"/>
+</span></div>
+<div class="bng-notice tip">You will end up with the best result when you got a <code>normalmap</code> set up as well, because the light can interact with it to produce some nice details.</div>
+<div class="line-inner-small"></div>
+<h2 id="getting-started-in-blender">
+
+  Getting Started in Blender
+</h2>
+<p>First you grab all the meshes making use of the material which gets linked to the glowmap and place them in a new collection.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/3.png"/>
+</span></div>
+<p>You got the material assigned, in this case its <code>bastion_lights</code>. The said material then needs the <code>normalmap</code> applied in the shader editor, which you can easily do through a simple node setup, containing an <strong>Image Texture</strong> and <strong>Normal Map</strong> node.</p>
+<p>Keep in mind to have the Image Texture Color Space set to <code>Non-Color</code>, since you are using a normal map.</p>
+<p>Play around with the <strong>roughness values</strong> in the BSDF as well. That way you can fine tune the way the light gets reflected on the surface, and use a <strong><em>almost</em> black</strong> <code>Base Color</code> - this is important for the mask work in substance painter, as <strong>we are basically only producing masks which we are going to work with later in Blender right now</strong>.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/4.png"/>
+</span></div>
+<hr/>
+<p><strong>Setting up the glow</strong></p>
+<p>The next step is where the light comes in. Grab a point light as your light source and basically place it where the bulb would be.</p>
+<p>Once the lights have been placed, you can see that they do interact with the applied <code>normalmap</code>. Keep in mind that the light source should be white, as we aim to produce a mask here.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/5.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/6.png"/>
+</span></div>
+<p>What’s important for the baking is that you need to disable the camera icon for the other lights that are irrelevant for the particular setup you want to bake - the camera defines whether something gets rendered or not. In this case we want to bake the <code>front drl</code> collection only.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/7.png"/>
+</span></div>
+<hr/>
+<h3 id="baking">
+
+  Baking
+</h3>
+<p>Next, let’s proceed with the baking, for this you need to use the <strong>Cycles</strong> Render Engine.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/8.png"/>
+</span></div>
+<hr/>
+<p>Once that is selected you’ll get a bunch of tabs you can open, one of them being <code>Bake</code> - that’s the one we want. Here you set up a Combined bake like shown, and adjust the margin to your liking.</p>
+<p>Happy with your setup? Cool - now, select the mesh you want the glowmap to be baked on. In this case, we want to bake the DRL’s for the <code>bastion_headlight_R</code> mesh. We select it with left-click and hit the <strong>Bake</strong> button.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/9.png"/>
+</span></div>
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/10.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/10_hu329bd37a384cd16be001064128a6a26f_929428_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<hr/>
+<p>Once the baking is done you should end up with an image similar to this:</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/11.png"/>
+</span></div>
+<p>This result can now be used to be imported into Substance Painter as bitmap mask.</p>
+<div class="line-inner-small"></div>
+<h2 id="continue-in-substance-painter">
+
+  Continue in Substance Painter
+</h2>
+<p>In your painter project you create a fill layer with emission, then add the image you just produced as bitmap mask.</p>
+<p><span class="bng-mark caution"><strong>Don’t forget to add an <code>Emissive</code> channel to your project in the <code>Texture Set Settings</code></strong></span></p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/12.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/13.png"/>
+</span></div>
+<hr/>
+<p>Once that is in, I recommend playing with the mask’s levels a bit since we didn’t use a full black for the baking. Just move the black tone a bit so that we end up with a pitch black for the black areas on the mask.</p>
+<p>Set the emissive to white, and you got your glowmap working. Of course you can do that with any other color as well - the Painter workflow is super easy to tweak on the go.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/14.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/15.png"/>
+</span></div>
+<p><span class="bng-mark caution"><strong>Keep in mind to also set up an emissive output when you export the material!</strong></span></p>
+<hr/>
+<h3 id="baking-emissive-maps-to-glass">
+
+  Baking Emissive Maps to Glass
+</h3>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/16.png"/>
+</span></div>
+<p>To get this type of texture that can be used as bitmap mask, you just need to make a few adjustments to the materials you’re working with. The rest of the workflow is the same.</p>
+<p>Basically, you leave the point lights where they are, but make the glass covering the light housing visible.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/17.png"/>
+</span></div>
+<hr/>
+<p>Its important to have <strong>both meshes enabled for rendering</strong> (including the point lights of course) so the light bounding inside the housing also affects the way the illumination is being baked onto the glass.</p>
+<p>Also important is to set the glass base color to a very dark value too - like this:</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/18.png"/>
+</span></div>
+<hr/>
+<p>The rest of the material setup can be adjusted to your liking - but keep in mind to play around with transmission and transmission roughness to <strong>get a result that suits your vehicle</strong></p>
+<p>The material setup for the glass that’s being baked on looks like this:</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/19.png"/>
+</span></div>
+<p>And when baking the glass, to have the light bounce properly - just set the base color to white for the light housing, etc.</p>

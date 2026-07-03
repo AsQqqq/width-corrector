@@ -1,0 +1,58 @@
+<h2 id="fundamentals">
+
+  Fundamentals
+</h2>
+
+<div class="line-inner-small"></div>
+<h2 id="checking-ram-usage">
+
+  Checking RAM usage
+</h2>
+<p>You can use the following in-game tool to identify issues:</p>
+<ol>
+<li>Start the game in Direct X <span class="bng-mark caution"><strong>(this tool doesn’t work in Vulkan yet)</strong></span></li>
+<li>Open Performance Graph (
+  <span class="bng-keys"><span class="bng-key key">Ctrl</span><span class="key-add">+</span><span class="bng-key key">Shift</span><span class="key-add">+</span><span class="bng-key key">F</span></span>) → <code>GPU Memory Profiling</code></li>
+<li>Make sure to enable <code>Update Data</code> settings under <code>General</code> tab
+<div class="block media-show media-image-single media-image-simple"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/ram-usage/1_performance_gpu_profiling.png"/>
+</span></div></li>
+<li>Search for <code>vehicle:Texture</code>
+<div class="block media-show media-image-single media-image-simple"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/ram-usage/2_performance_veh_texture.png"/>
+</span></div></li>
+</ol>
+<p>Additionally, for a more detailed view:</p>
+<ol>
+<li>Navigate to <code>GPU Memory Profiling</code> tab</li>
+<li>Open <code>GFX Texture Objects</code> within</li>
+<li>Expand <code>Filter</code> menu</li>
+<li>Select <code>vehicle</code> and deselect everything else in the list to see additional data
+<div class="block media-show media-image-single media-image-simple"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/ram-usage/3_performance_additional.png"/>
+</span></div></li>
+</ol>
+<div class="bng-notice tip">See <a data-doc="vehicle/vehicle-art/optimization/materials-and-meshes" href="/docs/vehicle/vehicle-art/optimization/materials-and-meshes">Material and Mesh Optimization</a>
+ for additional tips.</div>
+<div class="line-inner-small"></div>
+<h2 id="common-issues">
+
+  Common Issues
+</h2>
+<p><span class="bng-badge"><span class="bng-badge-danger">Problem</span></span> We have super high GPU RAM usage and need to reduce it, target is below 300mb.<br/>
+<span class="bng-badge"><span class="bng-badge-success">Solution</span></span> Reduce Texture sizes to fit, can use the new creative texture tiling as well to keep texture density.</p>
+<hr/>
+<p><span class="bng-badge"><span class="bng-badge-danger">Problem</span></span> Sometimes, we add parts that use only 1% of these huge texture sets.<br/>
+<span class="bng-badge"><span class="bng-badge-success">Solution</span></span> For example, before we added an antenna to a vehicle, it called for the entire offroad part texture set into RAM, even though the vehicle only needed to use a few pixels from it.</p>
+<hr/>
+<p><strong>Other common issues:</strong></p>
+<ul>
+<li><strong>AO maps</strong> are often unnecessarily high-res. Since they’re soft and lack sharp details, they can be downscaled significantly without visual loss.</li>
+<li><strong>Clear coat maps (cc.data)</strong> are usually subtle or even duplicates of opacity maps, making high resolution not needed, or completely un necessary.</li>
+<li><strong>Metallic and roughness maps</strong> are typically simple but still at very high resolutions. These can often be reduced, especially since higher-resolution textures like normals can mask lower-res artifacts. Example below is a metallic map that can be downscaled a lot because there is no detail.
+<div class="block media-show media-image-single media-image-simple"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/ram-usage/4_common_issues_maps_example.png"/>
+</span></div></li>
+</ul>
+<div class="bng-notice tip">Always consider how different maps interact. A detailed 4K normal map can hide imperfections in lower-resolution roughness or metallic maps.</div>
+<div class="line-inner-small"></div>

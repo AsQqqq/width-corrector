@@ -1,0 +1,187 @@
+<h3 id="introduction">
+
+  Introduction
+</h3>
+<p>The user interface and apps of BeamNG.drive are written using the
+<code>AngularJS (1.5.8)</code> framework.</p>
+<p>Some familiarity with the framework is
+useful, although not necessary. In this context, apps are just simple
+directives in the module beamng.apps.</p>
+<p>The 3 important parts of each app are:</p>
+<ol>
+<li>An <code>app.js</code> file with all the code used by the app</li>
+<li>An <code>app.json</code> file that contains information about the app</li>
+<li>An <code>app.png</code> image file that shows up in the app selector</li>
+</ol>
+<h4 id="the-appjs-file">
+
+  The app.js file
+</h4>
+<p>A BeamNG app directive generally follows this structure:</p>
+<pre tabindex="0"><code>angular.module('beamng.apps')
+.directive('myApp', ['StreamsManager', function (StreamsManager) {
+  return {
+    template:  '[Some HTML Content]',
+    replace: true,
+    restrict: 'EA',
+    link: function (scope, element, attrs) {
+      // An optional list of streams that will be used in the app
+      var streamsList = [/* streams here */];
+
+      // Make the needed streams available.
+      StreamsManager.add(streamsList);
+
+      // Make sure we clean up after closing the app.
+      scope.$on('$destroy', function () {
+        StreamsManager.remove(streamsList);
+      });
+
+      scope.$on('streamsUpdate', function (event, streams) {
+        /* Some code that uses the streams' values */
+      });
+    }
+  };
+}]);
+</code></pre><p>The example above is an example of app that uses the vehicles' streams
+(which is by far the most common case). However this is not always the
+case, the apps can be used for just about anything. Again, the code must
+be included in the <code>link</code> function of the <code>app.js file</code>, for example:</p>
+<pre tabindex="0"><code>angular.module('beamng.apps')
+.directive('myApp', ['StreamsManager', function (StreamsManager) {
+  return {
+    template:  '&lt;button ng-click="hello()"&gt;Click Me&lt;/button&gt;',
+    replace: true,
+    restrict: 'EA',
+    link: function (scope, element, attrs) {
+      scope.hello = function () {
+        // do something here.
+      };
+    }
+  };
+}])
+</code></pre><p>Sometimes, apps need to store some data. In this case, an extra file
+<code>settings.json</code> with this data can be added to the app folder. In order
+to use it, the directive must be slightly modified, like in this
+example:</p>
+<pre tabindex="0"><code>angular.module('beamng.apps')
+.directive('myApp', ['StreamsManager', function (StreamsManager) {
+  return {
+    template:  '[Some HTML Content]',
+    replace: true,
+    restrict: 'EA',
+    // [1] we "require" the bngApp parent controller
+    require: '^bngApp',
+    // [2] the controller is available as 4th argument of the link function
+    link: function (scope, element, attrs, ctrl) {
+      var streamsList = ['sensors'];
+
+      StreamsManager.add(streamsList);
+
+      // [3] Use a variable to keep the settings
+      var appSettings = null;
+
+      // When DOM is ready and controllers are set up, get the stored settings.
+      element.ready(function () {
+        // [4] Call the getSettings() function of the controller
+        ctrl.getSettings()
+          .then(function (settings) {
+            appSettings = settings;
+          })
+      });
+
+      scope.$on('$destroy', function () {
+        StreamsManager.remove(streamsList);
+        // [5] Optionally save the (possibly modified) app settings when done
+        ctrl.saveSettings(appSettings);
+      });
+
+      scope.$on('streamsUpdate', function (event, streams) {
+        /* Some code that uses the streams' values */
+      });
+    }
+  };
+}])
+</code></pre>
+<h4 id="the-appjson-file">
+
+  The app.json file
+</h4>
+<p>This file is really simple and just holds information about the app,
+useful for loading it. However, one must be very careful with the
+fields’ names, as typos or missing fields might affect the proper
+execution of the app. The file contents have the form:</p>
+<pre tabindex="0"><code>{
+  "name" : "My App",
+  "author": "Me",
+  "version": "0.1",
+  "description": "Just a tutorial app",
+  "directive": "myApp",
+  "domElement": "&lt;my-app&gt;&lt;/my-app&gt;",
+  "css": { "width": "150px", "height": "150px", "top": "200px", "left": "200px" },
+  "preserveAspectRatio": true
+}
+</code></pre><p>The required fields are:</p>
+<div class="bng-table" id="table-1783007350572291477"><div class="bng-table-header"><div>Field</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div style="">Field</div>
+<div style=""><strong>name</strong></div>
+</div><div>
+<div style="">Description</div>
+<div style="">The display name for the app</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Field</div>
+<div style=""><strong>author</strong></div>
+</div><div>
+<div style="">Description</div>
+<div style="">The authors of the app</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Field</div>
+<div style=""><strong>version</strong></div>
+</div><div>
+<div style="">Description</div>
+<div style="">The version number of the app</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Field</div>
+<div style=""><strong>description</strong></div>
+</div><div>
+<div style="">Description</div>
+<div style="">A small description of the app</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Field</div>
+<div style=""><strong>directive</strong></div>
+</div><div>
+<div style="">Description</div>
+<div style="">The name of the directive (the same as in the app.js file)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Field</div>
+<div style=""><strong>domElement</strong></div>
+</div><div>
+<div style="">Description</div>
+<div style="">The DOM element that will actually hold the app. The domElement is determined from the directive name, and is just a conversion from <em>camelCase</em> to <em>lisp-case</em>, so in our example it would be from <code>myApp</code> to <code>&lt;my-app&gt;&lt;/my-app&gt;</code></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Field</div>
+<div style=""><strong>css</strong></div>
+</div><div>
+<div style="">Description</div>
+<div style="">The default CSS attributes to be used when the app is first launched. These are width and height and a top/bottom, left/right property that also states the screen corner to which the app will be aligned</div>
+</div></div></div>
+<h4 id="the-apppng-file">
+
+  The app.png file
+</h4>
+<p>This is the image that shows up in the app selection view. Recommended size is <strong>250x120</strong>px.</p>
+<h3 id="using-your-app">
+
+  Using your app
+</h3>
+<p>In order to make your app visible from the game, move the folder with
+the app’s files to your user folder’s UI directory (<code>&lt;Userfolder&gt;\ui\modules\apps</code>).</p>
+<p>The app will then be
+available from the selection list. You might need to close and open the
+list once.</p>

@@ -1,0 +1,118 @@
+<p>BeamNG uses a <strong>Z-up</strong> coordinate system with <strong>SI units</strong> (meters, kilograms, and so on). Positions in JBeam, most vehicle logic, and BeamNG.tech sensor placement all use the same vehicle frame, which is defined by <a data-doc="vehicle/sections/refnodes" href="/docs/vehicle/sections/refnodes">refnodes</a>
+.</p>
+<div class="bng-notice warning"><p><strong>Important — BeamNG vehicle axes are not ISO / robotics convention.</strong></p>
+<p>In vehicle space: <strong>+X = left</strong>, <strong>+Y = backward</strong>, <strong>+Z = up</strong>, and <strong>forward = −Y</strong> (not +X). Many tools, textbooks, and other simulators use <strong>+X forward</strong> and <strong>+Y lateral</strong> instead. Using that assumption in JBeam, Lua, or sensor placement will place nodes and directions incorrectly—often rotated by 90° or more. World (map) space is also <strong>Z-up</strong> but uses fixed map axes, not the vehicle’s heading.</p>
+</div>
+<h2 id="vehicle-coordinate-system">
+
+  Vehicle coordinate system
+</h2>
+<p>The vehicle frame is anchored at the vehicle <strong>refnode</strong> (near the center and lowest point of the body). Its axes are set explicitly in JBeam:</p>
+<div class="bng-table" id="beamng_3col"><div class="bng-table-header"><div>Axis</div><div>Positive direction</div><div>Typical use</div></div>
+<div class="bng-table-row"><div>
+<div>Axis</div>
+<div style="font-weight: bold; color: #ff6600; text-align: left; padding: 0.5em; border-right: 1px solid #ddd; font-family: Roboto mono, monospace;">+X</div>
+</div><div>
+<div>Positive direction</div>
+<div style="text-align: left; padding: 0.5em; border-right: 1px solid #ddd;">Left (driver’s left on a left-hand-drive car)</div>
+</div><div>
+<div>Typical use</div>
+<div style="text-align: left; padding: 0.5em; border-right: 1px solid #ddd;">Lateral offset — refnode <code>left:</code></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Axis</div>
+<div style="font-weight: bold; color: #ff6600; text-align: left; padding: 0.5em; border-right: 1px solid #ddd; font-family: Roboto mono, monospace;">+Y</div>
+</div><div>
+<div>Positive direction</div>
+<div style="text-align: left; padding: 0.5em; border-right: 1px solid #ddd;">Backward (toward the rear of the vehicle)</div>
+</div><div>
+<div>Typical use</div>
+<div style="text-align: left; padding: 0.5em; border-right: 1px solid #ddd;">Longitudinal offset behind the ref</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Axis</div>
+<div style="font-weight: bold; color: #ff6600; text-align: left; padding: 0.5em; border-right: 1px solid #ddd; font-family: Roboto mono, monospace;">+Z</div>
+</div><div>
+<div>Positive direction</div>
+<div style="text-align: left; padding: 0.5em; border-right: 1px solid #ddd;">Up</div>
+</div><div>
+<div>Typical use</div>
+<div style="text-align: left; padding: 0.5em; border-right: 1px solid #ddd;">Height above the ref</div>
+</div></div></div>
+
+<p><strong>Forward</strong> (direction of travel) is <strong>−Y</strong>, not +X.</p>
+<p><strong>Right</strong> is <strong>−X</strong>.</p>
+<p>This matches the <a data-doc="vehicle/sections/refnodes" href="/docs/vehicle/sections/refnodes">refnodes</a>
+ definitions: the <code>left:</code> node lies on <strong>+X</strong>, the <code>back:</code> node on <strong>+Y</strong>, and the <code>up:</code> node on <strong>+Z</strong>  from the <code>ref:</code> node.</p>
+<h3 id="top-view-vehicle-frame">
+
+  Top view (vehicle frame)
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-text" data-lang="text"><span class="line"><span class="cl">                    forward (−Y)
+</span></span><span class="line"><span class="cl">                         ↑
+</span></span><span class="line"><span class="cl">                         |
+</span></span><span class="line"><span class="cl">    left (+X) ←----------● ref ----------→ right (−X)
+</span></span><span class="line"><span class="cl">                         |
+</span></span><span class="line"><span class="cl">                         ↓
+</span></span><span class="line"><span class="cl">                    backward (+Y)
+</span></span></code></pre></div>
+<h3 id="node-positions-in-jbeam">
+
+  Node positions in JBeam
+</h3>
+<p><a data-doc="vehicle/sections/nodes" href="/docs/vehicle/sections/nodes">Nodes</a>
+ coordinates in JBeam files are expressed in this same vehicle frame (meters relative to the vehicle structure). When you add or move nodes, <strong>increasing X moves left</strong>, <strong>increasing Y moves toward the rear</strong>, and <strong>increasing Z moves up</strong>.</p>
+<h2 id="world-coordinate-system">
+
+  World coordinate system
+</h2>
+<p>The <strong>world</strong> (map) frame is also <strong>Z-up</strong>. The map origin is at world position <code>(0, 0, 0)</code>. Horizontal map axes are world <strong>X</strong> and <strong>Y</strong>; <strong>Z</strong> is elevation.</p>
+<p>World axes are <strong>fixed to the level</strong>, not rotated with each vehicle. A vehicle’s world position and orientation come from where it is spawned and how it is rotated on the map. To convert between world and vehicle frames you must use the vehicle’s current pose (position and orientation), not assume world X/Y align with the vehicle’s forward/lateral directions.</p>
+<p>BeamNG.tech sensors often accept positions in <strong>vehicle space</strong> (relative to the vehicle, using the table above) or <strong>world space</strong> (fixed to the map). See each sensor’s <code>pos</code> argument and flags such as <code>is_dir_world_space</code> in the <a href="https://documentation.beamng.com/beamng_tech/sensors/" rel="noopener" target="_blank">sensor documentation</a>
+.</p>
+<h2 id="other-frames-on-a-vehicle">
+
+  Other frames on a vehicle
+</h2>
+<h3 id="prop-local-coordinates">
+
+  Prop local coordinates
+</h3>
+<p><a data-doc="vehicle/sections/props" href="/docs/vehicle/sections/props">Props</a>
+ use a <strong>per-prop</strong> local frame built from three nodes (<code>idRef</code>, <code>idX</code>, <code>idY</code>): <strong>+X</strong> points from <code>idRef</code> to <code>idX</code>, <strong>+Y</strong> from <code>idRef</code> to <code>idY</code>, and <strong>+Z</strong> from the cross product of those two directions.</p>
+<h3 id="checkpoint-corners">
+
+  Checkpoint corners
+</h3>
+<p>Refnode <code>leftCorner</code> and <code>rightCorner</code> nodes mark the <strong>front</strong> corners of the vehicle (for checkpoints and similar gameplay). They do not redefine the X/Y/Z axes; they only indicate where the front of the body is relative to the ref frame.</p>
+<h2 id="beamngtech-and-sensors">
+
+  BeamNG.tech and sensors
+</h2>
+<p>Research and ADAS workflows use the same vehicle frame as modding:</p>
+<ul>
+<li>Sensor <code>pos</code> values attached to a vehicle are usually in <strong>vehicle space</strong> (left / back / up as above).</li>
+<li>Map-fixed sensors use <strong>world space</strong>.</li>
+<li><a href="https://documentation.beamng.com/beamng_tech/sensors/gps/" rel="noopener" target="_blank">GPS</a>
+ relates map coordinates to a user-defined geographic reference at the map origin.</li>
+</ul>
+<p>If you use 
+    <a href="https://documentation.beamng.com/api/beamngpy" rel="noopener" target="_blank">BeamNGpy</a>
+, <a href="https://documentation.beamng.com/beamng_tech/interfaces/ros2/" rel="noopener" target="_blank">ROS 2</a>
+, or the <a href="https://documentation.beamng.com/beamng_tech/tools/adassensorconfigurationeditor/" rel="noopener" target="_blank">ADAS Sensor Configuration Editor</a>
+, read the <a href="https://documentation.beamng.com/beamng_tech/sensors/" rel="noopener" target="_blank">sensor documentation</a>
+ together with this page before placing sensors or interpreting logged data in the simulation.</p>
+<h2 id="related-pages">
+
+  Related pages
+</h2>
+<ul>
+<li><a data-doc="vehicle/sections/refnodes" href="/docs/vehicle/sections/refnodes">Refnodes</a>
+ — how to set the vehicle frame in JBeam</li>
+<li><a data-doc="vehicle/sections/nodes" href="/docs/vehicle/sections/nodes">Nodes</a>
+ — Z-up and units</li>
+<li><a data-doc="vehicle/sections/props" href="/docs/vehicle/sections/props">Props</a>
+ — per-prop coordinate systems</li>
+<li><a href="https://documentation.beamng.com/beamng_tech/sensors/" rel="noopener" target="_blank">BeamNG.tech sensors</a>
+ — vehicle vs world space for sensors</li>
+</ul>

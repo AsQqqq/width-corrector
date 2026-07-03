@@ -1,0 +1,411 @@
+<p>Engine audio is built from several parts that are mixed together at runtime. The two main continuous layers are the engine sound and the exhaust sound. Other sounds, such as starter, shutoff, afterfire, turbo, supercharger, transmission, wind, tire, and impact sounds, are mixed around those main layers.</p>
+<p>This page focuses on the JBeam <code>SoundConfig</code> values used by engine and exhaust sound configs, and on the practical workflow for balancing them.</p>
+<h3 id="engine-and-exhaust-layers">
+
+  Engine and exhaust layers
+</h3>
+<p>Most combustion vehicles use two sound configs:</p>
+<ul>
+<li><code>soundConfig</code> is the engine-side layer. It represents mechanical sound, induction sound, and sound emitted near the engine bay.</li>
+<li><code>soundConfigExhaust</code> is the exhaust-side layer. It represents the sound emitted from the exhaust outlet.</li>
+</ul>
+<p>These two layers should not usually be treated as copies of each other. The engine layer is often quieter and more detailed, while the exhaust layer usually carries more of the exterior loudness and character. Interior sound depends on both layers and the vehicle’s cabin filtering.</p>
+<p>A simple setup looks like this:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"mainEngine"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"soundConfig"</span><span class="o">:</span> <span class="s2">"soundConfig"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"soundConfigExhaust"</span><span class="o">:</span> <span class="s2">"soundConfigExhaust"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="s2">"soundConfig"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"sampleName"</span><span class="o">:</span> <span class="s2">"i4p_01600cc_motorsport_02_engine"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"intakeMuffling"</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"mainGain"</span><span class="o">:</span> <span class="o">-</span><span class="mi">9</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"onLoadGain"</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"offLoadGain"</span><span class="o">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"maxLoadMix"</span><span class="o">:</span> <span class="mf">0.67</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"minLoadMix"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"fundamentalFrequencyCylinderCount"</span><span class="o">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"eqFundamentalGain"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="s2">"soundConfigExhaust"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"sampleName"</span><span class="o">:</span> <span class="s2">"i4p_01600cc_motorsport_02_exhaust"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"mainGain"</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"onLoadGain"</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"offLoadGain"</span><span class="o">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"maxLoadMix"</span><span class="o">:</span> <span class="mf">0.67</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"minLoadMix"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"fundamentalFrequencyCylinderCount"</span><span class="o">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"eqFundamentalGain"</span><span class="o">:</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div><p>The exact values depend heavily on the selected samples, vehicle body, exhaust layout, and intended sound character.</p>
+<h3 id="starting-point">
+
+  Starting point
+</h3>
+<p>Start from a vanilla vehicle that is close to the cylinder count, displacement, aspiration, and character you want. Copy both the engine and exhaust sound configs, then change one group of parameters at a time while testing in game.</p>
+<p>Try to match these properties before tuning details:</p>
+<ul>
+<li>Cylinder layout and cylinder count.</li>
+<li>Gasoline, diesel, or electric motor sound type.</li>
+<li>Naturally aspirated, turbocharged, or supercharged character.</li>
+<li>Approximate displacement and RPM range.</li>
+<li>Road car, race car, heavy truck, machinery, or other vehicle role.</li>
+</ul>
+<p>If the starting sample is far away from the target, EQ and gain changes will not make it feel correct. Pick the closest sample first, then tune.</p>
+<p>The World Editor’s <strong>Engine Audio Debug</strong> tool, found under the Audio tab, is useful for live tuning. It can adjust engine and exhaust values in real time and copy the resulting JBeam setup back to the vehicle file.</p>
+<h3 id="basic-workflow">
+
+  Basic workflow
+</h3>
+<p>For a first pass, tune the parameters in this order:</p>
+<ol>
+<li>Set <code>sampleName</code> and <code>fundamentalFrequencyCylinderCount</code> first. If these do not match the intended engine type, later EQ and gain changes will not fix the basic pitch and character.</li>
+<li>Balance <code>mainGain</code> between the engine and exhaust configs. The exhaust layer normally carries most of the exterior loudness, while the engine layer adds mechanical and intake detail.</li>
+<li>Shape throttle response with <code>onLoadGain</code>, <code>offLoadGain</code>, <code>maxLoadMix</code>, and <code>minLoadMix</code>. Use these to control how strongly the sound changes between coasting, partial throttle, and full load.</li>
+<li>Adjust muffling before heavy EQ. Use <code>intakeMuffling</code> on the engine config and <code>exhaustAudioMufflingBaseCoef</code> on the exhaust config. Exhaust parts can further change muffling and gain with exhaust node modifiers.</li>
+<li>Use EQ for tone correction. <code>eqFundamentalGain</code> changes the engine order emphasis, the low/high EQ parameters shape broad character, and the shelf parameters trim the extremes.</li>
+<li>Check the result from exterior, hood, and interior cameras. Interior balance is also affected by the vehicle <code>sounds</code> section, especially <code>cabinFilterCoef</code>.</li>
+</ol>
+<p>Leave some headroom when mixing. A sound that is exciting alone can become too loud once starter, afterfire, turbo, supercharger, transmission, tire, wind, and impact sounds are all playing.</p>
+<h3 id="sample-and-pitch">
+
+  Sample and pitch
+</h3>
+<p><code>sampleName</code> selects the blend sample set used for the sound. Engine and exhaust configs usually use matching sample families, such as one sample for the engine layer and one for the exhaust layer.</p>
+<p><code>sampleFolder</code> can be used when a mod stores samples outside the default sample folder. For normal vehicle tuning, leave it unset unless the samples are intentionally stored in a custom location.</p>
+<p><code>fundamentalFrequencyCylinderCount</code> tells the audio system how to calculate the engine’s fundamental frequency from RPM. Set this to the real cylinder count of the sound source. A wrong value can make the sound feel pitched incorrectly or emphasize the wrong engine order.</p>
+<p>Use <code>eqFundamentalGain</code> after the cylinder count and sample are correct. Positive values make the fundamental engine order more obvious. Negative values reduce it and can make the sound less boomy or less droning.</p>
+<h3 id="mixing-sample-sets">
+
+  Mixing sample sets
+</h3>
+<p>Engine and exhaust samples are usually designed as pairs. Mixing the engine layer from one sample family with the exhaust layer from another can work, but it needs careful checking because the layers may have different pitch reference, load response, tone, or recording character.</p>
+<p>Use mixed sample sets only when each layer contributes something useful. For example, one engine sample may have better mechanical detail while another exhaust sample better matches the vehicle’s tailpipe character. Avoid mixing samples only to make the sound louder or more aggressive; gain, muffling, and EQ are better tools for that.</p>
+<p>When mixing samples, check these points before detailed tuning:</p>
+<ul>
+<li>Match <code>fundamentalFrequencyCylinderCount</code> to the sound source used by each layer. Do not use the vehicle’s cylinder count to hide a sample that has the wrong engine order.</li>
+<li>Keep the engine and exhaust samples close in RPM range and character. A smooth stock engine layer can feel disconnected from a sharp race exhaust layer.</li>
+<li>Balance <code>onLoadGain</code>, <code>offLoadGain</code>, <code>maxLoadMix</code>, and <code>minLoadMix</code> on both layers so throttle transitions happen together.</li>
+<li>Use <code>mainGain</code> to set the broad engine-to-exhaust balance, then use muffling and EQ to make the two layers sit together.</li>
+<li>Listen for phasing, hollow tone, or sudden timbre changes during slow RPM sweeps. These are signs that the two sample sets do not blend naturally.</li>
+</ul>
+<p>If two samples do not blend after basic gain, load mix, muffling, and EQ tuning, choose a closer pair instead. A coherent sample match usually sounds better than an interesting mix that only works in one RPM range or camera view.</p>
+<h3 id="gain-and-load-mix">
+
+  Gain and load mix
+</h3>
+<p>Use <code>mainGain</code> to set the base loudness of each layer. It is measured in dB, so small changes matter. Avoid solving every issue with <code>mainGain</code>; once the rough balance is correct, use load mix, muffling, and EQ for smaller changes.</p>
+<p>Use the two layer gains together:</p>
+<ul>
+<li>Raise engine <code>mainGain</code> when the vehicle needs more mechanical or intake presence.</li>
+<li>Raise exhaust <code>mainGain</code> when the vehicle needs more exterior tailpipe presence.</li>
+<li>Lower both when the engine masks tire, wind, transmission, or environment sounds.</li>
+<li>Leave enough room for afterfire, starter, forced induction, and crash sounds.</li>
+</ul>
+<p><code>onLoadGain</code> and <code>offLoadGain</code> control the relative level of loaded and unloaded parts of the sample. They are useful for making throttle application more aggressive or making lift-off quieter.</p>
+<p><code>maxLoadMix</code> and <code>minLoadMix</code> control the blend between off-load and on-load sound. A higher <code>maxLoadMix</code> gives more on-load character at full throttle. A higher <code>minLoadMix</code> keeps more on-load tone even when the engine is unloaded, which can be useful for some race or heavy-duty sounds but can make coasting feel unnatural if pushed too far.</p>
+<h3 id="forced-induction-balance">
+
+  Forced induction balance
+</h3>
+<p>Turbocharger and supercharger sounds should be mixed around the engine and exhaust layers, not used to hide problems in them. Tune the base engine and exhaust first with boost sounds at a reasonable level, then bring the forced-induction character forward.</p>
+<p>For turbocharged engines:</p>
+<ul>
+<li>Keep intake and turbo sounds clear enough to hear boost build-up under load.</li>
+<li>Avoid making the exhaust so bright that it masks spool and bypass sounds.</li>
+<li>Check quick throttle lifts, gear changes, and low-RPM boost transitions.</li>
+<li>Make sure wastegate or blow-off sounds do not jump far above the engine mix unless the vehicle is intentionally extreme.</li>
+</ul>
+<p>For supercharged engines:</p>
+<ul>
+<li>The whine should follow engine speed and load without overpowering the combustion sound.</li>
+<li>If the whine is harsh, reduce high-frequency content before lowering all engine audio.</li>
+<li>Check interior views carefully, because supercharger whine can become tiring before it sounds too loud outside.</li>
+</ul>
+<p>For high-power builds, keep the engine, exhaust, intake, and forced-induction layers distinct. If all layers are simply made louder, the result often sounds flat and noisy instead of powerful.</p>
+<h3 id="muffled-and-open-sounds">
+
+  Muffled and open sounds
+</h3>
+<p>Muffling should usually be adjusted before detailed EQ. If a sound is too sharp, too open, or too distant, muffling is often the right control.</p>
+<p><code>intakeMuffling</code> applies to the engine-side layer. Lower values make the intake and engine layer sound more open. Higher values make it more subdued.</p>
+<p><code>exhaustAudioMufflingBaseCoef</code> applies to the exhaust-side layer. It sets the base muffling before exhaust parts and exhaust nodes add their own changes.</p>
+<p>Exhaust parts can also tune the final outlet behavior with node modifiers:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ex6"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.607</span><span class="p">,</span> <span class="mf">0.243</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireAudioCoef"</span><span class="o">:</span> <span class="mf">0.13</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireVisualCoef"</span><span class="o">:</span> <span class="mf">0.13</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireVolumeCoef"</span><span class="o">:</span> <span class="mf">0.24</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireMufflingCoef"</span><span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioMufflingCoef"</span><span class="o">:</span> <span class="mf">0.02</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioGainChange"</span><span class="o">:</span> <span class="o">-</span><span class="mf">6.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span></code></pre></div><p>Useful exhaust node fields include:</p>
+<ul>
+<li><code>exhaustAudioMufflingCoef</code>, which changes how muffled the exhaust outlet is.</li>
+<li><code>exhaustAudioGainChange</code>, which changes exhaust outlet loudness.</li>
+<li><code>afterFireAudioCoef</code>, which changes how much afterfire audio is produced at that outlet.</li>
+<li><code>afterFireVolumeCoef</code>, which changes afterfire loudness.</li>
+<li><code>afterFireMufflingCoef</code>, which changes how muffled afterfire sounds.</li>
+<li><code>afterFireVisualCoef</code>, which changes visible afterfire effects.</li>
+</ul>
+<p>The exhaust path should also identify which beams carry exhaust flow with <code>isExhaust</code>. This allows damage and exhaust routing to affect where exhaust sound and effects come from.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ex1"</span><span class="p">,</span> <span class="s2">"ex2"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"isExhaust"</span><span class="o">:</span> <span class="s2">"mainEngine"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ex2"</span><span class="p">,</span> <span class="s2">"ex3"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"isExhaust"</span><span class="o">:</span> <span class="s2">"mainEngine"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ex3"</span><span class="p">,</span> <span class="s2">"ex4"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"isExhaust"</span><span class="o">:</span> <span class="s2">"mainEngine"</span><span class="p">}],</span>
+</span></span></code></pre></div>
+<h3 id="exhaust-routing-and-damage">
+
+  Exhaust routing and damage
+</h3>
+<p>Advanced exhaust audio depends on the physical exhaust route, not only the sound config. The exhaust path is normally a chain of beams marked with <code>isExhaust</code>, ending at one or more outlet nodes with audio and afterfire modifiers.</p>
+<p>Use this setup when you want exhaust damage or part swaps to affect the sound:</p>
+<ul>
+<li>Mark the exhaust beams that carry flow with <code>isExhaust</code>.</li>
+<li>Put the outlet audio modifiers on the final outlet node or outlet nodes.</li>
+<li>Keep structural rigidifier beams separate from the exhaust path unless they really should carry exhaust flow.</li>
+<li>Use <code>optional</code> beams for extra visual support or alternate outlet geometry without accidentally creating a second exhaust route.</li>
+</ul>
+<p>When an exhaust path is broken, the game can move sound and effects to the effective break point instead of always using the final tailpipe. This is why the exhaust path should follow the real routing from engine-side connection to outlet. If a decorative beam is marked as exhaust flow, damage behavior and sound emission can become confusing.</p>
+<p>Dual or multi-exit exhausts can use more than one outlet node. Keep their audio values consistent unless the outlets intentionally represent different mufflers or pipe lengths. If a dual exhaust sounds too loud, reduce each outlet rather than leaving both at a single-exit value.</p>
+<h3 id="exhaust-variants">
+
+  Exhaust variants
+</h3>
+<p>For advanced vehicles, stock, sport, tuned, and race exhausts should usually be separate part variants rather than one heavily edited base config. Each variant can change:</p>
+<ul>
+<li>Outlet gain with <code>exhaustAudioGainChange</code>.</li>
+<li>Outlet muffling with <code>exhaustAudioMufflingCoef</code>.</li>
+<li>Afterfire amount, volume, muffling, and visual strength.</li>
+<li>Exhaust EQ offsets if the vehicle uses component-driven exhaust settings.</li>
+<li>Outlet count and outlet placement.</li>
+</ul>
+<p>A common approach is to keep the same engine and exhaust sample family, then make the exhaust variants progressively less restrictive. For example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">// Stock outlet: quiet, controlled, low afterfire.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">[</span><span class="s2">"ex6"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.607</span><span class="p">,</span> <span class="mf">0.243</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireAudioCoef"</span><span class="o">:</span> <span class="mf">0.13</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireVisualCoef"</span><span class="o">:</span> <span class="mf">0.13</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireVolumeCoef"</span><span class="o">:</span> <span class="mf">0.24</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireMufflingCoef"</span><span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioMufflingCoef"</span><span class="o">:</span> <span class="mf">0.02</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioGainChange"</span><span class="o">:</span> <span class="o">-</span><span class="mf">6.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Sport outlet: louder, more open, more afterfire.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">[</span><span class="s2">"ex6"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.607</span><span class="p">,</span> <span class="mf">0.243</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireAudioCoef"</span><span class="o">:</span> <span class="mf">0.43</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireVisualCoef"</span><span class="o">:</span> <span class="mf">0.03</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireVolumeCoef"</span><span class="o">:</span> <span class="mf">0.55</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireMufflingCoef"</span><span class="o">:</span> <span class="mf">0.26</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioMufflingCoef"</span><span class="o">:</span> <span class="mf">0.24</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioGainChange"</span><span class="o">:</span> <span class="o">-</span><span class="mf">5.7</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span></code></pre></div><p>Do not make every upgraded exhaust louder in every band. A sport exhaust may need more midrange and less high-frequency harshness. A race exhaust may need less muffling but still need lower <code>mainGain</code> or lower outlet gain to avoid masking tire and wind noise.</p>
+<h3 id="component-driven-variants">
+
+  Component-driven variants
+</h3>
+<p>Some vehicles share exhaust parts across several engines. In that case, the engine can define component values, and the exhaust part can read those values for each variant. This lets an I3, I4, I5, diesel, and race engine use the same exhaust part while still getting appropriate muffling, EQ, and afterfire behavior.</p>
+<p>The engine-side data can be grouped by exhaust variant:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"components"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"soundConfigExhaustComponents"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"base"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeAfterFireAudioCoef"</span><span class="o">:</span> <span class="mf">0.15</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeAfterFireVolumeCoef"</span><span class="o">:</span> <span class="mf">0.24</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeExhaustAudioMufflingCoef"</span><span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeExhaustAudioGainChange"</span><span class="o">:</span> <span class="o">-</span><span class="mf">6.5</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"sport"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeAfterFireAudioCoef"</span><span class="o">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeAfterFireVolumeCoef"</span><span class="o">:</span> <span class="mf">0.55</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeExhaustAudioMufflingCoef"</span><span class="o">:</span> <span class="mf">0.25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeExhaustAudioGainChange"</span><span class="o">:</span> <span class="o">-</span><span class="mf">5.7</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div><p>The exhaust part can then read those values with fallbacks:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ex6"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.607</span><span class="p">,</span> <span class="mf">0.243</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireAudioCoef"</span><span class="o">:</span> <span class="s2">"$=$components.soundConfigExhaustComponents.sport.nodeAfterFireAudioCoef or 0.43"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireVolumeCoef"</span><span class="o">:</span> <span class="s2">"$=$components.soundConfigExhaustComponents.sport.nodeAfterFireVolumeCoef or 0.55"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioMufflingCoef"</span><span class="o">:</span> <span class="s2">"$=$components.soundConfigExhaustComponents.sport.nodeExhaustAudioMufflingCoef or 0.24"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioGainChange"</span><span class="o">:</span> <span class="s2">"$=$components.soundConfigExhaustComponents.sport.nodeExhaustAudioGainChange or -5.7"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span></code></pre></div><p>Use this pattern when a vehicle has many engine options sharing the same exhaust slots. It keeps the exhaust part reusable while still letting each engine family define sensible defaults.</p>
+<h3 id="eq-and-tone-shaping">
+
+  EQ and tone shaping
+</h3>
+<p>Use EQ after sample choice, gain, load mix, and muffling are close. EQ is best for tone correction, not for changing the basic identity of the engine.</p>
+<p>The fundamental EQ controls the engine-order emphasis:</p>
+<ul>
+<li>Increase <code>eqFundamentalGain</code> if the sound lacks engine-order definition.</li>
+<li>Decrease it if the sound drones, booms, or feels too synthetic.</li>
+</ul>
+<p>The low EQ controls body and weight:</p>
+<ul>
+<li><code>eqLowFreq</code> sets the center frequency.</li>
+<li><code>eqLowGain</code> boosts or cuts that area.</li>
+<li><code>eqLowWidth</code> controls how wide the affected range is.</li>
+</ul>
+<p>The high EQ controls bite and brightness:</p>
+<ul>
+<li><code>eqHighFreq</code> sets the center frequency.</li>
+<li><code>eqHighGain</code> boosts or cuts that area.</li>
+<li><code>eqHighWidth</code> controls how wide the affected range is.</li>
+</ul>
+<p>Shelf controls are useful for broad trimming:</p>
+<ul>
+<li>Use the low shelf to reduce excessive rumble or add weight.</li>
+<li>Use the high shelf to reduce harshness or add brightness.</li>
+</ul>
+<p>Make EQ changes in small steps. Large boosts can make the sound tiring, distort more easily, or mask other vehicle sounds.</p>
+<h3 id="smoothing">
+
+  Smoothing
+</h3>
+<p>Engine RPM and load can change quickly, especially during shifts, throttle lifts, rev limiter contact, and wheelspin. Smoothing values control how quickly the audio follows those changes.</p>
+<p><code>rpmSmootherInRate</code> and <code>rpmSmootherOutRate</code> affect how fast RPM changes are followed by the sound.</p>
+<p><code>loadSmootherInRate</code> and <code>loadSmootherOutRate</code> affect how fast load changes are followed by the sound.</p>
+<p>If the sound chatters or flickers during quick throttle changes, increase smoothing. If the sound feels delayed or disconnected from the engine, reduce smoothing. Tune this after the main mix is close, because gain and load mix problems can sound like smoothing problems.</p>
+<h3 id="starters-and-shutoff-sounds">
+
+  Starters and shutoff sounds
+</h3>
+<p>Starter and shutoff events are separate from the continuous engine and exhaust loops. They should match the same vehicle character and not jump sharply in level when the loop starts or stops.</p>
+<p>Common fields include:</p>
+<ul>
+<li><code>starterSample</code> for the engine-side starter sound.</li>
+<li><code>starterSampleExhaust</code> for the exhaust-side starter sound.</li>
+<li><code>starterVolume</code> and <code>starterVolumeExhaust</code> for starter loudness.</li>
+<li><code>shutOffSampleEngine</code> and <code>shutOffSampleExhaust</code> for shutdown sounds.</li>
+<li><code>shutOffVolumeEngine</code> and <code>shutOffVolumeExhaust</code> for shutdown loudness.</li>
+</ul>
+<p>When tuning, repeatedly start and stop the engine from different camera views. The transition from starter to idle should feel continuous, and the shutoff should not be much louder than the running engine unless that is intentional.</p>
+<h3 id="afterfire-tuning">
+
+  Afterfire tuning
+</h3>
+<p>Afterfire has two sides: how much afterfire the engine produces, and how that afterfire is emitted by the exhaust outlet.</p>
+<p>Engine-level afterfire settings control when and how strongly afterfire is generated. These include the event paths for instant, sustained, and shift afterfire sounds, plus coefficients and thresholds for each type. Use those values to decide whether the engine should produce occasional pops, sustained crackle on overrun, or aggressive shift bangs.</p>
+<p>Outlet-level afterfire settings control how the generated afterfire behaves at a specific exhaust outlet:</p>
+<ul>
+<li><code>afterFireAudioCoef</code> changes how much generated afterfire audio reaches that outlet.</li>
+<li><code>afterFireVolumeCoef</code> changes the loudness of the afterfire at that outlet.</li>
+<li><code>afterFireMufflingCoef</code> changes how filtered or muffled the afterfire sounds.</li>
+<li><code>afterFireVisualCoef</code> changes visible flames separately from audio.</li>
+</ul>
+<p>This separation is important for variants. A stock exhaust can use the same engine afterfire generation as a sport exhaust, but with lower outlet volume and more muffling. A race exhaust can let more of the same generated afterfire through without changing the engine itself.</p>
+<p>Tune afterfire after the main engine and exhaust loop balance is close. Otherwise it is easy to make afterfire too loud just because the continuous exhaust layer is too quiet.</p>
+<p>Use these checks:</p>
+<ul>
+<li>Lift off from high RPM and listen for sustained overrun crackle.</li>
+<li>Shift at high load and listen for shift afterfire.</li>
+<li>Rev the engine in neutral and check individual pops.</li>
+<li>Compare close exterior, distant exterior, and interior views.</li>
+<li>Check that visual flames do not imply a much louder or quieter sound than what is heard.</li>
+</ul>
+<h3 id="interior-checks">
+
+  Interior checks
+</h3>
+<p>Interior sound is not only the engine sound config. It is also affected by the vehicle <code>sounds</code> section and body parts that increase cabin filtering.</p>
+<p><code>cabinFilterCoef</code> controls how strongly the vehicle interior filters outside sound. A body may define a base value, then doors, roof panels, windows, or other cabin-closing parts can add to it.</p>
+<p>Check these views before considering the mix finished:</p>
+<ul>
+<li>Exterior orbit camera near the front of the vehicle.</li>
+<li>Exterior orbit camera near the exhaust outlet.</li>
+<li>Hood camera.</li>
+<li>Driver or cockpit camera.</li>
+<li>Distant exterior camera during acceleration and fly-by.</li>
+</ul>
+<p>If the sound is good outside but too loud inside, adjust cabin filtering before making the whole engine quieter. If the sound is good inside but weak outside, adjust the exterior layer balance before raising everything.</p>
+<h3 id="common-problems">
+
+  Common problems
+</h3>
+<p>If the engine sounds like the wrong cylinder count, check <code>sampleName</code> and <code>fundamentalFrequencyCylinderCount</code> first.</p>
+<p>If the engine is loud but has no throttle character, tune <code>onLoadGain</code>, <code>offLoadGain</code>, <code>maxLoadMix</code>, and <code>minLoadMix</code>.</p>
+<p>If coasting is too loud, reduce <code>offLoadGain</code> or lower <code>minLoadMix</code>.</p>
+<p>If full throttle is not aggressive enough, increase <code>onLoadGain</code>, increase <code>maxLoadMix</code>, or rebalance toward the exhaust layer.</p>
+<p>If the exhaust is painfully sharp, increase muffling or reduce high EQ before lowering the whole exhaust.</p>
+<p>If the sound is boomy or drones at steady RPM, reduce <code>eqFundamentalGain</code>, reduce low EQ, or trim the low shelf.</p>
+<p>If afterfire is too loud compared with the engine, lower the afterfire volume coefficients on the engine or exhaust outlet instead of lowering the main exhaust layer.</p>
+<p>If interior audio feels unrealistic, check <code>cabinFilterCoef</code> and test with all relevant body panels installed.</p>
+<h3 id="debug-workflow">
+
+  Debug workflow
+</h3>
+<p>Use a repeatable test loop when tuning advanced engine audio. Changing values randomly makes it hard to know whether a problem is sample choice, gain, load mix, muffling, EQ, or routing.</p>
+<p>Start with the vehicle stationary:</p>
+<ol>
+<li>Start the engine and listen for the starter-to-idle transition.</li>
+<li>Hold idle from exterior and interior cameras.</li>
+<li>Slowly raise RPM with light throttle.</li>
+<li>Snap the throttle open and closed.</li>
+<li>Hit the rev limiter briefly if the vehicle is expected to reach it in normal use.</li>
+<li>Shut the engine off and listen for the shutdown transition.</li>
+</ol>
+<p>Then test under load:</p>
+<ol>
+<li>Accelerate gently from low RPM.</li>
+<li>Accelerate at full throttle through several gears.</li>
+<li>Hold steady cruise at low, medium, and high speed.</li>
+<li>Lift off from high RPM.</li>
+<li>Downshift under braking.</li>
+<li>Drive past a fixed camera or listen from a distant exterior camera.</li>
+</ol>
+<p>For each pass, write down one problem at a time. For example, “too much high-frequency exhaust on lift-off” is easier to fix than “sounds bad.” Make one small change, then repeat the same test.</p>
+<p>When using <strong>Engine Audio Debug</strong>, copy values back to the JBeam only after a complete test pass. Live tuning is useful, but it is easy to overtune a value for one camera angle or one RPM range.</p>
+<h3 id="setup-patterns">
+
+  Setup patterns
+</h3>
+<p>These are starting points, not strict rules.</p>
+<p>For a stock road car:</p>
+<ul>
+<li>Keep exhaust <code>mainGain</code> moderate and outlet <code>exhaustAudioGainChange</code> reduced.</li>
+<li>Use enough muffling to avoid harsh high-frequency exhaust.</li>
+<li>Keep afterfire low or disabled unless the real vehicle type calls for it.</li>
+<li>Use cabin filtering so the interior is quieter than exterior views.</li>
+</ul>
+<p>For a sport exhaust:</p>
+<ul>
+<li>Add exterior presence with outlet gain and moderate muffling changes.</li>
+<li>Keep the engine layer audible so the sound does not become only tailpipe noise.</li>
+<li>Add some afterfire audio if appropriate, but keep visual flames restrained for normal street parts.</li>
+<li>Check highway cruise for drone.</li>
+</ul>
+<p>For a race exhaust:</p>
+<ul>
+<li>Reduce muffling and increase load character, but preserve mix headroom.</li>
+<li>Use stronger afterfire only if it fits the engine and fuel setup.</li>
+<li>Check distant exterior sound, because race exhausts can become harsh when heard away from the vehicle.</li>
+<li>Do not rely only on <code>mainGain</code>; shape the tone with muffling and EQ.</li>
+</ul>
+<p>For a diesel truck:</p>
+<ul>
+<li>Keep low-frequency body, but avoid excessive fundamental drone.</li>
+<li>Let load changes be obvious, especially at low and medium RPM.</li>
+<li>Keep high-frequency exhaust controlled unless the vehicle uses a very open exhaust.</li>
+<li>Balance turbo sounds so spool is audible under load but not louder than the engine itself.</li>
+</ul>
+<p>For a quiet interior-focused vehicle:</p>
+<ul>
+<li>Tune the exterior first, then reduce interior harshness with cabin filtering.</li>
+<li>Avoid lowering both engine and exhaust so far that exterior cameras become weak.</li>
+<li>Check wind and tire balance at speed.</li>
+<li>Make starter and shutdown sounds quieter inside than outside.</li>
+</ul>
+<h3 id="final-pass">
+
+  Final pass
+</h3>
+<p>Do a final pass with the complete vehicle configuration, not only the engine installed in isolation. Engine audio has to sit with the rest of the vehicle:</p>
+<ul>
+<li>Tires should still be audible during cornering and braking.</li>
+<li>Wind should become noticeable at high speed.</li>
+<li>Transmission and differential sounds should not disappear.</li>
+<li>Starter, shutoff, and afterfire events should not clip or jump out of the mix.</li>
+<li>Damaged or missing exhaust parts should change the sound in a believable way.</li>
+</ul>
+<p>Good engine audio is usually the result of many small changes. Tune one group of values at a time, test from multiple cameras, and keep enough mix headroom for the rest of the vehicle.</p>

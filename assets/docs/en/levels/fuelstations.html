@@ -1,0 +1,613 @@
+<p>This page explains how to add fuel stations and electric charging stations to a level.</p>
+<p>A fuel station setup has two main parts:</p>
+<ul>
+<li>A facility entry in the level’s <code>facilities.facilities.json</code> file.</li>
+<li>A pair of level objects for each pump:
+<ul>
+<li><code>BeamNGGameplayArea</code></li>
+<li><code>BeamNGPointOfInterest</code></li>
+</ul>
+</li>
+</ul>
+<p>The facility entry defines the station data, such as name, preview image, supported fuel types, and pump object references. The level objects define where the player can interact with the station.</p>
+<hr/>
+<h2 id="file-location">
+
+  File location
+</h2>
+<p>Fuel stations are defined in the level facilities file:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/facilities.facilities.json
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/italy/facilities/facilities.facilities.json
+</span></span></code></pre></div><p>Preview images can also be placed in the same folder:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/&lt;previewImage&gt;.jpg
+</span></span></code></pre></div><hr/>
+<h2 id="basic-structure">
+
+  Basic structure
+</h2>
+<p>Fuel stations are listed under the <code>gasStations</code> array.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gasStations"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"fuel_example_station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Example Fuel Station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"A fuel station near the main road."</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"fuel_example_station.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"energyTypes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"gasoline"</span><span class="p">,</span> <span class="s2">"diesel"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pumps"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"fuel_example_station_pump_area_1"</span><span class="p">,</span> <span class="s2">"fuel_example_station_pump_icon_1"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"fuel_example_station_pump_area_2"</span><span class="p">,</span> <span class="s2">"fuel_example_station_pump_icon_2"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>A <code>facilities.facilities.json</code> file may contain other facility types as well. In that case, <code>gasStations</code> is only one section of the file.</p>
+<hr/>
+<h2 id="gas-station-fields">
+
+  Gas station fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>String</td>
+<td>Unique station ID.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>String</td>
+<td>Display name or localization key.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>String</td>
+<td>Display description or localization key.</td>
+</tr>
+<tr>
+<td><code>preview</code></td>
+<td>String</td>
+<td>Preview image filename. Usually stored in the level’s <code>facilities</code> folder.</td>
+</tr>
+<tr>
+<td><code>energyTypes</code></td>
+<td>Array</td>
+<td>Fuel/energy types supported by this station.</td>
+</tr>
+<tr>
+<td><code>pumps</code></td>
+<td>Array</td>
+<td>List of pump object pairs. Each pair contains an area object name and an icon object name.</td>
+</tr>
+<tr>
+<td><code>prices</code></td>
+<td>Object</td>
+<td>Optional fuel price data. Used by fuel price displays and career systems.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="pump-references">
+
+  Pump references
+</h2>
+<p>Each pump entry is an array containing two object names:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"&lt;areaObjectName&gt;"</span><span class="p">,</span> <span class="s2">"&lt;iconObjectName&gt;"</span><span class="p">]</span>
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"fuel_example_station_pump_area_1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"fuel_example_station_pump_icon_1"</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>The first object must be a <code>BeamNGGameplayArea</code>.</p>
+<p>The second object must be a <code>BeamNGPointOfInterest</code>.</p>
+<p>The order matters:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[BeamNGGameplayArea name, BeamNGPointOfInterest name]
+</span></span></code></pre></div><hr/>
+<h2 id="energy-types">
+
+  Energy types
+</h2>
+<p>The <code>energyTypes</code> array defines which vehicle energy storage types the station can refill or recharge.</p>
+<p>Common values:</p>
+<table>
+<thead>
+<tr>
+<th>Energy type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gasoline</code></td>
+<td>Gasoline/petrol fuel.</td>
+</tr>
+<tr>
+<td><code>diesel</code></td>
+<td>Diesel fuel.</td>
+</tr>
+<tr>
+<td><code>electricEnergy</code></td>
+<td>Electric vehicle battery energy.</td>
+</tr>
+<tr>
+<td><code>kerosine</code></td>
+<td>Jet/aircraft fuel type.</td>
+</tr>
+<tr>
+<td><code>n2o</code></td>
+<td>Nitrous oxide.</td>
+</tr>
+<tr>
+<td><code>any</code></td>
+<td>Allows the station to fill any energy type.</td>
+</tr>
+<tr>
+<td><code>unknown</code></td>
+<td>Fallback for fuel types not explicitly listed.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice note">Use the exact energy type used by the vehicle’s energy storage. Existing official level and vehicle content is the best reference for uncommon fuel types.</div>
+<hr/>
+<h2 id="common-energy-type-setups">
+
+  Common energy type setups
+</h2>
+<h3 id="regular-fuel-station">
+
+  Regular fuel station
+</h3>
+<p>Use this for most normal gas stations:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"energyTypes"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"gasoline"</span><span class="p">,</span> <span class="s2">"diesel"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">]</span>
+</span></span></code></pre></div><p>This supports gasoline, diesel, and unknown/fallback fuel types.</p>
+<h3 id="electric-charging-station">
+
+  Electric charging station
+</h3>
+<p>Use this for EV charging stations:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"energyTypes"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"electricEnergy"</span><span class="p">]</span>
+</span></span></code></pre></div>
+<h3 id="universal-station">
+
+  Universal station
+</h3>
+<p>Use this only when the station should support every energy type:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"energyTypes"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"any"</span><span class="p">]</span>
+</span></span></code></pre></div><hr/>
+<h2 id="game-object-setup">
+
+  Game object setup
+</h2>
+<p>For each pump, create:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">BeamNGGameplayArea
+</span></span><span class="line"><span class="cl">BeamNGPointOfInterest
+</span></span></code></pre></div><p>The <code>BeamNGGameplayArea</code> defines the interaction volume.</p>
+<p>The <code>BeamNGPointOfInterest</code> defines where the in-world pump icon appears.</p>
+<hr/>
+<h2 id="beamnggameplayarea-placement">
+
+  BeamNGGameplayArea placement
+</h2>
+<p>Place the <code>BeamNGGameplayArea</code> where the vehicle should stop to refuel.</p>
+<p>Recommended placement:</p>
+<ul>
+<li>Put the area on the ground beside or around the fuel pump.</li>
+<li>Extend it outward from the pump so the vehicle can overlap it.</li>
+<li>Make it large enough for different vehicle sizes.</li>
+<li>Keep it small enough that vehicles do not trigger it from unrelated lanes or roads.</li>
+<li>Align it with the pump bay if possible.</li>
+</ul>
+<p>The player can interact with the fuel station when their vehicle overlaps this area.</p>
+<div class="bng-notice warning">If the gameplay area is too small or placed too far from the pump, players may not be able to refuel reliably.</div>
+<hr/>
+<h2 id="beamngpointofinterest-placement">
+
+  BeamNGPointOfInterest placement
+</h2>
+<p>Place the <code>BeamNGPointOfInterest</code> on or above the pump.</p>
+<p>Recommended placement:</p>
+<ul>
+<li>Put it above the fuel pump or charging unit.</li>
+<li>Keep it visually associated with the pump.</li>
+<li>Use one point of interest per pump area.</li>
+<li>Give it a unique name.</li>
+<li>Reference it in the matching pump pair in <code>facilities.facilities.json</code>.</li>
+</ul>
+<p>The point of interest position is used for the in-world icon and minimap marker.</p>
+<hr/>
+<h2 id="object-naming">
+
+  Object naming
+</h2>
+<p>Use clear and stable object names.</p>
+<p>Example naming pattern:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">fuel_&lt;stationName&gt;_pump_area_1
+</span></span><span class="line"><span class="cl">fuel_&lt;stationName&gt;_pump_icon_1
+</span></span><span class="line"><span class="cl">fuel_&lt;stationName&gt;_pump_area_2
+</span></span><span class="line"><span class="cl">fuel_&lt;stationName&gt;_pump_icon_2
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">fuel_apex_mountainside_pump_area_1
+</span></span><span class="line"><span class="cl">fuel_apex_mountainside_pump_icon_1
+</span></span></code></pre></div><p>Then reference them in the facility file:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"pumps"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"fuel_apex_mountainside_pump_area_1"</span><span class="p">,</span> <span class="s2">"fuel_apex_mountainside_pump_icon_1"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"fuel_apex_mountainside_pump_area_2"</span><span class="p">,</span> <span class="s2">"fuel_apex_mountainside_pump_icon_2"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><div class="bng-notice warning">The names in the JSON file must exactly match the names of the level objects.</div>
+<hr/>
+<h2 id="complete-basic-example">
+
+  Complete basic example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gasStations"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"fuel_apex_mountainside"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Apex Mountainside Fuel"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"Fuel station near the mountainside road."</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"fuel_apex_mountainside.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"energyTypes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"gasoline"</span><span class="p">,</span> <span class="s2">"diesel"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pumps"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"fuel_apex_mountainside_pump_area_1"</span><span class="p">,</span> <span class="s2">"fuel_apex_mountainside_pump_icon_1"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"fuel_apex_mountainside_pump_area_2"</span><span class="p">,</span> <span class="s2">"fuel_apex_mountainside_pump_icon_2"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Required level objects:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">BeamNGGameplayArea:     fuel_apex_mountainside_pump_area_1
+</span></span><span class="line"><span class="cl">BeamNGPointOfInterest:  fuel_apex_mountainside_pump_icon_1
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">BeamNGGameplayArea:     fuel_apex_mountainside_pump_area_2
+</span></span><span class="line"><span class="cl">BeamNGPointOfInterest:  fuel_apex_mountainside_pump_icon_2
+</span></span></code></pre></div><p>Optional preview image:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/fuel_apex_mountainside.jpg
+</span></span></code></pre></div><hr/>
+<h2 id="electric-charging-station-example">
+
+  Electric charging station example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gasStations"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"charge_downtown_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Downtown Charging Station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"Electric vehicle charging station."</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"charge_downtown_01.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"energyTypes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"electricEnergy"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pumps"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"charge_downtown_01_area_1"</span><span class="p">,</span> <span class="s2">"charge_downtown_01_icon_1"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"charge_downtown_01_area_2"</span><span class="p">,</span> <span class="s2">"charge_downtown_01_icon_2"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Stations with <code>electricEnergy</code> use charging-style map and interaction icons.</p>
+<hr/>
+<h2 id="preview-image">
+
+  Preview image
+</h2>
+<p>The <code>preview</code> field points to an image used by map and facility UI.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"preview"</span><span class="err">:</span> <span class="s2">"fuel_apex_mountainside.jpg"</span>
+</span></span></code></pre></div><p>Recommended location:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/fuel_apex_mountainside.jpg
+</span></span></code></pre></div><p>Best practices:</p>
+<ul>
+<li>Use a clear view of the station.</li>
+<li>Keep the file size reasonable.</li>
+<li>Use a descriptive filename.</li>
+<li>Make sure the filename in JSON matches the actual file.</li>
+</ul>
+<hr/>
+<h2 id="localization">
+
+  Localization
+</h2>
+<p>The <code>name</code> and <code>description</code> fields can be plain text or localization keys.</p>
+<p>Plain text example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"name"</span><span class="err">:</span> <span class="s2">"Apex Mountainside Fuel"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"description"</span><span class="err">:</span> <span class="s2">"Fuel station near the mountainside road."</span>
+</span></span></code></pre></div><p>Localization key example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"name"</span><span class="err">:</span> <span class="s2">"levels.italy.gasStationPoints.fuel_apex_mountainside"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"description"</span><span class="err">:</span> <span class="s2">"levels.italy.gasStationPoints.fuel_apex_mountainside.description"</span>
+</span></span></code></pre></div><p>For public mods, plain text is acceptable. For content that supports multiple languages, use localization keys and provide translations.</p>
+<hr/>
+<h2 id="optional-fuel-prices">
+
+  Optional fuel prices
+</h2>
+<p>Fuel stations can optionally define price data with a <code>prices</code> object.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"fuel_example_station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Example Fuel Station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"A station with fuel price data."</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"fuel_example_station.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"energyTypes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"gasoline"</span><span class="p">,</span> <span class="s2">"diesel"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pumps"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fuel_example_station_pump_area_1"</span><span class="p">,</span> <span class="s2">"fuel_example_station_pump_icon_1"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"prices"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"gasoline"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"priceBaseline"</span><span class="p">:</span> <span class="mf">1.65</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"diesel"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"priceBaseline"</span><span class="p">:</span> <span class="mf">1.72</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The <code>prices</code> object is keyed by fuel type.</p>
+<h3 id="price-fields">
+
+  Price fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>priceBaseline</code></td>
+<td>Number</td>
+<td>Base price for the fuel type.</td>
+</tr>
+<tr>
+<td><code>priceRandomnessGain</code></td>
+<td>Number</td>
+<td>Optional random variation amount.</td>
+</tr>
+<tr>
+<td><code>priceRandomnessBias</code></td>
+<td>Number</td>
+<td>Optional random variation bias.</td>
+</tr>
+<tr>
+<td><code>displayObjects</code></td>
+<td>Array</td>
+<td>Optional object names used for physical price display digits.</td>
+</tr>
+<tr>
+<td><code>disabled</code></td>
+<td>Boolean</td>
+<td>If true, the price display shows disabled placeholders.</td>
+</tr>
+<tr>
+<td><code>us_9_10_tax</code></td>
+<td>Boolean</td>
+<td>Optional display helper for US-style 9/10 fuel price signs.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice note">Fuel price support is mainly useful for career/freeroam systems and physical price signs. A basic fuel station does not need a <code>prices</code> section.</div>
+<hr/>
+<h2 id="optional-physical-price-displays">
+
+  Optional physical price displays
+</h2>
+<p>A station can drive physical price display objects using <code>displayObjects</code>.</p>
+<p>The display is configured as a list of digit positions. Each digit position contains one or more object names.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"prices"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gasoline"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"priceBaseline"</span><span class="p">:</span> <span class="mf">1.659</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"displayObjects"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_gasoline_digit_1"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_gasoline_digit_2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_gasoline_digit_3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_gasoline_digit_4"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"us_9_10_tax"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The price is formatted to three decimal places and then displayed as individual digits.</p>
+<p>For example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">1.659 -&gt; 1659
+</span></span></code></pre></div><p>Each display object is replaced at runtime with the matching digit mesh.</p>
+<p>If <code>disabled</code> is set, the display shows <code>-</code> placeholders:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"prices"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"diesel"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"disabled"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"displayObjects"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_diesel_digit_1"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_diesel_digit_2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_diesel_digit_3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_diesel_digit_4"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><div class="bng-notice warning">Physical price display object setup is optional and more advanced. For most stations, omit <code>displayObjects</code>.</div>
+<hr/>
+<h2 id="runtime-behavior">
+
+  Runtime behavior
+</h2>
+<p>Fuel stations are loaded from the level facilities file.</p>
+<p>When available, they appear as points of interest on the map and as in-world pump markers.</p>
+<p>A player can interact with the station when:</p>
+<ul>
+<li>The vehicle overlaps one of the station’s <code>BeamNGGameplayArea</code> pump areas.</li>
+<li>The station supports the vehicle’s energy type.</li>
+<li>Fuel stations are enabled for the current game mode.</li>
+</ul>
+<p>In freeroam, supported tanks are filled directly.</p>
+<p>In career mode, refueling may be handled by the career fuel transaction system.</p>
+<hr/>
+<h2 id="fuel-compatibility-behavior">
+
+  Fuel compatibility behavior
+</h2>
+<p>When the player interacts with a station, the game checks the vehicle’s energy storage types.</p>
+<p>Behavior:</p>
+<ul>
+<li>If the station supports the vehicle’s fuel type, that tank can be filled.</li>
+<li>If the station has <code>any</code>, all fuel types can be filled.</li>
+<li>If the vehicle has an unsupported fuel type, that tank is not filled.</li>
+<li><code>air</code> storage is ignored.</li>
+<li><code>unknown</code> can be used as a fallback category for unrecognized fuel types.</li>
+</ul>
+<p>If a vehicle has multiple energy storage types, the station may partially fill only the supported ones.</p>
+<hr/>
+<h2 id="map-and-marker-behavior">
+
+  Map and marker behavior
+</h2>
+<p>Fuel station markers are generated from the facility entry.</p>
+<p>The marker position is based on the pump areas. The radius is calculated from the pump layout.</p>
+<p>The in-world icon appears near the <code>BeamNGPointOfInterest</code> object for each pump.</p>
+<p>Marker icon type depends on energy types:</p>
+<table>
+<thead>
+<tr>
+<th>Station type</th>
+<th>Icon behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fuel station</td>
+<td>Fuel pump icon.</td>
+</tr>
+<tr>
+<td>Electric charging station</td>
+<td>Charging icon.</td>
+</tr>
+</tbody>
+</table>
+<p>A station is treated as electric if its <code>energyTypes</code> include:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"electricEnergy"</span>
+</span></span></code></pre></div><hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Add one <code>gasStations</code> entry per station.</li>
+<li>Use a unique and stable <code>id</code>.</li>
+<li>Use clear object names for pump areas and icons.</li>
+<li>Use one <code>BeamNGGameplayArea</code> and one <code>BeamNGPointOfInterest</code> per pump.</li>
+<li>Place the gameplay area where the player’s vehicle should stop.</li>
+<li>Make the gameplay area large enough for different vehicles.</li>
+<li>Place the point of interest above or on the pump.</li>
+<li>Add a preview image for map UI.</li>
+<li>Use <code>["gasoline", "diesel", "unknown"]</code> for normal fuel stations.</li>
+<li>Use <code>["electricEnergy"]</code> for charging stations.</li>
+<li>Do not reference missing objects in the <code>pumps</code> list.</li>
+<li>Keep pump names stable after release to avoid breaking references.</li>
+<li>Test with several vehicle types and sizes.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="station-does-not-appear">
+
+  Station does not appear
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>The station is not listed under <code>gasStations</code>.</li>
+<li>The <code>facilities.facilities.json</code> file is in the wrong folder.</li>
+<li>The JSON file is invalid.</li>
+<li>Fuel stations are disabled in the current mode/settings.</li>
+<li>The station has no valid pump object pairs.</li>
+</ul>
+<h3 id="interaction-prompt-does-not-appear">
+
+  Interaction prompt does not appear
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>The vehicle is not overlapping the <code>BeamNGGameplayArea</code>.</li>
+<li>The gameplay area is too small.</li>
+<li>The gameplay area object name does not match the JSON entry.</li>
+<li>The station does not support the vehicle’s fuel type.</li>
+<li>The pump pair references missing objects.</li>
+</ul>
+<h3 id="icon-appears-in-the-wrong-place">
+
+  Icon appears in the wrong place
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>The <code>BeamNGPointOfInterest</code> is misplaced.</li>
+<li>The wrong icon object is referenced in the pump pair.</li>
+<li>The pump pair order is reversed.</li>
+</ul>
+<p>Correct order:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"area_object_name"</span><span class="p">,</span> <span class="s2">"icon_object_name"</span><span class="p">]</span>
+</span></span></code></pre></div>
+<h3 id="vehicle-does-not-refuel">
+
+  Vehicle does not refuel
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>The vehicle uses an energy type not listed in <code>energyTypes</code>.</li>
+<li>The station does not include <code>unknown</code> or <code>any</code>.</li>
+<li>The vehicle has multiple tanks and only some are supported.</li>
+<li>Career mode fuel transactions are unavailable or blocked.</li>
+</ul>
+<h3 id="preview-image-is-missing">
+
+  Preview image is missing
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>The <code>preview</code> filename is wrong.</li>
+<li>The image is not included with the level or mod.</li>
+<li>The image is not in the expected folder.</li>
+</ul>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p>To add a fuel station:</p>
+<ol>
+<li>
+<p>Create an entry under <code>gasStations</code> in:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/facilities.facilities.json
+</span></span></code></pre></div></li>
+<li>
+<p>Give the station a unique <code>id</code>.</p>
+</li>
+<li>
+<p>Set <code>name</code>, <code>description</code>, and <code>preview</code>.</p>
+</li>
+<li>
+<p>Set supported <code>energyTypes</code>.</p>
+</li>
+<li>
+<p>For each pump, create:</p>
+<ul>
+<li><code>BeamNGGameplayArea</code></li>
+<li><code>BeamNGPointOfInterest</code></li>
+</ul>
+</li>
+<li>
+<p>Add each pump pair to the <code>pumps</code> array:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"pump_area_name"</span><span class="p">,</span> <span class="s2">"pump_icon_name"</span><span class="p">]</span>
+</span></span></code></pre></div></li>
+<li>
+<p>Optionally add a preview image and price data.</p>
+</li>
+<li>
+<p>Test the station in game with compatible vehicles.</p>
+</li>
+</ol>

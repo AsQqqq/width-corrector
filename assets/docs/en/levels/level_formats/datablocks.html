@@ -1,0 +1,344 @@
+<p>This document describes BeamNG datablock JSON files.</p>
+<p>Datablocks are reusable engine data definitions. They are used by many systems to describe shared resources such as particles, emitters, precipitation, light flares, light animations, sounds, ambience, decals, and other reusable engine objects.</p>
+<p>A datablock is not usually a visible level object by itself. Instead, it is a named definition that other objects, systems, or gameplay code can reference.</p>
+<hr/>
+<h2 id="overview">
+
+  Overview
+</h2>
+<p>A datablock JSON file is a JSON object where each top-level key defines one datablock.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"exampleData"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"exampleData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SomeDatablockClass"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Each datablock entry usually contains:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Datablock object name. Usually matches the JSON key.</td>
+</tr>
+<tr>
+<td><code>class</code></td>
+<td>Datablock class/type.</td>
+</tr>
+<tr>
+<td>class-specific fields</td>
+<td>Settings used by that datablock type.</td>
+</tr>
+</tbody>
+</table>
+<p>The top-level key and the <code>name</code> field should normally match.</p>
+<hr/>
+<h2 id="file-naming">
+
+  File naming
+</h2>
+<p>Modern datablock files usually use the suffix:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.datablocks.json
+</span></span></code></pre></div><p>Examples:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">art/datablocks/lights.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/sounds.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/audioProfiles.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/managedDatablocks.datablocks.json
+</span></span></code></pre></div><p>Some managed datablock files use tool-specific names:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">art/shapes/particles/managedParticleData.json
+</span></span><span class="line"><span class="cl">art/shapes/particles/managedParticleEmitterData.json
+</span></span></code></pre></div><p>Level-specific datablocks may also exist inside level folders:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/datablocks/custom.datablocks.json
+</span></span></code></pre></div><hr/>
+<h2 id="loading-behavior">
+
+  Loading behavior
+</h2>
+<p>During level loading, core datablocks are loaded before level objects. This allows scene objects and systems to reference datablocks by name.</p>
+<p>Typical core files include:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">art/shapes/particles/managedParticleData.json
+</span></span><span class="line"><span class="cl">art/shapes/particles/managedParticleEmitterData.json
+</span></span><span class="line"><span class="cl">art/datablocks/audioProfiles.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/sounds.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/player.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/datablockExec.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/lights.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/managedDatablocks.datablocks.json
+</span></span></code></pre></div><p>When loading a level, the engine also searches the level folder for files matching patterns such as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.datablocks.json
+</span></span><span class="line"><span class="cl">*Data.json
+</span></span></code></pre></div><p>These are loaded before level scene objects are created.</p>
+<hr/>
+<h2 id="legacy-cs-datablocks">
+
+  Legacy .cs datablocks
+</h2>
+<p>Older content may define datablocks in TorqueScript <code>.cs</code> files.</p>
+<p>Examples:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">datablockExec.cs
+</span></span></code></pre></div><p>The engine still supports some legacy <code>.cs</code> datablock loading paths, but new content should use JSON datablock files.</p>
+<div class="bng-notice info">Datablock JSON files are the modern replacement for many older TorqueScript datablock definitions.</div>
+<hr/>
+<h2 id="general-structure">
+
+  General structure
+</h2>
+<p>A datablock file contains named entries:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"datablockName"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"datablockName"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SomeDatablockClass"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fieldA"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fieldB"</span><span class="p">:</span> <span class="s2">"value"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Minimal example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"TurretFireSound"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"TurretFireSound"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXProfile"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"AudioMaster"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"filename"</span><span class="p">:</span> <span class="s2">"art/sound/turret_firing.wav"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"preload"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="common-datablock-classes">
+
+  Common datablock classes
+</h2>
+<p>Common datablock classes include:</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ParticleData</code></td>
+<td>Defines individual particle appearance and behavior.</td>
+</tr>
+<tr>
+<td><code>ParticleEmitterData</code></td>
+<td>Defines particle emission behavior.</td>
+</tr>
+<tr>
+<td><code>ParticleEmitterNodeData</code></td>
+<td>Defines particle emitter node settings.</td>
+</tr>
+<tr>
+<td><code>PrecipitationData</code></td>
+<td>Defines precipitation textures.</td>
+</tr>
+<tr>
+<td><code>LightFlareData</code></td>
+<td>Defines lens flare/light flare elements.</td>
+</tr>
+<tr>
+<td><code>LightAnimData</code></td>
+<td>Defines animated light brightness, offset, or rotation behavior.</td>
+</tr>
+<tr>
+<td><code>SFXProfile</code></td>
+<td>Defines a reusable sound event/file profile.</td>
+</tr>
+<tr>
+<td><code>SFXAmbience</code></td>
+<td>Defines ambience or audio snapshot data.</td>
+</tr>
+</tbody>
+</table>
+<p>Class-specific fields are documented separately.</p>
+<p>Scene objects that commonly reference datablocks include <a href="https://documentation.beamng.com/modding/levels/level_classes/lights/" rel="noopener" target="_blank">Lights</a>
+, and <a data-doc="levels/level_classes/sound" href="/docs/levels/level_classes/sound">Sound</a>
+.</p>
+<hr/>
+<h2 id="references-between-datablocks">
+
+  References between datablocks
+</h2>
+<p>Datablocks often reference each other by name.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"exampleEmitter"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"exampleEmitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ParticleEmitterData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"particles"</span><span class="p">:</span> <span class="s2">"exampleParticle"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Here, <code>exampleEmitter</code> references a <code>ParticleData</code> datablock named <code>exampleParticle</code>.</p>
+<p>If the referenced datablock is missing, the effect may fail or use fallback behavior.</p>
+<hr/>
+<h2 id="texture-and-audio-paths">
+
+  Texture and audio paths
+</h2>
+<p>Many datablocks reference texture or audio assets.</p>
+<p>Examples:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"textureName"</span><span class="err">:</span> <span class="s2">"art/shapes/particles/steam.png"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"flareTexture"</span><span class="err">:</span> <span class="s2">"core/art/special/lensFlareSheet0.color.png"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"dropTexture"</span><span class="err">:</span> <span class="s2">"art/shapes/particles/Particle_rain_drop.dds"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"filename"</span><span class="err">:</span> <span class="s2">"art/sound/turret_firing.wav"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"fileName"</span><span class="err">:</span> <span class="s2">"event:&gt;UI&gt;Missions&gt;Countdown_Go"</span>
+</span></span></code></pre></div><p>Use valid paths and make sure referenced files are included in the mod or level.</p>
+<div class="bng-notice note">Some datablock classes use <code>fileName</code>, while others may use <code>filename</code>. Use existing game content or class-specific documentation as reference.</div>
+<hr/>
+<h2 id="persistent-ids">
+
+  Persistent IDs
+</h2>
+<p>Some saved datablocks contain:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"persistentId"</span><span class="err">:</span> <span class="s2">"c98465df-dd27-48d0-b855-3f5267b18400"</span>
+</span></span></code></pre></div><p>Persistent IDs are editor/engine identifiers used for object persistence.</p>
+<p>When manually creating datablocks, avoid copying the same <code>persistentId</code> to another unrelated datablock.</p>
+<div class="bng-notice warning">Do not duplicate <code>persistentId</code> values between datablocks. If manually creating new datablocks, omit the field and let the editor generate it.</div>
+<hr/>
+<h2 id="null-and-placeholder-values">
+
+  Null and placeholder values
+</h2>
+<p>Saved datablock files may contain <code>null</code> values or empty placeholder entries.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"elementDist"</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"elementRect"</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"elementScale"</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>or:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{}</span>
+</span></span></code></pre></div><p>These usually represent unused array slots or default values written by the editor. Tools can generally ignore unused placeholder entries unless the specific datablock class requires them.</p>
+<hr/>
+<h2 id="editor-workflow">
+
+  Editor workflow
+</h2>
+<p>Datablocks can be created and managed by editor tools.</p>
+<p>When a datablock is created:</p>
+<ol>
+<li>The editor creates an object of the selected datablock class.</li>
+<li>It optionally copies fields from another datablock.</li>
+<li>It registers the object.</li>
+<li>It adds it to the datablock set.</li>
+<li>It marks it dirty in the persistence manager.</li>
+<li>It saves it to a datablock JSON file.</li>
+</ol>
+<p>The editor tracks dirty datablocks and can save only modified objects.</p>
+<hr/>
+<h2 id="default-managed-datablock-file">
+
+  Default managed datablock file
+</h2>
+<p>If no custom filename is provided, editor-created datablocks may be saved to a managed file such as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">art/datablocks/managedDatablocks.json
+</span></span></code></pre></div><p>or a class/tool-specific managed file.</p>
+<p>For organized content, prefer saving related datablocks into clearly named files.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example/datablocks/traffic_lights.datablocks.json
+</span></span><span class="line"><span class="cl">levels/example/datablocks/weather_effects.datablocks.json
+</span></span><span class="line"><span class="cl">levels/example/datablocks/custom_sounds.datablocks.json
+</span></span></code></pre></div><hr/>
+<h2 id="minimal-file-example">
+
+  Minimal file example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"exampleSound"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"exampleSound"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXProfile"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"AudioDefault3D"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fileName"</span><span class="p">:</span> <span class="s2">"art/sound/example.ogg"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"exampleFlare"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"exampleFlare"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"LightFlareData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"flareTexture"</span><span class="p">:</span> <span class="s2">"core/art/special/lensFlareSheet0.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"overallScale"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Use JSON datablock files for new content.</li>
+<li>Keep datablock names unique.</li>
+<li>Keep the top-level key and <code>name</code> field consistent.</li>
+<li>Use descriptive names that include purpose or system.</li>
+<li>Load/create referenced datablocks before users of those datablocks.</li>
+<li>Avoid copying <code>persistentId</code> values between unrelated datablocks.</li>
+<li>Use asset paths that work both in normal game and packed mods.</li>
+<li>Prefer shared/common datablocks when possible.</li>
+<li>Use editor tools to create and save datablocks when available.</li>
+<li>Remove unused datablocks to reduce clutter and load time.</li>
+<li>Group related datablocks into clearly named files.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="datablock-is-not-found">
+
+  Datablock is not found
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>File was not loaded.</li>
+<li>Wrong file suffix.</li>
+<li>Wrong <code>name</code>.</li>
+<li>Typo in referenced datablock name.</li>
+<li>Referenced before being loaded.</li>
+</ul>
+<h3 id="referenced-asset-is-missing">
+
+  Referenced asset is missing
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Texture/audio path is wrong.</li>
+<li>File is not included in the mod or level.</li>
+<li>Path works locally but not from a packed mod.</li>
+<li>Incorrect capitalization on case-sensitive systems.</li>
+</ul>
+<h3 id="datablock-loads-but-does-nothing">
+
+  Datablock loads but does nothing
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>No object or system references it.</li>
+<li>Required class-specific fields are missing.</li>
+<li>Referenced child datablock is missing.</li>
+<li>Datablock was saved to the wrong file.</li>
+</ul>
+<h3 id="duplicate-datablock-names">
+
+  Duplicate datablock names
+</h3>
+<p>Only one object should use a given datablock name. Rename one of them and update references.</p>
+<h3 id="persistent-id-conflict">
+
+  Persistent ID conflict
+</h3>
+<p>Remove duplicated <code>persistentId</code> fields and let the editor regenerate them.</p>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p>Datablock JSON files store reusable engine data definitions.</p>
+<p>They can define particles, emitters, precipitation, light flares, light animations, sounds, ambience, decals, and other shared resources.</p>
+<p>Modern datablocks should be stored in JSON files such as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.datablocks.json
+</span></span></code></pre></div><p>or tool-specific managed JSON files.</p>
+<p>Level objects and gameplay systems reference datablocks by name.</p>

@@ -1,0 +1,22 @@
+<p>BeamNG update <code>0.37</code> introduces a new system for handling vehicle paints.</p>
+<p>The basic way of defining vehicle paint has some drawbacks:</p>
+<ul>
+<li>Sometimes vehicles share the same paints: for example cars from the same brand and similar production years. With the basic system, the paint has to be duplicated into the info.json files of every vehicle that uses it, which is not very efficient.</li>
+<li>Paint names can’t be translated into different languages, due to the name of the paint being the key used to search for it in code.</li>
+<li>Over time, some inconsistencies have accumulated between the paint lists of different vehicles. For example, there could be paints with the same name but different values on two vehicles, or vice versa.</li>
+<li>The basic system is difficult to maintain, as the same changes to a single paint setup have to be made in the files all of the vehicles that use this paint.</li>
+<li>Sometimes, a single paint doesnt cover the whole visual of the car. Some cars have two-tone setups, or skins using three different colors. This causes issues with unfitting color combinations when selecting only the first color palette setup when spawning the car.</li>
+<li>Every paint that exists on any configuration of the vehicle, even a custom one, or as a detail in a multi-colored skin, has to exist inside the vehicle’s main info.json file, making it available for all other configurations. This leads to an unrealistically large variety of selectable paints when spawning a car.</li>
+<li>When traffic cars are spawned or teleported the paint colors for them are chosen randomly, which leads to unrealistic paint color distribution across the pool at any given time. To fix this, paints have to be duplicated to have a higher chance of being randomly selected.</li>
+</ul>
+<p>The new paint system makes use of some new concepts to fix all of these issues. These will be discussed in more detail in the following pages:</p>
+<ul>
+<li><a data-doc="vehicle/vehicle_paints/paint_library" href="/docs/vehicle/vehicle_paints/paint_library">Paint library</a>
+: A file that contains paints, and multi-paint setups, that can be shared by all vehicles, eliminating the need of copypasting paint definitions for every vehicle.</li>
+<li><a data-doc="vehicle/vehicle_paints/multi_paint_setup" href="/docs/vehicle/vehicle_paints/multi_paint_setup">Multi-paint setup</a>
+: A set of three paints which will be applied all at once to a vehicle. It exists alongside paints in both color selector menus.</li>
+<li>Paint classes: Paints are divided into Factory and Custom. Only Factory colors will show in the vehicle selector. Factory and Custom colors, along with user paints, will show in separate tabs in the vehicle configurator menu.</li>
+<li>Paint hierarchy: Library &gt; Model &gt; Config. Paints and multi-paint setups defined in the library can be used in a vehicle model and in vehicle config. Those defined in the vehicle model can be used in any config of this model. Those defined inside the vehicle config can be only used by this config.</li>
+<li><a data-doc="vehicle/vehicle_paints/paint_distribution" href="/docs/vehicle/vehicle_paints/paint_distribution">Random paint distribution</a>
+: A paint can be assigned a weight value that affects the probability of being picked in traffic, leading to realistic color distribution.</li>
+</ul>

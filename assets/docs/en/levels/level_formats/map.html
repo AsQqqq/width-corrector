@@ -1,0 +1,632 @@
+<p>This document describes the optional <code>map.json</code> file used by BeamNG levels to add manual navigation graph segments.</p>
+<p>The navigation map is used by AI, traffic, navigation, route generation, and related gameplay systems. Most navigation data is generated automatically from <code>DecalRoad</code> objects and <code>BeamNGWaypoint</code> objects, but <code>map.json</code> allows level creators to manually define additional road/path segments.</p>
+<hr/>
+<h2 id="file-location">
+
+  File location
+</h2>
+<p><code>map.json</code> is placed in the level folder:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/map.json
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/west_coast_usa/map.json
+</span></span></code></pre></div><p>If <code>map.json</code> is missing, the navigation graph can still be generated from <code>DecalRoad</code> and <code>BeamNGWaypoint</code> objects.</p>
+<hr/>
+<h2 id="purpose">
+
+  Purpose
+</h2>
+<p>Use <code>map.json</code> when automatic road graph generation is not enough.</p>
+<p>Common use cases:</p>
+<ul>
+<li>Tunnels</li>
+<li>Bridges</li>
+<li>Overpasses</li>
+<li>Complex intersections</li>
+<li>Roads not represented well by <code>DecalRoad</code></li>
+<li>Manually controlled one-way paths</li>
+<li>Private/gated roads</li>
+<li>Special AI/navigation connectors</li>
+<li>Hidden navigation links</li>
+</ul>
+<p><code>map.json</code> does not define visual road geometry. It only defines navigation graph connections between existing nodes.</p>
+<hr/>
+<h2 id="relationship-with-decalroad-and-beamngwaypoint">
+
+  Relationship with DecalRoad and BeamNGWaypoint
+</h2>
+<p>The navigation graph is built from multiple sources:</p>
+<ol>
+<li><code>BeamNGWaypoint</code> objects</li>
+<li><code>DecalRoad</code> objects with <code>drivability &gt; 0</code></li>
+<li>Manual segments from <code>map.json</code></li>
+</ol>
+<p><code>map.json</code> segments reference existing node names. These can be:</p>
+<ul>
+<li><code>BeamNGWaypoint</code> object names</li>
+<li>Nodes generated from <code>DecalRoad</code> objects</li>
+<li>Other existing navigation nodes</li>
+</ul>
+<p>If a node referenced in <code>map.json</code> does not exist, that segment cannot be fully created and an error may be logged.</p>
+<hr/>
+<h2 id="basic-structure">
+
+  Basic structure
+</h2>
+<p><code>map.json</code> contains a top-level <code>segments</code> object.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"bridge1"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Bridge1_A"</span><span class="p">,</span> <span class="s2">"Bridge1_B"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">"tunnel_A"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"tunnel_A_1"</span><span class="p">,</span> <span class="s2">"tunnel_A_2"</span><span class="p">,</span> <span class="s2">"tunnel_A_3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"flipDirection"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"lanesLeft"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Each key inside <code>segments</code> is a segment name. The name is mainly for organization and debugging.</p>
+<hr/>
+<h2 id="segment-fields">
+
+  Segment fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nodes</code></td>
+<td>array/string</td>
+<td>required</td>
+<td>Ordered list of node names that form the segment.</td>
+</tr>
+<tr>
+<td><code>drivability</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Pathing preference/cost multiplier. Lower values are less preferred.</td>
+</tr>
+<tr>
+<td><code>oneWay</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Whether the segment is one-way.</td>
+</tr>
+<tr>
+<td><code>flipDirection</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Reverses the logical direction of the segment.</td>
+</tr>
+<tr>
+<td><code>speedLimit</code></td>
+<td>number</td>
+<td>auto</td>
+<td>Optional speed value in meters per second used by AI/navigation. Values <code>&lt;= 0</code> are treated as unset.</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>string</td>
+<td><code>nil</code></td>
+<td>Road type metadata, for example <code>private</code>.</td>
+</tr>
+<tr>
+<td><code>gatedRoad</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Treats the segment as private/gated road data.</td>
+</tr>
+<tr>
+<td><code>hiddenInNavi</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Hides or de-emphasizes the segment in navigation display where supported.</td>
+</tr>
+<tr>
+<td><code>autoLanes</code></td>
+<td>bool</td>
+<td><code>true</code></td>
+<td>If set to <code>false</code>, lane count is read from <code>lanesLeft</code> and <code>lanesRight</code>.</td>
+</tr>
+<tr>
+<td><code>lanesLeft</code></td>
+<td>integer</td>
+<td><code>0</code></td>
+<td>Manual lane count for one side when <code>autoLanes</code> is <code>false</code>.</td>
+</tr>
+<tr>
+<td><code>lanesRight</code></td>
+<td>integer</td>
+<td><code>0</code></td>
+<td>Manual lane count for one side when <code>autoLanes</code> is <code>false</code>.</td>
+</tr>
+<tr>
+<td><code>autoJunction</code></td>
+<td>bool</td>
+<td><code>true</code></td>
+<td>If set to <code>false</code>, prevents automatic merging at this segment’s nodes.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="nodes">
+
+  Nodes
+</h2>
+<p>The <code>nodes</code> field defines the ordered path of the segment.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"Bridge1_A"</span><span class="p">,</span> <span class="s2">"Bridge1_B"</span><span class="p">,</span> <span class="s2">"Bridge1_C"</span><span class="p">]</span>
+</span></span></code></pre></div><p>This creates links:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Bridge1_A → Bridge1_B
+</span></span><span class="line"><span class="cl">Bridge1_B → Bridge1_C
+</span></span></code></pre></div><p>For two-way segments, pathing can travel both directions. For one-way segments, travel direction depends on <code>oneWay</code> and <code>flipDirection</code>.</p>
+<hr/>
+<h2 id="node-string-shorthand">
+
+  Node string shorthand
+</h2>
+<p>The <code>nodes</code> field can also be written as a string.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="s2">"tunnel_A_1-tunnel_A_10"</span>
+</span></span></code></pre></div><p>This expands to:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">tunnel_A_1
+</span></span><span class="line"><span class="cl">tunnel_A_2
+</span></span><span class="line"><span class="cl">tunnel_A_3
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">tunnel_A_10
+</span></span></code></pre></div><p>Multiple ranges or individual nodes can be separated with commas:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="s2">"Bridge1_A, tunnel_A_1-tunnel_A_10, Bridge1_B"</span>
+</span></span></code></pre></div><div class="bng-notice note">For range expansion, both ends must use the same text prefix and numeric suffix pattern.</div>
+<hr/>
+<h2 id="direction">
+
+  Direction
+</h2>
+<h3 id="oneway">
+
+  oneWay
+</h3>
+<p><code>oneWay</code> marks a segment as one-way.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"oneWay"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>The default travel direction follows the order of the <code>nodes</code> list.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"oneWay"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>This creates a one-way path from:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">A → B → C
+</span></span></code></pre></div>
+<h3 id="flipdirection">
+
+  flipDirection
+</h3>
+<p><code>flipDirection</code> reverses the logical direction of the segment.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"flipDirection"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"oneWay"</span><span class="err">:</span> <span class="kc">true</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"flipDirection"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>This creates a one-way path from:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">C → B → A
+</span></span></code></pre></div><p>Use this when the node order is convenient for editing, but the legal driving direction is the opposite.</p>
+<hr/>
+<h2 id="drivability">
+
+  Drivability
+</h2>
+<p><code>drivability</code> controls how desirable a segment is for pathfinding.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"drivability"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre></div><p>Typical values:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>1</code></td>
+<td>Normal road/path.</td>
+</tr>
+<tr>
+<td><code>0.5</code></td>
+<td>Less preferred path.</td>
+</tr>
+<tr>
+<td><code>&lt; 0.5</code></td>
+<td>Strongly discouraged path.</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td>Extremely undesirable, but still internally guarded against invalid zero cost.</td>
+</tr>
+</tbody>
+</table>
+<p>Navigation cost increases as drivability decreases, so AI and routing systems prefer higher-drivability roads when possible.</p>
+<hr/>
+<h2 id="speed-limit">
+
+  Speed limit
+</h2>
+<p><code>speedLimit</code> can be set per segment:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"speedLimit"</span><span class="err">:</span> <span class="mf">13.89</span>
+</span></span></code></pre></div><p>If <code>speedLimit</code> is missing or <code>&lt;= 0</code>, the engine automatically estimates speed limits based on road width/radius, drivability, and road direction.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"speedLimit"</span><span class="err">:</span> <span class="mi">0</span>
+</span></span></code></pre></div><p>means “auto-calculate”.</p>
+<div class="bng-notice info">If you are unsure, omit <code>speedLimit</code> and let the engine calculate it automatically. Speed limit is set in meters per second.</div>
+<hr/>
+<h2 id="road-type-and-private-roads">
+
+  Road type and private roads
+</h2>
+<p>A segment can define a road type:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"type"</span><span class="err">:</span> <span class="s2">"private"</span>
+</span></span></code></pre></div><p>You can also use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gatedRoad"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>When <code>gatedRoad</code> is true, the segment is treated as private-type road data.</p>
+<p>Private roads affect routing and traffic behavior. When private roads connect to public roads, the navigation graph may mark connecting edges as gated so pathfinding treats them differently.</p>
+<p>Use private/gated roads for:</p>
+<ul>
+<li>Restricted areas</li>
+<li>Dirt tracks</li>
+<li>Service roads</li>
+<li>Parking lots</li>
+<li>Race tracks</li>
+<li>Non-public roads</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"dirttrack"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dirttrack_1"</span><span class="p">,</span> <span class="s2">"dirttrack_2"</span><span class="p">,</span> <span class="s2">"dirttrack_3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gatedRoad"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="hidden-navigation-segments">
+
+  Hidden navigation segments
+</h2>
+<p><code>hiddenInNavi</code> can hide a segment from navigation display where supported:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"hiddenInNavi"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>This can be useful for:</p>
+<ul>
+<li>Internal connectors</li>
+<li>Service links</li>
+<li>AI-only helper paths</li>
+<li>Hidden tunnel links</li>
+<li>Non-user-facing navigation routes</li>
+</ul>
+<p>The segment may still exist in the graph and be used by systems depending on context.</p>
+<hr/>
+<h2 id="lane-data">
+
+  Lane data
+</h2>
+<p>Lane information can be generated automatically or specified manually.</p>
+<h3 id="automatic-lanes">
+
+  Automatic lanes
+</h3>
+<p>By default, lanes are generated from road width/radius and road rules.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoLanes"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>or omitted.</p>
+<p>The engine uses level road rules from <code>info.json</code>:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"roadRules"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rightHandDrive"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>to decide lane-side assumptions.</p>
+<h3 id="manual-lanes">
+
+  Manual lanes
+</h3>
+<p>Set <code>autoLanes</code> to <code>false</code> to use lane counts:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoLanes"</span><span class="err">:</span> <span class="kc">false</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"lanesLeft"</span><span class="err">:</span> <span class="mi">1</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"lanesRight"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre></div><p>For one-way roads, lane data can result in a one-way lane string internally.</p>
+<p>The internal lane string uses:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">+ = direction from inNode to outNode
+</span></span><span class="line"><span class="cl">- = direction from outNode to inNode
+</span></span></code></pre></div><p>The lane order depends on the level’s <code>rightHandDrive</code> road rule.</p>
+<div class="bng-notice info"><code>lanesLeft</code> and <code>lanesRight</code> are interpreted together with <code>roadRules.rightHandDrive</code> from <code>info.json</code>.</div>
+<hr/>
+<h2 id="road-rules-interaction">
+
+  Road rules interaction
+</h2>
+<p><code>map.json</code> uses road rules from <code>info.json</code>.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"roadRules"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rightHandDrive"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"turnOnRed"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Relevant field:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Used by map graph?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rightHandDrive</code></td>
+<td>Yes</td>
+<td>Affects automatic/manual lane direction interpretation.</td>
+</tr>
+<tr>
+<td><code>turnOnRed</code></td>
+<td>Indirectly</td>
+<td>Used by traffic/navigation systems where applicable.</td>
+</tr>
+</tbody>
+</table>
+<p><code>rightHandDrive</code> does not visually change the road. It affects how navigation lane data is interpreted/generated.</p>
+<hr/>
+<h2 id="auto-junction-merging">
+
+  Auto junction merging
+</h2>
+<p>By default, the navigation graph performs automatic merging and junction processing.</p>
+<p>Set:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoJunction"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre></div><p>to prevent automatic merging at the segment’s nodes.</p>
+<p>Internally, this marks the segment/node data as <code>noMerge</code>.</p>
+<p>Use this for:</p>
+<ul>
+<li>Complex intersections</li>
+<li>Parallel roads close together</li>
+<li>Tunnel ramps</li>
+<li>Bridges/overpasses</li>
+<li>Places where automatic merging creates incorrect connections</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"junction_helper"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"j1"</span><span class="p">,</span> <span class="s2">"j2"</span><span class="p">,</span> <span class="s2">"j3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"autoJunction"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="generated-graph-processing">
+
+  Generated graph processing
+</h2>
+<p>After loading <code>DecalRoad</code>, <code>BeamNGWaypoint</code>, and <code>map.json</code> data, the engine processes the navigation graph.</p>
+<p>The process includes:</p>
+<ol>
+<li>Loading road and waypoint data</li>
+<li>Adding manual <code>map.json</code> segments</li>
+<li>Creating/estimating speed limits</li>
+<li>Merging overlapping nodes</li>
+<li>Resolving T-junctions</li>
+<li>Resolving X-junctions</li>
+<li>Merging nodes to nearby lines</li>
+<li>Processing private/gated roads</li>
+<li>Optimizing/simplifying nodes</li>
+<li>Converting the graph to single-sided edge storage</li>
+<li>Building spatial acceleration structures for pathfinding</li>
+</ol>
+<p>Because of this, the final runtime graph may not exactly match the raw input file.</p>
+<hr/>
+<h2 id="example-simple-two-way-bridge">
+
+  Example: simple two-way bridge
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"bridge1"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Bridge1_A"</span><span class="p">,</span> <span class="s2">"Bridge1_B"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>This creates a normal two-way segment between <code>Bridge1_A</code> and <code>Bridge1_B</code>.</p>
+<hr/>
+<h2 id="example-one-way-bridge">
+
+  Example: one-way bridge
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"bridge2"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Bridge2_A"</span><span class="p">,</span> <span class="s2">"Bridge2_B"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"flipDirection"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>This creates a one-way segment using the reverse of the listed node order.</p>
+<hr/>
+<h2 id="example-tunnel-with-manual-lanes">
+
+  Example: tunnel with manual lanes
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"tunnel_A"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"tunnel_A_1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"tunnel_A_2"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"tunnel_A_3"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"tunnel_A_4"</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"autoLanes"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"lanesLeft"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"lanesRight"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="example-private-dirt-track">
+
+  Example: private dirt track
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dirttrack"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dirttrack_1"</span><span class="p">,</span> <span class="s2">"dirttrack_2"</span><span class="p">,</span> <span class="s2">"dirttrack_3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"flipDirection"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"gatedRoad"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>This segment is treated as private/gated road data.</p>
+<hr/>
+<h2 id="example-range-shorthand">
+
+  Example: range shorthand
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"tunnel_city_A"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="s2">"tunnel_city_A_1-tunnel_city_A_63"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"lanesLeft"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>This is equivalent to listing every node manually from <code>tunnel_city_A_1</code> to <code>tunnel_city_A_63</code>.</p>
+<hr/>
+<h2 id="relationship-with-beamngwaypoint">
+
+  Relationship with BeamNGWaypoint
+</h2>
+<p>Manual segments often rely on <code>BeamNGWaypoint</code> objects placed in the level.</p>
+<p>Example waypoint object:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"BeamNGWaypoint"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"tunnel_A_1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The <code>map.json</code> segment can then reference it:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"tunnel_A_1"</span><span class="p">,</span> <span class="s2">"tunnel_A_2"</span><span class="p">]</span>
+</span></span></code></pre></div><p>If a waypoint has <code>excludeFromMap</code>, it is not added automatically to the navigation graph.</p>
+<hr/>
+<h2 id="debugging">
+
+  Debugging
+</h2>
+<p>Useful debugging tools/functions include:</p>
+<ul>
+<li>Navigation graph debug drawing</li>
+<li>Graph hash logging</li>
+<li>Closest road queries</li>
+<li>Path queries</li>
+<li>SVG export of the map graph</li>
+</ul>
+<p>The map system can export a simplified SVG view of the graph for inspection.</p>
+<p>Common debug visualization shows:</p>
+<ul>
+<li>Junction nodes</li>
+<li>Road widths</li>
+<li>Lane directions</li>
+<li>Drivability colors</li>
+<li>Gated/private roads</li>
+</ul>
+<hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Use <code>DecalRoad</code> for normal roads when possible.</li>
+<li>Use <code>map.json</code> only for manual corrections and special connections.</li>
+<li>Make sure every node referenced by <code>map.json</code> exists.</li>
+<li>Avoid duplicate consecutive nodes in a segment.</li>
+<li>Use <code>oneWay</code> and <code>flipDirection</code> carefully.</li>
+<li>Use <code>autoJunction: false</code> around complex overpasses, tunnels, or close parallel roads.</li>
+<li>Use <code>gatedRoad</code> or <code>type: "private"</code> for non-public routes.</li>
+<li>Keep <code>drivability</code> close to <code>1</code> for normal roads.</li>
+<li>Use lower <code>drivability</code> for rough or less preferred routes.</li>
+<li>Omit <code>speedLimit</code> unless a specific value is required.</li>
+<li>Keep segment names descriptive.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="segment-does-not-appear-in-navigation">
+
+  Segment does not appear in navigation
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li><code>map.json</code> is missing or invalid</li>
+<li><code>segments</code> object is missing</li>
+<li>First node in the segment does not exist</li>
+<li>A later node does not exist, causing the segment to stop</li>
+<li>Referenced waypoints are excluded from the map</li>
+</ul>
+<h3 id="ai-drives-the-wrong-direction">
+
+  AI drives the wrong direction
+</h3>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"oneWay"</span><span class="err">:</span> <span class="kc">true</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"flipDirection"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>If the direction is reversed, toggle <code>flipDirection</code>.</p>
+<h3 id="lanes-behave-incorrectly">
+
+  Lanes behave incorrectly
+</h3>
+<p>Check:</p>
+<ul>
+<li><code>autoLanes</code></li>
+<li><code>lanesLeft</code></li>
+<li><code>lanesRight</code></li>
+<li><code>roadRules.rightHandDrive</code> in <code>info.json</code></li>
+</ul>
+<h3 id="roads-merge-incorrectly">
+
+  Roads merge incorrectly
+</h3>
+<p>Set:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoJunction"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre></div><p>on affected manual segments.</p>
+<h3 id="route-uses-private-roads-unexpectedly">
+
+  Route uses private roads unexpectedly
+</h3>
+<p>Check <code>gatedRoad</code>, <code>type</code>, and how private roads connect to public roads.</p>
+<h3 id="speed-feels-wrong">
+
+  Speed feels wrong
+</h3>
+<p>Remove <code>speedLimit</code> to allow automatic calculation, or verify that the value is correct for the intended road.</p>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p><code>map.json</code> is an optional manual navigation graph file.</p>
+<p>It defines additional path segments between existing navigation nodes and is mainly used for special cases such as tunnels, bridges, overpasses, private roads, and complex intersections.</p>
+<p>The main structure is:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"segment_name"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"node_a"</span><span class="p">,</span> <span class="s2">"node_b"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Most roads should be generated from <code>DecalRoad</code> objects. Use <code>map.json</code> when you need precise manual control over AI/navigation connectivity or you cannot use decal roads on your level.</p>

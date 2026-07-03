@@ -1,0 +1,242 @@
+<p><code>This feature is supported as of BeamNG.tech and .drive version 0.14.0 to latest.</code></p>
+<p>Torsion bars are used when you want to have a certain amount of resistance to torque between two levers. They are defined using 4 nodes, which define the end of the first lever, the two nodes that serve as the axis, and the end of second lever.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/torsionbars/TorsionBeam.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/torsionbars/TorsionBeam.png"/>
+</span></a></p>
+<p>They are used to simulate structures that resist forces in torsion like sway bars, and to help rigidify flat structures like ladder chassis and shock mounts of suspension arms without the use of rigidifier nodes.</p>
+<p>If a beam located between 2 consecutive nodes of a torsion bar breaks, the torsion bar itself will break.</p>
+<p>The angle between the axis and the lever should be as close as possible to 90 degrees. The further away it is, the less stable the torsionbar (higher risk of Jbeam instability). Therefore you should choose the nodes for the levers carefully.</p>
+<h3 id="anisotropic-torsionbars">
+
+  Anisotropic Torsionbars
+</h3>
+<p>Anisotropic torsionbars are the torsionbar equivalent of <a data-doc="vehicle/sections/beams/anisotropic" href="/docs/vehicle/sections/beams/anisotropic">anisotropic beams</a>
+ (the beams with varying stiffness and damping values between compression and expansion). These torsionbars resist torque differently depending in which direction the lever has twisted. Imagining one of the levers as fixed in 3D space might help you visualize this. Twisting one of the levers is the same as twisting the other in the opposite direction.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/torsionbars/anisotropicTorsionbar.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/torsionbars/anisotropicTorsionbar_hu6c5004626b01cfa13c11a64c5ba5d47e_52628_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>A torsionbar becomes an anisotropic torsionbar once the spring2 and/or damp2 values are defined. Depending on which way the lever has twisted depending to the starting point, the torsionbar will use either spring and damp, or spring2 and damp2 values to resist torque. Precompression angle will offset the starting point like it normally offsets the spawn angle. This is useful for making a torsionbar equivalent of a <a data-doc="vehicle/sections/beams/support" href="/docs/vehicle/sections/beams/support">support beam</a>
+ - setting spring and damp to 0 and using precompressionAngle to set the angle at which the torsionbar will start resisting torque using spring2 and damp2.</p>
+<h3 id="required-arguments">
+
+  Required arguments
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The first lever end node</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The first axis node</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The second axis node</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The second lever end node</div>
+</div>
+</div>
+<h3 id="optional-arguments">
+
+  Optional arguments
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The stiffness of the torsion bar (Nm/rad)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The damping of the torsion bar (Nm.s/rad)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">spring<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The stiffness of the torsion bar (Nm/rad) on the other side of the spawn angle</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Using this property will make the torsionbar anisotropic.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">damp<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The damping of the torsion bar (Nm.s/rad) on the other side of the spawn angle</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Using this property will make the torsionbar anisotropic.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">How much torque the torsion bar can take before deforming (Nm)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">How much torque the torsion bar can take before breaking (Nm)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">How much the torsion bar will twist on spawn (rad)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Also offsets the reference angle for anisotropic torsionbars.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Time it takes for the torsion bar to twist on spawn (s)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Name of the torsionbar, used by some systems such as the adaptive sway bar controller</div>
+</div>
+</div>
+<h3 id="simple-example">
+
+  Simple Example
+</h3>
+<p>Standard torsion bars</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl">    <span class="s2">"torsionbars"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span> <span class="s2">"id2:"</span><span class="p">,</span> <span class="s2">"id3:"</span><span class="p">,</span> <span class="s2">"id4:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"spring"</span><span class="o">:</span><span class="mi">10000000</span><span class="p">,</span> <span class="s2">"damp"</span><span class="o">:</span><span class="mi">100</span><span class="p">,</span> <span class="s2">"deform"</span><span class="o">:</span><span class="mi">25000</span><span class="p">,</span> <span class="s2">"strength"</span><span class="o">:</span><span class="mi">100000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//rigidify steering arm
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">[</span><span class="s2">"oma1tl"</span><span class="p">,</span> <span class="s2">"oma1l"</span><span class="p">,</span> <span class="s2">"oma1r"</span><span class="p">,</span> <span class="s2">"omatiltr"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"oma1tr"</span><span class="p">,</span> <span class="s2">"oma1r"</span><span class="p">,</span> <span class="s2">"oma1l"</span><span class="p">,</span> <span class="s2">"omatiltl"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span></code></pre></div>
+<h3 id="advanced-example">
+
+  Advanced Example
+</h3>
+<p>Anisotropic torsion bars</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"torsionbars"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span> <span class="s2">"id2:"</span><span class="p">,</span> <span class="s2">"id3:"</span><span class="p">,</span> <span class="s2">"id4:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">//steering limiters
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">{</span><span class="s2">"deform"</span><span class="o">:</span><span class="mi">25000</span><span class="p">,</span> <span class="s2">"strength"</span><span class="o">:</span><span class="mi">125000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"fh3r"</span><span class="p">,</span><span class="s2">"fax2r"</span><span class="p">,</span><span class="s2">"fax1r"</span><span class="p">,</span><span class="s2">"fax3r"</span><span class="p">,{</span><span class="s2">"precompressionAngle"</span><span class="o">:</span><span class="mf">0.75</span><span class="p">,</span><span class="s2">"precompressionTime"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"spring"</span><span class="o">:</span><span class="mi">200000</span><span class="p">,</span><span class="s2">"damp"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"spring2"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"damp2"</span><span class="o">:</span><span class="mi">0</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"fh3r"</span><span class="p">,</span><span class="s2">"fax1r"</span><span class="p">,</span><span class="s2">"fax2r"</span><span class="p">,</span><span class="s2">"fax3r"</span><span class="p">,{</span><span class="s2">"precompressionAngle"</span><span class="o">:</span><span class="mf">1.05</span><span class="p">,</span><span class="s2">"precompressionTime"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"spring"</span><span class="o">:</span><span class="mi">200000</span><span class="p">,</span><span class="s2">"damp"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"spring2"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"damp2"</span><span class="o">:</span><span class="mi">0</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"fh3l"</span><span class="p">,</span><span class="s2">"fax1l"</span><span class="p">,</span><span class="s2">"fax2l"</span><span class="p">,</span><span class="s2">"fax3l"</span><span class="p">,{</span><span class="s2">"precompressionAngle"</span><span class="o">:</span><span class="mf">0.75</span><span class="p">,</span><span class="s2">"precompressionTime"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"spring"</span><span class="o">:</span><span class="mi">200000</span><span class="p">,</span><span class="s2">"damp"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"spring2"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"damp2"</span><span class="o">:</span><span class="mi">0</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"fh3l"</span><span class="p">,</span><span class="s2">"fax2l"</span><span class="p">,</span><span class="s2">"fax1l"</span><span class="p">,</span><span class="s2">"fax3l"</span><span class="p">,{</span><span class="s2">"precompressionAngle"</span><span class="o">:</span><span class="mf">1.05</span><span class="p">,</span><span class="s2">"precompressionTime"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"spring"</span><span class="o">:</span><span class="mi">200000</span><span class="p">,</span><span class="s2">"damp"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"spring2"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"damp2"</span><span class="o">:</span><span class="mi">0</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>

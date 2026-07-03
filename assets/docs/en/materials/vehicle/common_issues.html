@@ -1,0 +1,66 @@
+<p>Material issues on vehicles will usual appear in the form of an orange NO MATERIAL or NO TEXTURE appearing on your vehicle.</p>
+<p>Your first reflex with any material issue should be to check the console (<kbd>`</kbd> by default) for error messages.</p>
+<p>Error messages will show up in red in the console, while warning messages show up in yellow.</p>
+<h3 id="no-material">
+
+  No Material
+</h3>
+<p>No material errors show up as a NO MATERIAL orange material on the vehicle. Keep in mind that it might not be super clear depending on your UV map, however NO MATERIAL issues are a specific shade of orange.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/common_issues/NoMaterial.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/common_issues/NoMaterial_huae3caf1cad63866ebbe7a1b9658d626e_650218_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Those errors happen because the material assigned to those surfaces cannot be found in the material definition.</p>
+<p>If you check in the console. You should see an error like this:</p>
+<blockquote>
+<p>[NO-TEXTURE] Unable to find material mapping to: <em>material</em> in unknown</p>
+</blockquote>
+<p>This sort of issue has a few possible causes :</p>
+<ul>
+<li>The material isn’t defined in the materials.json file, or there is a typo in the “mapTo” parameter.</li>
+<li>There is a syntax error in your materials.json file</li>
+<li>There are conflicting material files, often with the automatically generated materials file in the vehicle folder, or when you have a second main.materials.json file for a vanilla vehicle.</li>
+</ul>
+<p>If the material is missing or has a typo, you will simply need to correct that.</p>
+<p>As for syntax errors, the easiest way to troubleshoot them is to copy the content of your materials.json file into a json checker like 
+    <a class="link-ext" href="https://jsonchecker.com/" rel="noopener" target="_blank">this</a>
+ and fix the issues that pop up.</p>
+<p>If neither of those issues is the problem. What can be happening is that your vehicle has 2 overwriting materials file, with the primary file not having all the required materials.</p>
+<p>The first possible cause is that you have a temporary materials file in the vehicle folder. This file could have been creating either when trying to load a vehicle that had no materials file, or from saving changes in the materials editor. Removing that file should fix your issues.</p>
+<p>The other possibility, which is specific to mods of pre-existing vehicles, is that you are overwriting the materials file of the previous vehicle. To fix this, you should move all of your mod’s file into a sub folder.</p>
+<h3 id="no-texture">
+
+  No texture
+</h3>
+<p>A no texture error can take multiple forms. The most obvious one will be if the diffuse texture shows as a yellow “NO TEXTURE” material. As with material issues, you might not see the text depending on the UVMap, but it’s a specific shade of yellow.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/common_issues/NoTexture.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/common_issues/NoTexture_hu8867b88b98f42d82d0a882b5a45e01f3_581456_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>You might also see the issue come up as a “NO TEXTURE” bump map, orange reflections, or white textures when they should be colored.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/common_issues/NoTextureNormal.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/common_issues/NoTextureNormal_hu7963843fa60c9b0934955e77555b87ea_614584_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>In the console, you should see a message telling you the specific file that cannot be loaded, as well as the material it’s used in. Here’s an example:</p>
+<blockquote>
+<p>Failed to load ‘diffuse’ map ‘/vehicles/pigeon/pigeon_main_c.color.png’ for state 0 of material ‘pigeon_main’</p>
+</blockquote>
+<p>There are a few possible causes, however the most common ones are a missing texture file or a resolution that isn’t a power of 2.</p>
+<h4 id="missing-file">
+
+  Missing file
+</h4>
+<p>The most common cause of issues with texture loading is when the game cannot find the file.</p>
+<p>This will appear in console with a message similar to this :</p>
+<blockquote>
+<p>Missing source texture /vehicles/pigeon/pigeon_main_c.color.png</p>
+</blockquote>
+<p>This can either mean that the file doesn’t exist into that specific folder, or that there is a typo in the file path.</p>
+<h4 id="resolution-isnt-a-power-of-2">
+
+  Resolution isn’t a power of 2
+</h4>
+<p>This issue will appear in console as :</p>
+<blockquote>
+<p>Error on texture[<em>texture path</em>] : Unable to load compressed texture with non pow2 size</p>
+</blockquote>
+<p>This means that the width and/or height of your texture aren’t of a dimension supported by the game.</p>
+<p>Both width and height of every texture needs to be a power 2. This includes numbers like 256, 512, 1024, 2048, etc.</p>

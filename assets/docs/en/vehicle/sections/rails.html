@@ -1,0 +1,284 @@
+<p><video autoplay="" controls="" src="slideNodeDemo.mp4"></video></p>
+<p>Slidenodes are nodes that move along predefined rails. Common applications include steering racks and some suspension components like macpherson struts.</p>
+<h3 id="slidenodes">
+
+  Slidenodes
+</h3>
+<p>Slidenodes need to have a node and rail already created to work, as they refer to both. Keep in mind that the node needs to be precisely aligned with the rail, otherwise you might experience issues as the node aligns itself on spawn.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"slidenodes"</span><span class="o">:</span> <span class="p">[</span> 
+</span></span><span class="line"><span class="cl">     <span class="p">[</span><span class="s2">"id:"</span><span class="p">,</span> <span class="s2">"railName"</span><span class="p">,</span> <span class="s2">"attached"</span><span class="p">,</span> <span class="s2">"fixToRail"</span><span class="p">,</span> <span class="s2">"tolerance"</span><span class="p">,</span> <span class="s2">"spring"</span><span class="p">,</span> <span class="s2">"strength"</span><span class="p">,</span> <span class="s2">"capStrength"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">     <span class="p">[</span><span class="s2">"nodename"</span><span class="p">,</span> <span class="s2">"Rail1"</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10000000</span><span class="p">,</span> <span class="mi">100000000</span><span class="p">,</span> <span class="mi">345435</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>
+<h4 id="required-arguments">
+
+  Required Arguments
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The name of the node you want attached to the rail</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This should match a node that has been defined in the nodes section</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The name of the rail that this slidenode will be attached to</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">true<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Specifies if the slidenode will initially be attached to the rail or not.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">true<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Moves the slidenode to be on the rail (or if tolerance is defined, it moves it close to the rail).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Distance from the rail (m) before rail forces are applied to the node.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Force that holds the node to the rail (N/m).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Force at which the node will separate from the rail (N).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The strength of the caps (N).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Caps are the start and end nodes of the rail. If capped=false, the slidenode will slide out of the rail when it reaches the end and detach from it. If capped=true, then it will stop there held by the capStrength force.</div>
+</div>
+</div>
+<h3 id="rails">
+
+  Rails
+</h3>
+<p>Rails are the tracks for slidenodes. They consist of one or multiple sections that are defined using nodes.</p>
+<p>A rail can consist of multiple segments, and those segments do not have to be in a straight line.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"rails"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"Rail1"</span><span class="o">:</span><span class="p">{</span><span class="s2">"links:"</span><span class="o">:</span><span class="p">[</span><span class="s2">"node1"</span><span class="p">,</span> <span class="s2">"node2"</span><span class="p">,</span> <span class="s2">"node3"</span><span class="p">,</span> <span class="s2">"node4"</span><span class="p">],</span> <span class="s2">"broken:"</span><span class="o">:</span><span class="p">[],</span> <span class="s2">"looped"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span> <span class="s2">"capped"</span><span class="o">:</span><span class="kc">true</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div>
+<h4 id="required-arguments-1">
+
+  Required Arguments
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The name of the rail</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This is the first argument, before the curly brackets. It matches with railName in the slidenodes section.</div>
+</div>
+</div>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">List of nodes that will form the rail. This list should be at least two nodes.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"links:"</span><span class="o">:</span><span class="p">[</span><span class="s2">"node1"</span><span class="p">,</span> <span class="s2">"node2"</span><span class="p">],</span>
+</span></span></code></pre></div><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"links:"</span><span class="o">:</span><span class="p">[</span><span class="s2">"node1"</span><span class="p">,</span> <span class="s2">"node2"</span><span class="p">,</span> <span class="s2">"node3"</span><span class="p">,</span> <span class="s2">"node4"</span><span class="p">],</span>
+</span></span></code></pre></div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">table<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">[]<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Which nodes from the links table should be treated as broken.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Legacy argument, not used anymore.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">If your rail is a complete circuit, change it to true and it will allow the node to continue circuiting without stopping.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">If the rail has caps, or blockers at the end of it to keep the node from sliding off.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Caps are the start and end nodes of the rail. If capped=false, the slidenode will slide out of the rail when it reaches the end and detach from it. If capped=true, then it will stop there held by the capStrength force.</div>
+</div>
+</div>
+<h4 id="rails2">
+
+  Rails2
+</h4>
+<p>New in version <code>0.38</code>, the rails2 section is the same as rails, with the same arguments, but formated differently, more in line with the other Jbeam sections.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">//these two are exactly the same
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="s2">"rails"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"Rail1"</span><span class="o">:</span><span class="p">{</span><span class="s2">"links:"</span><span class="o">:</span><span class="p">[</span><span class="s2">"node1"</span><span class="p">,</span><span class="s2">"node2"</span><span class="p">,</span><span class="s2">"node3"</span><span class="p">],</span> <span class="s2">"broken:"</span><span class="o">:</span><span class="p">[],</span> <span class="s2">"looped"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span> <span class="s2">"capped"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"Rail2"</span><span class="o">:</span><span class="p">{</span><span class="s2">"links:"</span><span class="o">:</span><span class="p">[</span><span class="s2">"node4"</span><span class="p">,</span><span class="s2">"node5"</span><span class="p">],</span>         <span class="s2">"broken:"</span><span class="o">:</span><span class="p">[],</span> <span class="s2">"looped"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span> <span class="s2">"capped"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"rails2"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span>    <span class="s2">"links:"</span><span class="p">,</span>                  <span class="s2">"broken:"</span><span class="p">,</span><span class="s2">"looped"</span><span class="p">,</span><span class="s2">"capped"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"Rail1"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"node1"</span><span class="p">,</span><span class="s2">"node2"</span><span class="p">,</span><span class="s2">"node3"</span><span class="p">],</span> <span class="p">[],</span>        <span class="kc">false</span><span class="p">,</span>   <span class="kc">true</span>   <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"Rail2"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"node4"</span><span class="p">,</span><span class="s2">"node5"</span><span class="p">],</span>         <span class="p">[],</span>        <span class="kc">false</span><span class="p">,</span>   <span class="kc">true</span>   <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>The advantage of this syntax over the standard rails is being able to make the rail id dynamic using <a data-doc="vehicle/intro_jbeam/jbeamsyntax" data-frag="functions" href="/docs/vehicle/intro_jbeam/jbeamsyntax#functions">functions</a>
+, so that a single part can be reused multiple times with different rail names each time (previously, it was possible for all Jbeam sections except rails).</p>
+<h3 id="simple-example">
+
+  Simple Example
+</h3>
+<p>A typical example of rail and slidenode usage is the steering rack.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"rails"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"steeringrack"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"links:"</span><span class="o">:</span><span class="p">[</span><span class="s2">"fh6r"</span><span class="p">,</span> <span class="s2">"fh6l"</span><span class="p">],</span> <span class="s2">"broken:"</span><span class="o">:</span><span class="p">[],</span> <span class="s2">"looped"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span> <span class="s2">"capped"</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"slidenodes"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id:"</span><span class="p">,</span> <span class="s2">"railName"</span><span class="p">,</span> <span class="s2">"attached"</span><span class="p">,</span> <span class="s2">"fixToRail"</span><span class="p">,</span> <span class="s2">"tolerance"</span><span class="p">,</span> <span class="s2">"spring"</span><span class="p">,</span> <span class="s2">"strength"</span><span class="p">,</span> <span class="s2">"capStrength"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"st1r"</span><span class="p">,</span> <span class="s2">"steeringrack"</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">18001000</span><span class="p">,</span> <span class="s2">"FLT_MAX"</span><span class="p">,</span> <span class="s2">"FLT_MAX"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"st1l"</span><span class="p">,</span> <span class="s2">"steeringrack"</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">18001000</span><span class="p">,</span> <span class="s2">"FLT_MAX"</span><span class="p">,</span> <span class="s2">"FLT_MAX"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>
+<h3 id="advanced-example">
+
+  Advanced Example
+</h3>
+<p>Using rails2 with functions allowing for dynamic rail names.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"rails2"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"links:"</span><span class="p">,</span> <span class="s2">"broken:"</span><span class="p">,</span><span class="s2">"looped"</span><span class="p">,</span><span class="s2">"capped"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"$= $prefix .. 'r1'"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"1r"</span><span class="p">,</span> <span class="s2">"5r"</span><span class="p">],</span> <span class="p">[],</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">true</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"$= $prefix .. 'r2'"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"3r"</span><span class="p">,</span> <span class="s2">"7r"</span><span class="p">],</span> <span class="p">[],</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">true</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"$= $prefix .. 'l1'"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"1l"</span><span class="p">,</span> <span class="s2">"5l"</span><span class="p">],</span> <span class="p">[],</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">true</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"$= $prefix .. 'l2'"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"3l"</span><span class="p">,</span> <span class="s2">"7l"</span><span class="p">],</span> <span class="p">[],</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">true</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"slidenodes"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id:"</span><span class="p">,</span> <span class="s2">"railName"</span><span class="p">,</span><span class="s2">"attached"</span><span class="p">,</span> <span class="s2">"fixToRail"</span><span class="p">,</span><span class="s2">"tolerance"</span><span class="p">,</span><span class="s2">"spring"</span><span class="p">,</span> <span class="s2">"strength"</span><span class="p">,</span> <span class="s2">"capStrength"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"0r"</span><span class="p">,</span> <span class="s2">"$= $prefix .. 'r1'"</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">60000</span><span class="p">,</span> <span class="mi">400000</span><span class="p">,</span> <span class="mi">400000</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"0r"</span><span class="p">,</span> <span class="s2">"$= $prefix .. 'r2'"</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">60000</span><span class="p">,</span> <span class="mi">400000</span><span class="p">,</span> <span class="mi">400000</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"0l"</span><span class="p">,</span> <span class="s2">"$= $prefix .. 'l1'"</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">60000</span><span class="p">,</span> <span class="mi">400000</span><span class="p">,</span> <span class="mi">400000</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"0l"</span><span class="p">,</span> <span class="s2">"$= $prefix .. 'l2'"</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">60000</span><span class="p">,</span> <span class="mi">400000</span><span class="p">,</span> <span class="mi">400000</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>

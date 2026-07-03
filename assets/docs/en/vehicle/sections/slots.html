@@ -1,0 +1,290 @@
+<p>The slot and slotType sections are used to define where a component fit’s within the vehicle’s parts tree. For more information on the basics of the parts and component system, you can read the <a data-doc="vehicle/intro_jbeam/partslotsystem" href="/docs/vehicle/intro_jbeam/partslotsystem">introduction to the part/slot system</a>
+.</p>
+<p>Each part also has a <code>slotType</code>, which identifies where in the vehicle it fits, and allowing multiple parts to act as alternatives to each other. One unique slot type is <code>main</code>, which refers to the “root” component of the vehicle.</p>
+<p>The slots section defines which components are the <code>children</code> of that component based on their slotType.</p>
+<p>You can use the optional arguments in Slots section to pass arguments to all the sections in the chosen part (and all of their child parts, provided that the value is not changed by them). This is commonly used with the <code>nodeOffset</code> and <code>nodeMove</code> arguments, which apply offsets to nodes, flexbodies and props, effectively moving the part installed in the target slot by a set distance.</p>
+<h3 id="slot-variables">
+
+  Slot Variables
+</h3>
+<p>Starting in update <code>0.32</code>, you can pass values of <a data-doc="vehicle/sections/variables" href="/docs/vehicle/sections/variables">variables</a>
+ to a slot via the Slots section. This mechanism is called Slot Variables.</p>
+<p>The values will be passed to the part equipped in the slot and all of its child parts. They will work the same way as variable values set in the Tuning menu, but they will not be editable by the user. String values can also be passed, and then concatenated with other strings, for example as node name prefixes. Boolean values also work, which combined with the <a data-doc="vehicle/intro_jbeam/jbeamsyntax" data-frag="disable-modifier" href="/docs/vehicle/intro_jbeam/jbeamsyntax#disable-modifier">Disable Modifier</a>
+ allows you to toggle sections of Jbeam on and off depending on the slot the part is in.</p>
+<p>This allows for making components that are easier to reuse, as instead of making a few separate variants with small changes, the changes can be controlled by variables.</p>
+<p>Version <code>0.38</code> expands on the idea of slot variables by adding special <a data-doc="vehicle/intro_jbeam/jbeamsyntax" data-frag="namespace-variables" href="/docs/vehicle/intro_jbeam/jbeamsyntax#namespace-variables">Namespace Variables</a>
+. These are 2 specific variables with the names <code>$prefix</code> and <code>$suffix</code>, used to shorten the syntax.</p>
+<h3 id="slottype">
+
+  SlotType
+</h3>
+<h4 id="required-argument">
+
+  Required argument
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string/table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The slot type, or list of slot types, of the component</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">In almost all cases, this will be a string identical to the type of a slot in the parent component. However, it can also be a table specifying multiple slot types the part fits in.</div>
+</div>
+</div>
+<h3 id="slots">
+
+  Slots
+</h3>
+<h4 id="required-arguments">
+
+  Required arguments
+</h4>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The internal name of the slot</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">The parts in that slot should have this value as their slot type</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The component that gets loaded by default if no part is defined in the car’s config file</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">type<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The name of the slot in the part selector</div>
+</div>
+</div>
+<h4 id="optional-arguments">
+
+  Optional arguments
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">If enabled, the choice to have the part empty is removed from the part selector/garage</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Contains variable names as dictionary keys, and their values as dictionary values</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Variable names must start with the $ symbol.</p>
+<p>Example usage:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"log_trailer_bolsters_R"</span><span class="p">,</span><span class="s2">"log_trailer_bolsters_R"</span><span class="p">,</span><span class="s2">"Rear Bolsters"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"variables"</span><span class="o">:</span> <span class="p">{</span><span class="s2">"$bolster_offset"</span><span class="o">:-</span><span class="mf">0.39</span><span class="p">}}],</span>
+</span></span></code></pre></div><p>There are 2 special Namespace Variables, <code>$prefix</code> and <code>$suffix</code>, that don’t need to be referred to explicitly in the child parts, which shortens the syntax.</p>
+</div>
+</div>
+</div>
+<h4 id="commonly-passed-arguments">
+
+  Commonly passed arguments
+</h4>
+<p>These are arguments of Nodes, Flexbodies and Props sections, that are almost exclusively used as optional arguments in Slots section to pass their values to those. They affect the part in question and all its child parts until the value is reset back to 0.</p>
+<div class="bng-notice info"><p>All of the argument names below can have a single digit suffix (1-9) appended which determines the order, e.g.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"nodeRotate1"</span><span class="o">:</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span> <span class="mi">45</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"nodeMove2"</span><span class="o">:</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span> <span class="mf">0.2</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"nodeOffset3"</span><span class="o">:</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"nodeRotate4"</span><span class="o">:</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span> <span class="mi">0</span><span class="p">}</span>
+</span></span></code></pre></div><p>Operations with lower order number will be carried out first. No number specified has the same order as 0. Order of node transformations with the same suffix is: nodeRotate, nodeOffset, nodeMove. When the same suffix (or no suffix) is used twice, the one in the child slot will overwrite the one in the parent slot.</p>
+<p>Node transformations are intrinsic, meaning that translations and rotations apply around the axes of the previously transformed frame. For example, a <code>"nodeRotate1": {"x": 0, "y": 0, "z": 45}</code> would rotate the frame around it’s Z axis by 45 degrees. A subsequent <code>"nodeRotate2": {"x": 15, "y": 0, "z": 0}</code> would rotate the newly oriented frame around it’s X axis by 15 degrees.</p>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Offsets all the nodes, flexbodies and props on the YZ axis, and offsets nodes, flexbodies and props in a mirrored fashion on the X axis (m)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Mostly interchangeable with nodeMove. Mostly required when it comes to wheels, where the X offset will move the nodes, flexbodies and props on each side equally further/close apart from the centerline. For flexbodies, the center is determined as having a 0 value on X axis in the “pos” argument, which is the default. This means that nodeOffset will not work correctly on flexbodies that have no set pos argument.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Offsets all the nodes, flexbodies and props on the XYZ axis (m)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Mostly interchangeable with nodeOffset. This modifier will translate the nodes, flexbodies and props to the left or right on the X axis, and not move them in a mirrored fashion.</div>
+</div>
+</div>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/slots/NodeOffsetvsMove.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/slots/NodeOffsetvsMove.png"/>
+</span></a></p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0, “px”:0, “py”:0, “pz”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Rotates all the nodes, flexbodies and props by <code>x, y, z</code> degrees on XYZ axis, around the center point <code>px, py, pz</code></div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>If no pivot point is defined, the rotation is done around the origin, e.g. <code>"nodeRotate":{"x":-45, "y":0, "z":0}</code> will function the same way as <code>"nodeRotate":{"x":-45, "y":0, "z":0, "px":0, "py":0, "pz":0}</code>.</p>
+<p>Due to concerns related to 
+    <a class="link-ext" href="https://en.wikipedia.org/wiki/Gimbal_lock" rel="noopener" target="_blank">gimbal lock</a>
+, when rotating around more than one axis, it is best to only specify one axis rotation per nodeRotate instance. For example, instead of <code>{"nodeRotate":{"x":90, "y":45, "z":0}}</code>, it is better to use:  <code>{"nodeRotate1":{"x":90, "y":0, "z":0}, "nodeRotate2":{"x":0, "y":45, "z":0}}</code>.</p>
+</div>
+</div>
+</div>
+<h3 id="simple-example">
+
+  Simple Example
+</h3>
+<p>A component with only a single slot with no modifiers.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"autobello_spring_F"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span><span class="o">:</span><span class="s2">"autobello_spring_F"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slots"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"type"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"autobello_shock_F"</span><span class="p">,</span><span class="s2">"autobello_shock_F"</span><span class="p">,</span> <span class="s2">"Front Shocks"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div>
+<h3 id="advanced-example">
+
+  Advanced Example
+</h3>
+<p>Component with multiple slot types.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"semi_R_suspension_single_leaf"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="p">[</span><span class="s2">"us_semi_suspension_R_single"</span><span class="p">,</span><span class="s2">"us_semi_suspension_R_tandem"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div><p>Chassis jbeam that makes use of both nodeOffset and nodeMove.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pickup_frame_ext"</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span><span class="s2">"pickup_frame"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slots"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"type"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//running gear
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">[</span><span class="s2">"pickup_ABS"</span><span class="p">,</span><span class="s2">"pickup_ABS"</span><span class="p">,</span> <span class="s2">"Anti-Lock Braking System"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"pickup_ESC"</span><span class="p">,</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"Electronic Stability &amp; Traction Control"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"pickup_fueltank"</span><span class="p">,</span><span class="s2">"pickup_fueltank"</span><span class="p">,</span><span class="s2">"Fuel Tank"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"nodeOffset"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mf">0.613</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"pickup_engine"</span><span class="p">,</span><span class="s2">"pickup_engine_v8_4.5"</span><span class="p">,</span><span class="s2">"Engine"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"pickup_muffler_ext"</span><span class="p">,</span><span class="s2">"pickup_muffler_ext"</span><span class="p">,</span><span class="s2">"Muffler"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"pickup_suspension_R"</span><span class="p">,</span><span class="s2">"pickup_axle_R"</span><span class="p">,</span><span class="s2">"Rear Suspension"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"nodeMove"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mf">0.613</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"pickup_suspension_F"</span><span class="p">,</span><span class="s2">"pickup_IFS"</span><span class="p">,</span><span class="s2">"Front Suspension"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"pickup_driveshaft_R_ext"</span><span class="p">,</span><span class="s2">"pickup_driveshaft_R_ext"</span><span class="p">,</span><span class="s2">"Rear Driveshaft"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">////bodywork
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">[</span><span class="s2">"pickup_radsupport"</span><span class="p">,</span> <span class="s2">"pickup_radsupport"</span><span class="p">,</span> <span class="s2">"Radiator Support"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"nodeOffset"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span>  <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"pickup_bumper_F"</span><span class="p">,</span><span class="s2">"pickup_bumper_F"</span><span class="p">,</span><span class="s2">"Front Bumper"</span><span class="p">,</span>           <span class="p">{</span><span class="s2">"nodeOffset"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span>  <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"pickup_bumper_R"</span><span class="p">,</span><span class="s2">"pickup_bumper_R"</span><span class="p">,</span><span class="s2">"Rear Bumper"</span><span class="p">,</span>            <span class="p">{</span><span class="s2">"nodeOffset"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mf">0.613</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"pickup_body_ext"</span><span class="p">,</span><span class="s2">"pickup_body_ext"</span><span class="p">,</span><span class="s2">"Body"</span><span class="p">,</span>                   <span class="p">{</span><span class="s2">"nodeOffset"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span>  <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"pickup_bed"</span><span class="p">,</span><span class="s2">"pickup_bed"</span><span class="p">,</span><span class="s2">"Bed"</span><span class="p">,</span>                              <span class="p">{</span><span class="s2">"nodeOffset"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mf">0.613</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//misc
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">[</span><span class="s2">"pickup_towhitch"</span><span class="p">,</span><span class="s2">""</span><span class="p">,</span><span class="s2">"Tow Hitch"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"nodeOffset"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mf">0.613</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"pickup_sparetire"</span><span class="p">,</span><span class="s2">"pickup_sparetire_6l"</span><span class="p">,</span><span class="s2">"Spare Tire"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"nodeOffset"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mf">0.663</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"linelock"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"Brake Line Lock"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"pickup_reversewarn"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"Reverse Warning Beeper"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div><p>Suspension component using nodeoffset with variables, along with a core slot.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"vivace_suspension_R"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"vivace_suspension_R"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slots"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"type"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"vivace_brake_R"</span><span class="p">,</span><span class="s2">"vivace_brake_R"</span><span class="p">,</span> <span class="s2">"Rear Brakes"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//To change the base track width, edit the trackoffset_R offset in the expression.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">[</span><span class="s2">"wheel_R_5"</span><span class="p">,</span><span class="s2">"steelwheel_16a_16x7_R"</span><span class="p">,</span><span class="s2">"Rear Wheels"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"nodeOffset"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="s2">"$=$trackoffset_R+0.3"</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">1.338</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.32</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"vivace_wheeldata_R"</span><span class="p">,</span><span class="s2">"vivace_wheeldata_R"</span><span class="p">,</span> <span class="s2">"Rear Spindles"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"coreSlot"</span><span class="o">:</span><span class="kc">true</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"vivace_spring_R"</span><span class="p">,</span><span class="s2">"vivace_spring_R"</span><span class="p">,</span> <span class="s2">"Rear Springs"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"vivace_shock_R"</span><span class="p">,</span><span class="s2">"vivace_shock_R"</span><span class="p">,</span> <span class="s2">"Rear Shocks"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div><p>Passing a slot variable.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"slots"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"type"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"log_trailer_headache_rack"</span><span class="p">,</span><span class="s2">""</span><span class="p">,</span><span class="s2">"Headache Rack"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"log_trailer_bolsters_F"</span><span class="p">,</span><span class="s2">"log_trailer_bolsters_F"</span><span class="p">,</span><span class="s2">"Front Bolsters"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"log_trailer_bolsters_R"</span><span class="p">,</span><span class="s2">"log_trailer_bolsters_R"</span><span class="p">,</span><span class="s2">"Rear Bolsters"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"variables"</span><span class="o">:</span> <span class="p">{</span><span class="s2">"$bolster_offset"</span><span class="o">:-</span><span class="mf">0.39</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>Using the slot variable in the part the variable was passed to.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"log_trailer_bolsters_R"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Rear Bolsters"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">500</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"log_trailer_bolsters_R"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">         <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">         <span class="p">[</span><span class="s2">"log_trailer_bolster_mount"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"log_trailer_frame"</span><span class="p">],</span> <span class="p">[],</span> <span class="p">{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mf">5.14</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:-</span><span class="mf">0.22</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">         <span class="p">[</span><span class="s2">"log_trailer_bolster_mount"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"log_trailer_frame"</span><span class="p">],</span> <span class="p">[],</span> <span class="p">{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="s2">"$=8.425+$bolster_offset"</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:-</span><span class="mf">0.22</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">         <span class="p">[</span><span class="s2">"log_trailer_bolster"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"log_trailer_bolster_3"</span><span class="p">],</span> <span class="p">[],</span> <span class="p">{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mf">5.14</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:-</span><span class="mf">0.22</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">         <span class="p">[</span><span class="s2">"log_trailer_bolster"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"log_trailer_bolster_4"</span><span class="p">],</span> <span class="p">[],</span> <span class="p">{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="s2">"$=8.425+$bolster_offset"</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:-</span><span class="mf">0.22</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>

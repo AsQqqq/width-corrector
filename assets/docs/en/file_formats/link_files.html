@@ -1,0 +1,57 @@
+<p>A link file is a json file with the ending extension <code>.link</code> and its used to redirect to another real asset file path.</p>
+<p>They are also used to deduplicate (remove copies) of the same asset and also redirect an old path towards a new path of the asset, hence solving the problem with mods that reference assets where we need to keep the path unchanged.</p>
+<p>They behave more or less like symlinks in Windows.</p>
+<p>Inside the link file there is information about the path redirected by the link file, with additional info about the asset and what the link is supposed to represent.</p>
+<p>Lets say we have an example link file:</p>
+<p><strong>levels/Gridmap/art/brick.dds.link</strong></p>
+<p>You use the link in the game (scripts or editor) as a normal path, but without the <code>.link</code> extension:</p>
+<p><code>levels/Gridmap/art/brick.dds</code></p>
+<p>The VFS will check first to see if a real <code>.dds</code> file is existing, otherwise it will check if that path with an appended <code>.link</code> exists, if so, it loads the link file and does the redirection to the new path.</p>
+<h2 id="normal-links">
+
+  Normal Links
+</h2>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/file_formats/link_files/image1.png" rel="noopener" target="_blank"><span>
+<img alt="Normal link files diagram" loading="lazy" src="/docassets/img/modding/file_formats/link_files/image1_hubdc15bb5707fec9bca82967f036b3b73_205527_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span><span class="text">Normal link files diagram</span></a></p>
+<p>Lets analyze:</p>
+<p><code>path</code> - this is the redirect path for the link, so this path/file will be actually loaded by the game</p>
+<p><code>assetUuid</code> - this is the asset’s UUID, used as a failsafe to search for the asset in the whole data folder, if that path is not existing (not implemented, TBD)</p>
+<p><code>assetVersion</code> - (optional) what version of the asset to use (not implemented, TBD)</p>
+<p><code>type</code> - (optional) this is the type of the link, which can be:</p>
+<ul>
+<li><em><strong>normal</strong></em> - just a normal link to a file (used to deduplicate), this is the default type, if type is not specified</li>
+<li><em><strong>migrated</strong></em> - its a link to a moved file, this way mod makers know that file moved, but they can still use the old path, but recommended they should use the new path</li>
+<li><em><strong>removed</strong></em> - this is a link with an empty path, meaning the asset was actually removed, used as a placeholder for people to know an asset was deleted for good</li>
+</ul>
+<p>Usually link files should be used for the <code>/levels</code> folders, all the assets that can be put in the common <code>/assets</code> folder, not related to a specific level, should be moved there, and in-place of that path, you should place a link with the old file’s name.</p>
+<p>Levels should ideally only contain link files for the assets and specific level files (scene tree folders and files, terrain etc.).</p>
+<p>Link files can also solve the problem where multiple mods are overriding the same (global) asset. If you place the common asset to lets say 3 levels into <code>/assets</code> folder and create link files to it in each of the level folders, then if the mods override that for the specific level they want to modify, the asset would remain unchanged in the other levels.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/file_formats/link_files/image2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/file_formats/link_files/image2_hu67116c54e8f49636b1501f4354130873_226441_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Then, in every level, we want to use their specific paths to load that asset:</p>
+<p>For example in the <em><strong>Industrial</strong></em> level we will use the following in the editor or lua scripts: <code>/levels/Industrial/art/red_brick.dds</code></p>
+<p>If a mod will override <code>/levels/Industrial/art/red_brick.dds</code> it will practically replace the link with an actual asset or even the same link file but with a different redirection path.</p>
+<p>All this, while the other levels will still use the unchanged <code>red_brick.dds</code> asset from <code>/assets</code>.</p>
+<h2 id="asset-migration-links">
+
+  Asset Migration Links
+</h2>
+<p>If official assets need to move/migrate and we want to emphasize that to the modders, we create a link in its place and use the <code>migrated</code> type for it:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/file_formats/link_files/image3.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/file_formats/link_files/image3_hub673c3c71df004710ef68550c9906960_238660_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h2 id="asset-removal-links">
+
+  Asset Removal Links
+</h2>
+<p>When we want to remove an asset from the official asset files, we can put a link file in its place, with the same name and of course the <code>.link</code> extension and give it the <code>removed</code> type, this way tools and modders know what happened to that asset and act accordingly:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/file_formats/link_files/image4.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/file_formats/link_files/image4_hubff1946fe83eda1c1c984562c8b037c8_56369_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Keep in mind that the materials, models and other json assets that use this <code>/levels/Industrial/art/red_brick.dds</code> path would <em><strong>need to be inside the level folder</strong></em> so everything is to be local to that level. That is needed because if for example a material is in the global <code>/assets</code> common folder and its used in several levels and this material uses the path to that specific level, then if this material is overridden by a mod, it will change for all levels and we might not want that.</p>
+<p>This would need duplication of things in the level folders, for the json-based assets, in essence we cannot have a common materials folder.</p>
+<p>Ideally, link files should mainly point to assets that dont reference other assets, like textures, sounds, raw mesh data, etc.</p>
+<p>The mods overriding files will work with the link files, since when you override a link file, you would just add a real asset without the <code>.link</code> extension, which has priority in the VFS, over the link files.</p>
+<p>Link files support file change notifications, when a link file content (json) is changed, there will be a notification for that. When an asset which is targeted by a link file is changed it will be added to the file change notification list along with all the link files that are pointing to it, so this should work while editing the game data in editor and game.</p>

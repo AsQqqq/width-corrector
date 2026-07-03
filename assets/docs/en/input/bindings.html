@@ -1,0 +1,113 @@
+<h3 id="overview">
+
+  Overview
+</h3>
+<p>Sometimes also called <code>input mapping</code> or <code>inputmap</code>.</p>
+<p>Bindings define which <a data-doc="input/introduction" data-frag="control" href="/docs/input/introduction#control">controls</a>
+ will trigger each <a data-doc="input/introduction" data-frag="action" href="/docs/input/introduction#action">action</a>
+.</p>
+<p>For example: the throttle binding binds the <kbd>↑</kbd> control with the <code>"accelerate"</code> action.</p>
+<p>End-users can customize their bindings in the <code>Options</code> → <code>Controls</code> menu.</p>
+<div class="bng-notice note"><ul>
+<li>A single control can be bound to several actions (the action maps order will determine which will be triggered).</li>
+<li>A single action can be triggered by several controls.</li>
+</ul>
+</div>
+<h3 id="file-locations">
+
+  File Locations
+</h3>
+<h4 id="factory-bindings">
+
+  Factory Bindings
+</h4>
+<p><strong>Factory bindings</strong> are those bundled by default.</p>
+<p>When you use the <code>Options</code> → <code>Controls</code> → <code>RESET ALL</code> button, they are returned to the factory bindings state.</p>
+<p>They are stored in the game install folder, in two possible locations:</p>
+<ul>
+<li>Regular bindings: <code>settings/inputmaps/*.json</code></li>
+<li>Vehicle bindings: <code>vehicles/vehicle_directory_name/inputmaps/*.json</code></li>
+</ul>
+<p>Note: some of those may have been packed inside gameengine.zip, to reduce download sizes and storage usage.</p>
+<h4 id="user-bindings">
+
+  User Bindings
+</h4>
+<p>When end-users customize their bindings, these <strong>diff</strong>erences are stored in the <a href="https://documentation.beamng.com/support/userfolder/" rel="noopener" target="_blank">User folder</a>
+:</p>
+<ul>
+<li>Regular bindings: <code>settings/inputmaps/*.diff</code></li>
+<li>Vehicle bindings: <code>settings/inputmaps/vehicle_directory_name/*.diff</code></li>
+</ul>
+<p>They contain only what has changed compared to the defaults (which bindings got added, which got removed or replaced, etc). If one were to remove all diff files, the game would be back at the defaults.</p>
+<h3 id="file-names">
+
+  File Names
+</h3>
+<p>Binding filenames start with an identifier, optionally followed by a suffix, and ending with an extension: <code>identifierSuffix.extension</code>.</p>
+<ul>
+<li>Identifier: determines which controller they belong to.</li>
+<li>Suffix: starting from BeamNG.drive 0.25, a suffix can be included or omitted, using any arbitrary text you want. This allows mods to provide their own default bindings.</li>
+<li>Extension: as explained above, it can be <code>diff</code> or <code>json</code>.</li>
+</ul>
+<p><strong>For example</strong>: <code>keyboard.json</code>, <code>keyboardGiantExcavatorMod.json</code>, <code>c29b046d.diff</code>, etc.</p>
+<p>For the identifier field, there’s two possibilities:</p>
+<h4 id="identifier-device-type">
+
+  Identifier: device type
+</h4>
+<p>The game can recognize any of the following strings:</p>
+<ul>
+<li>‘mouse’</li>
+<li>‘keyboard’</li>
+<li>‘xidevice’ - a controller in xbox mode (such as an xbox gamepad, or a pc+xbox steering wheel that has been set to use xbox mode instead of pc mode)</li>
+<li>‘joystick’ - joysticks (non-xbox)</li>
+<li>‘wheel’ - steering wheels (non-xbox)</li>
+<li>‘gamepad’ - gamepads (non-xbox)</li>
+<li>‘vinput’ - virtual input, which is a system to channel inputs from arbitrary origins, such as another program in the computer, or our android/ios apps for remote control</li>
+</ul>
+<h4 id="identifier-usb-pidvid">
+
+  Identifier: USB Pidvid
+</h4>
+<p>The game can recognize USB identifiers. These will look like 8 hexadecimal characters, such as <code>1357acef</code>. They represent 4 vendor ID characters + 4 product ID characters.</p>
+<p><strong>Important:</strong> as a mod creator or end user, you do <strong>not</strong> need to figure out <strong>pidvid</strong> names manually - this is handled automatically by BeamNG.drive when you create or modify bindings from the <code>Options</code> → <code>Controls</code> menu.</p>
+<p>The product ID and vendor ID are codes that have been assigned to specific hardware manufacturers, for the USB products they sell. Using a <strong>pidvid</strong> allows to tailor bindings to one specific device model (e.g. “apply to all Logitech G27 devices”), rather than a generic kind of controller (e.g. “apply to any <code>wheel</code>”).</p>
+<p>For example, the <strong>pidvid</strong> name <code>c29b046d</code> corresponds to a Logitech device (vendor ID <code>046d</code>), and their G27 model (product ID <code>c29b</code>).</p>
+<div class="bng-notice note">Mice, keyboards and xbox controllers don’t support pidvid identifiers in binding filenames, only “device type” identifiers.</div>
+<br/>
+<h3 id="file-format">
+
+  File Format
+</h3>
+<p><strong>Important:</strong> as a mod creator or end user, you do <strong>not</strong> need to know about the file format - You should <strong>not</strong> be hand-crafting these files manually, instead you should use the Options &gt; Controls menu to define the factory bindings for your mod.</p>
+<p>Binding files mostly follow the 
+    <a class="link-ext" href="https://en.wikipedia.org/wiki/JSON" rel="noopener" target="_blank">json format</a>
+. They must start with <code>{</code> and end with <code>}</code>. Here’s a sample of how the overall structure has to look like:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">keyboard</span><span class="p">.</span><span class="nx">json</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"bindings"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"action"</span><span class="o">:</span> <span class="s2">"menu_select"</span><span class="p">,</span> <span class="s2">"control"</span><span class="o">:</span> <span class="s2">"numpad9"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"action"</span><span class="o">:</span> <span class="s2">"menu_back"</span><span class="p">,</span> <span class="s2">"control"</span> <span class="o">:</span> <span class="s2">"numpad7"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// ...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>As you can see, it’s a simple list of <a data-doc="input/introduction" data-frag="action" href="/docs/input/introduction#action">action</a>
+ ↔ <a data-doc="input/introduction" data-frag="control" href="/docs/input/introduction#control">control</a>
+ relations.</p>
+<p>In some cases, there’s extra information for each binding (such as binding linearity, force feedback parameters, etc). We won’t go into detail about these.</p>
+<p>If the file is a <code>.diff</code> file with <a href="#user-bindings">customized user bindings</a>
+, they may contain an additional <code>"removed"</code> list inside, like this:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">keyboard</span><span class="p">.</span><span class="nx">diff</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"bindings"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"action"</span><span class="o">:</span> <span class="s2">"menu_select"</span><span class="p">,</span> <span class="s2">"control"</span><span class="o">:</span> <span class="s2">"numpad3"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"action"</span><span class="o">:</span> <span class="s2">"accelerate"</span><span class="p">,</span> <span class="s2">"control"</span><span class="o">:</span> <span class="s2">"up"</span><span class="p">,</span> <span class="s2">"filterType"</span><span class="o">:</span> <span class="s2">"1"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"removed"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"action"</span><span class="o">:</span> <span class="s2">"menu_back"</span><span class="p">,</span> <span class="s2">"control"</span> <span class="o">:</span> <span class="s2">"numpad7"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The <code>"bindings"</code> inside a <code>.diff</code> file may overwrite a <a href="#factory-bindings">factory binding</a>
+ with a different control (menu_select in the example above) or different/new parameters (accelerate in the example above).</p>
+<p>In addition to <code>"bindings"</code> and <code>"removed"</code>, there may be other fields in these files, such as <code>"guid"</code>, <code>"name"</code>, etc. You don’t need to worry about these.</p>

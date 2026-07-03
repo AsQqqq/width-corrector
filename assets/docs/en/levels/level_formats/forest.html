@@ -1,0 +1,531 @@
+<p>This document describes the modern BeamNG forest placement format used by levels:</p>
+<ul>
+<li><code>forest/*.forest4.json</code> - forest item placement files</li>
+<li><code>art/forest/managedItemData.json</code> - forest item type definitions</li>
+</ul>
+<p>These files work together. <code>managedItemData.json</code> defines <strong>what</strong> can be placed, while <code>.forest4.json</code> files define <strong>where</strong> each item is placed in the level.</p>
+<hr/>
+<h2 id="overview">
+
+  Overview
+</h2>
+<p>The Forest system is used for large numbers of repeated static objects, such as:</p>
+<ul>
+<li>Trees</li>
+<li>Bushes</li>
+<li>Grass clumps</li>
+<li>Rocks</li>
+<li>Logs</li>
+<li>Small vegetation props</li>
+</ul>
+<p>Forest items are optimized for rendering and collision. They are generally not meant to be individually moved or animated during gameplay, but they can support wind animation through their asset setup and forest item parameters.</p>
+<p>A typical level uses:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example_level/
+</span></span><span class="line"><span class="cl">├── art/
+</span></span><span class="line"><span class="cl">│   └── forest/
+</span></span><span class="line"><span class="cl">│       └── managedItemData.json
+</span></span><span class="line"><span class="cl">└── forest/
+</span></span><span class="line"><span class="cl">    ├── trees.forest4.json
+</span></span><span class="line"><span class="cl">    ├── rocks.forest4.json
+</span></span><span class="line"><span class="cl">    └── bushes.forest4.json
+</span></span></code></pre></div><hr/>
+<h2 id="file-roles">
+
+  File roles
+</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>art/forest/managedItemData.json</code></td>
+<td>Defines forest item types, such as tree or rock definitions.</td>
+</tr>
+<tr>
+<td><code>forest/*.forest4.json</code></td>
+<td>Stores placed instances of those item types.</td>
+</tr>
+<tr>
+<td><code>art/forest/managedItemData.cs</code></td>
+<td>Legacy TorqueScript format, still supported as fallback.</td>
+</tr>
+<tr>
+<td><code>*.forest</code> / <code>*.forest.json</code></td>
+<td>Older forest placement formats, deprecated.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice info">The engine prefers <code>managedItemData.json</code> if it exists. If it does not exist, it falls back to <code>managedItemData.cs</code>.</div>
+<hr/>
+<h2 id="manageditemdatajson">
+
+  managedItemData.json
+</h2>
+<p><code>managedItemData.json</code> defines reusable forest item types. Each item type references a shape file and optional physical/wind parameters.</p>
+<h3 id="location">
+
+  Location
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/art/forest/managedItemData.json
+</span></span></code></pre></div>
+<h3 id="basic-structure">
+
+  Basic structure
+</h3>
+<p>The file is a JSON object. Each top-level entry contains a forest item data block.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"oak_large"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestItemData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"internalName"</span><span class="p">:</span> <span class="s2">"oak_large"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"shapeFile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/trees/oak_large.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"mass"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"rigidity"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"tightnessCoefficient"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dampingCoefficient"</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"windScale"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"trunkBendScale"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"branchAmp"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"detailAmp"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"detailFreq"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The supported class names are:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">ForestItemData
+</span></span><span class="line"><span class="cl">TSForestItemData
+</span></span></code></pre></div><p>Both are accepted by the loader.</p>
+<hr/>
+<h2 id="manageditemdatajson-fields">
+
+  managedItemData.json fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>ForestItemData</code> or <code>TSForestItemData</code>.</td>
+</tr>
+<tr>
+<td><code>internalName</code></td>
+<td>string</td>
+<td>Unique item type name used by <code>.forest4.json</code> placement files.</td>
+</tr>
+<tr>
+<td><code>shapeFile</code></td>
+<td>string</td>
+<td>Path to the shape used for this forest item.</td>
+</tr>
+<tr>
+<td><code>mass</code></td>
+<td>number</td>
+<td>Physics mass used by the item.</td>
+</tr>
+<tr>
+<td><code>rigidity</code></td>
+<td>number</td>
+<td>Controls stiffness for wind/interaction behavior.</td>
+</tr>
+<tr>
+<td><code>tightnessCoefficient</code></td>
+<td>number</td>
+<td>Controls how tightly the item returns to its rest state.</td>
+</tr>
+<tr>
+<td><code>dampingCoefficient</code></td>
+<td>number</td>
+<td>Controls damping of motion.</td>
+</tr>
+<tr>
+<td><code>windScale</code></td>
+<td>number</td>
+<td>Scales how strongly wind affects the item.</td>
+</tr>
+<tr>
+<td><code>trunkBendScale</code></td>
+<td>number</td>
+<td>Controls trunk bending amount.</td>
+</tr>
+<tr>
+<td><code>branchAmp</code></td>
+<td>number</td>
+<td>Controls branch wind animation amplitude.</td>
+</tr>
+<tr>
+<td><code>detailAmp</code></td>
+<td>number</td>
+<td>Controls detail wind animation amplitude.</td>
+</tr>
+<tr>
+<td><code>detailFreq</code></td>
+<td>number</td>
+<td>Controls detail wind animation frequency.</td>
+</tr>
+</tbody>
+</table>
+<p>Not all fields are required, but <code>internalName</code> and <code>shapeFile</code> are essential.</p>
+<hr/>
+<h2 id="forest-item-names">
+
+  Forest item names
+</h2>
+<p>The <code>internalName</code> is the link between item definitions and placed instances.</p>
+<p>Example item definition:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"pine_small"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestItemData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"internalName"</span><span class="p">:</span> <span class="s2">"pine_small"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeFile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/trees/pine_small.dae"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Example placement referencing it:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"pine_small"</span><span class="p">,</span><span class="nt">"pos"</span><span class="p">:[</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+</span></span></code></pre></div><p>If a placement references a <code>type</code> that does not exist in <code>managedItemData.json</code>, that instance cannot be resolved.</p>
+<hr/>
+<h2 id="forest4json-placement-files">
+
+  .forest4.json placement files
+</h2>
+<p><code>.forest4.json</code> files store placed forest item instances.</p>
+<h3 id="location-1">
+
+  Location
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/forest/*.forest4.json
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example/forest/trees.forest4.json
+</span></span></code></pre></div>
+<h3 id="file-format">
+
+  File format
+</h3>
+<p><code>.forest4.json</code> files are <strong>line-delimited JSON</strong>.</p>
+<p>This means each line is a separate JSON object. The file is not a single JSON array.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"pine_small"</span><span class="p">,</span><span class="nt">"pos"</span><span class="p">:[</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"pine_small"</span><span class="p">,</span><span class="nt">"pos"</span><span class="p">:[</span><span class="mi">15</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">-1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:</span><span class="mf">0.85</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"rock_large"</span><span class="p">,</span><span class="nt">"pos"</span><span class="p">:[</span><span class="mi">30</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:</span><span class="mf">1.4</span><span class="p">}</span>
+</span></span></code></pre></div><div class="bng-notice warning">Do not wrap <code>.forest4.json</code> contents in <code>[</code> <code>]</code>. Each line must be a standalone JSON object.</div>
+<hr/>
+<h2 id="forest4json-fields">
+
+  .forest4.json fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>string</td>
+<td>Forest item type. Must match an <code>internalName</code> from <code>managedItemData.json</code>.</td>
+</tr>
+<tr>
+<td><code>pos</code></td>
+<td>array[3]</td>
+<td>World position <code>[x, y, z]</code>.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>3×3 rotation matrix stored as 9 numbers.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>number</td>
+<td>Uniform scale for the item.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="example-instance">
+
+  Example instance
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"oak_large"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mf">100.5</span><span class="p">,</span> <span class="mf">42.0</span><span class="p">,</span> <span class="mf">12.3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="mf">1.0</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="loading-process">
+
+  Loading process
+</h2>
+<p>When a level is loaded, the engine roughly follows this process:</p>
+<ol>
+<li>
+<p>Look for forest item data:</p>
+<ul>
+<li><code>art/forest/managedItemData.json</code></li>
+<li>fallback to <code>art/forest/managedItemData.cs</code></li>
+</ul>
+</li>
+<li>
+<p>Parse all valid forest item definitions.</p>
+</li>
+<li>
+<p>Search the level forest folder for:</p>
+</li>
+</ol>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">forest/*.forest4.json
+</span></span></code></pre></div><ol start="4">
+<li>
+<p>Read each <code>.forest4.json</code> file line by line.</p>
+</li>
+<li>
+<p>For each placement:</p>
+<ul>
+<li>Read <code>type</code></li>
+<li>Find matching <code>internalName</code> in item data</li>
+<li>Resolve <code>shapeFile</code></li>
+<li>Read position, rotation, and scale</li>
+<li>Add the instance to the forest system</li>
+</ul>
+</li>
+</ol>
+<hr/>
+<h2 id="legacy-forest-formats">
+
+  Legacy forest formats
+</h2>
+<p>The engine can still detect older forest files:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.forest
+</span></span><span class="line"><span class="cl">*.forest.json
+</span></span></code></pre></div><p>These are deprecated. If old files are present, the engine may print warnings similar to:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Old forest file format detected. Please resave the forest and delete the old files.
+</span></span></code></pre></div><p>Modern levels should use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.forest4.json
+</span></span></code></pre></div><hr/>
+<h2 id="legacy-manageditemdatacs">
+
+  Legacy managedItemData.cs
+</h2>
+<p>If <code>managedItemData.json</code> is missing, the engine can fall back to:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">art/forest/managedItemData.cs
+</span></span></code></pre></div><p>This is the older TorqueScript-style format.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-ts" data-lang="ts"><span class="line"><span class="cl"><span class="nx">datablock</span> <span class="nx">ForestItemData</span><span class="p">(</span><span class="nx">oak_large</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">internalName</span> <span class="o">=</span> <span class="s2">"oak_large"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">shapeFile</span> <span class="o">=</span> <span class="s2">"/levels/example/art/shapes/trees/oak_large.dae"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">mass</span> <span class="o">=</span> <span class="s2">"100"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">rigidity</span> <span class="o">=</span> <span class="s2">"10"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">   <span class="nx">windScale</span> <span class="o">=</span> <span class="s2">"1"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></div><p>For new content, prefer <code>managedItemData.json</code>.</p>
+<hr/>
+<h2 id="wind-parameters">
+
+  Wind parameters
+</h2>
+<p>Forest items can react to wind if the asset and material support it. The item data values control how strongly the object responds.</p>
+<p>Common wind-related fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>windScale</code></td>
+<td>Overall wind influence. Use <code>0</code> for static objects such as rocks.</td>
+</tr>
+<tr>
+<td><code>trunkBendScale</code></td>
+<td>Amount of large-scale trunk bending.</td>
+</tr>
+<tr>
+<td><code>branchAmp</code></td>
+<td>Branch movement amplitude.</td>
+</tr>
+<tr>
+<td><code>detailAmp</code></td>
+<td>Fine detail movement amplitude.</td>
+</tr>
+<tr>
+<td><code>detailFreq</code></td>
+<td>Frequency of fine wind motion.</td>
+</tr>
+</tbody>
+</table>
+<p>Example for a tree:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestItemData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"internalName"</span><span class="p">:</span> <span class="s2">"pine_large"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeFile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/trees/pine_large.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"trunkBendScale"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"branchAmp"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"detailAmp"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"detailFreq"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Example for a rock:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestItemData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"internalName"</span><span class="p">:</span> <span class="s2">"rock_large"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeFile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/rocks/rock_large.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="collision-and-physics">
+
+  Collision and physics
+</h2>
+<p>Forest items can contribute collision depending on their shape and item setup. The engine builds collision data per forest cell and can reuse collision data for repeated shapes.</p>
+<p>This is important for performance: many instances using the same <code>shapeFile</code> can share cached collision information.</p>
+<p>For best results:</p>
+<ul>
+<li>Use simple collision meshes where possible.</li>
+<li>Avoid overly complex collision on dense vegetation.</li>
+<li>Disable collision for small decorative foliage when not needed.</li>
+<li>Use correct material ground types for collision surfaces.</li>
+</ul>
+<hr/>
+<h2 id="performance-notes">
+
+  Performance notes
+</h2>
+<p>The forest system is designed for large numbers of repeated static objects, but performance still depends on asset quality.</p>
+<p>Important factors:</p>
+<ul>
+<li>Number of unique <code>shapeFile</code> assets</li>
+<li>Triangle count</li>
+<li>Material count</li>
+<li>Collision complexity</li>
+<li>Density of placements</li>
+<li>Wind animation usage</li>
+<li>Draw distance and LODs</li>
+<li>Imposter support</li>
+</ul>
+<p>Use the Forest Editor and debug tools to validate placement density and performance.</p>
+<hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Use <code>managedItemData.json</code> for new levels.</li>
+<li>Use <code>.forest4.json</code> placement files.</li>
+<li>Keep each <code>.forest4.json</code> as line-delimited JSON.</li>
+<li>Make sure every placement <code>type</code> matches an <code>internalName</code>.</li>
+<li>Reuse item types instead of duplicating similar definitions.</li>
+<li>Use LODs and imposters for trees and large vegetation.</li>
+<li>Keep collision simple.</li>
+<li>Set <code>windScale</code> to <code>0</code> for objects that should not move.</li>
+<li>Remove old <code>.forest</code> and <code>.forest.json</code> files after upgrading.</li>
+<li>Keep shape paths valid and consistent.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="forest-items-do-not-appear">
+
+  Forest items do not appear
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Missing <code>managedItemData.json</code></li>
+<li>Placement <code>type</code> does not match any <code>internalName</code></li>
+<li>Invalid <code>shapeFile</code> path</li>
+<li>Invalid JSON line in <code>.forest4.json</code></li>
+<li>File is saved as a JSON array instead of line-delimited JSON</li>
+</ul>
+<h3 id="some-forest-items-are-missing">
+
+  Some forest items are missing
+</h3>
+<p>Check console/log output for invalid lines or missing item types. A single bad line may fail while other lines still load.</p>
+<h3 id="forest-item-has-wrong-rotation">
+
+  Forest item has wrong rotation
+</h3>
+<p>Check that <code>rotationMatrix</code> contains 9 valid numeric values.</p>
+<h3 id="forest-item-has-wrong-size">
+
+  Forest item has wrong size
+</h3>
+<p>Check the <code>scale</code> field. <code>.forest4.json</code> uses a single uniform scale value.</p>
+<h3 id="wind-does-not-affect-item">
+
+  Wind does not affect item
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li><code>windScale</code> is <code>0</code></li>
+<li>Asset does not support wind deformation</li>
+<li>Vertex color setup does not drive wind correctly</li>
+<li>Material/shader does not support wind features</li>
+</ul>
+<h3 id="old-forest-files-still-load">
+
+  Old forest files still load
+</h3>
+<p>If the level contains both old and new forest files, remove deprecated files after verifying the upgraded <code>.forest4.json</code> data.</p>
+<hr/>
+<h2 id="minimal-example">
+
+  Minimal example
+</h2>
+<h3 id="art-forest-manageditemdatajson">
+
+<code>art/forest/managedItemData.json</code>
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pine_small"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestItemData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"internalName"</span><span class="p">:</span> <span class="s2">"pine_small"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"shapeFile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/trees/pine_small.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"windScale"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"trunkBendScale"</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"branchAmp"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"detailAmp"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"detailFreq"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rock_large"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestItemData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"internalName"</span><span class="p">:</span> <span class="s2">"rock_large"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"shapeFile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/rocks/rock_large.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"windScale"</span><span class="p">:</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="forest-forestforest4json">
+
+<code>forest/forest.forest4.json</code>
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"pine_small"</span><span class="p">,</span><span class="nt">"pos"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"pine_small"</span><span class="p">,</span><span class="nt">"pos"</span><span class="p">:[</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">-1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:</span><span class="mf">0.9</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"rock_large"</span><span class="p">,</span><span class="nt">"pos"</span><span class="p">:[</span><span class="mi">10</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:</span><span class="mf">1.5</span><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p>The modern forest format uses two parts:</p>
+<ul>
+<li><code>managedItemData.json</code> defines reusable forest item types.</li>
+<li><code>.forest4.json</code> files store placed instances as line-delimited JSON.</li>
+</ul>
+<p>This structure allows the engine to efficiently render, batch, collide, and manage large numbers of repeated static objects in a level.</p>

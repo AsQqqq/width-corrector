@@ -1,0 +1,119 @@
+<h3 id="111-purpose">
+
+  11.1 Purpose
+</h3>
+<ul>
+<li>Specify authoring conventions for custom meshes and collisions using Collada (.DAE).</li>
+<li>Keep exported assets predictable in scale, material assignment, collision, and LOD behavior.</li>
+</ul>
+<h3 id="112-authoring-standards">
+
+  11.2 Authoring standards
+</h3>
+<ul>
+<li>Scale: real‑world meters; Z‑up.</li>
+<li>Transforms: apply scale/rotation before export.</li>
+<li>Topology: clean normals, no non‑manifold edges for colliders, reasonable triangulation.</li>
+<li>Pivots/origins: place them where the object should rotate, snap, or align in the World Editor.</li>
+<li>Naming: use stable lowercase names for objects, meshes, and materials.</li>
+</ul>
+<p>Before export, check:</p>
+<ol>
+<li>Object scale is applied.</li>
+<li>Rotation is applied where appropriate.</li>
+<li>Mesh faces point outward.</li>
+<li>Object origin is useful.</li>
+<li>Mesh material names match planned BeamNG material <code>mapTo</code> names.</li>
+<li>Collision and LOD helper objects follow the expected naming convention.</li>
+</ol>
+<h3 id="113-uvs-and-shading">
+
+  11.3 UVs and shading
+</h3>
+<ul>
+<li>Provide at least one UV set for materials/decals.</li>
+<li>Maintain consistent texel density across assets of similar size.</li>
+<li>Smoothing: coherent edge splits and normals for believable shading.</li>
+<li>Avoid tiny UV islands that waste texture space or create visible mipmap artifacts.</li>
+<li>Keep UV orientation consistent for trim sheets and tileable materials.</li>
+</ul>
+<p>Normal maps are sensitive to tangent space and smoothing. If an asset looks faceted or inside-out, check normals, smoothing groups/edge splits, and tangent export before changing the material.</p>
+<h3 id="114-materials-and-naming">
+
+  11.4 Materials and naming
+</h3>
+<ul>
+<li>Align mesh material names with mapTo names in main.materials.json.</li>
+<li>Use PNG textures with relative paths; consistent prefixes and domains.</li>
+<li>Reuse shared materials for modular kits and repeated props.</li>
+<li>Avoid creating a unique material for every object unless the object really needs unique textures.</li>
+</ul>
+<p>Example relationship:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Blender material name: garage_wall
+</span></span><span class="line"><span class="cl">BeamNG Material mapTo: garage_wall
+</span></span></code></pre></div><p>If these names do not match, the mesh may render with a warning material.</p>
+<h3 id="115-collisions">
+
+  11.5 Collisions
+</h3>
+<ul>
+<li>Provide simplified collision meshes for heavy assets (separate mesh or flags according to workflow).</li>
+<li>Keep collider topology simple and watertight where applicable.</li>
+<li>Avoid high-poly visible mesh collision for large props and buildings.</li>
+<li>Use collision only where gameplay needs it.</li>
+<li>Remove collision from tiny decorative objects where safe.</li>
+</ul>
+<p>Good collision meshes are:</p>
+<ul>
+<li>simpler than the visible mesh</li>
+<li>stable for tires and vehicle bodies</li>
+<li>split logically for large structures</li>
+<li>not full of small decorative holes, bevels, bolts, or trim</li>
+</ul>
+<p>Test collision by driving into and over the asset at normal gameplay speeds.</p>
+<h3 id="116-lods">
+
+  11.6 LODs
+</h3>
+<ul>
+<li>Author LOD1/LOD2 for large or detailed assets; reuse materials where possible.</li>
+<li>Set switch distances to avoid visible popping at driving speed.</li>
+<li>Keep object silhouette recognizable at distance.</li>
+<li>Reduce material count as LODs get simpler.</li>
+<li>Use far LODs/impostors for large repeated scenery where appropriate.</li>
+</ul>
+<p>A useful rule is to reduce both polygon count and material complexity with each LOD step. Do not only delete small details; also simplify shapes that are no longer readable at distance.</p>
+<h3 id="117-export-collada-dae">
+
+  11.7 Export (Collada .DAE)
+</h3>
+<ul>
+<li>Triangulate on export; include normals and tangents if using normal maps.</li>
+<li>Export selection only; keep hierarchy clean and origins at logical pivots.</li>
+<li>Export to the level’s <code>art/shapes</code> folder or a clear subfolder below it.</li>
+<li>Keep source files in <code>/source</code>, not in the packaged runtime asset folder.</li>
+</ul>
+<p>After export:</p>
+<ol>
+<li>Place the <code>.dae</code> in the level art folder.</li>
+<li>Open or reload the level.</li>
+<li>Place it as a <code>TSStatic</code>.</li>
+<li>Assign or create matching materials.</li>
+<li>Verify collision mode.</li>
+<li>Save and reload to confirm the asset persists.</li>
+</ol>
+<div class="bng-notice note">The engine can create cached shape data such as <code>.cdae</code>, but authors normally keep working from source <code>.dae</code> exports and let the engine/tooling handle caches.</div>
+<h3 id="118-validation-criteria">
+
+  11.8 Validation criteria
+</h3>
+<ul>
+<li>Imported asset appears at correct scale/orientation.</li>
+<li>Materials resolve correctly with PNG textures; no missing paths.</li>
+<li>Collision behaves as intended; LODs switch unobtrusively.</li>
+<li>The object can be saved, reloaded, and packaged without relying on local source files.</li>
+</ul>
+<p><strong>See also:</strong> <a data-doc="levels/level_classes/tsstatic" href="/docs/levels/level_classes/tsstatic">TSStatic</a>
+, <a data-doc="file_formats/materials" href="/docs/file_formats/materials">Material JSON files</a>
+, <a data-doc="file_formats/cdae" href="/docs/file_formats/cdae">Cached Collada (.cdae)</a>
+.</p>

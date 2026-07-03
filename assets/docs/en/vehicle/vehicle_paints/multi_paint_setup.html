@@ -1,0 +1,83 @@
+<p>The multi-paint setup consists of up to 3 <a data-doc="vehicle/vehicle_paints/paint_definition" href="/docs/vehicle/vehicle_paints/paint_definition">paint</a>
+ entries, and the set name. Each paint gets applied to its respective <a data-doc="vehicle/vehicle_paints/paint_materials_intro" href="/docs/vehicle/vehicle_paints/paint_materials_intro">color palette</a>
+, allowing all of the available paint colors to be set when spawning a vehicle.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_veh.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_veh.png"/>
+</span></a>
+<em>Picking the multi-paint setup when spawning a vehicle.</em></p>
+<p>Multi-paint setups appear in their own tab in the paint menu of the vehicle configurator.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_part.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_part_hu9d391bfcc23e172962372a6163e4b70c_33651_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>Multi-paint setups in vehicle configurator.</em></p>
+<h3 id="defining-multi-paint-setups">
+
+  Defining multi-paint setups
+</h3>
+<p>Multi-paint setups can be defined either in a <a data-doc="vehicle/vehicle_paints/paint_library" href="/docs/vehicle/vehicle_paints/paint_library">paint library</a>
+, or in the main <code>info.json</code> file of a vehicle. In both cases, the definition looks the same:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"multiPaintSetups"</span> <span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"team_offroad_colors"</span> <span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"Orange Race Colors"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint1"</span><span class="o">:</span> <span class="s2">"signal_orange"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint2"</span><span class="o">:</span> <span class="s2">"palladium_gray"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint3"</span><span class="o">:</span> <span class="s2">"black_diamond"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"rennspecht_green_colors"</span> <span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"Rennspecht Green Colors"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint1"</span><span class="o">:</span> <span class="s2">"rennspecht_green"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint2"</span><span class="o">:</span> <span class="s2">"palladium_gray"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">(...)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The keys “paint1”, “paint2” and “paint3” refer to the <strong>Paint IDs</strong> of the paints that will be applied for the 1st, 2nd and 3rd color palette respectively. If the setup is defined inside the <a data-doc="vehicle/vehicle_paints/paint_library" href="/docs/vehicle/vehicle_paints/paint_library">paint library</a>
+ file, the paints must be library paints too. When defining it inside an <code>info.json</code> file, they can also be standard paints, in which case the paint names are used instead of IDs. If <code>paint2</code> or <code>paint3</code> is not defined, <code>paint1</code> will be used for that color palette instead.</p>
+<p>A vehicle’s <code>info.json</code> file can use both its own multi-paint setups and common ones from a paint library.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"multiPaintSetups"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"rennspecht_green_colors"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"rennspecht_black_colors"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"rennspecht_blue_colors"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"Battlehawk Purple"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint1"</span><span class="o">:</span> <span class="s2">"Extra Purple"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint2"</span><span class="o">:</span> <span class="s2">"Satin Black"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint3"</span><span class="o">:</span> <span class="s2">"Satin Gray"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"Battlehawk Green"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint1"</span><span class="o">:</span> <span class="s2">"Goblin Green"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint2"</span><span class="o">:</span> <span class="s2">"Satin Black"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint3"</span><span class="o">:</span> <span class="s2">"Satin Gray"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>In both cases, all the paint colors from paint library must be declared in the libraryPaints section beforehand. They can be assigned with the <a data-doc="vehicle/vehicle_paints/paint_definition" href="/docs/vehicle/vehicle_paints/paint_definition">custom class</a>
+ to prevent overcrowding the paint selector.</p>
+<p>A multi-paint setup can contain only 1 paint, and have the same name as said paint, disguising itself as a paint option. This is useful for adding an option for selecting a single color paint for vehicles with a two-tone paint design equipped by default.</p>
+<h3 id="using-multi-paint-setups-as-default">
+
+  Using multi-paint setups as default
+</h3>
+<p>Both inside the vehicle’s main <code>info.json</code> file, and within the specific <code>info_[config name].json</code> file of any configuration, a multi-paint setup replaces the old “defaultPaintName1/2/3” values. The legacy method still works for backwards compatibility purposes, but the defaultMultiPaintSetup takes precedence. It can be used in one of the following ways:</p>
+<ul>
+<li>By providing the name of the multi-paint setup you have defined in <code>info.json</code> or imported from the library. For example: <code>"defaultMultiPaintSetup":"Champagne"</code>. In this case, when spawning the vehicle via vehicle selector, this multi-paint setup will be highlighted.</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_selection.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_selection_hu5e286b96508200bb09885504d4b03d2a_419125_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>The default multi-paint setup for the configuration is highlighted.</em></p>
+<ul>
+<li>By defining your own setup specific for this configuration. For example:</li>
+</ul>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"defaultMultiPaintSetup"</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"Turbo Race"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"paint1"</span><span class="o">:</span> <span class="s2">"Royal Blue"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"paint2"</span><span class="o">:</span> <span class="s2">"Solar Yellow"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"paint3"</span><span class="o">:</span> <span class="s2">"Solar Yellow"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>In this case, the setup will only be visible in the multi-paint list with this specific configuration selected.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_selection2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_selection2_hu10b9fb81b68a1f5d79fabf5aac6eb439_446809_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>The default multi-paint setup getting added when selecting the custom configuration that uses it.</em></p>
+<p>Modders are advised to completely replace the usage of the <code>defaultPaintName</code> syntax with the multi-paint setups.</p>

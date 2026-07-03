@@ -1,0 +1,216 @@
+<p>Your first reflex with any jbeam issue is to check console (<kbd>`</kbd> by default) for error messages.</p>
+<p>Error messages will show up in red in the console, while warning messages show up in yellow.</p>
+<h3 id="syntax-issues">
+
+  Syntax issues
+</h3>
+<p>The first type of issues are jbeam syntax issues, which will cause the parser to fail and the effected part to not load. For more information about syntax, see the <a data-doc="vehicle/intro_jbeam/jbeamsyntax" href="/docs/vehicle/intro_jbeam/jbeamsyntax">introduction to jbeam syntax</a>
+ page.</p>
+<p>You should find an error message in red similar to “unable to decode JSON: /vehicles/<em>vehicleName</em>/<em>jbeamFile</em>.jbeam”, telling you which file fails to load.</p>
+<h4 id="missing-quotation-marks">
+
+  Missing quotation marks
+</h4>
+<p>A mistake that’s very easy to make is to accidentally forget a quotation mark at the start or end of a string, especially when it comes to node names.</p>
+<p>The parser is usually able to pinpoint those issues with quite a lot of accuracy.</p>
+<p>For example this jbeam :</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"bd8l"</span><span class="p">,</span><span class="mf">0.31</span><span class="p">,</span><span class="mf">1.68</span><span class="p">,</span><span class="mf">0.52</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"bd8ll"</span><span class="p">,</span><span class="mf">0.64</span><span class="p">,</span><span class="mf">1.68</span><span class="p">,</span><span class="mf">0.52</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//bed sides lower
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span><span class="mf">0.4</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"bd9rr,-0.627,0.381,0.25], //Missing quotation mark in the node name.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    ["</span><span class="nx">bd9</span><span class="s2">",0.0,0.381,0.3],
+</span></span></span><span class="line"><span class="cl"><span class="s2">    ["</span><span class="nx">bd9ll</span><span class="s2">",0.627,0.381,0.25],
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">    ["</span><span class="nx">bd10rr</span><span class="s2">",-0.627,0.706,0.25],
+</span></span></span><span class="line"><span class="cl"><span class="s2">    ["</span><span class="nx">bd10ll</span><span class="err">"</span><span class="p">,</span><span class="mf">0.627</span><span class="p">,</span><span class="mf">0.706</span><span class="p">,</span><span class="mf">0.25</span><span class="p">],</span>
+</span></span></code></pre></div><p>Will show up in console like this :</p>
+<blockquote>
+<p>unable to decode JSON: /vehicles/pigeon/pigeon_bed.jbeam</p>
+<p>JSON decoding error: [string “lua/common/json.lua”]:55: Invalid input near line 68, ‘[“bd9”,0.0,0.381,0.3],’</p>
+</blockquote>
+<p>An enhanced text editor that can also be helpful by highlighting strings, making it very obvious if something is amiss. Here’s an example in Visual Studio Code with the language set to “JSON with comments”</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/VSCExampleString.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/VSCExampleString_huceff10aa39cf7d78fb873b13ee486e42_31741_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="missing-brackets">
+
+  Missing brackets
+</h4>
+<p>Everything in jbeam is defined as sections delimited by brackets. It is very important that each bracket has an identical closing bracket, otherwise the parser will fail.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/Brackets.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/Brackets_hu895714171756022381458c5cce89f96c_38464_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>In the console, the error message won’t usually pinpoint the error as accurately as string issues, but it should tell you the file and rough location of the issue, usually either the section which contains the error, or the section located right after.</p>
+<blockquote>
+<p>unable to decode JSON: /vehicles/pigeon/pigeon_bed.jbeam</p>
+<p>JSON decoding error: [string “lua/common/json.lua”]:55: Invalid input near line 95, ‘“beams”:[’"’</p>
+</blockquote>
+<h4 id="duplicate-component-name">
+
+  Duplicate component name
+</h4>
+<p>If you have 2 parts of your jbeam with the same name, you should see an error like this in the console :</p>
+<blockquote>
+<p>Duplicate part found : pigeon_hood from file /vehicles/pigeon/pigeon_hood.jbeam</p>
+</blockquote>
+<p>In a case like this, the last part will overwrite the first part with the same name. To avoid this, you will need to either delete or rename one of the parts in your jbeam.</p>
+<p>Keep in mind that the part listed in the error message is the second part found, with the first instance of that component being possibly located in an other file.</p>
+<h3 id="flexbody-issues">
+
+  Flexbody issues
+</h3>
+<p>Flexbody related issues will cause the part to still load correctly with it’s jbeam structure, but the flexbody itself won’t appear.</p>
+<h4 id="flexbody-shows-up-offset">
+
+  Flexbody shows up offset
+</h4>
+<p>If the flexbody shows up in game, but in an incorrect position, even if it seems positioned correctly in your Blender, the origin of the part is probably offset.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/OffsetFlexbody.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/OffsetFlexbody_hu7427911e75114d5a7d0d5dae08f88c02_580143_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>To fix this, please check out the <a href="https://documentation.beamng.com/modding/modelling/vehicle_modeling/#flexbodies" rel="noopener" target="_blank">modeling guidelines</a>
+</p>
+<h4 id="missing-flexbody-error">
+
+  Missing flexbody error
+</h4>
+<p>If the game cannot find your flexbody, this will be shown in console as :</p>
+<blockquote>
+<p>Failed to get render mesh <em>MeshName</em></p>
+</blockquote>
+<p>This either means that the mesh isn’t inside a dae file within your mod’s folder, or that you made a typo when naming your model in the <a data-doc="vehicle/sections/flexbodies" href="/docs/vehicle/sections/flexbodies">flexbody section</a>
+</p>
+<h4 id="missing-nodegroup">
+
+  Missing nodegroup
+</h4>
+<p>If the model doesn’t show up and there are no console errors, this usually means that there are no nodes in the nodegroup referenced in the flexbody section.</p>
+<p>Usually this is due to a typo in the group definition, either in the flexbody section, or the node section.</p>
+<h4 id="vy-node-error">
+
+  VY node error
+</h4>
+<p>A VY node error can be seen in console as the following error :</p>
+<blockquote>
+<p>FLEXBODY ERROR on mesh <em>MeshName</em>: VY node not found</p>
+</blockquote>
+<p>This means that the physics engine is unable to properly map the flexbody to the defined set of nodes; This has a few possible causes.</p>
+<p>The first one is not enough nodes. The physics engine needs at the very least 3 nodes, preferably more, assigned to each flexbody to calculate deformation properly.</p>
+<p>An other possible issue is the position of the nodes relative to each other. If the nodes are all in line or on a flat plane, the game might be unable to map the flexbody to the nodes, and give out a VY error.</p>
+<p>And the last possible issue is if the nodes don’t properly cover the flexbody. If parts of the flexbody are located far away from any of the assigned node, the game will be unable to properly interpolate their position based on node coordinates.</p>
+<p>In all cases, the best solution is to include more nodes into the flexbodies nodegroups, or assign additional nodegroups.</p>
+<h4 id="no-material-assigned">
+
+  No material assigned
+</h4>
+<p>If you have no material assigned to your model in blender, the model won’t appear and the following error will show in console :</p>
+<blockquote>
+<p>Mesh [<em>MeshName</em>] has no material assigned… cant be rendered</p>
+</blockquote>
+<h3 id="structural-issues">
+
+  Structural issues
+</h3>
+<p>Structural issues won’t usually cause errors in the console, but they’ll cause visible issues in your jbeam, either in the form of vibration, excessive floppiness, etc.</p>
+<p>In most cases, don’t forget to double check your beam parameters. Parts that deform easily, or weird suspension behavior can be caused by deform settings being lower than they should, stiffness/damping not being adapted to the application, or incorrectly set bounds.</p>
+<h4 id="structure-collapses-on-spawn">
+
+  Structure collapses on spawn
+</h4>
+<p>Structures collapsing on spawn are usually caused by a lack of bracing in your jbeam. Please read the <a data-doc="vehicle/intro_jbeam" href="/docs/vehicle/intro_jbeam">introduction to jbeam</a>
+ page for more information.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/Bracing.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/Bracing_hu99819008d7439f38df8c91e9b97e987b_46826_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>When it comes to flat components, you might also need to use what is called a rigidifier node, a node with no collisions that is offset from the surface, and connected to every node on the panel. If you already had a rigidifier node, you might need to move it further away from the surface.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/RigidifierExample.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/RigidifierExample_hu9dcb2c29354c91c3defd0e731fa51187_597755_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="instability">
+
+  Instability
+</h4>
+<p>One of the biggest limits when it comes to tuning beam structures in beamNG is the structure going unstable.</p>
+<p>There are a few levels of instability that you might encounter. The worst one, which happens when the problem beams cannot break, is the car disappearing on spawn along with an “instability detected message”</p>
+<p>However instability can also cause breakable components to break off on spawn, or just vibrate and pulsate in place, which is very easy to notice in the “Stress” beam debug view, as the beams flash from bright blue to bright red very fast.</p>
+<p><video autoplay="" controls="" src="Instability.mp4"></video></p>
+<p>This is the result of having a beamSpring and/or beamDamp values that are too high for the nodeWeight, and is fixed by either lowering beamSpring/Damp or raising nodeWeight. Instability might also be caused or worsened by nodes being pushed on spawn, which adds a load on the structure.</p>
+<h4 id="panels-getting-pushed-out-of-the-car-on-spawn-or-vibrating">
+
+  Panels getting pushed out of the car on spawn or vibrating
+</h4>
+<p>A common issue when it comes to panels and suspension components is nodes that spawn within triangles, and get pushed out on spawn. These are usually visible as panel gaps widening on spawn or components vibrating in place. Those issues can also be found by looking in the stress debug for beam stress that rises after spawning the vehicle.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/panelGapIssues.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/panelGapIssues_hu77ec240d72c6c576ea48ea50a268a1c9_133087_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>There are 2 possible fixes for this type of issue. The first one, that is usually recommended for body panels, is to move nodes around to make sure that there is no clipping happening on spawn.</p>
+<p>In some cases like suspension, where node positioning is important to insure good suspension geometry, you can also set “selfCollision” to false. Keep in mind though that this will allow the component to clip freely through the vehicle, which might not always be desired behavior.</p>
+<h4 id="major-deformation-on-spawn">
+
+  Major deformation on spawn
+</h4>
+<p>Major deformation that happens just when the car spawns has a few possible causes.</p>
+<p>The first possible cause is a misalignment of slidenodes with their rail, causing them to violently return to position on spawn. This can easily be seen by spawning the car with paused physics and using the stress debug, as the connected beams will appear stressed, even with no precompression.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/MissalignedSlideNodes.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/MissalignedSlideNodes_huba86f953373c87a63211f089e620f391_985587_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>An other possibility is instability that stops after some level of deformation has happened. To confirm this, you can look at the stress debug just as the car spawn, using 100x slow motion. You should see vibration happening just as the car spawn. To fix that issue, refer to the section about fixing instability.</p>
+<p>It might also be caused by excessive or excessively quick beam precompression. Make sure that you didn’t make an error and are precompressing the beam too much. If the beam is simply precompressing too fast, you can slow down the change using beamPrecompression time in line with your beam like this :</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fx5l"</span><span class="p">,</span><span class="s2">"st1l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="s2">"$=$toe_FR-$steer_center_F"</span><span class="p">,</span><span class="s2">"beamPrecompressionTime"</span><span class="o">:</span><span class="mf">0.5</span><span class="p">}],</span>
+</span></span></code></pre></div>
+<h4 id="leaking-properties">
+
+  Leaking properties
+</h4>
+<p>Leaking properties appear when a component that shouldn’t be affected by something like a breakgroup, deformgroup, collision properties, etc, is affected by it.</p>
+<p>An example of a leaking breakGroup could cause the rear bumper to disintegrate when you rip off the front bumper.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/LeakingBreakGroup.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/LeakingBreakGroup_hubcc40d7be9bf040e9b8271b8b5e99136_910389_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>For breakgroups and deformgroups, this can easily be seen on their respective debug views.</p>
+<p>In all cases, the easiest way to avoid those issues is to have a closing statement like this at the end of your parts to reset properties to standard values:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">//closing statement for beams
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"breakGroupType"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"optional"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span></code></pre></div><p>In some cases it’s also recommended to use <a data-doc="vehicle/intro_jbeam/jbeamsyntax" data-frag="table-row-modifiers" href="/docs/vehicle/intro_jbeam/jbeamsyntax#table-row-modifiers">table row modifiers</a>
+, to completely eliminate the risk of leaking properties.</p>
+<h3 id="other-common-console-issues">
+
+  Other common console issues
+</h3>
+<p>A good practice before releasing a mod is to go through the console and look for any error, even if the mod seems to be loading properly.</p>
+<p>Those errors reduce performance, and also make it harder for you to pinpoint actual issues.</p>
+<p>Here are a few of the more common errors you might see that won’t visibly affect the mod.</p>
+<h4 id="duplicate-beams">
+
+  Duplicate beams
+</h4>
+<p>Duplicate beams can happen with typos and errors while copy pasting. They show up as yellow messages saying “duplicated beam between nodes”</p>
+<blockquote>
+<p>duplicated beam between nodes: <em>node1</em> and <em>node2</em></p>
+</blockquote>
+<p>Fixing those simply requires removing one of the superfluous references to said beam.</p>
+<h4 id="missing-node">
+
+  Missing node
+</h4>
+<p>An other error you might see which won’t necessarily affect the functionality of your mod is a missing node error, which will show in console as something like this :</p>
+<blockquote>
+<p>link target not found : beams/1787 &gt; nodes/<em>nodeName</em> id1:nil, id2:nil, partOrigin: <em>PartName</em> - DATA DISCARDED</p>
+</blockquote>
+<p>This can either be the result of a typo, or a beam/triangle that you forgot to remove after removing a node.</p>
+<p>If the missing node is caused by the node not being there with the current selection of parts, using the “optional” property is recommended.</p>
+<h4 id="missing-flexbody">
+
+  Missing flexbody
+</h4>
+<p>If you based your jbeam on pre-existing jbeam, or did some changes in your flexbodies. You might be seeing this issue :</p>
+<blockquote>
+<p>Failed to get render mesh <em>MeshName</em></p>
+</blockquote>
+<p>If there are no visibly missing meshes on your vehicle, simply remove the reference to that flexbody in your jbeam.</p>

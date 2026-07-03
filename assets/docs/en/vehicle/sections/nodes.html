@@ -1,0 +1,679 @@
+<p><video autoplay="" controls="" src="nb1.mp4"></video></p>
+<p>Nodes are mass points and the core of the BeamNG physics. Everything revolves around them. A node itself is a dimensionless (infinitely small) mass point in 3D space. Each node is defined by a unique name and a position in 3D space.</p>
+<p>Nodes can have any string for their name, as long as the names do not conflict. A good naming scheme is some memorable/relevant letter, followed by a number, followed by a letter signifying which side of the vehicle it’s on. For example, the 1st rightmost frame node could be called <code>f1rr</code> while the 3rd left frame node would be called <code>f3l</code>. A node sitting in the middle (posX = 0) would have no letter suffix.</p>
+<p>This is an example of a nodes section. Nodes also have many properties which can be set by placing dictionary lines above the nodes which are desired to be affected. Node weights are in kilograms, and coordinates are in meters. The “group” modifier is for assigning flexbodies. Node material only affects sound and particle properties, not physics.</p>
+<p>Our game engine uses a <strong>Z-up</strong> coordinate system and <strong>SI units</strong> (meters, kilograms) for most parameters.</p>
+<div class="bng-notice warning"><p><strong>Important — node coordinates use BeamNG vehicle space, not +X forward.</strong></p>
+<p>Every <code>posX</code>, <code>posY</code>, and <code>posZ</code> in JBeam is relative to the vehicle <a data-doc="vehicle/sections/refnodes" href="/docs/vehicle/sections/refnodes">refnode</a>
+ frame: <strong>+X = left</strong>, <strong>+Y = backward</strong>, <strong>+Z = up</strong>; <strong>forward = −Y</strong>. Do not assume +X is heading or that +Y is lateral—that convention will misplace nodes. See <a data-doc="vehicle/coordinate_systems" href="/docs/vehicle/coordinate_systems">Coordinate systems</a>
+ for the full frame and diagrams.</p>
+</div>
+<br/>
+<h3 id="collision-system">
+
+  Collision system
+</h3>
+<p>In BeamNG, collision is handled by nodes alone. <em>(Beams can not collide with anything.)</em></p>
+<p>There are 3 types of node collision:</p>
+<ul>
+<li><code>Heightmap</code> (with the ground)</li>
+<li><code>Static</code> (with collision mesh faces of map objects)</li>
+<li><code>Dynamic</code> (with vehicle <a data-doc="vehicle/sections/triangles" href="/docs/vehicle/sections/triangles">triangles</a>
+), additionally this can be divided into:
+<ul>
+<li><code>Self-collision</code> (triangles of the same vehicle node belongs to)</li>
+<li><code>External collision</code> (triangles of other vehicles)</li>
+</ul>
+</li>
+</ul>
+<p>Heightmap collision differs from static collision by having several layers which helps vehicle tires rotate smoother. Collision types have priority, with dynamic being prioritized over static and heightmap collisions. Practically this means that with high enough force a node can be slightly pushed through a solid wall or the ground. It will pop back out once the (surface) triangle stops pushing it. Heightmap collision also has less performance impact than static collision - so on a vehicle that will be often driving over map assets like rocks, rather than a normal decal road, it is more important to have less nodes on the bottom.</p>
+<p>In Jbeam, these types are controlled by 3 properties:</p>
+<ul>
+<li>The <code>collision</code> argument affects all types of collision, and has the highest priority - enabling any other collision type will not work if this one is disabled.</li>
+<li>The <code>selfCollision</code> argument only affects the self-collision type of dynamic collision.</li>
+<li>The <code>staticCollision</code> argument affects static and heightmap collision.</li>
+</ul>
+<p>On the (surface) <a data-doc="vehicle/sections/triangles" href="/docs/vehicle/sections/triangles">triangles</a>
+ side, when a node approaches a triangle, it will be subject to forces of collision, which will attempt to stop the node, and <code>anti-clip</code>, which decide on which side of the triangle the node will end up. If a node approaches the triangle from the front (shown as green with the triangle debug visualization), the forces will start applying at around 2.5cm distance from the triangle in order to prevent clipping. You can control these forces by setting some properties. The <code>externalCollisionBias</code> property will offset the distance where the forces start applying. When many nodes collide with triangles on spawn, it can cause noticable performance impact, so it’s best to keep around 3 or 3.5 cm distance between them.</p>
+<p>When <code>triangleType</code> is set to <code>NONCOLLIDABLE</code>, it will not have collision but will still have the anti-clip system. All nodes that have collision should have at least <code>NONCOLLIDABLE</code> triangles between them to prevent cars getting stuck in each other on collision. A <code>NORMALTYPE</code> triangle has no extra performance impact when it has no nodes within 50cm of its surface, but each node like that adds extra performance impact. A <code>NONCOLLIDABLE</code> triangle doesn’t have such performance implications, so it’s better to use these triangles on tiny structures with dense nodes, like offroad lights.</p>
+<p>For optimization and design purposes, Node <code>groups</code> will not allow a node to collide with triangles made of nodes within the same <code>group</code> argument even when <code>selfCollision</code> is set to true. If at least one of the nodes has multiple <code>groups</code>, then the first one defined in the list will be taken into account for each node. For example a node with the groups <code>{"A", "B"}</code> will collide with triangles made of nodes with groups <code>{"C", "B"}</code> but not with triangles made of nodes with groups <code>{"A", "C"}</code>. This system may not work as intended if none of the groups assigned to the nodes contain any flexbodies.</p>
+<p>There is another special property of dynamic collision. When a triangle doesn’t have any collidable nodes in over 10cm distance from it, it becomes <code>inactive</code> in terms of collision detection. This helps improve performance, so it is advised to keep over 10cm space between collidable components by default, where possible.</p>
+<br/>
+<h3 id="required-arguments">
+
+  Required arguments
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Defines the node name. <strong>Need to be unique</strong> for the whole vehicle</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The X (left/right) position in 3D space (m)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Left is positive, right is negative</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The Y (forward/back) position in 3D space (m)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Backward is positive, forward is negative</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The Z (up/down) position in 3D space (m)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Up is positive, down is negative</div>
+</div>
+</div>
+<h3 id="optional-arguments">
+
+  Optional arguments
+</h3>
+<p>The Nodes section has many optional arguments. We will divide them into categories, which will be sorted from most to least frequently used.</p>
+<h4 id="general">
+
+  General
+</h4>
+<p>These are the most basic arguments, used everywhere in Jbeam files, necessary for correct simulation.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">options.nodeWeight<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">The weight of the node in kg</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">As of game version <code>0.38.5.0</code> the default weight of a node is <code>25 kg</code></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string/table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Groups a set of nodes into a group that can be used later in other sections</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>This is mostly used to map visible model parts to groups of nodes for deformation.</p>
+<p>When the argument is a string, it specifies the exact name of the group the node belongs to:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"f6ll"</span><span class="p">,</span> <span class="mf">0.76</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.72</span><span class="p">,</span> <span class="mf">0.83</span><span class="p">,</span> <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">"coupe_engine"</span><span class="p">}],</span>
+</span></span></code></pre></div><p>When the argument is a table, the node belongs to all the specified groups at once:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"f6ll"</span><span class="p">,</span> <span class="mf">0.76</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.72</span><span class="p">,</span> <span class="mf">0.83</span><span class="p">,</span> <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="p">[</span><span class="s2">"coupe_engine"</span><span class="p">,</span><span class="s2">"coupe_windshield"</span><span class="p">]}],</span>
+</span></span></code></pre></div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">options.nodeMaterial<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Physics material of the node, rubber, metal, etc.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>The node physics material affects the default sound events generated by the node, as well as the type of emited particles.</p>
+<p>The name should be “NM_” + name of the physics material, for example “NM_METAL”. As of version <code>0.38.5.0</code> the following physics materials are available:<br/><code>METAL</code>, <code>PLASTIC</code>, <code>RUBBER</code>, <code>GLASS</code>, <code>WOOD</code>, <code>FOLIAGE</code>, <code>CLOTH</code>, <code>WATER</code>, <code>ASPHALT</code>, <code>ASPHALT_WET</code>, <code>SLIPPERY</code>, <code>ROCK</code>, <code>DIRT_DUSTY</code>, <code>DIRT</code>, <code>SAND</code>, <code>SANDY_ROAD</code>, <code>MUD</code>, <code>GRAVEL</code>, <code>GRASS</code>, <code>ICE</code>, <code>SNOW</code>, <code>FIRESMALL</code>, <code>FIREMEDIUM</code>, <code>FIRELARGE</code>, <code>SMOKESMALLBLACK</code>, <code>SMOKEMEDIUMBLACK</code>, <code>STEAM</code>, <code>RUMBLE_STRIP</code>, <code>COBBLESTONE</code>, <code>FOLIAGE_THIN</code>, <code>SPIKE_STRIP</code></p>
+<p>Some commonly used node materials have additional properties:</p>
+<ul>
+<li>NM_PLASTIC: If a beam connecting to a node with this material breaks, plastic particles will spawn between both nodes.</li>
+<li>NM_RUBBER: When scraping on an asphalt type ground surface, the node will leave skid marks.</li>
+<li>NM_WOOD: If a beam is set to emit glass breaking particles, and one of its nodes has this material, it will use wood particles instead.</li>
+</ul>
+</div>
+</div>
+</div>
+<h4 id="collision">
+
+  Collision
+</h4>
+<p>These define what the node will collide with. Also used in every Jbeam file. Usually, collision and selfCollision are used together, while staticCollision is rarely used.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">true<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">If the node can collide with anything</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This argument affects all types of collision, and has the highest priority - enabling any other collision type will not work if this one is disabled.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">If the node can collide with the vehicle it belongs to</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This argument only affects the self-collision type of dynamic collision. It is commonly set to false for nodes that would cause issues if they collided with the rest of the vehicle, but still need to collide with everything else, for example wheels and tires.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">true<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">If the node can collide with map objects and terrain</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This argument affects static and heightmap collision. It is set to false for wheel center nodes, which can’t collide with the world as that would make the collision offset from the rim edges, but still need to collide with other vehicles for correct crash deformation.</div>
+</div>
+</div>
+<h4 id="friction">
+
+  Friction
+</h4>
+<p>Define the node’s static and sliding friction. FrictionCoef is used in every Jbeam file and most of the time set to 0.5, slidingFrictionCoef much less, usually just in tires, as its default value is the same as the value set in frictionCoef.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Static friction of the node</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">By default, this affects both static and dynamic friction, which for most vehicle parts are the same for optimization purposes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">frictionCoef<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Sliding friction of the node</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">When this argument is not set, the sliding friction will default to the same value as static friction.</div>
+</div>
+</div>
+<h4 id="powertrain">
+
+  Powertrain
+</h4>
+<p>These arguments are used by powertrain components of the car such as the engine.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">A different kind of group, related to powertrain simulation</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Commonly used engine groups:</p>
+<ul>
+<li><code>engine_intake</code>: Used for water damage simulation. When all the nodes in this group are submerged under water, the engine starts flooding with water, until one of them surfaces back up, or engine locks up from the damage.</li>
+<li><code>engine_block</code>: Group shared by all the nodes that form the structural ‘cube’ Jbeam structure of the car’s engine. There must be at least 2 of these nodes per engine. They are used by thermal simulation for calculating the weight of engine components, and for the location of engine failure particle effects.</li>
+<li><code>radiator</code>: Used for the location and direction of radiator smoke particles. There must be at least 2 nodes in this engineGroup.</li>
+<li><code>fuel</code>: These nodes contain the mass of the fuel inside the vehicle’s fuel tank, which will be spread evenly between them and added to their nodeWeight. There can be multiple fuel tanks on a vehicle, each with a different engineGroup name for its fuel - <code>fuel</code> is just the most commonly used one. Other container tanks in the vehicle can also use this system, for example nitrous oxide tanks and air pressure tanks.</li>
+</ul>
+</div>
+</div>
+</div>
+<h4 id="props-only">
+
+  Props only
+</h4>
+<p>These are only used on props, as they have no usability in a vehicle.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">If the node is fixed in 3D space (Can’t move at all)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>The top node is fixed:
+<video autoplay="" controls="" src="nb1.mp4"></video></p>
+<p>Fixed nodes will have disabled collision even if the collision argument is set to true.</p>
+</div>
+</div>
+</div>
+<h4 id="sound-override">
+
+  Sound override
+</h4>
+<p>Override the node’s default impact sounds defined by the material. Used for uncommon vehicle parts, i.e. a porta potty bed load. The list of all usable event paths can be found in the World Editor: Window &gt; Audio &gt; SFX Previewer.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Overrides the node’s generic impact sound event</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Overrides the node’s metal impact sound event</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Overrides the node’s plastic impact sound event</div>
+</div>
+</div>
+<h4 id="cargo">
+
+  Cargo
+</h4>
+<p>Used only on cargo loads.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Function that defines the change of the node’s weight based on the cargoGroup load in career mode delivery gameplay</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Most basic example usage:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rbc6"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">{</span><span class="s2">"nodeWeightFunction"</span><span class="o">:</span><span class="s2">"=1+$load"</span><span class="p">,</span><span class="s2">"cargoGroup"</span><span class="o">:</span><span class="s2">"roofBarCargoBoxA"</span><span class="p">}],</span>
+</span></span></code></pre></div></div>
+</div>
+</div>
+<h4 id="offsets">
+
+  Offsets
+</h4>
+<p>These arguments are almost never set explicitly in Nodes section but rather passed from the <a data-doc="vehicle/sections/slots" href="/docs/vehicle/sections/slots">Slots</a>
+ section. These arguments can be used together and the default order of operations is <code>nodeRotate</code>, <code>nodeOffset</code>, <code>nodeMove</code>. The argument names can also contain numerical suffixes to define the order of operations and also allows using each one multiple times.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Offsets the node on the YZ axis, and offsets it in a mirrored fashion on the X axis (m)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Offsets the node on the XYZ axis (m)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“x”:0, “y”:0, “z”:0, “px”:0, “py”:0, “pz”:0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Rotates the node by <code>x, y, z</code> degrees on XYZ axis, around the center point <code>px, py, pz</code></div>
+</div>
+</div>
+<h4 id="advanced-tire-friction-parameters">
+
+  Advanced tire friction parameters
+</h4>
+<p>Used by the wheel and tire system, not set manually.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The friction coefficient modifier on zero load.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This value should be higher than the “fullLoadCoef”.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The friction coefficient modifier on full load.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">This value should be lower than the “noLoadCoef”.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.75<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Allows finer control of the sliding friction curve.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Smaller values will result in a more progressive transition.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Allows finer control of the sliding friction curve.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Affects the velocity at which the sliding coefficient will apply.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.6<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Influences the time variant friction behavior of the tire.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Higher values (up to a maximum of 1) make the tire behave more like soft racing slick rubber, while lower values behave more like a harder tire compound. It also affects tire sounds, with harder tires squealing more.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Multiplies ground roughness coefficient for this node.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">A slick tire will be 0, an offroad tire about 0.9 and a standard tire 0.7.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">The loss of coef per newton of normal force</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">The friction coefficient will keep going down from the “noLoadCoef” until it reaches the “fullLoadCoef”, at which point it will stay stable.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Groups the inner and outer tire nodes into pairs</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>This argument is used to generate tire marks. The middle point between 2 paired nodes that are touching the ground is set as the tire mark location, and the distance between them dictates its width.</p>
+<p>This argument is set automatically by the wheel generator. You should not use it manually as it might lead to issues with vehicle tires.</p>
+</div>
+</div>
+</div>
+<h4 id="debug">
+
+  Debug
+</h4>
+<p>These are for short term debug purposes and should be removed in the final version of the structure.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{“radius”:0,“col”:"#00000000"}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Highlights the node with the provided radius and color when the node visualization debug mode is turned on.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>The table consists of 2 elements: “radius” is a number that sets the highlight radius in meters and “col” is either a string with the hex value of the color, or a table with RGB values. Example usage:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.90</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"highlight"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"radius"</span><span class="o">:</span><span class="mf">0.005</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"col"</span><span class="o">:</span><span class="s2">"#ff0000ff"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span></code></pre></div><p>This will produce the same effect:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.90</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"highlight"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"radius"</span><span class="o">:</span><span class="mf">0.005</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"col"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"r"</span><span class="o">:</span><span class="mi">255</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"g"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"b"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"a"</span><span class="o">:</span><span class="mi">255</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span></code></pre></div></div>
+</div>
+</div>
+<h3 id="simple-example">
+
+  Simple Example
+</h3>
+<p>Node <code>a</code> sits somewhere in 3D space:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"nodes"</span> <span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.90</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>Node <code>a</code> sits somewhere in 3D space and has the mass of 3 kg.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"nodes"</span> <span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.90</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">,</span> <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span> <span class="mi">3</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div>
+<h3 id="advanced-example">
+
+  Advanced Example
+</h3>
+<p>Example of a typical node section, which begins by initializing all the properties that will be used for the following nodes.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="s2">"nodes"</span> <span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">     <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">     <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">"body"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">     <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">false</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">     <span class="p">{</span><span class="s2">"collision"</span> <span class="o">:</span><span class="kc">true</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">     <span class="p">{</span><span class="s2">"nodeMaterial"</span><span class="o">:</span><span class="s2">"|NM_METAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">     <span class="p">{</span><span class="s2">"frictionCoef"</span><span class="o">:</span><span class="mf">0.7</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">     <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span><span class="mf">12.5</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">     <span class="c1">// a comment
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>     <span class="p">[</span><span class="s2">"n1rr"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.90</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">     <span class="p">[</span><span class="s2">"n1r"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.33</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">     <span class="p">[</span><span class="s2">"n1l"</span><span class="p">,</span> <span class="mf">0.33</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">     <span class="p">[</span><span class="s2">"n1ll"</span><span class="p">,</span> <span class="mf">0.90</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">     <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><div class="bng-notice note"><code>0.38.5.0</code> contains
+<code>144711</code> entries in
+<code>10471</code> sections distributed over
+<code>20043</code> parts in
+<code>5090</code> jbeam files.</div>

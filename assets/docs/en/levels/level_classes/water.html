@@ -1,0 +1,940 @@
+<p>BeamNG has several water scene object types:</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Shape</th>
+<th>Main use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WaterPlane</code></td>
+<td>Infinite horizontal plane</td>
+<td>Oceans, large lakes, horizon water.</td>
+</tr>
+<tr>
+<td><code>WaterBlock</code></td>
+<td>Bounded rectangular water volume</td>
+<td>Pools, ponds, reservoirs, boxed water areas.</td>
+</tr>
+<tr>
+<td><code>River</code></td>
+<td>Spline-shaped water volume</td>
+<td>Rivers, canals, streams, curved water paths.</td>
+</tr>
+</tbody>
+</table>
+<p>All three inherit common water behavior from <code>WaterObject</code>, including water materials, underwater checks, fog/underwater effect support, and optional planar reflections.</p>
+<hr/>
+<h2 id="which-water-object-should-i-use">
+
+  Which water object should I use?
+</h2>
+<table>
+<thead>
+<tr>
+<th>Use case</th>
+<th>Recommended class</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ocean around an island</td>
+<td><code>WaterPlane</code></td>
+</tr>
+<tr>
+<td>Very large flat water surface stretching to horizon</td>
+<td><code>WaterPlane</code></td>
+</tr>
+<tr>
+<td>Swimming pool / small lake / rectangular pond</td>
+<td><code>WaterBlock</code></td>
+</tr>
+<tr>
+<td>Bounded flat water area with rotation/scale</td>
+<td><code>WaterBlock</code></td>
+</tr>
+<tr>
+<td>River following a path</td>
+<td><code>River</code></td>
+</tr>
+<tr>
+<td>Canal with variable width/depth</td>
+<td><code>River</code></td>
+</tr>
+<tr>
+<td>Twisting water body with flow direction</td>
+<td><code>River</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+
+<p><code>WaterPlane</code> represents an infinite horizontal water surface.</p>
+<p>It is designed mainly for ocean-style water viewed from near ground level. It extends infinitely in X/Y and is positioned only by height.</p>
+<p><code>WaterPlane</code> ignores rotation and scale. Only the Z value of its position matters.</p>
+<hr/>
+<h2 id="waterplane-example">
+
+  WaterPlane example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterPlane"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"ocean_water"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_ocean"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">101</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridElementSize"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The important part is:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"position"</span><span class="err">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</span></span></code></pre></div><p>Only <code>position[2]</code>, the Z height, is used as the water level.</p>
+<hr/>
+<h2 id="waterplane-fields">
+
+  WaterPlane fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>"WaterPlane"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Scene object name.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Water height is taken from <code>position.z</code>. X/Y are not meaningful for coverage.</td>
+</tr>
+<tr>
+<td><code>material</code></td>
+<td>string</td>
+<td>Water material used for rendering.</td>
+</tr>
+<tr>
+<td><code>gridSize</code></td>
+<td>integer</td>
+<td>Render grid size.</td>
+</tr>
+<tr>
+<td><code>gridElementSize</code></td>
+<td>number</td>
+<td>Spacing between water grid vertices.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="infinite-bounds">
+
+  Infinite bounds
+</h2>
+<p><code>WaterPlane</code> uses global bounds.</p>
+<p>This means it is considered to exist everywhere horizontally. It is useful for oceans, but it is not a good fit for small water bodies.</p>
+<p>Use <code>WaterBlock</code> instead if the water should have a finite footprint.</p>
+<hr/>
+<h2 id="transform-behavior">
+
+  Transform behavior
+</h2>
+<p><code>WaterPlane</code> only accepts height changes.</p>
+<p>Rotation and scale fields are removed from persistent fields and are not used.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterPlane"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"sea_level"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">-2</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>This creates a water plane at Z = <code>-2</code>.</p>
+<hr/>
+<h2 id="grid-settings">
+
+  Grid settings
+</h2>
+<p><code>gridSize</code> and <code>gridElementSize</code> control the render mesh used by the water plane.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gridSize"</span><span class="err">:</span> <span class="mi">101</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"gridElementSize"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre></div><p><code>WaterPlane</code> renders a camera-centered grid rather than a literal infinite mesh. The water shader projects this grid as a large water surface.</p>
+<p>Very large or unusual grid settings can increase render cost or cause visual artifacts.</p>
+<hr/>
+<h2 id="waterplane-limitations">
+
+  WaterPlane limitations
+</h2>
+<p><code>WaterPlane</code> is intended for ground-level ocean-style rendering.</p>
+<p>Because it is effectively infinite and projected toward the far clip distance, artifacts can appear when large objects intersect the far clip distance or visually line up with the water plane.</p>
+<p>Common problem cases:</p>
+<ul>
+<li>Very high camera altitude</li>
+<li>Tight far clip distance</li>
+<li>Large objects near the far clip distance</li>
+<li>Terrain extending close to or beyond the far clip distance</li>
+</ul>
+<p>For best results:</p>
+<ul>
+<li>Keep terrain and large objects inside the camera far clip range.</li>
+<li>Avoid using <code>WaterPlane</code> for small pools or bounded areas.</li>
+<li>Use <code>WaterBlock</code> for local water volumes.</li>
+</ul>
+<hr/>
+<h1 class="anchored">
+
+  WaterBlock
+</h1>
+<p><code>WaterBlock</code> is a finite rectangular water volume.</p>
+<p>It supports position, rotation, and scale. It is useful for bounded water such as lakes, pools, ponds, basins, and other local water areas.</p>
+<p>Unlike <code>WaterPlane</code>, <code>WaterBlock</code> has finite bounds and can be tested for containment.</p>
+<hr/>
+<h2 id="waterblock-example">
+
+  WaterBlock example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterBlock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"lake_water"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_lake"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridElementSize"</span><span class="p">:</span> <span class="mi">5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="waterblock-fields">
+
+  WaterBlock fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>"WaterBlock"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Scene object name.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Position of the water block. The water surface is based around the object position plane.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Object rotation.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Size of the water volume. X/Y define footprint; Z defines vertical volume/depth behavior.</td>
+</tr>
+<tr>
+<td><code>material</code></td>
+<td>string</td>
+<td>Water material used for rendering.</td>
+</tr>
+<tr>
+<td><code>gridElementSize</code></td>
+<td>number</td>
+<td>Spacing between generated water mesh vertices.</td>
+</tr>
+<tr>
+<td><code>gridSize</code></td>
+<td>number</td>
+<td>Compatibility alias for <code>gridElementSize</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="scale-and-surface-height">
+
+  Scale and surface height
+</h2>
+<p><code>WaterBlock</code> uses its object transform and scale to define a rectangular water volume.</p>
+<p>Typical setup:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"position"</span><span class="err">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">]</span>
+</span></span></code></pre></div><p>The X/Y scale controls the visible footprint. The Z scale controls the vertical water volume used for underwater/depth tests.</p>
+<p>The water surface height is based on the object’s position.</p>
+<hr/>
+<h2 id="gridelementsize">
+
+  gridElementSize
+</h2>
+<p><code>gridElementSize</code> controls the spacing between generated vertices.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gridElementSize"</span><span class="err">:</span> <span class="mi">5</span>
+</span></span></code></pre></div><p>Smaller values create denser geometry:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gridElementSize"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre></div><p>Larger values create cheaper, lower-density geometry:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gridElementSize"</span><span class="err">:</span> <span class="mi">10</span>
+</span></span></code></pre></div><p>If <code>gridElementSize</code> is larger than the block’s X or Y scale, it is clamped to the smaller scale dimension.</p>
+<div class="bng-notice warning">Very small <code>gridElementSize</code> values on large <code>WaterBlock</code>s can create a large amount of geometry.</div>
+<hr/>
+<h2 id="mesh-generation">
+
+  Mesh generation
+</h2>
+<p><code>WaterBlock</code> builds a regular grid over its footprint.</p>
+<p>For large blocks, the mesh may be split into multiple vertex/index buffer blocks to stay within 16-bit index limits.</p>
+<p>The object regenerates its water mesh when:</p>
+<ul>
+<li><code>gridElementSize</code> changes</li>
+<li>scale changes</li>
+<li>the editor applies changes</li>
+<li>static fields are modified</li>
+</ul>
+<hr/>
+<h2 id="rotated-waterblocks">
+
+  Rotated WaterBlocks
+</h2>
+<p><code>WaterBlock</code> supports rotation.</p>
+<p>This can be useful for water volumes placed on custom geometry or non-axis-aligned areas.</p>
+<p>Reflection behavior can use either an upward normal or the object’s surface normal depending on inherited reflection settings.</p>
+<hr/>
+<h1 class="anchored">
+
+  River
+</h1>
+<p><code>River</code> is a spline-shaped water volume.</p>
+<p>It is defined by a list of nodes. Each node stores position, width, depth, and normal.</p>
+<p>Rivers are useful for streams, canals, drainage channels, winding water paths, or any water volume that needs to follow a curve.</p>
+<hr/>
+<h2 id="river-example">
+
+  River example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"River"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"main_river"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_river"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"SegmentLength"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"SubdivideLength"</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"FlowMagnitudePhysics"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"LowLODDistance"</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">150</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Each river node is stored as:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[x, y, z, width, depth, normalX, normalY, normalZ]
+</span></span></code></pre></div><hr/>
+<h2 id="river-fields">
+
+  River fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Must be <code>"River"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Scene object name.</td>
+</tr>
+<tr>
+<td><code>material</code></td>
+<td>string</td>
+<td>Water material used for rendering.</td>
+</tr>
+<tr>
+<td><code>nodes</code></td>
+<td>array</td>
+<td>River node list. Each node is <code>[x, y, z, width, depth, normalX, normalY, normalZ]</code>.</td>
+</tr>
+<tr>
+<td><code>SegmentLength</code></td>
+<td>number</td>
+<td>Approximate length in meters of generated river volume segments.</td>
+</tr>
+<tr>
+<td><code>SubdivideLength</code></td>
+<td>number</td>
+<td>Maximum render subdivision size for high-detail geometry.</td>
+</tr>
+<tr>
+<td><code>FlowMagnitudePhysics</code></td>
+<td>number</td>
+<td>River flow speed in meters per second.</td>
+</tr>
+<tr>
+<td><code>LowLODDistance</code></td>
+<td>number</td>
+<td>Distance at which river segments switch to low-detail rendering.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="river-node-data">
+
+  River node data
+</h2>
+<p>Example node:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre></div><table>
+<thead>
+<tr>
+<th align="right">Index</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right"><code>0</code></td>
+<td>X position</td>
+</tr>
+<tr>
+<td align="right"><code>1</code></td>
+<td>Y position</td>
+</tr>
+<tr>
+<td align="right"><code>2</code></td>
+<td>Z position</td>
+</tr>
+<tr>
+<td align="right"><code>3</code></td>
+<td>Width in meters</td>
+</tr>
+<tr>
+<td align="right"><code>4</code></td>
+<td>Depth in meters</td>
+</tr>
+<tr>
+<td align="right"><code>5</code></td>
+<td>Surface normal X</td>
+</tr>
+<tr>
+<td align="right"><code>6</code></td>
+<td>Surface normal Y</td>
+</tr>
+<tr>
+<td align="right"><code>7</code></td>
+<td>Surface normal Z</td>
+</tr>
+</tbody>
+</table>
+<p>Most normal values are usually:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">0, 0, 1
+</span></span></code></pre></div><p>for an upright water surface.</p>
+<hr/>
+<h2 id="river-generation">
+
+  River generation
+</h2>
+<p>A <code>River</code> uses its control nodes to build a Catmull-Rom spline.</p>
+<p>The generation process is roughly:</p>
+<ol>
+<li>Read river nodes.</li>
+<li>Build a spline through node positions.</li>
+<li>Generate slices along the spline.</li>
+<li>Interpolate width, depth, and normal.</li>
+<li>Build volume segments between slices.</li>
+<li>Generate render geometry.</li>
+<li>Generate bounds for containment, depth, flow, and water coverage queries.</li>
+</ol>
+<p>A river needs at least two nodes to generate usable water geometry.</p>
+<hr/>
+<h2 id="segmentlength">
+
+  SegmentLength
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"SegmentLength"</span><span class="err">:</span> <span class="mi">10</span>
+</span></span></code></pre></div><p><code>SegmentLength</code> controls how long each generated river volume segment is.</p>
+<p>Smaller values create more segments and more accurate containment/coverage queries.</p>
+<p>Larger values create fewer segments and can be cheaper.</p>
+<p>The minimum enforced value is approximately:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">1 meter
+</span></span></code></pre></div><hr/>
+<h2 id="subdividelength">
+
+  SubdivideLength
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"SubdivideLength"</span><span class="err">:</span> <span class="mf">2.5</span>
+</span></span></code></pre></div><p><code>SubdivideLength</code> controls render subdivision for high-detail river geometry.</p>
+<p>Smaller values create denser geometry and better visual undulation.</p>
+<p>Larger values create cheaper geometry.</p>
+<hr/>
+<h2 id="lowloddistance">
+
+  LowLODDistance
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"LowLODDistance"</span><span class="err">:</span> <span class="mi">50</span>
+</span></span></code></pre></div><p>River rendering uses two detail levels:</p>
+<table>
+<thead>
+<tr>
+<th>LOD</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>High LOD</td>
+<td>Subdivided geometry with water undulation.</td>
+</tr>
+<tr>
+<td>Low LOD</td>
+<td>Simpler strip geometry farther from the camera.</td>
+</tr>
+</tbody>
+</table>
+<p>Segments closer than <code>LowLODDistance</code> use high-detail rendering.</p>
+<p>Segments farther away use low-detail rendering.</p>
+<hr/>
+<h2 id="flowmagnitudephysics">
+
+  FlowMagnitudePhysics
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"FlowMagnitudePhysics"</span><span class="err">:</span> <span class="mi">3</span>
+</span></span></code></pre></div><p>Controls the river’s flow speed in meters per second.</p>
+<p>The flow direction is based on the direction from one river segment slice to the next.</p>
+<p>Node order matters:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">node 0 -&gt; node 1 -&gt; node 2
+</span></span></code></pre></div><p>Water flow follows this order.</p>
+<p>If the river appears to flow the wrong way, reverse the node order.</p>
+<hr/>
+<h2 id="river-width-and-depth">
+
+  River width and depth
+</h2>
+<p>Width and depth are stored per node and interpolated along the spline.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>This creates a river that widens from 10 meters to 30 meters and deepens from 2 meters to 5 meters.</p>
+<p>Width and depth are clamped internally to safe ranges.</p>
+<p>Approximate limits from the implementation:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Minimum</th>
+<th>Maximum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node width</td>
+<td><code>0.25</code></td>
+<td><code>1000</code></td>
+</tr>
+<tr>
+<td>Node depth</td>
+<td><code>0.25</code></td>
+<td><code>500</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="river-normals">
+
+  River normals
+</h2>
+<p>Each node has a normal vector.</p>
+<p>For normal horizontal rivers, use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre></div><p>Tilted normals can be used for special cases, but they affect generated slice orientation, surface plane, containment, and reflection behavior.</p>
+<p>For most rivers, keep normals upright.</p>
+<hr/>
+<h1 class="anchored">
+
+  Common water behavior
+</h1>
+<p>The water classes share common rendering and water-volume behavior.</p>
+<hr/>
+<h2 id="materials">
+
+  Materials
+</h2>
+<p>Water objects use water materials.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"material"</span><span class="err">:</span> <span class="s2">"water_lake"</span>
+</span></span></code></pre></div><p>A water material usually controls:</p>
+<ul>
+<li>Base color</li>
+<li>Normal maps</li>
+<li>Wave appearance</li>
+<li>Refraction/reflection appearance</li>
+<li>Foam or ripple behavior where supported</li>
+<li>Surface opacity and fresnel-like effects</li>
+</ul>
+<p>If the material is missing or invalid, the object may render incorrectly or use a fallback material.</p>
+<hr/>
+<h2 id="reflections">
+
+  Reflections
+</h2>
+<p>Water objects support dynamic planar reflections through inherited water/reflection behavior.</p>
+<p>This is commonly controlled by fields on the base water object/material setup, such as <code>fullReflect</code> where available.</p>
+<p>Planar reflections work best for flat water.</p>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>Reflection quality notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WaterPlane</code></td>
+<td>Good for oceans and flat surfaces.</td>
+</tr>
+<tr>
+<td><code>WaterBlock</code></td>
+<td>Good for flat bounded surfaces.</td>
+</tr>
+<tr>
+<td><code>River</code></td>
+<td>Can be less accurate on twisting, sloped, or strongly curved rivers.</td>
+</tr>
+</tbody>
+</table>
+<p>For rivers, the reflection plane is chosen from the nearest river area and/or averaged river surface normals. Highly curved or twisted rivers may show reflection artifacts.</p>
+<div class="bng-notice info">Use less reflective water materials for rivers that twist, tilt, or bend sharply.</div>
+<hr/>
+<h2 id="underwater-checks">
+
+  Underwater checks
+</h2>
+<p>Water objects implement underwater/depth behavior differently:</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Underwater behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WaterPlane</code></td>
+<td>Underwater if point is below the plane height.</td>
+</tr>
+<tr>
+<td><code>WaterBlock</code></td>
+<td>Underwater if point is inside the water block volume below the surface.</td>
+</tr>
+<tr>
+<td><code>River</code></td>
+<td>Underwater if point is inside one of the generated river volume segments.</td>
+</tr>
+</tbody>
+</table>
+<p>This affects underwater fog, water coverage, buoyancy-style queries, and other gameplay/rendering systems that ask water objects for depth or containment.</p>
+<hr/>
+<h2 id="surface-height">
+
+  Surface height
+</h2>
+<p>Water objects can report surface height:</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Surface height behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WaterPlane</code></td>
+<td>Returns the plane Z height.</td>
+</tr>
+<tr>
+<td><code>WaterBlock</code></td>
+<td>Returns object Z height if the queried XY point is inside the block bounds, otherwise <code>-1</code>.</td>
+</tr>
+<tr>
+<td><code>River</code></td>
+<td>Casts downward against the river surface and returns the collision height, otherwise <code>-1</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h1 class="anchored">
+
+  Serialization
+</h1>
+<h2 id="waterplane-json">
+
+  WaterPlane JSON
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterPlane"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"ocean"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_ocean"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">101</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridElementSize"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="waterblock-json">
+
+  WaterBlock JSON
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterBlock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"pool_water"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_pool"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridElementSize"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="river-json">
+
+  River JSON
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"River"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"small_stream"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_stream"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"SegmentLength"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"SubdivideLength"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"FlowMagnitudePhysics"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"LowLODDistance"</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="legacy-river-node-fields">
+
+  Legacy River Node fields
+</h2>
+<p>Older TorqueScript-style serialization used repeated <code>Node</code> fields:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-ts" data-lang="ts"><span class="line"><span class="cl"><span class="nx">Node</span> <span class="o">=</span> <span class="s2">"0 0 3 6 1 0 0 1"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Node</span> <span class="o">=</span> <span class="s2">"30 5 3 7 1.2 0 0 1"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Node</span> <span class="o">=</span> <span class="s2">"60 20 2.8 8 1.5 0 0 1"</span><span class="p">;</span>
+</span></span></code></pre></div><p>Modern JSON should use the <code>nodes</code> array instead.</p>
+<hr/>
+<h1 class="anchored">
+
+  Practical examples
+</h1>
+<h2 id="ocean-around-an-island">
+
+  Ocean around an island
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterPlane"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"level_ocean"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_ocean"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">101</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridElementSize"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Use <code>WaterPlane</code> for large open water.</p>
+<hr/>
+<h2 id="small-lake">
+
+  Small lake
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterBlock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"mountain_lake"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">250</span><span class="p">,</span> <span class="mi">-100</span><span class="p">,</span> <span class="mi">42</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">180</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_lake"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridElementSize"</span><span class="p">:</span> <span class="mi">4</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Use <code>WaterBlock</code> when the lake should have finite boundaries.</p>
+<hr/>
+<h2 id="swimming-pool">
+
+  Swimming pool
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterBlock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"pool_water"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_pool"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridElementSize"</span><span class="p">:</span> <span class="mf">0.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Use a smaller <code>gridElementSize</code> for close-up water if needed.</p>
+<hr/>
+<h2 id="river-with-flow">
+
+  River with flow
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"River"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"valley_river"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_river"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"SegmentLength"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"SubdivideLength"</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"FlowMagnitudePhysics"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"LowLODDistance"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">-100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">-50</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">70</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">130</span><span class="p">,</span> <span class="mi">-20</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Flow direction follows node order from first node to last node.</p>
+<hr/>
+<h1 class="anchored">
+
+  Best practices
+</h1>
+<ul>
+<li>Use <code>WaterPlane</code> only for very large/infinite water.</li>
+<li>Use <code>WaterBlock</code> for bounded ponds, lakes, pools, and basins.</li>
+<li>Use <code>River</code> for curved water with width, depth, and flow.</li>
+<li>Keep <code>WaterPlane</code> near expected sea level and avoid extreme far-clip setups.</li>
+<li>Do not use <code>WaterPlane</code> for small local water areas.</li>
+<li>Keep <code>WaterBlock.gridElementSize</code> reasonable for the block size.</li>
+<li>Avoid extremely dense river subdivision unless needed.</li>
+<li>Use upright normals <code>[0, 0, 1]</code> for normal rivers.</li>
+<li>Reverse river node order if flow direction is wrong.</li>
+<li>Use less reflective materials on twisting or highly curved rivers.</li>
+<li>Split extremely long or complex rivers into manageable sections if editing or rendering becomes expensive.</li>
+<li>Check water material setup if the water renders black, invisible, or with missing reflections.</li>
+</ul>
+<hr/>
+<h1 class="anchored">
+
+  Common issues
+</h1>
+<h2 id="water-does-not-render">
+
+  Water does not render
+</h2>
+<p>Possible causes:</p>
+<ul>
+<li>Missing or invalid material</li>
+<li>Object not added to the scene</li>
+<li><code>River</code> has fewer than two nodes</li>
+<li><code>WaterBlock</code> scale is too small</li>
+<li>Camera/render pass does not include diffuse water pass</li>
+<li>Material failed to initialize</li>
+</ul>
+<hr/>
+<h2 id="waterplane-appears-at-the-wrong-height">
+
+  WaterPlane appears at the wrong height
+</h2>
+<p>Only <code>position.z</code> matters.</p>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"position"</span><span class="err">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="err">desiredWaterHeight</span><span class="p">]</span>
+</span></span></code></pre></div><p>Rotation and scale do not affect <code>WaterPlane</code>.</p>
+<hr/>
+<h2 id="waterblock-does-not-cover-the-expected-area">
+
+  WaterBlock does not cover the expected area
+</h2>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="err">width</span><span class="p">,</span> <span class="err">length</span><span class="p">,</span> <span class="err">depth</span><span class="p">]</span>
+</span></span></code></pre></div><p>Also check object rotation and position.</p>
+<hr/>
+<h2 id="river-does-not-appear">
+
+  River does not appear
+</h2>
+<p>Check that it has at least two nodes:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>Also check material and subdivision settings.</p>
+<hr/>
+<h2 id="river-flow-is-backwards">
+
+  River flow is backwards
+</h2>
+<p>River flow follows node order.</p>
+<p>Reverse the node order, or edit the river so the first node is upstream and the last node is downstream.</p>
+<hr/>
+<h2 id="river-looks-too-angular">
+
+  River looks too angular
+</h2>
+<p>Decrease:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"SegmentLength"</span><span class="err">:</span> <span class="mi">10</span>
+</span></span></code></pre></div><p>or decrease:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"SubdivideLength"</span><span class="err">:</span> <span class="mf">2.5</span>
+</span></span></code></pre></div><p>Smaller values create more generated segments/subdivisions.</p>
+<hr/>
+<h2 id="water-reflections-look-wrong">
+
+  Water reflections look wrong
+</h2>
+<p>Possible causes:</p>
+<ul>
+<li>Reflection is disabled</li>
+<li>Water material is not set up for reflections</li>
+<li>River is highly curved or tilted</li>
+<li>Reflection plane does not match the visible water surface</li>
+<li>Camera is underwater or near the water surface</li>
+</ul>
+<p>For rivers, reduce material reflectivity if the shape twists heavily.</p>
+<hr/>
+<h2 id="water-causes-far-distance-artifacts">
+
+  Water causes far-distance artifacts
+</h2>
+<p>This mostly affects <code>WaterPlane</code>.</p>
+<p>Possible fixes:</p>
+<ul>
+<li>Increase far clip distance</li>
+<li>Keep large terrain/objects inside the far clip range</li>
+<li>Avoid viewing the plane from very high altitude with a tight far clip</li>
+<li>Use <code>WaterBlock</code> for bounded water instead</li>
+</ul>
+<hr/>
+<h1 class="anchored">
+
+  Summary
+</h1>
+<p>BeamNG provides three main water scene objects:</p>
+<ul>
+<li><code>WaterPlane</code> for infinite ocean-style water.</li>
+<li><code>WaterBlock</code> for finite rectangular water volumes.</li>
+<li><code>River</code> for spline-based flowing water with variable width and depth.</li>
+</ul>
+<p>Use <code>WaterPlane</code> for oceans, <code>WaterBlock</code> for local water bodies, and <code>River</code> for path-shaped water. All water objects depend heavily on correct material setup, sensible geometry settings, and appropriate reflection configuration.</p>
+<p><strong>See also:</strong> <a data-doc="file_formats/materials" href="/docs/file_formats/materials">Material file format</a>
+, <a href="https://documentation.beamng.com/modding/levels/level_classes/levelinfo/" rel="noopener" target="_blank">LevelInfo</a>
+.</p>

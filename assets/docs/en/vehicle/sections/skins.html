@@ -1,0 +1,183 @@
+<p>Skins are special parts that replace specific materials with different materials when equipped. They are mostly used for vehicle liveries or other paint designs, as well as selecting interior colors and designs.</p>
+<p>Skins have a lower priority than <a data-doc="vehicle/sections/glowmaps" href="/docs/vehicle/sections/glowmaps">glowMaps</a>
+, so in order to replace a material using a skin, all 3 output materials defined in the glowMap need to be replaced. They also have a lower priority than <a data-doc="vehicle/sections/flexbodies" data-frag="deform-groups" href="/docs/vehicle/sections/flexbodies#deform-groups">deformGroups</a>
+, so the damaged variant of the material also has to be replaced.</p>
+<p>They are defined as global modifiers in the root part of Jbeam, similarly to <a data-doc="vehicle/sections/licenseplates" href="/docs/vehicle/sections/licenseplates">license plate</a>
+ properties. As such, they are seen by every component of the vehicle.</p>
+<h3 id="global-modifiers">
+
+  Global modifiers
+</h3>
+<p>These two modifiers can be used interchangeably. The only difference is that skinName will not be reported by some systems when dumping data in the console.</p>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Name of the skin</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Name of the skin</div>
+</div>
+</div>
+<h3 id="material-syntax">
+
+  Material syntax
+</h3>
+<p>The replacement materials of the skins are defined in materials.json files like normal materials. Usually, they are present in a separate file called skin.materials.json for clarity. The way the skin will work is defined in the <code>"mapTo"</code> section of the material (which is usually the same as the name for clarity). It has 3 parts separated by dots:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"mapTo"</span><span class="o">:</span> <span class="s2">"pickup.skin.ambulance"</span><span class="p">,</span>
+</span></span></code></pre></div><p>The first part is the mapTo value of the material that will be replaced. On most vehicles, the material containing the exterior paint will have the same mapTo value as the name of the vehicle.</p>
+<p>The second part is the material slot. Material slots allow different parts to replace different materials. The material slot is determined by the slotType of the slot where the part that calls the skin is. The material slot will be the same as slotType if the slotType contains <code>"skin_"</code> in the name. When the slotType is <code>"paint_design"</code>, then the material slot will be just <code>"skin"</code>.</p>
+<p>The material slot can be overwritten in Jbeam by using the  <code>"skinType"</code> property like so:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"nine_skin_taxi"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Taxi Cab"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"skin_nine_sedan"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"skinType"</span> <span class="o">:</span> <span class="s2">"skin_body"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"skinName"</span> <span class="o">:</span> <span class="s2">"taxi"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>This is useful when slotType is a table and therefore cannot be used as a material slot:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"nine_skin_twotone_custom"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Two Tone Custom Paint"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">5000</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="p">[</span><span class="s2">"skin_nine_roadster"</span><span class="p">,</span><span class="s2">"skin_nine_coupe"</span><span class="p">,</span><span class="s2">"skin_nine_sedan"</span><span class="p">,</span><span class="s2">"skin_nine_van"</span><span class="p">,</span><span class="s2">"skin_nine_panelvan"</span><span class="p">,</span><span class="s2">"skin_nine_pickup"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"skinType"</span> <span class="o">:</span> <span class="s2">"skin_body"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"skinName"</span> <span class="o">:</span> <span class="s2">"twotone_custom"</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>The third part is the skin name. This is defined by the global modifiers described in the section above. They can be used interchangeably, but for the sake of clarity, it’s better to use globalSkin on skins that modify the main exterior paint, and skinName on all others.</p>
+<p>The rest of the syntax is the same as a normal material. Refer to the <a data-doc="materials/vehicle/skinsystem" href="/docs/materials/vehicle/skinsystem">skin system reference page</a>
+ and <a data-doc="materials/vehicle/typicalmaterials" href="/docs/materials/vehicle/typicalmaterials">material examples</a>
+ for further details.</p>
+<h3 id="dynamic-textures">
+
+  Dynamic Textures
+</h3>
+<p>Dynamic Textures is an auxiliary skin present on every vehicle which allows it to be painted via the livery editor in career mode. The Jbeam syntax should look like this:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"moonhawk_skin_dynamicTextures"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Dynamic Textures"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"isAuxiliary"</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">1350</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"paint_design"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"dynDecalMaterials"</span><span class="o">:</span> <span class="p">[</span><span class="s2">"moonhawk"</span><span class="p">,</span> <span class="s2">"moonhawk_nosecone_alt"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"globalSkin"</span> <span class="o">:</span> <span class="s2">"dynamicTextures"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>It includes an optional Jbeam section called dynDecalMaterials, which is a table with materials of the vehicle the system will affect. If this section is not present, the system will affect a material with the same name as the vehicle.</p>
+<p>Please note that dynamicDecals only work on the <code>"paint_design"</code> slotType and are not compatible with the skinType modifier.</p>
+<h3 id="simple-example">
+
+  Simple example
+</h3>
+<p>A standard vehicle livery.</p>
+<p>Jbeam:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pickup_skin_ambulance"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Ambulance Livery"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">5000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"paint_design"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"globalSkin"</span> <span class="o">:</span> <span class="s2">"ambulance"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div><p>Beginning of skin.materials.json:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pickup.skin.ambulance"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"pickup.skin.ambulance"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"mapTo"</span><span class="o">:</span> <span class="s2">"pickup.skin.ambulance"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"class"</span><span class="o">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/* ... */</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div>
+<h3 id="advanced-examples">
+
+  Advanced examples
+</h3>
+<ul>
+<li>A skin that replaces the visual look of vehicle lights.</li>
+</ul>
+<p>Jbeam:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"etki_skin_lights_alt"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Alternate Lights"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">200</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"skin_lights"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"globalSkin"</span> <span class="o">:</span> <span class="s2">"lights_alt"</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div><p>All the relevant materials in skin.materials.json:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"etki_lights.skin_lights.lights_alt"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"etki_lights.skin_lights.lights_alt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"mapTo"</span><span class="o">:</span> <span class="s2">"etki_lights.skin_lights.lights_alt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"class"</span><span class="o">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/* ... */</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"etki_lights_dmg.skin_lights.lights_alt"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"etki_lights_dmg.skin_lights.lights_alt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"mapTo"</span><span class="o">:</span> <span class="s2">"etki_lights_dmg.skin_lights.lights_alt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"class"</span><span class="o">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/* ... */</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"etki_lights_on.skin_lights.lights_alt"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"etki_lights_on.skin_lights.lights_alt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"mapTo"</span><span class="o">:</span> <span class="s2">"etki_lights_on.skin_lights.lights_alt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"class"</span><span class="o">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/* ... */</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"etki_lights_on_intense.skin_lights.lights_alt"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"etki_lights_on_intense.skin_lights.lights_alt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"mapTo"</span><span class="o">:</span> <span class="s2">"etki_lights_on_intense.skin_lights.lights_alt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"class"</span><span class="o">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/* ... */</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div><ul>
+<li>A skin with skinType property.</li>
+</ul>
+<p>Jbeam:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"nine_skin_van_a"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Macaroni and Beans"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="p">[</span><span class="s2">"skin_nine_van"</span><span class="p">,</span><span class="s2">"skin_nine_pickup"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"skinType"</span> <span class="o">:</span> <span class="s2">"skin_body"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"skinName"</span> <span class="o">:</span> <span class="s2">"van_a"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span></code></pre></div><p>Materials:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"nine_main.skin_body.van_a"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"nine_main.skin_body.van_a"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"mapTo"</span><span class="o">:</span> <span class="s2">"nine_main.skin_body.van_a"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"class"</span><span class="o">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/* ... */</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span></code></pre></div>

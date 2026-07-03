@@ -1,0 +1,144 @@
+<h2 id="uv-map-and-material-optimization">
+
+  UV Map and Material Optimization
+</h2>
+<p>This will simplify things as you could have as many materials as possible, as Vulkan packs these textures on loading. So your maps could be as small as you want.</p>
+<div class="bng-notice note"><ul>
+<li>Leave about 10% space in each UV map for changes in the future</li>
+<li>Every sharp edge should also be a UV seam; the Normal bevels need some space</li>
+<li>8-pixel margin should be maintained between UV islands</li>
+<li>512px/m texture density in general (unless using tiled texture technique)</li>
+<li>Make sure <code>UV0</code> and <code>UV1</code> map names are consistent
+<ul>
+<li><code>UV0</code> is for texture/normal detail</li>
+<li><code>UV1</code> is for the livery design</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="line-inner-small"></div>
+<h3 id="uv-packing">
+
+  UV Packing
+</h3>
+<ul>
+<li>Textures should be designed for 4098x4098 in game resolution or less</li>
+<li>A lot of optimization required to achieve high enough pixel density for best quality</li>
+</ul>
+<hr/>
+<h3 id="uv-overlap">
+
+  UV Overlap
+</h3>
+<ul>
+<li>Remember to overlap UVs on duplicate objects</li>
+<li>Mirror UVs with a line of symmetry (unless there will be obvious mirroring in the texturing)</li>
+<li>Edges of the same material can be overlapped</li>
+<li>Hoses and wires should overlap</li>
+<li>Undersides of bumpers, fenders and skirts may be mapped to a common UV space if they do not contain unique details.</li>
+<li>Faces at the edges of panels on the 2nd UV may be projected non-orthographically if it is necessary to avoid severe stretching.</li>
+<li>Alternate body parts should have their 2nd UV projected over the top of each other, so that a paint design will look similar on all possible versions of the vehicle</li>
+</ul>
+<hr/>
+<p><strong>Example</strong></p>
+<p>Using these tips, I made an example piece with the leaf spring.</p>
+<ul>
+<li>This leaf spring has:
+<ul>
+<li>An axis of symmetry</li>
+<li>UVs that can be square</li>
+</ul>
+</li>
+</ul>
+<p>It is now optimized and has no jagged edges between the leafs.</p>
+<p><strong>BEFORE (bad)</strong>
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle-art/uv-unwrapping/2_before.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/2_before_hu94576e62069ea8aa79187548bd285416_378975_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p><strong>AFTER (good)</strong>
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle-art/uv-unwrapping/3_after.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/3_after_hu94576e62069ea8aa79187548bd285416_467482_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<hr/>
+<h3 id="uv0">
+
+  UV0
+</h3>
+<p><em>(for texture and normal detail)</em></p>
+<p><strong>Squaring off UV maps</strong></p>
+<ul>
+<li>We prioritize normal map bevels over stretch, the maps that do include a bevel, should either be perfectly vertical or horizontal</li>
+<li>Please check the references to see when there is too much stretch and it is acceptable to have a non-horizontal or vertical UV map</li>
+<li>Remember to minimize stretch within the UV map, if there are no normal map bevels there</li>
+</ul>
+<p>Please see this page for examples:
+<a data-doc="vehicle/vehicle-art/uv-unwrapping/making-edges-straight" href="/docs/vehicle/vehicle-art/uv-unwrapping/making-edges-straight">Making Edges Straight for Normal Bevels</a>
+</p>
+<p><strong><div class="bng-mark caution">Do not have UVs with bad orientation and non straight borders!</div></strong>
+If it is not strait it will cause unnecessary anti-aliasing issues like in this example:
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle-art/uv-unwrapping/1.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/1_hu22c39b15740add3b0579540104288197_111336_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<hr/>
+<h3 id="uv1">
+
+  UV1
+</h3>
+<p><em>(2nd UV Map, for vehicle wraps)</em></p>
+<ul>
+<li>This map needs to be easy to look and the UV maps need to be placed by their real life location.</li>
+<li>These maps do not need to be squared off</li>
+<li>Maps should be created with the minimum amount of stretch</li>
+<li>Most faces on this UV map should be orthographically projected from top, side or front.</li>
+<li>Unused UV maps need to be 0 width and 0 height, then placed at 0,0.</li>
+<li>Body panels should not overlap to prevent reversed text</li>
+</ul>
+<p>This is so developers and modders can create a wrap for the vehicle easily without mirrored text, or weird stretching. Unlike the other maps, this one is usually created in photoshop, so the location of the UV islands should be placed in their 3d location.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/7_uv_map_example.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/8_uv_map_example_hu427358e8ed5498932ba016f44af2dbfc_4754174_0x2000_resize_q85_bgfff_box_3.jpg"/>
+</span></div>
+<hr/>
+<h3 id="uv-map-examples">
+
+  UV Map Examples
+</h3>
+<p>An example of UV mapping for an off-road tire and a regular rim:
+</p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/5_uv_map_example.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/6_uv_map_example.png"/>
+</span></div>
+<div class="line-inner-small"></div>
+<h2 id="pixel-density">
+
+  Pixel Density
+</h2>
+<h3 id="interior">
+
+  Interior
+</h3>
+<p>Pixel density of body panels and exterior elements should be close to Vivace to achieve the same normal map details quality.</p>
+<p><strong>Pixel density multipliers:</strong></p>
+<ul>
+<li>Steering wheel / panels with text and icons / buttons / diffusers = 150%</li>
+<li>Dash / panels in front of player view = 100%</li>
+<li>Low visibility UVs (floor, background panels, cables) = 60% with overlapping optimization</li>
+<li>Hidden UVs = 30%</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle-art/uv-unwrapping/4_pixel_density.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/4_pixel_density_huf69ea72b6f0587543f48d92fdea67e15_2821618_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<hr/>
+<h3 id="exterior">
+
+  Exterior
+</h3>
+<ul>
+<li>Always Visible parts such as the body panels = 100%</li>
+<li>Not always visible such as the underside = 75%</li>
+<li>Faces that are only visible when a part disconnects = 50%</li>
+</ul>

@@ -1,0 +1,749 @@
+<h3 id="introduction">
+
+  Introduction
+</h3>
+<p>The goal of this guide is to show you the basics of jbeaming, while making a fully drivable car in beamNG.</p>
+<h4 id="content-covered-by-this-guide">Content covered by this guide</h4>
+<p>This guide will show you how to make a simple box style chassis, which works for race cars and simpler vehicles.</p>
+<p>It will also show you how to attach various components to the chassis and tune them for maximum rigidity.</p>
+<p>And finally, it will show you how to jbeam additional panels, including flat panels like a hood.</p>
+<h4 id="prior-knowledge-required">Prior knowledge required</h4>
+<p>This guide assumes you have some basic level of modeling knowledge, and have the ability to model a simple race car body. The included template includes the suspension and drivetrain components, however you will need to model your own chassis and body.</p>
+<h4 id="the-project">The project</h4>
+<p>One of the best way to introduce yourself to jbeaming is to create a simple tube chassis car using suspension and drivetrain from a vanilla vehicle.</p>
+<p>This allows you to have a driving vehicle without having to delve into the more complicated aspects of building a powertrain and suspension from scratch.</p>
+<p>Suspension especially is easy to get wrong, resulting in handling issues. Suspension involves more advanced jbeam notions, and also takes into consideration IRL suspension design parameters, so there is a lot to learn and a lot that can go wrong. This is fine if you already have a semi-decent understanding of jbeam but it can be frustrating for a beginner and result in a vehicle with poor handling.</p>
+<p>As for the choice of a tubular chassis, it’s mainly because they tend to be fairly evenly rigid, meaning they can be jbeamed as a simple 3 node wide box structure. We will go over that later.</p>
+<p>This brings us to the project, which is to create a kit car using the suspension and driveline from the Autobello. This type of configuration is used for a bunch of different kit cars, including buggies, various replicas of other cars, etc. It’s also a very common configuration in older racing series like Formula Vee, and many desert racing series, as an entry level category.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/WernerHannelore-OlympicFormelV19690801-1.jpg" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/WernerHannelore-OlympicFormelV19690801-1_hu0677e0732f82850942f99dcd3bf5752e_237637_0x300_resize_q85_bgfff_box.jpg"/>
+</span></a>
+<a class="link-ext" href="https://en.wikipedia.org/wiki/Formula_Vee#/media/File:WernerHannelore-OlympicFormelV19690801-1.jpg.jpg" rel="noopener" target="_blank">Olympic Formula Vee racing at Nürburgring in 1969 - By Lothar Spurzem - CC BY-SA 2.0 de</a>
+</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/1024px-Ruska_Buggy_B1_Modified_III.jpg" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/1024px-Ruska_Buggy_B1_Modified_III_huc5cec2447628da64c88fd350da85d794_170139_0x300_resize_q85_bgfff_box.jpg"/>
+</span></a>
+<a class="link-ext" href="https://commons.wikimedia.org/wiki/File:Ruska_Buggy%C2%AE_B1_Modified_III.jpg" rel="noopener" target="_blank">Ruska Buggy B1 Modified - By RuskaBuggy - CC-BY-SA-3.0</a>
+</p>
+<p>This guide is meant to be fairly generic and help learn the workflow of making jbeam. Any vehicle that uses VW style suspension and drivetrain can be replicated with this guide, as long as you’re fine with very basic deformation.</p>
+<p>Make sure to keep your project simple at first to keep the project doable within a decently short time frame. Being able to drive you mod is great for motivation, and nothing keeps you from adding more things to the project after finishing this tutorial.</p>
+<div class="bng-notice note">Do not try to follow this guide while making a more complex project like a full road car. Making a car with complex deformation is challenging even for experienced modders, and is well beyond the scope of this tutorial.</div>
+<h3 id="the-template">
+
+  The template
+</h3>
+<p>The tutorial is built around the use of a template. It contains all the base jbeam parts you need, including the suspension, engine, and a template for the chassis and panels.</p>
+<p><a href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/BeamNGModdingTemplate%28BasicJbeamProject%29.zip" rel="noopener" target="_blank">Template file</a>
+</p>
+<h3 id="setting-up-the-files">
+
+  Setting up the files
+</h3>
+<p>The first step is to create a new folder so you can start building the car in beamNG. Let’s start by creating a new folder in : %localappdata%\BeamNG.drive\<em>currentVersion</em>\mods\unpacked <em>currentversion</em> is the version number of the latest full version of the game, so for 0.22.1.0 you would go in : %localappdata%\BeamNG.drive\0.22\mods\unpacked. You might need to create the unpacked folder.</p>
+<p>This new folder will be the root folder of the mod. It should have a name that’s descriptive and unique, as it needs to not be shared with any other mod on the repo to avoid conflicts. Adding your username to the folder’s name is heavily recommended. Inside that folder you will need a “vehicles” folder, which BeamNG will identify as containing vehicles or props. Then within that folder, create another folder with the same name as the first one, which will contain all the vehicle’s files. The folder structure should look like this.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/FileTree.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/FileTree_huc8fe77c48ab720fb648edfdf7437c787_37206_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>You can now drag over all the tutorial files, along with your .dae model file.</p>
+<h4 id="choosing-between-offroad-and-onroad-parts">Choosing between offroad and onroad parts</h4>
+<p>To allow for a bit more freedom when making a vehicle using the tutorial, I’ve included a set of offroad components in case you want to make a more offroad oriented vehicle. There are the same as the vanilla Autobello’s offroad suspension. To use these, simply copy over the jbeam files and the DAE file from the “OPTION OFFROAD”
+folder, and paste them in the folder you’ve just created, replacing the files that are included in the base template.
+As for the template blend file, use the file in the “OPTION OFFROAD” folder instead of the file in the root of the tutorial template.</p>
+<h3 id="modelling">
+
+  Modelling
+</h3>
+<p>The first step of making any mod in BeamNG is to make a model for it. The vehicle template includes a Blender file with all the suspension and drivetrain components to make it easier for you, along with some basic materials. However you will still need to model your own chassis and body. For more info about making car models for beamNG, see the <a href="https://documentation.beamng.com/modding/modelling/vehicle_modeling/" rel="noopener" target="_blank">modelling guidelines page</a>
+.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/TemplateModelPic.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/TemplateModelPic_hu374b0fdb3361ff635f884dbc14804c13_344339_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<div class="bng-notice info"><p>The model’s orientation should follow the game’s coordinates system: positive X = left, positive Y = back, and positive Z = up.</p>
+<p>For its position relative to Blender’s zero point, the best practice is for it to be exactly centered on the X axis and roughly centered on the Y axis, and slightly above the Z axis center, for all Z coordinates to be positive if possible.</p>
+</div>
+<h4 id="template">Template</h4>
+The model includes renamed autobello materials, along with 5 basic materials which should simplify your job if you’re inexperienced. Those materials are also defined in the included
+main.materials.json file.
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/TemplateMaterials.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/TemplateMaterials.png"/>
+</span></a></p>
+<ul>
+<li>Baremetal is a shiny light gray material</li>
+<li>Blackplastic is a matte black material</li>
+<li>The other three represent the 3 materials available in the color selector.</li>
+</ul>
+<p>All the materials are single color textures with no normal map, which should be enough to get you started.</p>
+<h3 id="basics-of-jbeam-and-creating-the-chassis-jbeam">
+
+  Basics of jbeam, and creating the chassis jbeam
+</h3>
+<h4 id="jbeam-files">
+
+  Jbeam files
+</h4>
+<p>One of the things you might notice in the included package is numerous “.jbeam” files. These are the files that define your vehicle, including the physical structure, the various components, etc.
+When the game loads your vehicle, it will load all of these files, so you can split up your vehicles into as many files as you want. The general rule is that a file should only contain parts related to each other, making it easier to find components when it comes to fine-tuning and debugging. As with anything in the creation of mods, you can look at vanilla vehicles for inspiration.</p>
+<h4 id="useful-links">
+
+  Useful links
+</h4>
+<p>Here are a few links that help explain some of the basics you need to understand to build a car in beamNG.</p>
+<ul>
+<li><a data-doc="vehicle/intro_jbeam" href="/docs/vehicle/intro_jbeam">Introduction to soft-body physics</a>
+</li>
+<li><a data-doc="vehicle/intro_jbeam/partslotsystem" href="/docs/vehicle/intro_jbeam/partslotsystem">Introduction to the part/slot system</a>
+</li>
+<li><a data-doc="vehicle/intro_jbeam/debugtools" href="/docs/vehicle/intro_jbeam/debugtools">Debug tools</a>
+</li>
+<li><a data-doc="vehicle/intro_jbeam/jbeamsyntax" href="/docs/vehicle/intro_jbeam/jbeamsyntax">Jbeam Syntax</a>
+</li>
+</ul>
+<p>For syntax, the main things to remember is that jbeam is set-up as tables with headers, and that brackets are used to define the various levels of tables. Missing brackets and headers are common issues that could cause a vehicle to not load.</p>
+<h4 id="general-guidelines-for-jbeam-design">
+
+  General guidelines for jbeam design
+</h4>
+<p>The general rule with jbeam shape is that it only needs to follow the shape of the base model well enough to allow for decent collisions and deformations.</p>
+<p>This means the jbeam is often way less accurate than some people think it needs to be. Here is the Blackpool Superlite as an example.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/SuperliteJbeamExample.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/SuperliteJbeamExample_hu9548118396e10f5c8ec0a851be7b42c3_1204909_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>You can see the jbeam is a fairly simple 3 node wide box structures that mostly follows the body shape. While this does create some inaccuracies, it’s close enough to not be a problem in practice, while allowing for a simpler jbeam structure that’s easier to tune.</p>
+<p>Jbeam density is a bit of a balancing act between having enough nodes to allow things to properly bend and deform, without having so many nodes that it becomes hard to fine-tune your jbeam properly.</p>
+<p>Usually for a typical car, a width of 3-4 nodes works fairly well, with the longitudinal node density being similar. This is something that you will get better at gauging as you gain more experience. You can also look at vanilla cars for reference.</p>
+<p>It’s important to not have an excessive number of nodes due to what is called the “weight budget”, which limits how light you can make a car depending on the number of nodes it has. We’ll be getting over that notion in more detail when talking jbeam instability. Having more nodes also means having more beams, which makes the jbeam inherently harder to make and adjust.</p>
+<p>Here’s an example of the effect of node density when it comes to deformation.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/NodeDensityVsDeformation.jpg" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/NodeDensityVsDeformation_hu9b12645136b222629bf5de10b3657770_126394_0x300_resize_q85_bgfff_box.jpg"/>
+</span></a></p>
+<p>When it comes to learning jbeam, the main thing is to keep your projects simple when you start. Making road vehicles that deform well is a lot of work, and requires a good understanding of jbeam and a lot of fine tuning, which can discourage someone who doesn’t have much experience.</p>
+<p>Keep in mind that about 50-75% of the work when it comes to jbeaming is fine-tuning work, like adding/removing specific beams and adjusting properties. For that reason it’s very important to keep you jbeam tidy and well organized during the building phase.</p>
+<p>This is why it’s usually recommended to use an enhanced text editor, such as 
+    <a class="link-ext" href="https://code.visualstudio.com/download" rel="noopener" target="_blank">Visual Studio Code</a>
+ with the 
+    <a class="link-ext" href="https://marketplace.visualstudio.com/items?itemName=beamng.jbeam-editor" rel="noopener" target="_blank">official Jbeam plugin</a>
+ installed, along with the <a data-doc="vehicle/intro_jbeam/debugtools" href="/docs/vehicle/intro_jbeam/debugtools">in-game debug tools</a>
+ for visualization. To help with the initial setup, you can still design the structure in Blender and copy-paste the resulting node coordinates.</p>
+<h4 id="designing-the-general-structure">
+
+  Designing the general structure
+</h4>
+<p>The first step for building the node-beam structure of the chassis is to have a bit of an idea about how you want to build things. While we’re not going to be using the Blender exporter, it can be a decent idea to sketch your jbeam in blender. This also gives you accurate node positions to use when making the jbeam.
+Here’s a quick one example :
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/jbeamDummy.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/jbeamDummy_hu297d2fd312a69c4708911d927a40e3e1_109525_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>And here’s a picture of it on its own.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/jbeamDummyStandalone.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/jbeamDummyStandalone_hu7c86c765a9c0aadf89c6131becffb18e_74795_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>When it comes to designing jbeam, experience is fairly important, however if you follow the guidelines listed earlier you shouldn’t run into major issues.</p>
+<ul>
+<li>
+<p>You don’t need your structure to be nearly as accurate as you might think. At the end of the day it mainly needs to collide and deform reasonably well.</p>
+</li>
+<li>
+<p>If you can have nodes pulling double duty as structural elements and as attaching for suspension/steering elements if possible, that can help simplify the structure. For example here, this node is going to be used both as part of the chassis’s main jbeam structure, and as a shock mount.</p>
+</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/jbeamSuspensionMount.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/jbeamSuspensionMount_hu17128dca457103ddd1f36cfe539bba87_284583_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<ul>
+<li>In most chassis’ jbeam, you can often identify a “spine”, or some sort of box section which will act as the main rigid structure of your chassis. This part needs particular attention to ensure the vehicle is rigid while driving around.</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/jbeamSpine.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/jbeamSpine_hu1276bd3d4f8d7e14b0a91f5e36cec646_56677_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<div class="bng-notice tip">When designing the structure, it’s best to start from the most important structural points first, such as suspension mounts and the parts where other components will be attached later, and building the rest of the structure around them, keeping mostly straight lines and 90 degree angles where possible.</div>
+<h4 id="setting-up-the-nodes">
+
+  Setting up the nodes
+</h4>
+<h5 id="node-naming">Node naming</h5>
+An important part when setting up nodes is to come up with a naming scheme. This is particularly important for central components like the chassis, which require a lot of nodes and have a lot of components connected to it. Good naming makes it much easier to understand which node is which when jbeaming in a text editor, and also helps when it comes to fine-tuning the jbeam. In this case since you have a fairly simple structure, you can use a naming scheme similar to this:
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/nodeNaming.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/nodeNaming_hu918be3dc9860ab406d6de25f298da99c_69295_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Each node uses a “fr” prefix, identifying the node as being part of the frame. The number matches which “row” it is located in the jbeam structure. The suffix tells us where it is in the row. “t” is used for the top of the main box structure, “s” for the side-pod beams, and “h” for the roll-hoop structures. And the last letter tells us if it’s on the left or right of the chassis.</p>
+<p>Your naming scheme can be whatever you like, the two most important rules is that it must make sense for you, and you should have “symmetry” in the naming with l/r suffixes. You can include things like rr/ll and more when your chassis is wider than 3 nodes. As with anything jbeam related, vanilla cars can be a good source of inspiration.</p>
+<h5 id="header-and-settings">Header and settings</h5>
+The chassis template file comes with a predefined “header” for the nodes.
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"collision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"nodeMaterial"</span><span class="o">:</span><span class="s2">"|NM_METAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"frictionCoef"</span><span class="o">:</span><span class="mf">0.6</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">"FormulaBeeSpaceframe"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span><span class="mf">3.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"node1"</span><span class="p">,</span> <span class="mf">0.00</span><span class="p">,</span> <span class="mf">0.00</span><span class="p">,</span> <span class="mf">0.00</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>The first line is the table header, which should always be present or else you’ll run into errors. The following lines are usually always put at the start to avoid the jbeam getting affected by “leaking” parameters from other jbeam files, but they can be used elsewhere in the node section as required.</p>
+<p>For more information on what each of them does, you can check the <a data-doc="vehicle/sections/nodes" href="/docs/vehicle/sections/nodes">nodes</a>
+ page.</p>
+<p>The next step consists in creating the nodes one by one, using the coordinates from the dummy jbeam we’ve designed in Blender earlier. You don’t need to copy the thing to the smallest
+decimal. 3 decimal is good enough for most uses.</p>
+<p>To get the node coordinates in blender, click the small arrow in the upper right corner.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/blenderNodeArrow.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/blenderNodeArrow_hue6065faab6364064dc214bac7f858ab3_30920_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>And then click on any node. You should see something like this. Make sure that the origin of the part is centered as well, otherwise the coordinates will be incorrect.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/blenderNodePosition.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/blenderNodePosition_hu3084c256ecfbd03c3f72576802cd5f82_39741_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<div class="bng-notice note">A powerful alternative for this workflow, good for more experienced users, is using the 
+    <a class="link-ext" href="https://github.com/BeamNG/Blender-JBeam-Editor" rel="noopener" target="_blank">Blender Jbeam Editor</a>
+ tool for setting up the node positions directly in Blender and then exporting them to the Jbeam file. Keep in mind that the editor cannot be used to create a Jbeam structure from scratch, and its use should be limited to tweaking existing structures.</div>
+<p>When making nodes, it can be interesting to split up the nodes in “sections”, using comments to help know what’s what.</p>
+<p>Another useful tip is to make liberal use of copy pasting. For example if we take the nodes that make up a single row “floor”, are identical with the exception of the prefix and the X coordinates, which is 0 for the center nodes and negative for the right-hand nodes. This means we can just make the left-hand nodes, then copy paste it and just change the bits that need to be changed.</p>
+<p>Here’s what your node section should roughly look like.</p>
+<p>
+</p><div class="border border-default collapse-wrapper">
+<a class="d-flex py-2 collapse-head" data-toggle="collapse" href="#uid18" role="button">
+    Jbeam Example <i class="ti-plus ml-auto"></i>
+</a>
+<div class="collapse" id="uid18"><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">   <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">   <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">   <span class="p">{</span><span class="s2">"collision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">   <span class="p">{</span><span class="s2">"nodeMaterial"</span><span class="o">:</span><span class="s2">"|NM_METAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">   <span class="p">{</span><span class="s2">"frictionCoef"</span><span class="o">:</span><span class="mf">0.6</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">   <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">"FormulaBeeSpaceframe"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span><span class="mf">2.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">   <span class="c1">//Floor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="p">[</span><span class="s2">"fr1l"</span><span class="p">,</span> <span class="mf">0.294</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.311</span><span class="p">,</span> <span class="mf">0.205</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">   <span class="p">[</span><span class="s2">"fr2l"</span><span class="p">,</span> <span class="mf">0.416</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.805</span><span class="p">,</span> <span class="mf">0.205</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">   <span class="p">[</span><span class="s2">"fr3l"</span><span class="p">,</span> <span class="mf">0.465</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.298</span><span class="p">,</span> <span class="mf">0.205</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="p">[</span><span class="s2">"fr1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.311</span><span class="p">,</span> <span class="mf">0.205</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">   <span class="p">[</span><span class="s2">"fr2"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.805</span><span class="p">,</span> <span class="mf">0.205</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">   <span class="p">[</span><span class="s2">"fr3"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.298</span><span class="p">,</span> <span class="mf">0.205</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="p">[</span><span class="s2">"fr1r"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.294</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.311</span><span class="p">,</span> <span class="mf">0.205</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">   <span class="p">[</span><span class="s2">"fr2r"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.416</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.805</span><span class="p">,</span> <span class="mf">0.205</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">   <span class="p">[</span><span class="s2">"fr3r"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.465</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.298</span><span class="p">,</span> <span class="mf">0.205</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">   <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div></div>
+</div>
+<h4 id="setting-up-refnodes">
+
+  Setting up refnodes
+</h4>
+<p>The next step if to define the vehicles refnodes, which are used by the game to define the orientation and basic dimensions of the car, as well as the position of the camera. For more information you can read the <a data-doc="vehicle/sections/refnodes" href="/docs/vehicle/sections/refnodes">refnodes page.</a>
+</p>
+<p>It is important that the nodes align perfectly with each other. If you do not have nodes that are aligned correctly, you might be able to adjust some of your nodes in order to have them line up correctly. The “Up:” node is usually the most problematic, and on some vanilla cars, an “upref” node is created specifically for this purpose, however when it comes to cars with a boxy chassis like this project, it can usually be avoided.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/RefNodes.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/RefNodes_hu5f8b862f4e0f96f1db23e97eb6f9f30c_1044665_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="setting-up-the-beams">
+
+  Setting up the beams
+</h4>
+<p>As with nodes, beams have a few settings, which are often set initially to avoid the beams get affected by parameters set in other components.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"beams"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span> <span class="s2">"id2:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"deformLimitExpansion"</span><span class="o">:</span><span class="mf">1.2</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">1201000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">150</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">50000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="s2">"FLT_MAX"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>For more information, see the <a data-doc="vehicle/sections/beams" href="/docs/vehicle/sections/beams">beams page.</a>
+</p>
+<p>Creating beams is fairly straight forward, and only requires specifying two nodes that you want a beam to appear between them.</p>
+<p>As with nodes, it is recommend to split up your beams in sections, to make it easier to fine tune later. An example would be to split them by area and direction. For example all the longitudinal beams in the floor are their own section, crosses in the floor their own section as well, etc.</p>
+<p>As with nodes, you can make liberal use of copy pasting. The “replace” function can also be used quite a lot. For example when making the longitudinal floor beams you can write the beams for the left side, and then copy-paste them and replace the “l” suffix with “r” for the right side.</p>
+<div class="bng-notice tip">Block marking and vertical selection are useful for copy pasting and editing Jbeam sections. 
+    <a class="link-ext" href="https://code.visualstudio.com/docs/editor/codebasics" rel="noopener" target="_blank">Check the Visual Studio Code editing guide for usage examples.</a></div>
+<p>Do note that at this point, even if you haven’t finished creating the beams, you should be able to load the car and use the debug views to see where you need to add beams. Keep in mind though that the whole structure might collapse on spawn, and keeping the physics paused with the <kbd>J</kbd> key might be useful.</p>
+<p>To view the nodes and beams in game, use the <a data-doc="vehicle/intro_jbeam/debugtools" href="/docs/vehicle/intro_jbeam/debugtools">debug modes</a>
+. You can use keyboard shortcuts for cycling between different modes: <kbd>Ctrl + M</kbd> for node visualization, <kbd>Ctrl + N</kbd> for node text such as names and positions, and <kbd>Ctrl + B</kbd> and for beam visualization. You might also find <kbd>Ctrl + T</kbd> for triangle visualization useful later.</p>
+<p>Each time you save a change in the jbeam file, you can press <kbd>Ctrl + R</kbd> in-game to update the jbeam. Check the next section for more details.</p>
+<p>Creating the beams is a fairly time consuming step, but it’s very important to keep your beams tidy in order to make sure your structure is easy to fix and adjust afterward.
+Don’t forget to properly brace the structure as shown in the <a data-doc="vehicle/intro_jbeam" href="/docs/vehicle/intro_jbeam">basic principles</a>
+. If the structure wobbles on spawn it might need to add more bracing in the direction of the movement.</p>
+<p>You might run into instability issues, signified by the game pausing itself shortly after spawn, or in less extreme cases, the structure vibrating violently. They are typically caused by too high beamSpring and/or beamDamp on some beams, or too low nodeWeight on some nodes. In order to find out which specific nodes are causing the issue, cycle into the “Forces” visualization mode of the nodes, and look for big red force spikes in slow motion. Slow motion can be accessed in the “Environment” menu, or by pressing <kbd>Alt + Up</kbd>.</p>
+<p>Here’s an example of what your beams section should look like.</p>
+<p>
+</p><div class="border border-default collapse-wrapper">
+<a class="d-flex py-2 collapse-head" data-toggle="collapse" href="#uid19" role="button">
+    Jbeam Example <i class="ti-plus ml-auto"></i>
+</a>
+<div class="collapse" id="uid19"><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"beams"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span> <span class="s2">"id2:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"deformLimitExpansion"</span><span class="o">:</span><span class="mf">1.2</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">1201000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">150</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">50000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="s2">"FLT_MAX"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//floor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">//length floor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"fr1l"</span><span class="p">,</span><span class="s2">"fr2l"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fr1"</span><span class="p">,</span><span class="s2">"fr2"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fr1r"</span><span class="p">,</span><span class="s2">"fr2r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//lat floor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"fr1l"</span><span class="p">,</span><span class="s2">"fr1"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fr1"</span><span class="p">,</span><span class="s2">"fr1r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//cross floor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"fr1l"</span><span class="p">,</span><span class="s2">"fr2"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fr1"</span><span class="p">,</span><span class="s2">"fr2l"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fr1r"</span><span class="p">,</span><span class="s2">"fr2"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fr1"</span><span class="p">,</span><span class="s2">"fr2r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div></div>
+</div>
+<div class="bng-notice note">For more experienced users, 
+    <a class="link-ext" href="https://github.com/BeamNG/Blender-JBeam-Editor" rel="noopener" target="_blank">Blender Jbeam Editor</a>
+ is an extremely quick and efficient tool for setting up the beams. When using it, it is important to remember to put the beams in the correct code blocks in the console view, for good readability. The same applies to the Triangles section.</div>
+<h4 id="setting-up-triangles">
+
+  Setting up triangles
+</h4>
+<p>The two main purposes of triangles are to allow for collisions between vehicles, as well as for aerodynamic drag.</p>
+<p>As with the other sections, the chassis template should already have a “triangles” section with a header.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"triangles"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span><span class="s2">"id2:"</span><span class="p">,</span><span class="s2">"id3:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"dragCoef"</span><span class="o">:</span><span class="mi">10</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"groundModel"</span><span class="o">:</span><span class="s2">"metal"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"triangleType"</span><span class="o">:</span><span class="s2">"NORMALTYPE"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"node1"</span><span class="p">,</span><span class="s2">"node2"</span><span class="p">,</span><span class="s2">"node3"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>For more information on what each property does, check the <a data-doc="vehicle/sections/triangles" href="/docs/vehicle/sections/triangles">triangles page.</a>
+</p>
+<p>When creating triangles, you should load the car in so you can visualize your progress as you go. After changing and saving the files, you can press <kbd>Ctrl + R</kbd></p>
+<p>Making triangles consists in taking 3 nodes in a counterclockwise order. For example, here we’d have fr3sr-&gt;fr3tr-&gt;fr4tr.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/TriangleCreation.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/TriangleCreation_hud811b0c0d9aaab80d29c2d8d2c6b2f6a_1109223_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Then repeat this for every surface on the chassis. Here’s an example of what a few triangles should look like.</p>
+<p>
+</p><div class="border border-default collapse-wrapper">
+<a class="d-flex py-2 collapse-head" data-toggle="collapse" href="#uid20" role="button">
+    Jbeam Example <i class="ti-plus ml-auto"></i>
+</a>
+<div class="collapse" id="uid20"><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"triangles"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span><span class="s2">"id2:"</span><span class="p">,</span><span class="s2">"id3:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"dragCoef"</span><span class="o">:</span><span class="mi">10</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"groundModel"</span><span class="o">:</span><span class="s2">"metal"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"triangleType"</span><span class="o">:</span><span class="s2">"NORMALTYPE"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fr1"</span><span class="p">,</span> <span class="s2">"fr1r"</span><span class="p">,</span> <span class="s2">"fr2r"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fr1"</span><span class="p">,</span> <span class="s2">"fr2r"</span><span class="p">,</span> <span class="s2">"fr2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fr1l"</span><span class="p">,</span> <span class="s2">"fr1"</span><span class="p">,</span> <span class="s2">"fr2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fr1l"</span><span class="p">,</span> <span class="s2">"fr2"</span><span class="p">,</span> <span class="s2">"fr2l"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fr2l"</span><span class="p">,</span> <span class="s2">"fr2"</span><span class="p">,</span> <span class="s2">"fr3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fr2l"</span><span class="p">,</span> <span class="s2">"fr3"</span><span class="p">,</span> <span class="s2">"fr3l"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div></div>
+</div>
+<h4 id="setting-up-flexbodies">
+
+  Setting up flexbodies
+</h4>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"flexbodies"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"TutoFBee_Spaceframe"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"FormulaBeeSpaceframe"</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"TutoFBee_Body"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"FormulaBeeSpaceframe"</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>The next section that you need to change is the flexbodies section near the top of the file, which are the visible models that will be used for the car. For more information on the various properties of flexbodies you can see the <a data-doc="vehicle/sections/flexbodies" href="/docs/vehicle/sections/flexbodies">flexbodies</a>
+ page.</p>
+<p>Flexbodies require a <code>group</code> to be defined, which is referenced in the nodes section. Flexbodies are mapped to the nodes with the same group as them, so make sure to use the same group name as you did in the Nodes section previously.</p>
+<p>Non-removable body panels can use the same group as the body itself, this way they won’t need separate nodes with a different group to be added.</p>
+<h3 id="spawning-the-car-in-game-and-adjusting-the-beam-parameters">
+
+  Spawning the car in-game and adjusting the beam parameters.
+</h3>
+<p>At this point you should have everything you need to spawn the car in-game.</p>
+<p>In case you encounter any issues, look at the <a data-doc="vehicle/intro_jbeam/common_issues" href="/docs/vehicle/intro_jbeam/common_issues">common issues page.</a>
+</p>
+<p>At this step, as the car isn’t drivable, the main things you need to look out for is to make sure that the model shows up correctly, and that there are no visible issues with lack of structural rigidity or vibration.</p>
+<p>Once everything seems good you can move to the next point.</p>
+<h3 id="attaching-the-suspension-steering-and-drivetrain">
+
+  Attaching the suspension, steering and drivetrain.
+</h3>
+<h4 id="introduction-to-degrees-of-freedom">
+
+  Introduction to degrees of freedom
+</h4>
+<p>Each component or node has a total of 6 degrees of freedom, which refers to how they can move. These are translation on all 3 axes, and rotation around all 3 axes.
+If you want a component to be fixed solidly to the chassis, it is important to “lock” all 6 degrees of freedom.</p>
+<h4 id="fixing-a-component-in-rotation">Fixing a component in rotation</h4>
+<p>Fixing a component in rotation is done by connecting a certain number of nodes of a component.
+If you connect only a single node, the part will be fixed in translation, but allowed to rotate around any axis.</p>
+<p>If you connect two nodes, the part will be allowed to rotate along the axis made by those two nodes. This can be useful for components like doors, suspension, etc, where movement can be desirable, but needs to be restrained.</p>
+<p>If you connect three or more nodes, the part will be fixed in all three axis of rotation. This will be the desired result of all components in this section.</p>
+<p>Keep in mind as well that in some cases, especially body panels, you might want to have the part be fully fixed on spawn, but break in a way where only two nodes end up connected. This is obvious with doors for example, where the latch acts as a “third connection”, and allows the door to swivel when the latch is broken. We will be going into more detail about this later in the guide.</p>
+<h4 id="fixing-a-component-in-translation">Fixing a component in translation</h4>
+<p>To fix a node in translation, you need to have at least three beams, or essentially one per axis of movement.</p>
+<p>When combined with a sufficient number of attachment points, as described in the previous section, this should allow for a component that is rigidly fixed in place.</p>
+<p>Keep in mind that the three beams do not have to be perfectly perpendicular to one another; however they should still be somewhat perpendicular to each other.</p>
+<p>If the “tripod-like” structure that will holds a node in place is too narrow, this will cause higher stresses in the beams, resulting in an effectively less rigid structure. Same thing is the tripod is too wide, as it will cause the node to be more prone to “reversals”</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/TriangleWidth.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/TriangleWidth.png"/>
+</span></a></p>
+<h4 id="a-note-about-the-length-of-beams">A note about the length of beams</h4>
+It’s important to make sure that the beams that lock a certain direction of movement are all reasonably long, so their angle doesn’t change significantly under minor deformation.
+<p>This is a common mistake with door latches, where some people only use a single very short beam connecting the door to the pillar, causing the door to flop around. The proper way would be to have beams connecting the door to a more central position in the car, like the transmission tunnel.</p>
+<p>For a more visual example, let’s use the Superlite’s nosecone and the beams preventing it from moving backward. If you make very short beams like those shown in red, any small amount of movement of the nosecone will bring those beams at an angle where they can’t effectively keep the nosecone from moving backward. Instead, you want to use beams like those in purple, which will be long enough to avoid that issue.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/BeamLenght.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/BeamLenght_hu5db1d9b2455255428866a027fee0459b_1197164_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="linking-the-chassis-to-the-other-components">
+
+  Linking the chassis to the other components
+</h4>
+<p>Now let’s take what we’ve learned and use that to attach the suspension components and drivetrain to our chassis. In all cases we’ll be working within those components jbeam files. There’s a pre-defined section with the correct parameters where you can put your beams.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">//Chassis mount
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">1501000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">150</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">30000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="s2">"FLT_MAX"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//Put the connection beams here
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span></code></pre></div><p>When making beams to connect separate components together, it works the same way as making any beam. As long as the two nodes exist within the vehicle, the game will create a beam, even if the nodes are defined within different files.</p>
+<p></p><div class="bng-notice warning">When working on the suspension jbeam, you shouldn’t need to modify any of the nodes and beams already included. Doing so might cause handling issues.</div>
+<br/>
+<h4 id="front-suspension-and-steering">
+
+  Front suspension and steering
+</h4>
+<p>The included suspension beam and steering setup is pretty much self-contained, so it only needs to be solidly attached to the chassis.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/SuspensionBeam.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/SuspensionBeam_hu1a619374336a8bce4bde45136aadf519_1110642_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>The most important part is to use nodes that don’t move while driving, like the suspension arm mounts on the beam itself, which are fx1l/r and fx2l/r.</p>
+<p>As mentioned earlier, for each of those nodes you should have at least 3 beams, holding the suspension solidly on all 3 axis.</p>
+<p></p><div class="bng-notice tip">Ît is very important to have proper support of the suspension subframe on all 3 axis, otherwise the entire subframe might move around while driving, causing the car to steer by itself.</div>
+<br/>
+<p>Here’s an example of what your added beams might look like.</p>
+<p>
+</p><div class="border border-default collapse-wrapper">
+<a class="d-flex py-2 collapse-head" data-toggle="collapse" href="#uid21" role="button">
+    Jbeam Example <i class="ti-plus ml-auto"></i>
+</a>
+<div class="collapse" id="uid21"><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">//Chassis mount
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">,</span><span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">1501000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">150</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">30000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="s2">"FLT_MAX"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//Put the connection beams here
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fx1r"</span><span class="p">,</span><span class="s2">"fr2r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fx1r"</span><span class="p">,</span><span class="s2">"fr1"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fx1r"</span><span class="p">,</span><span class="s2">"fr1tr"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fx2r"</span><span class="p">,</span><span class="s2">"fr2r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fx2r"</span><span class="p">,</span><span class="s2">"fr1"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fx2r"</span><span class="p">,</span><span class="s2">"fr1r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fx1l"</span><span class="p">,</span><span class="s2">"fr2l"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fx1l"</span><span class="p">,</span><span class="s2">"fr1"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fx1l"</span><span class="p">,</span><span class="s2">"fr1tl"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fx2l"</span><span class="p">,</span><span class="s2">"fr2l"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fx2l"</span><span class="p">,</span><span class="s2">"fr1"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fx2l"</span><span class="p">,</span><span class="s2">"fr1l"</span><span class="p">]</span>
+</span></span></code></pre></div></div>
+</div>
+<h4 id="rear-suspension-arms">
+
+  Rear suspension arms
+</h4>
+<p>The rear suspension has the suspension pivot nodes predefined, and as with the front suspension, those just need to be solidly attached to the chassis.</p>
+<p>The coilovers however will need to be modified to attach them to the body.</p>
+<p>For the suspension arms, the process is the same as with the front, however this time the nodes we’ll be using are the trailing arm pivot nodes, which are bx1r/l and bx2r/l.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/RearArm.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/RearArm_hu4a514d78f6a9812b3bb72b15fa5be069_652599_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="coilovers">
+
+  Coilovers
+</h4>
+<p>If you scroll down to the “TutoFormulaBee_coilover_R_race” component, you should see a beam section with a lot of stuff in it.</p>
+<div class="border border-default collapse-wrapper">
+<a class="d-flex py-2 collapse-head" data-toggle="collapse" href="#uid22" role="button">
+    Coilover Jbeam <i class="ti-plus ml-auto"></i>
+</a>
+<div class="collapse" id="uid22"><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"beams"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span> <span class="s2">"id2:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//rear springs - no soft bumpstop - advanced dampers
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">//motion ratio ~0.74
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">12000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="mi">140000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="s2">"$spring_R"</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"rh4r"</span><span class="p">,</span><span class="s2">"fr5tr"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"precompressionRange"</span><span class="o">:</span><span class="s2">"$=($springheight_R + 0.01)*0.74"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"rh4l"</span><span class="p">,</span><span class="s2">"fr5tl"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"precompressionRange"</span><span class="o">:</span><span class="s2">"$=($springheight_R + 0.01)*0.74"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//rear dampers
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|BOUNDED"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"beamLimitSpring"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamLimitDamp"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">250</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="s2">"$damp_bump_R"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"rh4r"</span><span class="p">,</span><span class="s2">"fr5tr"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"beamDampRebound"</span><span class="o">:</span><span class="s2">"$damp_rebound_R"</span><span class="p">,</span><span class="s2">"beamDampVelocitySplit"</span><span class="o">:</span><span class="mf">0.2</span><span class="p">,</span><span class="s2">"beamDampFast"</span><span class="o">:</span><span class="s2">"$=$damp_bump_R / 3"</span><span class="p">,</span><span class="s2">"beamDampReboundFast"</span><span class="o">:</span><span class="s2">"$=$damp_rebound_R / 3"</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"soundFile"</span><span class="o">:</span><span class="s2">"event:&gt;Vehicle&gt;Suspension&gt;car_vint_sml_01&gt;spring_compress_01"</span><span class="p">,</span><span class="s2">"colorFactor"</span><span class="o">:</span><span class="mf">0.8</span><span class="p">,</span><span class="s2">"attackFactor"</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span><span class="s2">"volumeFactor"</span><span class="o">:</span><span class="mf">2.4</span><span class="p">,</span><span class="s2">"decayMode"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"decayFactor"</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span><span class="s2">"pitchFactor"</span><span class="o">:</span><span class="mf">0.4</span><span class="p">,</span><span class="s2">"maxStress"</span><span class="o">:</span><span class="mi">13</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"rh4l"</span><span class="p">,</span><span class="s2">"fr5tl"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"beamDampRebound"</span><span class="o">:</span><span class="s2">"$damp_rebound_R"</span><span class="p">,</span><span class="s2">"beamDampVelocitySplit"</span><span class="o">:</span><span class="mf">0.2</span><span class="p">,</span><span class="s2">"beamDampFast"</span><span class="o">:</span><span class="s2">"$=$damp_bump_R / 3"</span><span class="p">,</span><span class="s2">"beamDampReboundFast"</span><span class="o">:</span><span class="s2">"$=$damp_rebound_R / 3"</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"soundFile"</span><span class="o">:</span><span class="s2">"event:&gt;Vehicle&gt;Suspension&gt;car_vint_sml_01&gt;spring_compress_01"</span><span class="p">,</span><span class="s2">"colorFactor"</span><span class="o">:</span><span class="mf">0.8</span><span class="p">,</span><span class="s2">"attackFactor"</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span><span class="s2">"volumeFactor"</span><span class="o">:</span><span class="mf">2.4</span><span class="p">,</span><span class="s2">"decayMode"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"decayFactor"</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span><span class="s2">"pitchFactor"</span><span class="o">:</span><span class="mf">0.4</span><span class="p">,</span><span class="s2">"maxStress"</span><span class="o">:</span><span class="mi">13</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//bumpstop and extension limiter
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"beamLimitSpring"</span><span class="o">:</span><span class="mi">251000</span><span class="p">,</span><span class="s2">"beamLimitDamp"</span><span class="o">:</span><span class="mi">5000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"rh4r"</span><span class="p">,</span><span class="s2">"fr5tr"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"longBoundRange"</span><span class="o">:</span><span class="mf">0.12</span><span class="p">,</span><span class="s2">"shortBoundRange"</span><span class="o">:</span><span class="mf">0.12</span><span class="p">,</span><span class="s2">"boundZone"</span><span class="o">:</span><span class="mf">0.04</span><span class="p">,</span><span class="s2">"beamLimitDampRebound"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"rh4l"</span><span class="p">,</span><span class="s2">"fr5tl"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"longBoundRange"</span><span class="o">:</span><span class="mf">0.12</span><span class="p">,</span><span class="s2">"shortBoundRange"</span><span class="o">:</span><span class="mf">0.12</span><span class="p">,</span><span class="s2">"boundZone"</span><span class="o">:</span><span class="mf">0.04</span><span class="p">,</span><span class="s2">"beamLimitDampRebound"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"beamLimitSpring"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamLimitDamp"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div></div>
+</div>
+<p>While this might seem intimidating at first, it’s essentially just 6 beams with a lot of added properties. One set represents the springs, one then dampers and the other one serves as bump stops. In all cases you should see these two references to nodes, with rh4r/l being the shock mount on the swing arm, and bs1r/l being the autobello’s upper shock mount.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rh4r"</span><span class="p">,</span><span class="s2">"bs1r"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"precompressionRange"</span><span class="o">:</span><span class="s2">"$=($springheight_R + 0.01)*0.74"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rh4l"</span><span class="p">,</span><span class="s2">"bs1l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"precompressionRange"</span><span class="o">:</span><span class="s2">"$=($springheight_R + 0.01)*0.74"</span><span class="p">}],</span>
+</span></span></code></pre></div><p>What you need to do is replace bs1r/l with the node you’ll be using as an upper shock mount.</p>
+<p></p><div class="bng-notice note"><p>To ensure decent handling, the upper shock mount should be located directly above or slightly in front of the shock mount on the arm.</p>
+<p>Having the node positioned incorrectly can cause the suspension to be effectively too soft, resulting in wobbly handling.</p>
+</div>
+<br/>
+<p>When spawning the car in with those changes, you might notice a problem; the shocks don’t appear, even if their beams show up.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/ShocksFlexbodyIssue.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/ShocksFlexbodyIssue_hue7dd5ef5d0fce3130f5d9af0a86e0913_1683947_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>This issue is related to the shocks nodegroups.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"flexbodies"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"autobello_coilover_R"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"shockbottom_R"</span><span class="p">,</span> <span class="s2">"shocktop_R"</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>While the “shockbottom_R” group exists, and is defined by the lower shock mount nodes on the suspension arms, you need to define the upper shock mount nodes as being part of the “shocktop” node group. The best way to do that is to add the shocktop deform ground “in-line” of the shockmount nodes, like this :</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fr4tl"</span><span class="p">,</span> <span class="mf">0.34</span><span class="p">,</span> <span class="mf">0.655</span><span class="p">,</span> <span class="mf">0.645</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fr5tl"</span><span class="p">,</span> <span class="mf">0.454</span><span class="p">,</span> <span class="mf">1.034</span><span class="p">,</span> <span class="mf">0.556</span><span class="p">,</span> <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="p">[</span><span class="s2">"FormulaBeeSpaceframe"</span><span class="p">,</span><span class="s2">"shocktop_R"</span><span class="p">]}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fr6tl"</span><span class="p">,</span> <span class="mf">0.384</span><span class="p">,</span> <span class="mf">1.627</span><span class="p">,</span> <span class="mf">0.457</span><span class="p">],</span>
+</span></span></code></pre></div><p>Just make sure to triple check syntax, in order to avoid issues when trying to load the car.</p>
+<p>Once you’ve added that to both shock mounts, the coilovers should show up when you reload the vehicle.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/FixedCoilovers.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/FixedCoilovers_hu89ae19dfef07d0f03dd94a678a34a62d_1016122_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="engine-and-transmission">
+
+  Engine and transmission
+</h4>
+<p>Engines can usually be attached in two ways. The first one, which works easily with engines jbeamed as cubes, is to just solidly attach all 4 top corners to the chassis.</p>
+<p>However in our case, we’ll be using pre-defined engine mount nodes, namely em1r/l on the engine side, and “tra1” on the gearbox side. This is a bit more realistic, and more similar to how engines are fixed IRL.</p>
+<p>Depending on the way your chassis is designed, you might need either 3 or 4 beams per engine mount to properly fix the engine in place.</p>
+<div class="border border-default collapse-wrapper">
+<a class="d-flex py-2 collapse-head" data-toggle="collapse" href="#uid23" role="button">
+    Jbeam Example <i class="ti-plus ml-auto"></i>
+</a>
+<div class="collapse" id="uid23"><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">//Chassis mount
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">1501000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">150</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">30000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="s2">"FLT_MAX"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//Put the connection beams here
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"em1r"</span><span class="p">,</span><span class="s2">"fr6r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"em1r"</span><span class="p">,</span><span class="s2">"fr5r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"em1r"</span><span class="p">,</span><span class="s2">"fr5l"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"em1r"</span><span class="p">,</span><span class="s2">"fr4r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"em1l"</span><span class="p">,</span><span class="s2">"fr6l"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"em1l"</span><span class="p">,</span><span class="s2">"fr5l"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"em1l"</span><span class="p">,</span><span class="s2">"fr5r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"em1l"</span><span class="p">,</span><span class="s2">"fr4l"</span><span class="p">]</span>
+</span></span></code></pre></div></div>
+</div>
+<p>For the gearbox, since the engine mount nodes already take care of keeping the engine from moving forward and back, the beams mostly need to be set-up in a way to prevent the engine/gearbox assembly from rocking back and forth.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">//Chassis mount
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">1501000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">150</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">30000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="s2">"FLT_MAX"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//Put the connection beams here
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"tra1"</span><span class="p">,</span><span class="s2">"fr4t"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"tra1"</span><span class="p">,</span><span class="s2">"fr4l"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"tra1"</span><span class="p">,</span><span class="s2">"fr4r"</span><span class="p">]</span>
+</span></span></code></pre></div>
+<h4 id="fuel-tank">
+
+  Fuel tank
+</h4>
+<p>You might have noticed a “fuel tank” file in the jbeam. The included file already works as a fuel tank, even though it does not have any nodes and beams. However, for practice, you should try building your own fuel tank as an 8 node cube, using the things you learned earlier in the tutorial.</p>
+<p>The only twist is that you should identify one of the beams as the “fuel beam” so it changes the weight of the fuel tank based on the quantity of fuel in the tank.</p>
+<p>This can by adding some properties “inline”, like with the shock top node group.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"f1r"</span><span class="p">,</span> <span class="s2">"f1l"</span><span class="p">,{</span><span class="s2">"name"</span><span class="o">:</span><span class="s2">"fuelTank"</span><span class="p">,</span><span class="s2">"containerBeam"</span><span class="o">:</span> <span class="s2">"fuelTank"</span><span class="p">}],</span>
+</span></span></code></pre></div>
+<h4 id="testing-and-adjusting-the-suspension-and-engine-mounts">
+
+  Testing and adjusting the suspension and engine mounts
+</h4>
+<p>At this point, if you have followed the guide properly and the car loads, you should have a fully drivable car with steering and suspension. Here comes the fun part, which is to make sure that everything works as it should, and doesn’t flex in ways that it should.</p>
+<p>In all cases, your best tools for debugging are the slow-mo function, and the stress view in the beam debug menus <kbd>Ctrl + B</kbd>.</p>
+<p>The first part is to make sure that everything is at least somewhat rigid. To check that, simply drive the vehicle around, and see if you notice any unexpected movement. If you see anything weird going on, try to identify which way the component is moving, and add or adjust beams to counteract that movement.</p>
+<p>Once the suspension is mostly rigid, it is now time to stress test it, and try to make sure it can also handle so more spirited driving.</p>
+<p>Let’s start with the rear suspension. The best way to see if any powered axle works as it should is to do a wall-stand burnout, essentially resting the nose of the car on a wall and making a burnout.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/WallStand.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/WallStand_hu994b2469f16475f1c3a029d4c4fb6cef_1639158_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>If you see any oscillation, switch to slow motion and look at which nodes are moving and in what direction.</p>
+<p>You will need to rigidify those nodes by changing/adding beams to more rigidly fix movement in that direction. While raising beamspring can also help, the predefined beamspring and damp values in the template should be roughly correct, and you should prioritise adjusting the topology of your jbeam first, as it is impossible to properly rigidify sub-optimal jbeam just by raising the beamspring.</p>
+<p>For the front suspension, the best way induce oscillations is to get a decent bunch of speed, and then brake to the point of locking the wheels. Once again, if you have unwanted
+oscillations, use slow motion and the debug tools to find the exact way those deformations are happening.</p>
+<p>For the front specifically, while the guide says to use fx1r/l and fx2r/l to attach the suspension beam to the chassis, you might need to add more beams attaching to the nodes to the other fixed components of the front suspension beam, namely fx1/2, which are in the center of the suspension, and fs1r/l, which are used as shock mounts.</p>
+<p>Since all those components do not move relative to the chassis, adding connections from those beams to the chassis might help keep the front suspension from vibrating and oscillating without affecting the functionality of suspension.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/FrontEndPic.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/FrontEndPic_huf976f2bcd9632bd892fa2a24b0816153_1888029_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="body-panels-and-other-breakable-body-parts">
+
+  Body panels and other breakable body parts
+</h3>
+<p>The next step is to add in the body panels. This guide has sections for both flat panels like hoods, and boxier components like a nosecone. You should however be able to  follow this guide for any panel you have.</p>
+<p>All panels usually involve breakable connections, which will allow the panel to break off in crashes.</p>
+<p>If you have a separate component whose shape could easily be translated to a box jbeam, like a nosecone, jbeaming it should be fairly similar to what you’ve already done, other than the elements mentioned previously.</p>
+<p>If you have a fairly flat panel, like a door, hood, trunk, etc; where you cannot use the same boxy structure we used before, you will need to use a rigidifier node. We’ll go over that further down in this section.
+Keep in mind that even hoods with some depth (like the hood on a Jeep for example) will often still require the use of a rigidifier node, as they aren’t deep enough to ensure that the structure stays rigid in all conditions.</p>
+<p>Adding slots and creating new parts The first step is to create the slots and base parts we need for our body panels. In most cases, all of them will be under the “chassis”, so let’s start by opening up that file, and going to the “slots” section. For more information on slots and parts, you can refer to the <a data-doc="vehicle/intro_jbeam/partslotsystem" href="/docs/vehicle/intro_jbeam/partslotsystem">introduction to the part/slot system</a>
+, and the page about the <a data-doc="vehicle/sections/slots" href="/docs/vehicle/sections/slots">slot and slottype sections.</a>
+</p>
+<p>To add more slots to the chassis, you can start by copy-pasting the header of the slots section, to have as many new entries as we have parts. For example, if you had two, it would look like this :</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"slots"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"type"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Engine
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"TutoFormulaBee_engine"</span><span class="p">,</span><span class="s2">"TutoFormulaBee_engine"</span><span class="p">,</span> <span class="s2">"Engine"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"TutoFormulaBee_fueltank"</span><span class="p">,</span><span class="s2">"TutoFormulaBee_fueltank"</span><span class="p">,</span> <span class="s2">"Fuel Tank"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Running gear
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"TutoFormulaBee_suspension_F"</span><span class="p">,</span><span class="s2">"TutoFormulaBee_suspension_F"</span><span class="p">,</span> <span class="s2">"Front Suspension"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"TutoFormulaBee_suspension_R"</span><span class="p">,</span><span class="s2">"TutoFormulaBee_suspension_R"</span><span class="p">,</span> <span class="s2">"Rear Suspension"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Panels
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"type"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"type"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>Then you want to put the desired slot name into “type”, and the name of the default part as “default”. You can use the other slots as an example of slot naming, including the use of
+prefixes as with materials and meshes. For the default part, while we haven’t created any parts yet, it’s good practice with slots that have a single option to name the only part the same as the slot.</p>
+<p>With a hood and nosecone, the end result will look like this:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"slots"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"type"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Engine
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"TutoFormulaBee_engine"</span><span class="p">,</span><span class="s2">"TutoFormulaBee_engine"</span><span class="p">,</span> <span class="s2">"Engine"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"TutoFormulaBee_fueltank"</span><span class="p">,</span><span class="s2">"TutoFormulaBee_fueltank"</span><span class="p">,</span> <span class="s2">"Fuel Tank"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Running gear
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"TutoFormulaBee_suspension_F"</span><span class="p">,</span><span class="s2">"TutoFormulaBee_suspension_F"</span><span class="p">,</span> <span class="s2">"Front Suspension"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"TutoFormulaBee_suspension_R"</span><span class="p">,</span><span class="s2">"TutoFormulaBee_suspension_R"</span><span class="p">,</span> <span class="s2">"Rear Suspension"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//Panels
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"TutoFormulaBee_nosecone"</span><span class="p">,</span> <span class="s2">"TutoFormulaBee_nosecone"</span><span class="p">,</span> <span class="s2">"Nose Cone"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"TutoFormulaBee_hood"</span><span class="p">,</span> <span class="s2">"TutoFormulaBee_hood"</span><span class="p">,</span> <span class="s2">"Hood"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p>The next step is to create the base of the parts themselves. For this, you can check in the “TutoFormulaBee_panels.jbeam” file, which includes a template for a new component. You can copy that part so you have as many parts as you need. In the previous example that means 2 copies. When creating new parts, make sure to copy the entire part including the name and the end bracket.</p>
+<p>Once you’ve created as many copies as you need, change the part’s name and slottype to match the slots you created earlier.</p>
+<h4 id="intro-to-break-groups">Intro to break groups</h4>
+<p>One major feature of most body panels is their ability to break off in crashes. This can be done using the “beamStrenght” property, and giving it a value other than “FLT_MAX”, which will allow the connection beams to break when stress goes above a certain level.</p>
+<p>However, as mentioned previously, each connection point needs a few beams to make sure that it is nice and rigid. How do we ensure that all those beams break at the same time? This is where break groups come in. Break groups identify a group of beams, and tells the game that if any of those beams break, all the other beams in the group should get broken at the same time.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">//attach beams
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">15000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="mi">15000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">"frontHood"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood1ll"</span><span class="p">,</span><span class="s2">"fr1l"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood1ll"</span><span class="p">,</span><span class="s2">"fr1"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood1ll"</span><span class="p">,</span><span class="s2">"fr2l"</span><span class="p">]</span>
+</span></span></code></pre></div><h4 id="rigidifiers">Rigidifiers</h4>
+One specific challenge when it comes to jbeaming flat components like hoods and doors, is that their flat shape doesn’t allow to make a nice and rigid component. It will tend to fold on itself.
+<p>The fix is to use what we call a “rigidifier node”, which is a node with collisions disabled, located some distance away from the surface.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/RigidifierExample.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/RigidifierExample_hu9dcb2c29354c91c3defd0e731fa51187_597755_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>One thing to keep in mind is that the beams connecting the rigidifier to the surface nodes should have a lower “beamDeform” compared to the beams that make up the panels surface. This will ensure that the panel will deform mostly by “folding”, which is how it would happen IRL.</p>
+<h4 id="building-the-hood-flat-panels">
+
+  Building the hood (flat panels)
+</h4>
+<p>The first part of building a hood is done in a similar fashion to making any surface on the chassis. One thing to keep in mind is that panels should preferably be at least 3x3 nodes, to make sure that they can fold on themselves.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/basic_car_tutorial/HoodJbeam.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/basic_car_tutorial/HoodJbeam_hub02e55bcc4056e9390a761a83a9215b7_202264_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>As for the rigidifier node, you can start by placing it .5 meters away from the surface, and adjusting as needed. It also needs to have collisions disabled, as it’s not a physical component in the structure. This done using the “collision:false” and “selfCollision:false” statements.</p>
+<div class="border border-default collapse-wrapper">
+<a class="d-flex py-2 collapse-head" data-toggle="collapse" href="#uid24" role="button">
+    Jbeam Example <i class="ti-plus ml-auto"></i>
+</a>
+<div class="collapse" id="uid24"><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"collision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"nodeMaterial"</span><span class="o">:</span><span class="s2">"|NM_METAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"frictionCoef"</span><span class="o">:</span><span class="mf">0.6</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">"TutoFBee_Hood"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span><span class="mf">2.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"hood1l"</span><span class="p">,</span> <span class="mf">0.177</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.297</span><span class="p">,</span> <span class="mf">0.564</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"hood1r"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.177</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.297</span><span class="p">,</span> <span class="mf">0.564</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"hood2l"</span><span class="p">,</span> <span class="mf">0.167</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.851</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"hood2r"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.167</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.851</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"hood3l"</span><span class="p">,</span> <span class="mf">0.115</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.403</span><span class="p">,</span> <span class="mf">0.838</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"hood3r"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.115</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.403</span><span class="p">,</span> <span class="mf">0.838</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"collision"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"hood0"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.851</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]</span>  <span class="c1">//Rigidifier mod
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"collision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div></div>
+</div>
+<p>For beams it tends to be fairly simple, and just involves connecting every single node of the jbeam to the rigidifier.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl">    <span class="c1">//rigidifier
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">5000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="s2">"FLT_MAX"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"hood1l"</span><span class="p">,</span><span class="s2">"hood0"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"hood1r"</span><span class="p">,</span><span class="s2">"hood0"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"hood2l"</span><span class="p">,</span><span class="s2">"hood0"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"hood2r"</span><span class="p">,</span><span class="s2">"hood0"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"hood3l"</span><span class="p">,</span><span class="s2">"hood0"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"hood3r"</span><span class="p">,</span><span class="s2">"hood0"</span><span class="p">]</span>
+</span></span></code></pre></div><p>For the connection to the body, most panels tend to be attached with a hinge on one end and a latch at the other.</p>
+<p>This means you should structure your attaching beams in a way where you have 2 break groups. This first one being the hinge, which will have 2 attachment points so the panel can
+rotate when the latch breaks. It should also be the strongest of the two break groups.</p>
+<p>The latch can be done with either 1 or 2 attachment points, depending on the shape and size of the panel. It should be significantly weaker than the hinge, to make sure that it breaks first in crashes.</p>
+<p>For panels that don’t have a well-defined latch and hinge, like bumpers and bolted on panels, you can split the various attachment points in any way that seems logical. A common set-up is to fix the front and rear of the “hood” panel with 2 separate break groups, one for the front and one for the rear, but both having the same strength as neither really serves as a latch or hinge.</p>
+<div class="border border-default collapse-wrapper">
+<a class="d-flex py-2 collapse-head" data-toggle="collapse" href="#uid25" role="button">
+    Jbeam Example <i class="ti-plus ml-auto"></i>
+</a>
+<div class="collapse" id="uid25"><div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">//attach beams
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">15000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="mi">15000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">"frontHood"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood1ll"</span><span class="p">,</span><span class="s2">"fr1l"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood1ll"</span><span class="p">,</span><span class="s2">"fr1"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood1ll"</span><span class="p">,</span><span class="s2">"fr2l"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood1rr"</span><span class="p">,</span><span class="s2">"fr1r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood1rr"</span><span class="p">,</span><span class="s2">"fr1"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood1rr"</span><span class="p">,</span><span class="s2">"fr2r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">"rearHood"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood3ll"</span><span class="p">,</span><span class="s2">"fr3l"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood3ll"</span><span class="p">,</span><span class="s2">"fr3"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood3ll"</span><span class="p">,</span><span class="s2">"fr2l"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood3rr"</span><span class="p">,</span><span class="s2">"fr3r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood3rr"</span><span class="p">,</span><span class="s2">"fr3"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hood3rr"</span><span class="p">,</span><span class="s2">"fr2r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span></code></pre></div></div>
+</div>
+<p>Don’t forget to add a “breakGroup”:”” at the end, to make sure that the beams following those aren’t included in the breakGroup. Keep in mind that properties “leak” to other parts, so a unterminated breakGroup might result in your engine falling into pieces when the hood breaks off.</p>
+<h4 id="building-the-nose-cone-breakable-parts-with-a-box-structure">
+
+  Building the nose cone (breakable parts with a box structure)
+</h4>
+<p>When it comes to more cubic structures like a nose cone, jbeaming them is fairly straight forward and doesn’t require any rigidifier node. All you need to do is build the box jbeam and attach it to the body using break groups.</p>
+<h4 id="common-issues-with-panels">
+
+  Common issues with panels
+</h4>
+<p>As before, the <a data-doc="vehicle/intro_jbeam/common_issues" href="/docs/vehicle/intro_jbeam/common_issues">common issues page</a>
+ should help with a lot of the issues you might have encountered.</p>
+<p>The main one to look out for with body panels specifically is issues with the parts getting pushed on spawn. Keep in mind that each node has a sphere of influence, so you might need to move things a little further apart than you think.</p>
+<h3 id="conclusion">
+
+  Conclusion
+</h3>
+<p>If you’ve followed this entire guide, you should now have a simple but fully drivable car. At this point you can have fun and try adding other things to it, like functional gauges/pedals, which are done using <a data-doc="vehicle/sections/props" href="/docs/vehicle/sections/props">props</a>
+, additional part options, skins, etc.</p>
+<p>Have fun and don’t be afraid to try things :) And as with anything, looking at what others have done can help give you some ideas, or help understand how to build different things.</p>

@@ -1,0 +1,900 @@
+<div class="bng-notice warning">This section is work in progress! Some links might lead to pages that are not yet finished, and will not work.</div>
+<h3 id="summary">
+
+  Summary
+</h3>
+<p>The vehicle controller is the main controller for any powered vehicle in beamNG. It manages the powertrain controls and interfaces with the different shift logic controllers for the various transmission types.</p>
+<p>Either this controller or the dummy controller must be called on any vehicle or prop for it to work properly.</p>
+<p>It is the main source of <a data-doc="vehicle/vehicle_system/electrics" href="/docs/vehicle/vehicle_system/electrics">electrics</a>
+ data for engine and transmission information.</p>
+<hr/>
+<h3 id="file-info">
+
+  File Info
+</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Filename</strong></td>
+<td><em>vehicleController.lua</em></td>
+</tr>
+<tr>
+<td><strong>Path</strong></td>
+<td><em>/lua/vehicle/controller/vehicleController.lua</em></td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td><em>Main</em></td>
+</tr>
+<tr>
+<td><strong>Usage type</strong></td>
+<td><em>Single</em></td>
+</tr>
+<tr>
+<td><strong>defaultOrder</strong></td>
+<td><em>500</em></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="jbeam-properties">
+
+  JBeam Properties
+</h3>
+<p>These properties are the properties specific to the vehicle controller itself.</p>
+<p>Each shift-logic sub-controllers will also have it’s own specific properties, depending on the type of gearbox.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">RPM<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">2000<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Controls the RPM that the controller will downshift at when there is less than 100% throttle applied.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Only applies to automatic gearboxes and arcade mode.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">RPM<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">3500<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Controls the RPM that the controller will downshift at when there is 100% throttle applied.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Only applies to automatic gearboxes and arcade mode.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">RPM<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">2500<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Controls the RPM that the controller will upshift at when there is less than 100% throttle applied.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Only applies to automatic gearboxes and arcade mode.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">RPM<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">5000<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Controls the RPM that the controller will upshift at when there is 100% throttle applied.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Only applies to automatic gearboxes and arcade mode.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Overrides highShiftUpRPM and highShiftDownRPM with values calculated by looking at the engine torque curve and gear ratios.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Only applies to automatic gearboxes and arcade mode.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.3<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Moves the automatically calculated down shift points for less gear hunting</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Used for the optimal shift point calculation.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">2<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">How quickly the controller reacts to a decrease in throttle input.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Only applies to automatic gearboxes and arcade mode.</p>
+<p>A higher value means the controller will upshift more quickly when decreasing throttle.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">5<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">How quickly the controller reacts to an increase in throttle input.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Only applies to automatic gearboxes and arcade mode.</p>
+<p>A higher value means the controller will downshift more quickly when increasing throttle</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.5<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">How quickly the controller reacts to an increase in aggression.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Only applies to automatic gearboxes and arcade mode.</p>
+<p>A higher value means the controller will downshift more quickly when increasing throttle.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.15<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">How quickly the controller reacts to a decrease in aggression input.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Only applies to automatic gearboxes and arcade mode.</p>
+<p>A higher value means the controller will upshift more quickly when decreasing throttle</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">true<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Activates intelligent aggression calculation based on vehicle speed, and throttle and brake inputs.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Disable for to simulate mechanical or older electronic gearboxes.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">2.25<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">If smart aggression calculation is used, the aggression factor will be held for the set amount of time (s) after the throttle is released, before dropping.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">-1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Speed limiter. (meters/second)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Won’t be active if smaller than 0.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">-1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Speed limiter in reverse gear. (meters/second)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Won’t be active if smaller than 0.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">20000<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Maximum total wheel sliding speed allowed before an upshift is blocked.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Only applies to automatic gearboxes and arcade mode.</p>
+<p>Helps stop the car from shifting up immediately when spinning the tires.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">30000<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Maximum total wheel sliding speed allowed before a downshift is blocked.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Only applies to automatic gearboxes and arcade mode.</p>
+<p>Helps stop the car from downshifting immediately when the driven tires lock up from braking.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">10<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Controls the shift blocker logic that prevents upshifts during excessive wheelspin</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">20<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Controls the shift blocker logic that prevents upshifts during excessive wheelspin</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">gearboxType<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Override to change which shift logic controller will be used.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Mostly used with electric motors, as they aren’t used with a gearbox.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.2<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Minimum time taken (s) to complete a shift from one gear to the next, not including clutching time.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Applies to manual gearboxes when using shiftUp/shiftDown buttons, and when shifting with a DCT gearbox when chosen gear is not preselected.</p>
+<p>Does not apply to manual gearboxes when using an H-shifter.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.5<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Minimum time (s) between 2 consecutive shifts.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Only applies to automatic gearboxes and arcade mode.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.5<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Minimum time taken (s) to shift from a gear to neutral or from neutral to a gear.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Only applies to automatic gearboxes and arcade mode.</div>
+</div>
+</div>
+<hr/>
+<h3 id="public-functions">
+
+  Public Functions
+</h3>
+<div class="bng-table" id="table-1783007355211809372"><div class="bng-table-header"><div>Function name</div><div>Parameters</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">shiftUp</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Shifts the transmission up one gear.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">shiftDown</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Shifts the transmission down one gear.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">shiftToGearIndex</div>
+</div><div>
+<div style="">Parameters</div>
+<div style="">index</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Shifts the transmission to the selected gear.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">cycleGearboxModes</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Switches between arcade and realistic shifting modes.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">setGearboxMode</div>
+</div><div>
+<div style="">Parameters</div>
+<div style="">behavior</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Sets the gearbox mode to the defined option.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">smartParkingBrake</div>
+</div><div>
+<div style="">Parameters</div>
+<div style="">ivalue, filter</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Applies the parking brake and keeps it on if the user is actually parking the car.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">setStarter</div>
+</div><div>
+<div style="">Parameters</div>
+<div style="">enabled</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Activates the engine starter.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">setEngineIgnition</div>
+</div><div>
+<div style="">Parameters</div>
+<div style="">enabled</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Activates engine ignition.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">setFreeze</div>
+</div><div>
+<div style="">Parameters</div>
+<div style="">setFreeze</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Enables the transmission lock.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">sendTorqueData</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Sends torque and power related data to the UI.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">vehicleActivated</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Called upon active vehicle switch, executes code that upstes the UI.</div>
+</div></div></div>
+<hr/>
+<h3 id="public-properties">
+
+  Public Properties
+</h3>
+<div class="bng-table" id="table-1783007355212275302"><div class="bng-table-header"><div>Name</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">throttle</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Throttle input</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">brake</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Brake input</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">clutchRatio</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Clutch input</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">engineInfo</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Array containing a lot of engine related information for use by GUI elements</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">fireEngineTemperature</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Exposes the temperature of an engine-like powertrain device to the fire simulation</div>
+</div></div></div>
+<hr/>
+<h3 id="electrics">
+
+  Electrics
+</h3>
+<h4 id="inputs">
+
+  Inputs
+</h4>
+<div class="bng-table" id="table-1783007355212454398"><div class="bng-table-header"><div>Name</div><div>Units/Values</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">brake</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Brake input percentage.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">brakelights</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Brake input percentage.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">clutch</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Clutch input percentage.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">clutchRatio</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Clutch input percentage.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">ignition</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">boolean</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates if the ignition is currently on. Will stay on if you stall.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">throttle</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Throttle percentage. Affected by things like rev-matching and throttle cut in the transmission shift logic.</div>
+</div></div></div>
+<hr/>
+<h4 id="engine-information">
+
+  Engine Information
+</h4>
+<div class="bng-table" id="table-1783007355212728886"><div class="bng-table-header"><div>Name</div><div>Units/Values</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">checkengine</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">boolean</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates if the engine is disabled and can’t be turned on due to an issue.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">engineLoad</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Engine load percentage,based on current torque compared to the maximum amount of torque the engine can produce.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">engineThrottle</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Effective throttle level. Will be 0 if the engine is disabled.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">engineRunning</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">boolean</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates if the engine is currently on.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">oiltemp</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">Celsius</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Temperature of the engine oil (used as the main engine temp on air cooled cars).</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">radiatorFanSpin</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 360</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Spin function for the radiator fan,which activates when the radiator fan turns on. Used for props.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">rpm</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">RPM</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Engine rotation speed.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">running</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">boolean</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates if the ignition is currently on. Will stay on if you stall.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">watertemp</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">Celsius</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Temperature of the radiator water (used as the main engine temp on water cooled cars).</div>
+</div></div></div>
+<hr/>
+<h4 id="fuel-information">
+
+  Fuel Information
+</h4>
+<div class="bng-table" id="table-1783007355213131848"><div class="bng-table-header"><div>Name</div><div>Units/Values</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">fuel</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Percentage of fuel left in the tank.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">fuelCapacity</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">Liters</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Fuel tank capacity.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">fuelVolume</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">Liters</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Volume of fuel left in the tank</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">lowfuel</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">boolean</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates that there is less than 10% fuel left in the tank.</div>
+</div></div></div>
+<hr/>
+<h4 id="transmission-information">
+
+  Transmission Information
+</h4>
+<div class="bng-table" id="table-1783007355213342709"><div class="bng-table-header"><div>Name</div><div>Units/Values</div><div>Description</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">gear</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">string</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Currently selected gear. Same as gear index for manuals,other types will return the shifter position (PRDN) and add an S/M prefix before the gear number in manual modes.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">gear_A</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates the current shifter position on automatic and DCT gearboxes.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">gearIndex</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">numbers</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Currently selected gear index. Reverse gears are negative,neutral is 0</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">isShifting</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">boolean</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Indicates if the gearbox is currently mid-shift</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">smoothShiftLogicAV</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">numbers</div>
+</div><div>
+<div style="">Description</div>
+<div style="">The smoothed AV shift logic uses to determine arcade reverse switch and auto braking (among other things),exposed for the AI to use</div>
+</div></div></div>
+<hr/>
+<h3 id="example-usage">
+
+  Example Usage
+</h3>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl">    <span class="s2">"controller"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"fileName"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"vehicleController"</span><span class="p">,</span> <span class="p">{}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="s2">"vehicleController"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"calculateOptimalLoadShiftPoints"</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"transmissionGearChangeDelay"</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"gearboxDecisionSmoothingUp"</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"gearboxDecisionSmoothingDown"</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"aggressionSmoothingUp"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"aggressionSmoothingDown"</span><span class="o">:</span><span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"aggressionHoldOffThrottleDelay"</span><span class="o">:</span><span class="mf">1.75</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"lowShiftDownRPM"</span><span class="o">:</span><span class="mi">1000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"lowShiftUpRPM"</span><span class="o">:</span><span class="mi">1800</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span></code></pre></div><p>Properties for a vehicle’s vehicleController are usually split between the various engine and transmission components of the vehicle.</p>
+<p>Components which reduce the low-end torque might raise the clutchLaunch values, while components which raise the maximum rpm of the engine will raise the highShiftRPM values.</p>

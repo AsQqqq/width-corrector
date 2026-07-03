@@ -1,0 +1,734 @@
+<p>This document describes the <code>info.json</code> file used by BeamNG levels.</p>
+<p><code>info.json</code> is the main metadata file for a level. It is used by the level selector, loading logic, spawn point UI, big map/POI systems, environment presets, traffic/gameplay systems, minimap display, and some region-specific gameplay logic.</p>
+<p>It does <strong>not</strong> store level geometry. Scene objects are stored separately in files such as <code>main/items.level.json</code>.</p>
+<hr/>
+<h2 id="file-location">
+
+  File location
+</h2>
+<p>Each level should contain an <code>info.json</code> file in the level root folder:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/info.json
+</span></span></code></pre></div><p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/west_coast_usa/info.json
+</span></span></code></pre></div><p>If <code>info.json</code> is missing, the level may still be detected if it has a valid entry point, but UI metadata will be incomplete and warnings may be logged.</p>
+<hr/>
+<h2 id="level-discovery">
+
+  Level discovery
+</h2>
+<p>The level manager scans:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/levels/
+</span></span></code></pre></div><p>Each directory is treated as a potential level.</p>
+<p>A level is considered usable if the loader can find a valid entry point. The current preferred format is the <code>main/</code> scene tree folder:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/main/
+</span></span></code></pre></div><p>Older entry points such as <code>.mis</code> files or <code>.level.json</code> files may still be handled for compatibility, but modern levels should use the <code>main/</code> folder layout.</p>
+<p>During discovery, the loader reads <code>info.json</code>, adds runtime metadata, resolves preview paths, processes spawn point data, and applies defaults for missing optional fields.</p>
+<hr/>
+<h2 id="basic-structure">
+
+  Basic structure
+</h2>
+<p>A simplified <code>info.json</code> file:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"levels.example.info.title"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.info.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"authors"</span><span class="p">:</span> <span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"defaultSpawnPointName"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"country"</span><span class="p">:</span> <span class="s2">"levels.common.country.usa"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"region"</span><span class="p">:</span> <span class="s2">"northAmerica"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"size"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2048</span><span class="p">,</span> <span class="mi">2048</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"previews"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"preview.jpg"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"spawnPoints"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.default.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_default.jpg"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="common-fields">
+
+  Common fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>title</code></td>
+<td>string</td>
+<td>Level title. Usually a translation ID.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>string</td>
+<td>Level description. Usually a translation ID.</td>
+</tr>
+<tr>
+<td><code>authors</code></td>
+<td>string</td>
+<td>Author name or names.</td>
+</tr>
+<tr>
+<td><code>features</code></td>
+<td>string</td>
+<td>Translation ID or string describing level features.</td>
+</tr>
+<tr>
+<td><code>suitablefor</code></td>
+<td>string</td>
+<td>Translation ID or string describing what the level is suitable for.</td>
+</tr>
+<tr>
+<td><code>roads</code></td>
+<td>string</td>
+<td>Translation ID or string describing road network or road types.</td>
+</tr>
+<tr>
+<td><code>biome</code></td>
+<td>string</td>
+<td>Translation ID or string describing the biome/environment type.</td>
+</tr>
+<tr>
+<td><code>country</code></td>
+<td>string</td>
+<td>Country translation ID.</td>
+</tr>
+<tr>
+<td><code>region</code></td>
+<td>string</td>
+<td>Region identifier, such as <code>northAmerica</code>.</td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td>array[2]</td>
+<td>Approximate level size in meters, usually <code>[width, height]</code>.</td>
+</tr>
+<tr>
+<td><code>defaultSpawnPointName</code></td>
+<td>string</td>
+<td>Object name of the default spawn point.</td>
+</tr>
+<tr>
+<td><code>previews</code></td>
+<td>array[string]</td>
+<td>Level preview image paths relative to the level folder.</td>
+</tr>
+<tr>
+<td><code>spawnPoints</code></td>
+<td>array[object]</td>
+<td>Spawn point metadata shown in UI/big map.</td>
+</tr>
+<tr>
+<td><code>minimap</code></td>
+<td>array[object]</td>
+<td>Minimap image tile definitions.</td>
+</tr>
+<tr>
+<td><code>roadRules</code></td>
+<td>object</td>
+<td>Level-specific road rule metadata.</td>
+</tr>
+<tr>
+<td><code>localUnits</code></td>
+<td>object</td>
+<td>Local unit preferences used by gameplay/UI systems.</td>
+</tr>
+<tr>
+<td><code>supportsTraffic</code></td>
+<td>bool</td>
+<td>Whether the level supports traffic. Defaults to <code>true</code> if missing.</td>
+</tr>
+<tr>
+<td><code>supportsTimeOfDay</code></td>
+<td>bool</td>
+<td>Whether the level supports time-of-day options. Defaults to <code>true</code> if missing.</td>
+</tr>
+<tr>
+<td><code>timeOfDayPresets</code></td>
+<td>array[object]</td>
+<td>Optional level-specific time-of-day presets.</td>
+</tr>
+<tr>
+<td><code>excludeDefaultTimeOfDayOptions</code></td>
+<td>bool</td>
+<td>If true, default time-of-day presets are not added.</td>
+</tr>
+<tr>
+<td><code>isAuxiliary</code></td>
+<td>bool</td>
+<td>Marks the level as auxiliary/internal depending on UI usage.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="translation-ids">
+
+  Translation IDs
+</h2>
+<p>Most user-facing text fields should use translation IDs instead of hardcoded display text.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"title"</span><span class="err">:</span> <span class="s2">"levels.west_coast_usa.info.title"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"description"</span><span class="err">:</span> <span class="s2">"levels.west_coast_usa.info.description"</span>
+</span></span></code></pre></div><p>This allows the UI to localize level names, descriptions, spawn point names, and other text.</p>
+<p>Common translated fields include:</p>
+<ul>
+<li><code>title</code></li>
+<li><code>description</code></li>
+<li><code>features</code></li>
+<li><code>suitablefor</code></li>
+<li><code>roads</code></li>
+<li><code>biome</code></li>
+<li><code>country</code></li>
+<li><code>spawnPoints[].translationId</code></li>
+<li><code>spawnPoints[].description</code></li>
+<li><code>spawnPoints[].logbookEntry</code></li>
+</ul>
+<hr/>
+<h2 id="preview-images">
+
+  Preview images
+</h2>
+<p>The <code>previews</code> array defines level preview images.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"previews"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"spawns_industrial.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"west_coast_usa_preview1.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"west_coast_usa_preview2.jpg"</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><p>Paths are relative to the level folder. During loading, they are converted to full virtual paths.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">"west_coast_usa_preview1.jpg"
+</span></span></code></pre></div><p>becomes:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/levels/west_coast_usa/west_coast_usa_preview1.jpg
+</span></span></code></pre></div><p>The first preview image is generally used as the main level thumbnail.</p>
+<p>If <code>previews</code> is missing or empty, fallback preview paths are attempted from the level entry point.</p>
+<hr/>
+<h2 id="spawn-points">
+
+  Spawn points
+</h2>
+<p>The <code>spawnPoints</code> array defines spawn choices shown in the UI and big map.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"spawnPoints"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.west_coast_usa.spawnpoints.industrial"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.west_coast_usa.spawnpoints.industrial.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"logbookEntry"</span><span class="p">:</span> <span class="s2">"levels.west_coast_usa.spawnpoints.industrial.logbookEntry"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_industrial"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_industrial.jpg"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div>
+<h3 id="spawn-point-fields">
+
+  Spawn point fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>translationId</code></td>
+<td>string</td>
+<td>Spawn point display name translation ID.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>string</td>
+<td>Spawn point description translation ID.</td>
+</tr>
+<tr>
+<td><code>logbookEntry</code></td>
+<td>string</td>
+<td>Optional logbook/discovery text translation ID.</td>
+</tr>
+<tr>
+<td><code>objectname</code></td>
+<td>string</td>
+<td>Name of the scene object used as the spawn transform.</td>
+</tr>
+<tr>
+<td><code>preview</code></td>
+<td>string</td>
+<td>Preview image path relative to the level folder.</td>
+</tr>
+<tr>
+<td><code>previews</code></td>
+<td>array[string]</td>
+<td>Optional list of preview images. Internally generated if only <code>preview</code> is used.</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>objectname</code> should match an object in the level, usually a <code>SpawnSphere</code>.</p>
+<p>Example scene object:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SpawnSphere"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"spawns_industrial"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="default-spawn-point">
+
+  Default spawn point
+</h2>
+<p>The default spawn point is selected using:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"defaultSpawnPointName"</span><span class="err">:</span> <span class="s2">"spawns_industrial"</span>
+</span></span></code></pre></div><p>This should match one of the <code>spawnPoints[].objectname</code> values.</p>
+<p>When a spawn point matches <code>defaultSpawnPointName</code>, it is marked internally as the default spawn and receives the level’s main preview list.</p>
+<p>If no matching spawn point is found, the loader inserts a fallback default spawn entry using the level preview images.</p>
+<hr/>
+<h2 id="spawn-point-pois">
+
+  Spawn point POIs
+</h2>
+<p>Spawn points can be exposed as POIs in the big map.</p>
+<p>For each spawn point with an <code>objectname</code>, the system looks up the matching scene object and uses its position as the marker position.</p>
+<p>If the object cannot be found, an error may be logged.</p>
+<hr/>
+<h2 id="minimap">
+
+  Minimap
+</h2>
+<p>The <code>minimap</code> array defines one or more minimap image tiles.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"minimap"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"file"</span><span class="p">:</span> <span class="s2">"minimap/terrain.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"size"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2048</span><span class="p">,</span> <span class="mi">2048</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"offset"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"file"</span><span class="p">:</span> <span class="s2">"minimap/island.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"size"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">2048</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"offset"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-1536</span><span class="p">,</span> <span class="mi">3072</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div>
+<h3 id="minimap-fields">
+
+  Minimap fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file</code></td>
+<td>string</td>
+<td>Minimap image path relative to the level folder.</td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td>array[2]</td>
+<td>Tile size in world/map units.</td>
+</tr>
+<tr>
+<td><code>offset</code></td>
+<td>array[2]</td>
+<td>Tile offset in world/map units.</td>
+</tr>
+</tbody>
+</table>
+<p>During loading, <code>file</code> is prefixed with the level directory.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">minimap/terrain.png
+</span></span></code></pre></div><p>becomes:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/levels/west_coast_usa/minimap/terrain.png
+</span></span></code></pre></div><div class="bng-notice warning"><code>info.json</code> must be valid JSON. Do not use trailing commas in minimap entries or anywhere else in the file.</div>
+<hr/>
+<h2 id="road-rules">
+
+  Road rules
+</h2>
+<p>The <code>roadRules</code> object stores level-specific driving rules used by navigation, AI, and traffic-related systems.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"roadRules"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rightHandDrive"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"turnOnRed"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>If <code>roadRules</code> is missing, the default values are:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rightHandDrive"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"turnOnRed"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+<h3 id="supported-road-rule-fields">
+
+  Supported road rule fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rightHandDrive</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Controls lane-side assumptions when lane data is generated or interpreted. <code>false</code> means right-side traffic layout, <code>true</code> means left-side traffic layout.</td>
+</tr>
+<tr>
+<td><code>turnOnRed</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Indicates whether turning on red is allowed for this level. Used by traffic/navigation logic where applicable.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="righthanddrive">
+
+  rightHandDrive
+</h3>
+<p><code>rightHandDrive</code> affects how the navigation graph interprets/generated lane directions.</p>
+<p>Internally, lane directions are represented with strings:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">+ = lane direction from inNode to outNode
+</span></span><span class="line"><span class="cl">- = lane direction from outNode to inNode
+</span></span></code></pre></div><p>For two-way roads, the lane order depends on whether the level uses right-side or left-side traffic.</p>
+<p>Use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"rightHandDrive"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre></div><p>for regions with right-side traffic.</p>
+<p>Use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"rightHandDrive"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>for regions with left-side traffic.</p>
+<div class="bng-notice info"><code>rightHandDrive</code> does not visually change road geometry. It affects navigation/lane interpretation and automatic lane generation.</div>
+<hr/>
+<h2 id="local-units">
+
+  Local units
+</h2>
+<p>The <code>localUnits</code> object defines level-specific unit preferences used by gameplay/UI systems.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"localUnits"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gasoline"</span><span class="p">:</span> <span class="s2">"gallonUS"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"diesel"</span><span class="p">:</span> <span class="s2">"gallonUS"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>This is currently used by systems such as fuel price display logic. Internally, prices may be stored in metric units, while display objects can convert values depending on the level’s local unit settings.</p>
+<p>For example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gasoline"</span><span class="err">:</span> <span class="s2">"gallonUS"</span>
+</span></span></code></pre></div><p>allows gasoline price signage to use US gallon-style display.</p>
+<h3 id="supported-fuel-unit-example">
+
+  Supported fuel unit example
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gasoline</code></td>
+<td><code>gallonUS</code></td>
+<td>Display gasoline-related values using US gallons.</td>
+</tr>
+<tr>
+<td><code>diesel</code></td>
+<td><code>gallonUS</code></td>
+<td>Display diesel-related values using US gallons.</td>
+</tr>
+</tbody>
+</table>
+<p>If no local unit override is provided, systems use their default behavior.</p>
+<div class="bng-notice note"><code>localUnits</code> affects presentation and gameplay/UI logic. It should match the real-world region represented by the level when possible.</div>
+<hr/>
+<h2 id="traffic-support">
+
+  Traffic support
+</h2>
+<p>If <code>supportsTraffic</code> is missing, it defaults to:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"supportsTraffic"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>Set it to <code>false</code> if the level should not expose traffic-related systems.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"supportsTraffic"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre></div><hr/>
+<h2 id="time-of-day-support">
+
+  Time-of-day support
+</h2>
+<p>If <code>supportsTimeOfDay</code> is missing, it defaults to:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"supportsTimeOfDay"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>Set it to <code>false</code> if the level should not expose time-of-day options.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"supportsTimeOfDay"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre></div><hr/>
+<h2 id="time-of-day-presets">
+
+  Time-of-day presets
+</h2>
+<p>Levels can define custom time-of-day presets.</p>
+<p>Example:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"timeOfDayPresets"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"key"</span><span class="p">:</span> <span class="s2">"sunrise"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"value"</span><span class="p">:</span> <span class="mf">0.23</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"label"</span><span class="p">:</span> <span class="s2">"ui.environment.time.sunrise"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"key"</span><span class="p">:</span> <span class="s2">"noon"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"value"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"label"</span><span class="p">:</span> <span class="s2">"ui.environment.time.noon"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div>
+<h3 id="preset-fields">
+
+  Preset fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>key</code></td>
+<td>string</td>
+<td>Unique preset key.</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td>number</td>
+<td>Time value used by the environment system.</td>
+</tr>
+<tr>
+<td><code>label</code></td>
+<td>string</td>
+<td>Display label or translation ID.</td>
+</tr>
+</tbody>
+</table>
+<p>By default, the game starts with common time-of-day presets and then applies/overrides level-specific presets.</p>
+<p>To exclude default presets:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"excludeDefaultTimeOfDayOptions"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>If this is set, provide your own <code>timeOfDayPresets</code> or the level may have no selectable time-of-day options.</p>
+<hr/>
+<h2 id="auxiliary-levels">
+
+  Auxiliary levels
+</h2>
+<p>Older metadata may use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"hidden"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>This field is deprecated.</p>
+<p>Use:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"isAuxiliary"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre></div><p>If <code>hidden</code> is found, the loader maps it to <code>isAuxiliary</code> for compatibility and logs a warning.</p>
+<hr/>
+<h2 id="full-example">
+
+  Full example
+</h2>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"features"</span><span class="p">:</span> <span class="s2">"levels.example.info.features"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"suitablefor"</span><span class="p">:</span> <span class="s2">"levels.example.info.suitablefor"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"authors"</span><span class="p">:</span> <span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"roads"</span><span class="p">:</span> <span class="s2">"levels.example.info.roads"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"levels.example.info.title"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.info.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"defaultSpawnPointName"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"country"</span><span class="p">:</span> <span class="s2">"levels.common.country.usa"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"region"</span><span class="p">:</span> <span class="s2">"northAmerica"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"biome"</span><span class="p">:</span> <span class="s2">"levels.example.info.biome"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"size"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2048</span><span class="p">,</span> <span class="mi">2048</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"localUnits"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"gasoline"</span><span class="p">:</span> <span class="s2">"gallonUS"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"diesel"</span><span class="p">:</span> <span class="s2">"gallonUS"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"previews"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"preview.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"preview_1.jpg"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"spawnPoints"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.default.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"logbookEntry"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.default.logbookEntry"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_default.jpg"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"roadRules"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"rightHandDrive"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"turnOnRed"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"supportsTraffic"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"supportsTimeOfDay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"minimap"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"file"</span><span class="p">:</span> <span class="s2">"minimap/terrain.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"size"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2048</span><span class="p">,</span> <span class="mi">2048</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"offset"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><hr/>
+<h2 id="loading-behavior">
+
+  Loading behavior
+</h2>
+<p>When the level list is built, the level manager:</p>
+<ol>
+<li>Scans <code>/levels/</code>.</li>
+<li>Finds valid level directories.</li>
+<li>Resolves the level entry point.</li>
+<li>Reads <code>info.json</code>.</li>
+<li>Adds mod/official metadata.</li>
+<li>Adds runtime path fields.</li>
+<li>Prefixes preview paths with the level directory.</li>
+<li>Processes spawn point previews.</li>
+<li>Marks the default spawn point if found.</li>
+<li>Adds a fallback default spawn point if needed.</li>
+<li>Prefixes minimap file paths.</li>
+<li>Applies default values for missing support flags.</li>
+</ol>
+<hr/>
+<h2 id="best-practices">
+
+  Best practices
+</h2>
+<ul>
+<li>Always include <code>info.json</code> in the level root.</li>
+<li>Use translation IDs for UI-facing text.</li>
+<li>Provide at least one preview image.</li>
+<li>Make sure preview paths are relative to the level folder.</li>
+<li>Make sure <code>defaultSpawnPointName</code> matches a valid spawn point object.</li>
+<li>Keep spawn point <code>objectname</code> values stable once used by gameplay/career data.</li>
+<li>Use <code>roadRules</code> to match the real-world traffic side of the region.</li>
+<li>Use <code>localUnits</code> for regional unit display behavior.</li>
+<li>Avoid deprecated <code>hidden</code>; use <code>isAuxiliary</code>.</li>
+<li>Validate JSON syntax before shipping.</li>
+<li>Do not use trailing commas.</li>
+<li>Provide minimap data if the level supports map/big-map display.</li>
+<li>Set <code>supportsTraffic</code> or <code>supportsTimeOfDay</code> to <code>false</code> only when those systems are not supported.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<h3 id="level-appears-with-folder-name-instead-of-title">
+
+  Level appears with folder name instead of title
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Missing <code>title</code></li>
+<li>Invalid translation ID</li>
+<li>Missing or invalid <code>info.json</code></li>
+</ul>
+<h3 id="preview-image-missing">
+
+  Preview image missing
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Wrong path</li>
+<li>Image not included</li>
+<li><code>previews</code> is empty</li>
+<li>Invalid filename or extension</li>
+</ul>
+<h3 id="spawn-point-does-not-work">
+
+  Spawn point does not work
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li><code>objectname</code> does not match a scene object</li>
+<li>Spawn object is missing from <code>items.level.json</code></li>
+<li><code>defaultSpawnPointName</code> does not match any spawn point</li>
+<li>Spawn point object exists but is not loaded</li>
+</ul>
+<h3 id="big-map-spawn-poi-missing">
+
+  Big map spawn POI missing
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Spawn point has no <code>objectname</code></li>
+<li>Referenced object cannot be found</li>
+<li>Spawn point is not discovered in career mode, where applicable</li>
+</ul>
+<h3 id="minimap-tile-missing">
+
+  Minimap tile missing
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li>Wrong <code>file</code> path</li>
+<li>Missing image file</li>
+<li>Invalid minimap entry</li>
+<li>Invalid JSON due to trailing comma</li>
+</ul>
+<h3 id="time-of-day-options-missing">
+
+  Time-of-day options missing
+</h3>
+<p>Possible causes:</p>
+<ul>
+<li><code>supportsTimeOfDay</code> is <code>false</code></li>
+<li><code>excludeDefaultTimeOfDayOptions</code> is true and no custom presets are provided</li>
+</ul>
+<h3 id="lane-behavior-feels-wrong">
+
+  Lane behavior feels wrong
+</h3>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"roadRules"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rightHandDrive"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Use the correct value for the traffic side represented by the level.</p>
+<h3 id="fuel-price-display-uses-wrong-units">
+
+  Fuel price display uses wrong units
+</h3>
+<p>Check:</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"localUnits"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gasoline"</span><span class="p">:</span> <span class="s2">"gallonUS"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"diesel"</span><span class="p">:</span> <span class="s2">"gallonUS"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Only set local unit overrides when the level region requires them.</p>
+<hr/>
+<h2 id="summary">
+
+  Summary
+</h2>
+<p><code>info.json</code> is the primary metadata file for a level.</p>
+<p>It defines:</p>
+<ul>
+<li>UI title and description</li>
+<li>Author and regional metadata</li>
+<li>Preview images</li>
+<li>Spawn point metadata</li>
+<li>Default spawn point</li>
+<li>Minimap tiles</li>
+<li>Road rules</li>
+<li>Local unit preferences</li>
+<li>Traffic support</li>
+<li>Time-of-day support and presets</li>
+</ul>
+<p>A complete and valid <code>info.json</code> is essential for proper level discovery, UI display, spawning, minimap support, and gameplay integration.</p>

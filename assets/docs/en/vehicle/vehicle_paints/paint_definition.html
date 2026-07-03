@@ -1,0 +1,104 @@
+<p>A vehicle paint is essentially a preset for the <a data-doc="vehicle/vehicle_paints/paint_materials_intro" href="/docs/vehicle/vehicle_paints/paint_materials_intro">color palette</a>
+ settings. It can be picked while spawning the vehicle via the vehicle selector, or when repainting it using the paint menu of the vehicle configurator.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/paint_definition/paints_veh.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/paint_definition/paints_veh.png"/>
+</span></a>
+<em>Vehicle paints as shown in the vehicle selector. These represent the factory paint colors available on the vehicle.</em></p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/paint_definition/paints_part.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/paint_definition/paints_part.png"/>
+</span></a>
+<em>Vehicle paints as shown in the vehicle configurator. Aside from the factory paints, this menu also shows appropriate custom ones, and the user’s own saved paint presets.</em></p>
+<h3 id="defining-the-paints">
+
+  Defining the paints
+</h3>
+<p>The most basic way to define a paint is inside the vehicle’s main <code>info.json</code> file. Inside this file, each paint has a header with its name, and several basic properties:</p>
+<ul>
+<li><code>baseColor</code>: RGBA color of the paint in 0-1 scale for each color. The Alpha property defines the paint’s <code>Chrominess</code> parameter, which is a legacy feature not supported by Physically Based Rendering system.</li>
+<li><code>clearCoat</code>: Defines the strength of the clear coat effect.</li>
+<li><code>clearCoatRoughness</code>: Defines the roughness of the clear coat effect.</li>
+<li><code>metallic</code>: Defines the metallic factor.</li>
+<li><code>roughness</code>: Defines the roughness factor.</li>
+</ul>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"paints"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Mica"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"baseColor"</span><span class="o">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span>  <span class="mf">0.42</span><span class="p">,</span>  <span class="mf">0.39</span><span class="p">,</span>  <span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoat"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoatRoughness"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"metallic"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"roughness"</span><span class="o">:</span> <span class="mf">0.07</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">(...)</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p><em>A basic paint definition.</em></p>
+<p>An additional property of the paint is <code>class</code>. When set to <code>custom</code>, the paint will appear under the Custom list in the paint menu inside vehicle configurator.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"Noce"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line hl"><span class="cl">  <span class="s2">"class"</span><span class="o">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"baseColor"</span><span class="o">:</span> <span class="p">[</span><span class="mf">0.16</span><span class="p">,</span>  <span class="mf">0.1</span><span class="p">,</span>  <span class="mf">0.06</span><span class="p">,</span>  <span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"clearcoat"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"clearcoatRoughness"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"metallic"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"roughness"</span><span class="o">:</span> <span class="mf">0.07</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre></div><p><em>A custom paint definition.</em></p>
+<h3 id="default-paints">
+
+  Default paints
+</h3>
+<p>Each configuration of the vehicle has its own info.json file, with the <code>info_[config name].json</code> naming scheme, for example a configuration called “standard” will have its info file called “info_standard.json”. Inside this file, among other things, a default paint name for the configuration can be defined. It is the one shown on the thumbnail, which the vehicle spawns with when the user doesn’t select any paint in the vehicle selector. This default paint is shown in the first paint slot, in the top left spot of the paint selector.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/paint_definition/default_paint.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/paint_definition/default_paint_hu84a9b1aa3f1bb22994d2b6d868dd7a33_310594_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>A selected vehicle configuration with its default paint highlighted in the first paint slot.</em></p>
+<p>This is set with the <code>defaultPaintName1</code> property. Similarly, <code>defaultPaintName2</code> and <code>defaultPaintName3</code> can be used to set the default setups for the other palettes.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"defaultPaintName1"</span><span class="o">:</span> <span class="s2">"Yellow"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"defaultPaintName2"</span><span class="o">:</span> <span class="s2">"Yellow"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"defaultPaintName3"</span><span class="o">:</span> <span class="s2">"Black"</span><span class="p">,</span>
+</span></span></code></pre></div><p><em>Default paints setup.</em></p>
+<p>The vehicle’s main <code>info.json</code> file can also contain a list of default paints for the vehicle for each of the color palettes, which will be used when the selected configuration doesn’t have its own paints defined at all. As this is merely a fallback, sometimes only the first default paint is defined, which means the same color will be used for all 3 palettes.</p>
+<p>Internally, the setup with <code>defaultPaintName</code> properties gets converted into a <a data-doc="vehicle/vehicle_paints/multi_paint_setup" href="/docs/vehicle/vehicle_paints/multi_paint_setup">multi-paint setup</a>
+, more on that will be explained in later pages.</p>
+<h3 id="paints-in-user-configurations">
+
+  Paints in user configurations
+</h3>
+<p>The user’s custom configurations don’t have their own <code>info.json</code> files. The paints setup will instead be saved inside the configurations’s <code>.pc</code> file. The setups for all three color palettes are saved in the same format as basic paints, except they don’t have their own names.</p>
+<div class="highlight"><pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"paints"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"baseColor"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.86</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.66</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">1.2</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoat"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoatRoughness"</span><span class="o">:</span><span class="mf">0.04</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"metallic"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"roughness"</span><span class="o">:</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"baseColor"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.86</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.66</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">1.2</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoat"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoatRoughness"</span><span class="o">:</span><span class="mf">0.04</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"metallic"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"roughness"</span><span class="o">:</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"baseColor"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.83</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.83</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.83</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">1.2</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoat"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoatRoughness"</span><span class="o">:</span><span class="mf">0.04</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"metallic"</span><span class="o">:</span><span class="mf">0.3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"roughness"</span><span class="o">:</span><span class="mf">0.6</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre></div><p><em>Paints setup in a user’s own configuration file.</em></p>
