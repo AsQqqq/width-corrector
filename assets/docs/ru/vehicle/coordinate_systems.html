@@ -1,0 +1,119 @@
+<p>BeamNG использует систему координат с осью <strong>Z вверх</strong> и <strong>единицами СИ</strong> (метры, килограммы и т. д.). Позиции в JBeam, большинстве механизмов транспортного средства и при размещении сенсоров BeamNG.tech используют одну и ту же систему координат, привязанную к транспортному средству и определяемую через <a data-doc="vehicle/sections/refnodes" href="/docs/vehicle/sections/refnodes">refnodes</a>
+.</p>
+<div class="bng-notice warning"><p><strong>Важно — оси транспортного средства BeamNG не соответствуют конвенции ISO / робототехники.</strong></p>
+<p>В пространстве транспортного средства: <strong>+X = влево</strong>, <strong>+Y = назад</strong>, <strong>+Z = вверх</strong>, а <strong>вперёд = −Y</strong> (не +X). Многие инструменты, учебники и другие симуляторы используют <strong>+X вперёд</strong> и <strong>+Y в сторону</strong>. Применение этого предположения в JBeam, Lua или при размещении сенсоров приведёт к неправильному размещению нод и направлений — зачастую с поворотом на 90° и более. Мировое (картовое) пространство тоже <strong>Z вверх</strong>, но использует фиксированные оси карты, а не курс транспортного средства.</p>
+</div>
+<h2 id="vehicle-coordinate-system">
+
+  Система координат транспортного средства
+</h2>
+<p>Система координат транспортного средства привязана к его <strong>refnode</strong> (вблизи центра и нижней точки кузова). Оси задаются явно в JBeam:</p>
+<div class="bng-table" id="beamng_3col"><div class="bng-table-header"><div>Ось</div><div>Положительное направление</div><div>Типичное применение</div></div>
+<div class="bng-table-row"><div>
+<div>Ось</div>
+<div style="font-weight: bold; color: #ff6600; text-align: left; padding: 0.5em; border-right: 1px solid #ddd; font-family: Roboto mono, monospace;">+X</div>
+</div><div>
+<div>Положительное направление</div>
+<div style="text-align: left; padding: 0.5em; border-right: 1px solid #ddd;">Влево (слева от водителя в автомобиле с левым рулём)</div>
+</div><div>
+<div>Типичное применение</div>
+<div style="text-align: left; padding: 0.5em; border-right: 1px solid #ddd;">Боковое смещение — refnode <code>left:</code></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Ось</div>
+<div style="font-weight: bold; color: #ff6600; text-align: left; padding: 0.5em; border-right: 1px solid #ddd; font-family: Roboto mono, monospace;">+Y</div>
+</div><div>
+<div>Положительное направление</div>
+<div style="text-align: left; padding: 0.5em; border-right: 1px solid #ddd;">Назад (в сторону задней части транспортного средства)</div>
+</div><div>
+<div>Типичное применение</div>
+<div style="text-align: left; padding: 0.5em; border-right: 1px solid #ddd;">Продольное смещение за точкой ref</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Ось</div>
+<div style="font-weight: bold; color: #ff6600; text-align: left; padding: 0.5em; border-right: 1px solid #ddd; font-family: Roboto mono, monospace;">+Z</div>
+</div><div>
+<div>Положительное направление</div>
+<div style="text-align: left; padding: 0.5em; border-right: 1px solid #ddd;">Вверх</div>
+</div><div>
+<div>Типичное применение</div>
+<div style="text-align: left; padding: 0.5em; border-right: 1px solid #ddd;">Высота над точкой ref</div>
+</div></div></div>
+<p><strong>Вперёд</strong> (направление движения) — это <strong>−Y</strong>, а не +X.</p>
+<p><strong>Вправо</strong> — это <strong>−X</strong>.</p>
+<p>Это соответствует определениям <a data-doc="vehicle/sections/refnodes" href="/docs/vehicle/sections/refnodes">refnodes</a>
+: нода <code>left:</code> находится в направлении <strong>+X</strong>, нода <code>back:</code> — в направлении <strong>+Y</strong>, а нода <code>up:</code> — в направлении <strong>+Z</strong> от ноды <code>ref:</code>.</p>
+<h3 id="top-view-vehicle-frame">
+
+  Вид сверху (система координат транспортного средства)
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-text" data-lang="text"><span class="line"><span class="cl">                    forward (−Y)
+</span></span><span class="line"><span class="cl">                         ↑
+</span></span><span class="line"><span class="cl">                         |
+</span></span><span class="line"><span class="cl">    left (+X) ←----------● ref ----------→ right (−X)
+</span></span><span class="line"><span class="cl">                         |
+</span></span><span class="line"><span class="cl">                         ↓
+</span></span><span class="line"><span class="cl">                    backward (+Y)
+</span></span></code></pre>
+</div>
+<h3 id="node-positions-in-jbeam">
+
+  Позиции нод в JBeam
+</h3>
+<p>Координаты <a data-doc="vehicle/sections/nodes" href="/docs/vehicle/sections/nodes">нод</a>
+ в файлах JBeam задаются в той же системе координат транспортного средства (в метрах относительно его конструкции). При добавлении или перемещении нод <strong>увеличение X сдвигает влево</strong>, <strong>увеличение Y — к задней части</strong>, а <strong>увеличение Z — вверх</strong>.</p>
+<h2 id="world-coordinate-system">
+
+  Мировая система координат
+</h2>
+<p>Мировая (картовая) система координат также использует <strong>ось Z вверх</strong>. Начало координат карты находится в мировой позиции <code>(0, 0, 0)</code>. Горизонтальные оси карты — мировые <strong>X</strong> и <strong>Y</strong>; <strong>Z</strong> — это высота.</p>
+<p>Мировые оси <strong>привязаны к уровню</strong> и не поворачиваются вместе с каждым транспортным средством. Мировая позиция и ориентация транспортного средства определяются точкой его спавна и углом поворота на карте. Для преобразования между мировыми координатами и координатами транспортного средства необходимо использовать текущее положение (позицию и ориентацию) транспортного средства, а не предполагать, что мировые X/Y совпадают с направлениями вперёд/в сторону транспортного средства.</p>
+<p>Сенсоры BeamNG.tech часто принимают позиции в <strong>пространстве транспортного средства</strong> (относительно него, используя таблицу выше) или в <strong>мировом пространстве</strong> (привязанном к карте). Смотрите аргумент <code>pos</code> каждого сенсора и флаги, например <code>is_dir_world_space</code>, в <a href="https://documentation.beamng.com/beamng_tech/sensors/" rel="noopener" target="_blank">документации по сенсорам</a>
+.</p>
+<h2 id="other-frames-on-a-vehicle">
+
+  Другие системы координат на транспортном средстве
+</h2>
+<h3 id="prop-local-coordinates">
+
+  Локальные координаты пропа
+</h3>
+<p><a data-doc="vehicle/sections/props" href="/docs/vehicle/sections/props">Пропы</a>
+ используют <strong>собственную</strong> локальную систему координат, построенную на трёх нодах (<code>idRef</code>, <code>idX</code>, <code>idY</code>): <strong>+X</strong> направлен от <code>idRef</code> к <code>idX</code>, <strong>+Y</strong> — от <code>idRef</code> к <code>idY</code>, а <strong>+Z</strong> — по векторному произведению этих двух направлений.</p>
+<h3 id="checkpoint-corners">
+
+  Углы чекпоинта
+</h3>
+<p>Ноды <code>leftCorner</code> и <code>rightCorner</code> refnode обозначают <strong>передние</strong> углы транспортного средства (для чекпоинтов и аналогичных игровых механик). Они не переопределяют оси X/Y/Z, а лишь указывают, где находится передняя часть кузова относительно системы координат ref.</p>
+<h2 id="beamngtech-and-sensors">
+
+  BeamNG.tech и сенсоры
+</h2>
+<p>Исследовательские рабочие процессы и задачи ADAS используют ту же систему координат транспортного средства, что и при создании модов:</p>
+<ul>
+<li>Значения <code>pos</code> сенсоров, прикреплённых к транспортному средству, обычно задаются в <strong>пространстве транспортного средства</strong> (влево / назад / вверх, как указано выше).</li>
+<li>Сенсоры, привязанные к карте, используют <strong>мировое пространство</strong>.</li>
+<li><a href="https://documentation.beamng.com/beamng_tech/sensors/gps/" rel="noopener" target="_blank">GPS</a>
+ связывает координаты карты с определяемым пользователем географическим ориентиром в начале координат карты.</li>
+</ul>
+<p>Если вы используете
+    <a href="https://documentation.beamng.com/api/beamngpy" rel="noopener" target="_blank">BeamNGpy</a>
+, <a href="https://documentation.beamng.com/beamng_tech/interfaces/ros2/" rel="noopener" target="_blank">ROS 2</a>
+ или <a href="https://documentation.beamng.com/beamng_tech/tools/adassensorconfigurationeditor/" rel="noopener" target="_blank">редактор конфигурации сенсоров ADAS</a>
+, прочитайте <a href="https://documentation.beamng.com/beamng_tech/sensors/" rel="noopener" target="_blank">документацию по сенсорам</a>
+ вместе с этой страницей перед размещением сенсоров или интерпретацией записанных данных в симуляции.</p>
+<h2 id="related-pages">
+
+  Связанные страницы
+</h2>
+<ul>
+<li><a data-doc="vehicle/sections/refnodes" href="/docs/vehicle/sections/refnodes">Refnodes</a>
+ — как задать систему координат транспортного средства в JBeam</li>
+<li><a data-doc="vehicle/sections/nodes" href="/docs/vehicle/sections/nodes">Nodes</a>
+ — ось Z вверх и единицы измерения</li>
+<li><a data-doc="vehicle/sections/props" href="/docs/vehicle/sections/props">Props</a>
+ — системы координат пропов</li>
+<li><a href="https://documentation.beamng.com/beamng_tech/sensors/" rel="noopener" target="_blank">Сенсоры BeamNG.tech</a>
+ — пространство транспортного средства и мировое пространство для сенсоров</li>
+</ul>

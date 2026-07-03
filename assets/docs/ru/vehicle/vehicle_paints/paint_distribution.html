@@ -1,0 +1,48 @@
+<p>Система распределения красок используется для генерации реалистичного распределения цветов окраски среди транспортных средств в трафике. В будущем планируется также применять эту систему в различных системах случайного появления транспорта в карьерном режиме, например для соперников в гонках и инвентаря дилерских центров.</p>
+<h3 id="implementation">
+
+  Implementation
+</h3>
+<p>В главный файл <code>info.json</code> транспортных средств, предназначенных для использования в трафике, мы добавляем несколько новых свойств:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"defaultRandomPaintProbability"</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"defaultRandomMultiPaintProbability"</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"randomPaintDistribution"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"white"</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"silver"</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"gray"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"black"</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Old White"</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Pearl Black"</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Old Black"</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Metallic Blue"</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Dark Blue"</span><span class="o">:</span><span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Blue Silver"</span><span class="o">:</span><span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Teal"</span><span class="o">:</span><span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"randomMultiPaintDistribution"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"team_offroad_colors"</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"rennspecht_green_colors"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div><p>Это добавляет веса к функции случайного выбора краски, используемой для транспортных средств в трафике. <code>defaultRandomPaintProbability</code> — это вес по умолчанию, применяемый к каждой доступной краске. Затем в списке <code>randomPaintDistribution</code> для определённых красок их веса переопределяются, чтобы сделать их более или менее вероятными при появлении в трафике. То же самое относится к <code>defaultRandomMultiPaintProbability</code> и <code>randomMultiPaintDistribution</code>.</p>
+<p>Отдельные конфигурации могут использовать те же свойства. Они переопределят значения, объявленные в главном файле info.json. Можно добавить новые веса красок и заменить отдельные существующие, при этом остальные веса будут унаследованы из главного файла info.json. Например, можно сделать отдельную конфигурацию в 10 раз более вероятной для появления в определённом цвете, переопределив вес этого цвета в её файле info.</p>
+<p>Кроме того, файлы info конфигураций могут использовать новое свойство <code>ignoreModelRandomPaintDistribution</code>. Если оно установлено в true, это полностью заменит список <code>randomPaintDistribution</code> для данной конкретной конфигурации. Его можно использовать для ограничения определённых цветов на отдельных конфигурациях. Существует аналогичная опция <code>ignoreModelRandomMultiPaintDistribution</code> для <a data-doc="vehicle/vehicle_paints/multi_paint_setup" href="/docs/vehicle/vehicle_paints/multi_paint_setup">multi-paint setup</a>
+ также.</p>
+<h3 id="testing">
+
+  Testing
+</h3>
+<p>Ручная проверка взвешенного распределения красок может быть затруднительной, поэтому для автоматизированного тестирования доступна консольная команда:</p>
+<p><code>core_vehiclePaints.testRandomPaint('model', 'config', #samples)</code></p>
+<p>Параметры — это внутреннее имя модели транспортного средства, название его конфигурации (можно установить в nil для тестирования всех конфигураций транспортного средства) и количество образцов для тестирования. Консоль эмулирует появление заданного количества транспортных средств/конфигураций (без их физического создания) и выводит список повторяющихся красок. Для каждой будет указано количество появлений, процент, тип (краска или multi-paint setup) и названия красок, использованных на всех трёх цветовых палитрах.</p>
+<p>Пример 1: 1000 красок для модели simple_traffic
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/paint_distribution/dist_vehicle.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/paint_distribution/dist_vehicle_hu77bac01404017dbb51996a513e02f788_652454_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>core_vehiclePaints.testRandomPaint('simple_traffic', nil, 1000)</em></p>
+<p>Пример 2: 1000 красок для модели simple_traffic с конфигурацией van_delivery
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/paint_distribution/dist_config.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/paint_distribution/dist_config_hub2b9b63c758b1cad725c5f13666de0f8_752735_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>core_vehiclePaints.testRandomPaint('simple_traffic', 'van_delivery', 1000)</em></p>

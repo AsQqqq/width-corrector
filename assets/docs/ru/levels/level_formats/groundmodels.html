@@ -1,0 +1,576 @@
+<p>Этот документ описывает <code>groundmodels.json</code> — формат файла, используемый для определения физического поведения поверхностей в BeamNG.</p>
+<p>Модели поверхностей описывают, как шины, колёса, реквизит и другие физические объекты взаимодействуют с поверхностями: асфальтом, гравием, песком, грязью, снегом, травой или материалами, похожими на воду.</p>
+<p>Они влияют на:</p>
+<ul>
+<li>Сцепление шин</li>
+<li>Скользящее трение</li>
+<li>Сопротивление качению / шероховатость</li>
+<li>Деформацию и погружение</li>
+<li>Гидродинамическое/жидкостное сопротивление</li>
+<li>Тип частиц/материала столкновения</li>
+<li>Поведение следов торможения</li>
+</ul>
+<hr/>
+<h2 id="file-locations">
+
+  Расположение файлов
+</h2>
+<p>Общий/глобальный файл моделей поверхностей находится по пути:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/art/groundmodels.json
+</span></span></code></pre>
+</div><p>Уровни могут добавлять или переопределять модели поверхностей с помощью JSON-файлов, расположенных в:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/groundModels/*.json
+</span></span></code></pre>
+</div><p>При загрузке уровня движок:</p>
+<ol>
+<li>Загружает общий файл:</li>
+</ol>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/art/groundmodels.json
+</span></span></code></pre>
+</div><ol start="2">
+<li>Выполняет поиск в папке текущего уровня для:</li>
+</ol>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">groundModels/*.json
+</span></span></code></pre>
+</div><ol start="3">
+<li>Объединяет модели поверхностей уровня с общим набором.</li>
+<li>Передаёт все модели поверхностей в физический движок.</li>
+</ol>
+<p>Файлы уровней могут переопределять общие модели поверхностей, используя то же имя.</p>
+<hr/>
+<h2 id="basic-structure">
+
+  Базовая структура
+</h2>
+<p>Файл модели поверхности — это JSON-объект, в котором каждый ключ является именем модели поверхности.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"asphalt_special"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessCoefficient"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"staticFrictionCoefficient"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"slidingFrictionCoefficient"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"hydrodynamicFriction"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"stribeckVelocity"</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"strength"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"collisiontype"</span><span class="p">:</span> <span class="s2">"ASPHALT"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fluidDensity"</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"flowConsistencyIndex"</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"flowBehaviorIndex"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dragAnisotropy"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"skidMarks"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"defaultDepth"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"shearStrength"</span><span class="p">:</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="ground-model-names">
+
+  Имена моделей поверхностей
+</h2>
+<p>Имена моделей поверхностей преобразуются в верхний регистр при загрузке.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"asphalt_special"</span><span class="err">:</span> <span class="p">{}</span>
+</span></span></code></pre>
+</div><p>становится:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">ASPHALT_SPECIAL
+</span></span></code></pre>
+</div><p>Имена длиннее 31 символа усекаются.</p>
+<div class="bng-notice warning">Используйте короткие и уникальные имена моделей поверхностей. Имена длиннее 31 символа обрезаются при загрузке.</div>
+<hr/>
+<h2 id="aliases">
+
+  Псевдонимы
+</h2>
+<p>Модель поверхности может определять псевдонимы:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"asphalt_special"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aliases"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"road_special"</span><span class="p">,</span> <span class="s2">"tarmac_extra"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"staticFrictionCoefficient"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"slidingFrictionCoefficient"</span><span class="p">:</span> <span class="mf">0.9</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Это регистрирует несколько имён для одних и тех же данных модели поверхности:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">ASPHALT_SPECIAL
+</span></span><span class="line"><span class="cl">ROAD_SPECIAL
+</span></span><span class="line"><span class="cl">TARMAC_EXTRA
+</span></span></code></pre>
+</div><p>Псевдонимы удобны, когда различные системы, материалы рельефа или устаревший контент используют разные имена для одного и того же поведения поверхности.</p>
+<hr/>
+<h2 id="fields">
+
+  Поля
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>По умолчанию</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aliases</code></td>
+<td>array[string]</td>
+<td><code>[]</code></td>
+<td>Дополнительные имена для данной модели поверхности.</td>
+</tr>
+<tr>
+<td><code>roughnessCoefficient</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Шероховатость поверхности, используемая при физическом взаимодействии.</td>
+</tr>
+<tr>
+<td><code>defaultDepth</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Глубина поверхности по умолчанию, используется для поведения деформируемого/мягкого рельефа.</td>
+</tr>
+<tr>
+<td><code>staticFrictionCoefficient</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Коэффициент статического трения. Влияет на сцепление до начала скольжения.</td>
+</tr>
+<tr>
+<td><code>slidingFrictionCoefficient</code></td>
+<td>number</td>
+<td><code>0.7</code></td>
+<td>Коэффициент скользящего/кинетического трения. Влияет на сцепление во время скольжения.</td>
+</tr>
+<tr>
+<td><code>hydrodynamicFriction</code></td>
+<td>number</td>
+<td><code>0.01</code></td>
+<td>Сопротивление, обусловленное жидкостным/деформируемым поведением поверхности.</td>
+</tr>
+<tr>
+<td><code>stribeckVelocity</code></td>
+<td>number</td>
+<td><code>6</code></td>
+<td>Параметр скорости для поведения перехода трения.</td>
+</tr>
+<tr>
+<td><code>strength</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Прочность/сопротивление поверхности.</td>
+</tr>
+<tr>
+<td><code>collisiontype</code></td>
+<td>string</td>
+<td><code>0</code></td>
+<td>Имя материала частиц/столкновения. Разрешается через таблицу материалов частиц.</td>
+</tr>
+<tr>
+<td><code>fluidDensity</code></td>
+<td>number</td>
+<td><code>200</code></td>
+<td>Плотность, используемая для жидкостного взаимодействия с поверхностью.</td>
+</tr>
+<tr>
+<td><code>flowConsistencyIndex</code></td>
+<td>number</td>
+<td><code>10000</code></td>
+<td>Параметр консистентности потока для неньютоновских/деформируемых поверхностей.</td>
+</tr>
+<tr>
+<td><code>flowBehaviorIndex</code></td>
+<td>number</td>
+<td><code>0.5</code></td>
+<td>Параметр поведения потока для неньютоновских/деформируемых поверхностей.</td>
+</tr>
+<tr>
+<td><code>dragAnisotropy</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Анизотропия сопротивления по направлениям.</td>
+</tr>
+<tr>
+<td><code>skidMarks</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Определяет, могут ли на данной поверхности оставаться следы торможения.</td>
+</tr>
+<tr>
+<td><code>shearStrength</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Прочность поверхности на сдвиг.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="deprecated-typo-fields">
+
+  Устаревшие / неправильно написанные поля
+</h2>
+<p>Загрузчик обнаруживает некоторые старые поля с опечатками и записывает ошибки в журнал.</p>
+<p>Используйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"hydrodynamicFriction"</span>
+</span></span></code></pre>
+</div><p>а не:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"hydrodnamicFriction"</span>
+</span></span></code></pre>
+</div><p>Используйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"flowBehaviorIndex"</span>
+</span></span></code></pre>
+</div><p>а не:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"flowBehaviourIndex"</span>
+</span></span></code></pre>
+</div><p>Старые имена могут по-прежнему считываться для обратной совместимости, однако их следует исправить.</p>
+<hr/>
+<h2 id="unknown-fields">
+
+  Неизвестные поля
+</h2>
+<p>Неизвестные атрибуты игнорируются и записываются в журнал как ошибки.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Unknown ground model attribute: myCustomValue - IGNORED
+</span></span></code></pre>
+</div><p>Следует использовать только поддерживаемые поля.</p>
+<hr/>
+<h2 id="friction-fields">
+
+  Поля трения
+</h2>
+<h3 id="staticfrictioncoefficient">
+
+  staticFrictionCoefficient
+</h3>
+<p>Управляет сцеплением, когда шина/пятно контакта не скользит.</p>
+<p>Более высокие значения, как правило, означают лучшее сцепление.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"staticFrictionCoefficient"</span><span class="err">:</span> <span class="mf">1.0</span>
+</span></span></code></pre>
+</div>
+<h3 id="slidingfrictioncoefficient">
+
+  slidingFrictionCoefficient
+</h3>
+<p>Управляет сцеплением во время скольжения.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"slidingFrictionCoefficient"</span><span class="err">:</span> <span class="mf">0.8</span>
+</span></span></code></pre>
+</div><p>Как правило, это значение ниже, чем статическое трение.</p>
+<hr/>
+<h2 id="roughness">
+
+  Шероховатость
+</h2>
+<p><code>roughnessCoefficient</code> управляет физической шероховатостью поверхности.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"roughnessCoefficient"</span><span class="err">:</span> <span class="mf">0.05</span>
+</span></span></code></pre>
+</div><p>Более шероховатые поверхности могут делать езду более тряской или менее плавной в зависимости от автомобиля и взаимодействия шин.</p>
+<hr/>
+<h2 id="depth-and-soft-ground">
+
+  Глубина и мягкий грунт
+</h2>
+<p><code>defaultDepth</code> используется для моделей поверхностей, представляющих мягкий или деформируемый грунт.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"defaultDepth"</span><span class="err">:</span> <span class="mf">0.15</span>
+</span></span></code></pre>
+</div><p>Это полезно для:</p>
+<ul>
+<li>Грязи</li>
+<li>Песка</li>
+<li>Снега</li>
+<li>Гравия</li>
+<li>Глубокой земли</li>
+</ul>
+<hr/>
+<h2 id="fluid-deformable-parameters">
+
+  Параметры жидкости/деформируемого грунта
+</h2>
+<p>Эти поля управляют более продвинутым жидкостным или деформируемым поведением поверхности:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"fluidDensity"</span><span class="err">:</span> <span class="mi">800</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"flowConsistencyIndex"</span><span class="err">:</span> <span class="mi">12000</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"flowBehaviorIndex"</span><span class="err">:</span> <span class="mf">0.6</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"hydrodynamicFriction"</span><span class="err">:</span> <span class="mf">0.05</span>
+</span></span></code></pre>
+</div><p>Они полезны для таких поверхностей, как:</p>
+<ul>
+<li>Грязь</li>
+<li>Влажный песок</li>
+<li>Глубокий снег</li>
+<li>Зоны сопротивления, похожие на воду</li>
+</ul>
+<hr/>
+<h2 id="collision-type">
+
+  Тип столкновения
+</h2>
+<p><code>collisiontype</code> связывает модель поверхности с именем материала частиц/столкновения.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"collisiontype"</span><span class="err">:</span> <span class="s2">"DIRT"</span>
+</span></span></code></pre>
+</div><p>Значение разрешается через таблицу материалов частиц.</p>
+<p>Это может влиять на такие эффекты, как:</p>
+<ul>
+<li>Частицы</li>
+<li>Пыль</li>
+<li>Обломки</li>
+<li>Визуальное взаимодействие с поверхностью</li>
+</ul>
+<hr/>
+<h2 id="skid-marks">
+
+  Следы торможения
+</h2>
+<p><code>skidMarks</code> управляет тем, допускаются ли следы торможения на данной модели поверхности.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"skidMarks"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Типичное использование:</p>
+<table>
+<thead>
+<tr>
+<th>Поверхность</th>
+<th>skidMarks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Асфальт</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td>Бетон</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td>Грунт</td>
+<td>зависит от настроек</td>
+</tr>
+<tr>
+<td>Трава</td>
+<td>обычно <code>false</code></td>
+</tr>
+<tr>
+<td>Вода</td>
+<td><code>false</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="level-specific-ground-models">
+
+  Модели поверхностей, специфичные для уровня
+</h2>
+<p>Уровни могут переопределять или добавлять модели поверхностей, размещая JSON-файлы в:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/groundModels/
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example/groundModels/wet_surfaces.json
+</span></span></code></pre>
+</div><div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"wet_asphalt"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aliases"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rain_asphalt"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"staticFrictionCoefficient"</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"slidingFrictionCoefficient"</span><span class="p">:</span> <span class="mf">0.55</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessCoefficient"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"hydrodynamicFriction"</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"collisiontype"</span><span class="p">:</span> <span class="s2">"ASPHALT"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"skidMarks"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Файлы уровней объединяются после общего файла, поэтому они могут заменять общие определения при использовании того же имени.</p>
+<hr/>
+<h2 id="relationship-with-terrain-materials">
+
+  Связь с материалами рельефа
+</h2>
+<p>Материалы рельефа могут ссылаться на модель поверхности с помощью:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">groundmodelName
+</span></span></code></pre>
+</div><p>Пример поля материала рельефа:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"groundmodelName"</span><span class="err">:</span> <span class="s2">"grass"</span>
+</span></span></code></pre>
+</div><p>Когда транспортное средство едет по рельефу, использующему этот материал, соответствующая модель поверхности управляет физическим поведением поверхности.</p>
+<hr/>
+<h2 id="relationship-with-object-materials">
+
+  Связь с материалами объектов
+</h2>
+<p>Материалы также могут определять поведение поверхности/столкновения через настройки физического материала в зависимости от типа объекта и настройки столкновения.</p>
+<p>Для рельефа в частности, <code>TerrainMaterial.groundmodelName</code> является ключевой связью.</p>
+<hr/>
+<h2 id="reloading">
+
+  Перезагрузка
+</h2>
+<p>Модели поверхностей загружаются при запуске миссии.</p>
+<p>Они также могут перезагружаться при изменении одного из загруженных JSON-файлов моделей поверхностей. Когда это происходит, система окружения перезагружает модели поверхностей, и коллизии могут быть перезагружены, чтобы новые значения вступили в силу.</p>
+<hr/>
+<h2 id="minimal-example">
+
+  Минимальный пример
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"asphalt_special"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aliases"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"road_special"</span><span class="p">,</span> <span class="s2">"tarmac_extra"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessCoefficient"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"staticFrictionCoefficient"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"slidingFrictionCoefficient"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"hydrodynamicFriction"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"stribeckVelocity"</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"strength"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"collisiontype"</span><span class="p">:</span> <span class="s2">"ASPHALT"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fluidDensity"</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"flowConsistencyIndex"</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"flowBehaviorIndex"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dragAnisotropy"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"skidMarks"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"defaultDepth"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"shearStrength"</span><span class="p">:</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"mud_deeper"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aliases"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"deep_mud"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessCoefficient"</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"defaultDepth"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"staticFrictionCoefficient"</span><span class="p">:</span> <span class="mf">0.55</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"slidingFrictionCoefficient"</span><span class="p">:</span> <span class="mf">0.35</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"hydrodynamicFriction"</span><span class="p">:</span> <span class="mf">0.08</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"stribeckVelocity"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"strength"</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"collisiontype"</span><span class="p">:</span> <span class="s2">"MUD"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fluidDensity"</span><span class="p">:</span> <span class="mi">900</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"flowConsistencyIndex"</span><span class="p">:</span> <span class="mi">15000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"flowBehaviorIndex"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dragAnisotropy"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"skidMarks"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"shearStrength"</span><span class="p">:</span> <span class="mf">0.2</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>Используйте короткие и описательные имена.</li>
+<li>Используйте псевдонимы для обратной совместимости или альтернативных имён.</li>
+<li>Используйте файлы, специфичные для уровня, только для поведения, специфичного для данного уровня.</li>
+<li>В большинстве случаев статическое трение должно быть выше скользящего.</li>
+<li>Используйте <code>skidMarks</code> только там, где следы имеют смысл.</li>
+<li>Используйте <code>defaultDepth</code> и параметры жидкости/деформируемого грунта для мягкого рельефа.</li>
+<li>Избегайте неизвестных полей — они игнорируются.</li>
+<li>Исправляйте поля с опечатками/устаревшие поля при обнаружении в журналах.</li>
+<li>Проверяйте поведение транспортного средства после изменения значений трения или глубины.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="ground-model-does-not-apply">
+
+  Модель поверхности не применяется
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>В материале рельефа указано неверное значение <code>groundmodelName</code></li>
+<li>Имя модели поверхности было усечено</li>
+<li>Файл модели поверхности не был загружен</li>
+<li>Несоответствие имён после преобразования в верхний регистр</li>
+<li>Материал/настройка столкновения не использует данную модель поверхности</li>
+</ul>
+<h3 id="warning-about-unknown-attribute">
+
+  Предупреждение о неизвестном атрибуте
+</h3>
+<p>JSON содержит неподдерживаемое поле. Удалите или переименуйте его.</p>
+<h3 id="warning-about-misspelled-field">
+
+  Предупреждение о поле с опечаткой
+</h3>
+<p>Замените старые поля с опечатками:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">hydrodnamicFriction → hydrodynamicFriction
+</span></span><span class="line"><span class="cl">flowBehaviourIndex → flowBehaviorIndex
+</span></span></code></pre>
+</div>
+<h3 id="surface-has-too-much-grip">
+
+  Поверхность имеет слишком высокое сцепление
+</h3>
+<p>Уменьшите:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"staticFrictionCoefficient"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"slidingFrictionCoefficient"</span>
+</span></span></code></pre>
+</div>
+<h3 id="surface-feels-too-soft-or-deep">
+
+  Поверхность кажется слишком мягкой или глубокой
+</h3>
+<p>Уменьшите:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"defaultDepth"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"hydrodynamicFriction"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"fluidDensity"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"flowConsistencyIndex"</span>
+</span></span></code></pre>
+</div>
+<h3 id="skid-marks-missing">
+
+  Следы торможения отсутствуют
+</h3>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"skidMarks"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>и убедитесь, что взаимодействие материала/поверхности поддерживает следы торможения.</p>
+<hr/>
+<h2 id="summary">
+
+  Итог
+</h2>
+<p><code>groundmodels.json</code> определяет физическое поведение поверхностей.</p>
+<p>Файл управляет тем, как транспортные средства и физические объекты взаимодействуют с поверхностями через трение, шероховатость, глубину, сопротивление, тип материала столкновения частиц и настройки следов торможения.</p>
+<p>Общий файл загружается первым:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/art/groundmodels.json
+</span></span></code></pre>
+</div><p>Специфичные для уровня переопределения загружаются из:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/groundModels/*.json
+</span></span></code></pre>
+</div><p>Модели поверхностей связываются с рельефом через <code>TerrainMaterial.groundmodelName</code>.</p>

@@ -1,0 +1,403 @@
+<p><code>SpawnSphere</code> — это объект-маркер, используемый для задания точек появления (спавна) на уровне. В уровнях BeamNG он чаще всего применяется как именованная точка спавна, на которую ссылается <code>info.json</code>.</p>
+<p><code>SpawnSphere</code> является разновидностью <code>MissionMarker</code>, то есть представляет собой преимущественно маркер 3D-редактора, а не игровую геометрию. Он отображается в World Editor, но не предназначен для отображения как обычный объект уровня во время игры.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Базовый пример
+</h2>
+<p>Пример <code>SpawnSphere</code> в файле <code>items.level.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SpawnSphere"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dataBlock"</span><span class="p">:</span> <span class="s2">"SpawnSphereMarker"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Затем на этот объект можно сослаться из <code>info.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"defaultSpawnPointName"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"spawnPoints"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.default.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_default.jpg"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="main-purpose">
+
+  Основное назначение
+</h2>
+<p>При современном создании уровней <code>SpawnSphere</code> используется главным образом для:</p>
+<ul>
+<li>Позиций появления игрока</li>
+<li>Выбора точки спавна в интерфейсе уровня</li>
+<li>Точек интереса (POI) на большой карте</li>
+<li>Мест спавна в режиме свободного движения</li>
+<li>Референсных позиций для сценариев/миссий</li>
+<li>Маркеров спавна, видимых в редакторе</li>
+</ul>
+<p>Наиболее важной частью является имя объекта. Записи точек спавна в <code>info.json</code> ссылаются на <code>SpawnSphere</code> по его <code>objectname</code>.</p>
+<hr/>
+<h2 id="important-fields">
+
+  Важные поля
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Должно быть равно <code>"SpawnSphere"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя объекта на сцене. Используется записями точек спавна в <code>info.json</code>.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Позиция маркера спавна в мировых координатах.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Ориентация точки спавна. Используется для ориентации спавнящихся транспортных средств и камеры.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Масштаб маркера в редакторе. Обычно <code>[1, 1, 1]</code>.</td>
+</tr>
+<tr>
+<td><code>dataBlock</code></td>
+<td>string</td>
+<td>Датаблок маркера, используемый для визуализации в редакторе; обычно <code>SpawnSphereMarker</code>.</td>
+</tr>
+<tr>
+<td><code>spawnClass</code></td>
+<td>string</td>
+<td>Устаревшее/общее поле для спавна объектов. Как правило, не нужно для точек спавна на уровне.</td>
+</tr>
+<tr>
+<td><code>spawnDatablock</code></td>
+<td>string</td>
+<td>Устаревшее/общее поле для спавна объектов.</td>
+</tr>
+<tr>
+<td><code>spawnProperties</code></td>
+<td>string</td>
+<td>Устаревшие/общие свойства спавна объектов.</td>
+</tr>
+<tr>
+<td><code>spawnScript</code></td>
+<td>string</td>
+<td>Устаревший скрипт, выполняемый после спавна объекта.</td>
+</tr>
+<tr>
+<td><code>autoSpawn</code></td>
+<td>bool</td>
+<td>Устаревшее поведение: спавнит объект при создании SpawnSphere.</td>
+</tr>
+<tr>
+<td><code>spawnTransform</code></td>
+<td>bool</td>
+<td>Применяет трансформацию SpawnSphere к спавнящемуся объекту при использовании устаревшего поведения спавна.</td>
+</tr>
+<tr>
+<td><code>radius</code></td>
+<td>number</td>
+<td>Устарело.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="relationship-with-infojson">
+
+  Связь с info.json
+</h2>
+<p>Точки спавна, отображаемые в селекторе уровней и на большой карте, задаются в <code>info.json</code>, однако их фактическая трансформация в мировых координатах берётся из объекта на сцене.</p>
+<p>Поле <code>objectname</code> в <code>info.json</code> должно совпадать с именем объекта <code>SpawnSphere</code>.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.docks"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.docks.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_docks"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_docks.jpg"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Соответствующий объект на сцене:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SpawnSphere"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"spawns_docks"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">125</span><span class="p">,</span> <span class="mi">420</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">-1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dataBlock"</span><span class="p">:</span> <span class="s2">"SpawnSphereMarker"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><div class="bng-notice warning">Если <code>info.json</code> ссылается на объект точки спавна, которого не существует, точка спавна может не отображаться или вызывать ошибку при выборе.</div>
+<hr/>
+<h2 id="default-spawn-point">
+
+  Точка спавна по умолчанию
+</h2>
+<p>Точка спавна по умолчанию задаётся в <code>info.json</code> с помощью:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"defaultSpawnPointName"</span><span class="err">:</span> <span class="s2">"spawns_default"</span>
+</span></span></code></pre>
+</div><p>Значение должно совпадать с именем объекта <code>SpawnSphere</code>.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SpawnSphere"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Если подходящая точка спавна по умолчанию не найдена, система уровня может создать резервную запись точки спавна по умолчанию.</p>
+<hr/>
+<h2 id="position">
+
+  Позиция
+</h2>
+<p><code>position</code> задаёт местоположение точки спавна.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"position"</span><span class="err">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Размещайте точки спавна:</p>
+<ul>
+<li>На проходимой поверхности или дорожном покрытии</li>
+<li>С достаточным запасом пространства для транспортного средства по умолчанию</li>
+<li>Вдали от стен, пропов и трафика</li>
+<li>Вдали от крутых склонов, если это не задумано намеренно</li>
+<li>В местах, безопасных сразу после загрузки уровня</li>
+</ul>
+<hr/>
+<h2 id="rotation">
+
+  Поворот
+</h2>
+<p><code>rotationMatrix</code> задаёт ориентацию точки спавна.</p>
+<p>Это влияет на то, в каком направлении будут смотреть транспортные средства при появлении.</p>
+<p>Пример единичного поворота (identity rotation):</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"rotationMatrix"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>При задании точек спавна убедитесь, что вектор «вперёд» направлен в сторону безопасного направления движения.</p>
+<div class="bng-notice info">Если транспортное средство появляется лицом в неправильную сторону, поверните объект <code>SpawnSphere</code> в World Editor и сохраните уровень.</div>
+<hr/>
+<h2 id="scale">
+
+  Масштаб
+</h2>
+<p><code>scale</code> управляет размером маркера в редакторе.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Для обычных точек спавна на уровне сохраняйте значение:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Устаревшее поле <code>radius</code> является устаревшим и не должно использоваться для современного поведения точек спавна.</p>
+<hr/>
+<h2 id="datablock">
+
+  dataBlock
+</h2>
+<p>Сферы спавна обычно визуализируются с помощью датаблока маркера:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"dataBlock"</span><span class="err">:</span> <span class="s2">"SpawnSphereMarker"</span>
+</span></span></code></pre>
+</div><p>Этот датаблок задаёт форму в редакторе, используемую для отображения маркера, — как правило, зелёный октаэдр.</p>
+<p>Если датаблок отсутствует, точка спавна может логически существовать, но визуализация в редакторе может быть нарушена.</p>
+<hr/>
+<h2 id="missionmarker-behavior">
+
+  Поведение MissionMarker
+</h2>
+<p><code>SpawnSphere</code> наследует от <code>MissionMarker</code>.</p>
+<p>Маркеры миссий добавляются на сцену главным образом во время редактирования, чтобы их можно было видеть и ими можно было управлять в World Editor.</p>
+<p>Они не предназначены для роли видимых игровых мешей.</p>
+<hr/>
+<h2 id="legacy-generic-spawning-fields">
+
+  Устаревшие поля общего спавна
+</h2>
+<p><code>SpawnSphere</code> также поддерживает устаревшее общее поведение спавна через такие поля, как:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"spawnClass"</span><span class="err">:</span> <span class="s2">"Player"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"spawnDatablock"</span><span class="err">:</span> <span class="s2">"DefaultPlayerData"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"spawnProperties"</span><span class="err">:</span> <span class="s2">"name = \"Bob\";"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"spawnScript"</span><span class="err">:</span> <span class="s2">"echo(\"Spawned object\");"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"autoSpawn"</span><span class="err">:</span> <span class="kc">true</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"spawnTransform"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Эта система может создавать объект, используя <code>spawnClass</code> и <code>spawnDatablock</code>, с опциональным применением свойств и скрипта.</p>
+<p>Однако для современных точек спавна на уровнях BeamNG эти поля обычно не требуются.</p>
+<div class="bng-notice note">Для обычных точек спавна на уровне используйте <code>SpawnSphere</code> как именованный маркер, на который ссылается <code>info.json</code>. Не используйте <code>autoSpawn</code>, если вам не требуется именно устаревшее поведение спавна объектов.</div>
+<hr/>
+<h2 id="spawnobject">
+
+  spawnObject()
+</h2>
+<p>У <code>SpawnSphere</code> есть функция <code>spawnObject()</code>, которая может создавать объект на основе его устаревших полей спавна.</p>
+<p>Создаваемый объект может опционально получить трансформацию <code>SpawnSphere</code>, если:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"spawnTransform"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Объект добавляется в <code>MissionCleanup</code>, если этот контейнер доступен.</p>
+<p>Это преимущественно устаревшая функциональность, которую не следует путать с обычным выбором точки спавна игрока.</p>
+<hr/>
+<h2 id="big-map-and-poi-integration">
+
+  Интеграция с большой картой и POI
+</h2>
+<p>Точки спавна из <code>info.json</code> могут отображаться как POI на большой карте.</p>
+<p>Система уровня:</p>
+<ol>
+<li>Читает <code>info.json</code>.</li>
+<li>Перебирает записи в <code>spawnPoints</code>.</li>
+<li>Находит объект с именем, указанным в <code>objectname</code>.</li>
+<li>Использует позицию этого объекта для маркера POI.</li>
+<li>Использует данные предпросмотра/описания из <code>info.json</code>.</li>
+</ol>
+<p>Если объект <code>SpawnSphere</code> отсутствует, POI может не быть создан.</p>
+<hr/>
+<h2 id="example-multiple-spawn-points">
+
+  Пример: несколько точек спавна
+</h2>
+<p><code>items.level.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SpawnSphere"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"spawns_city"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">100</span><span class="p">,</span><span class="mi">200</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"dataBlock"</span><span class="p">:</span><span class="s2">"SpawnSphereMarker"</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SpawnSphere"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"spawns_highway"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">500</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">-1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"dataBlock"</span><span class="p">:</span><span class="s2">"SpawnSphereMarker"</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SpawnSphere"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"spawns_docks"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">-250</span><span class="p">,</span><span class="mi">400</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"dataBlock"</span><span class="p">:</span><span class="s2">"SpawnSphereMarker"</span><span class="p">}</span>
+</span></span></code></pre>
+</div><p><code>info.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"defaultSpawnPointName"</span><span class="p">:</span> <span class="s2">"spawns_city"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"spawnPoints"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.city"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.city.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_city"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_city.jpg"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.highway"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.highway.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_highway"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_highway.jpg"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.docks"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.docks.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_docks"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_docks.jpg"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>Используйте <code>SpawnSphere</code> для точек спавна на уровне.</li>
+<li>Давайте каждой точке спавна понятное, неизменное имя.</li>
+<li>Ссылайтесь на точки спавна из <code>info.json</code> через <code>objectname</code>.</li>
+<li>Убедитесь, что <code>defaultSpawnPointName</code> соответствует существующей точке спавна.</li>
+<li>Размещайте точки спавна на безопасных, достаточно ровных поверхностях.</li>
+<li>Ориентируйте точки спавна в направлении безопасного движения.</li>
+<li>Сохраняйте <code>scale</code> равным <code>[1, 1, 1]</code>, если не нужен увеличенный маркер в редакторе.</li>
+<li>Не используйте устаревшее поле <code>radius</code>.</li>
+<li>Избегайте устаревшего поведения <code>autoSpawn</code> для обычных точек спавна на уровне.</li>
+<li>Используйте изображения предпросмотра для каждой точки спавна в <code>info.json</code>.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="spawn-point-does-not-appear-in-level-selector">
+
+  Точка спавна не отображается в селекторе уровней
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Отсутствует запись в <code>info.json</code></li>
+<li>В записи <code>spawnPoints</code> не указан <code>objectname</code></li>
+<li><code>objectname</code> не совпадает с именем <code>SpawnSphere</code></li>
+<li>Объект точки спавна отсутствует в <code>items.level.json</code></li>
+</ul>
+<h3 id="default-spawn-is-wrong">
+
+  Неверная точка спавна по умолчанию
+</h3>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"defaultSpawnPointName"</span><span class="err">:</span> <span class="s2">"spawns_default"</span>
+</span></span></code></pre>
+</div><p>и убедитесь, что соответствующий объект <code>SpawnSphere</code> существует.</p>
+<h3 id="vehicle-spawns-facing-wrong-direction">
+
+  Транспортное средство появляется лицом в неверном направлении
+</h3>
+<p>Поверните <code>SpawnSphere</code> в World Editor и сохраните уровень.</p>
+<h3 id="vehicle-spawns-inside-geometry">
+
+  Транспортное средство появляется внутри геометрии
+</h3>
+<p>Переместите <code>SpawnSphere</code> в более безопасное место с достаточным запасом пространства.</p>
+<h3 id="spawn-marker-is-not-visible-in-editor">
+
+  Маркер спавна не виден в редакторе
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Отсутствует <code>dataBlock</code></li>
+<li>Визуализация маркеров в редакторе отключена</li>
+<li>Редактор не активен</li>
+<li>Объект-маркер скрыт</li>
+</ul>
+<h3 id="unexpected-object-spawns-automatically">
+
+  Неожиданный автоматический спавн объекта
+</h3>
+<p>Проверьте, не активирован ли устаревший спавн:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoSpawn"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Для обычных маркеров точек спавна на уровне это значение должно быть false или поле должно быть опущено.</p>
+<hr/>
+<h2 id="summary">
+
+  Итог
+</h2>
+<p><code>SpawnSphere</code> — стандартный объект-маркер для точек спавна на уровне.</p>
+<p>В современных уровнях BeamNG он используется главным образом как именованная трансформация, на которую ссылаются записи точек спавна в <code>info.json</code>. Объект предоставляет позицию и поворот, тогда как <code>info.json</code> предоставляет текст интерфейса, изображения предпросмотра и выбор точки спавна по умолчанию.</p>
+<p>Устаревшие поля общего спавна объектов по-прежнему существуют, но для настройки точек спавна на уровне они обычно не требуются.</p>

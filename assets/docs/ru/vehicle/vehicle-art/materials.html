@@ -1,0 +1,362 @@
+<h2 id="naming-organization-in-game-engine">
+
+  Именование и организация в игровом движке
+</h2>
+<p>Теоретически каждый меш может иметь отдельный материал без потери производительности. Однако их можно объединять, чтобы не сойти с ума как художнику. Это также упростит организацию и сопровождение проекта.</p>
+<p><strong><div class="bng-mark caution">НО</div></strong>
+Например, <strong>мы не хотим загружать карту 2048x2048 только ради другого руля</strong>, поскольку на нём присутствует множество других деталей.</p>
+<div class="line-inner-small"></div>
+<h3 id="material-naming-guidelines">
+
+  Правила именования материалов
+</h3>
+<p><span class="bng-mark caution"><strong>Имена материалов должны быть определены до начала проекта</strong></span><br/>
+<em>(потому что изменить имена в процессе разработки в Substance Painter затруднительно)</em></p>
+<ul>
+<li>Имена должны следовать формату: <code>"vehicle_dev_name"_"material_type"</code></li>
+</ul>
+<div class="bng-notice usage"><p><strong>Примеры:</strong></p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="s2">"pickup_main"</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="s2">"pickup_interior"</span>
+</span></span></code></pre>
+</div></div>
+<hr/>
+<h3 id="object-material-naming-rules">
+
+  Правила именования объектов и материалов
+</h3>
+<ul>
+<li><strong>Объекты и материалы должны</strong>:
+<ul>
+<li>Иметь <strong>понятные имена</strong></li>
+<li>Имена <strong>не должны содержать специальных символов</strong>, допускается только <code>_</code> (т.е. snake case)</li>
+</ul>
+</li>
+<li><strong>Каждый материал должен быть назначен отдельно в Blender</strong></li>
+</ul>
+<hr/>
+<h3 id="standard-material-names-descriptions">
+
+  Стандартные имена и описания материалов
+</h3>
+<div class="bng-table" id="material-info"><div class="bng-table-header"><div>Тип материала</div><div>Размер текстуры</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div>Тип материала</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>main</code></div>
+</div><div>
+<div>Размер текстуры</div>
+<div style="text-align: left;">4096x2048</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;"><p>Кабина, панели кузова, внешние меши, внутренние окрашенные металлические меши, внешний каркас безопасности, платформа, надстройки.</p>
+<p>Этот материал использует UV0 для карт нормалей.</p>
+<p>UV1 содержит UV-развёртку для обтяжки кузова.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип материала</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>interior</code></div>
+</div><div>
+<div>Размер текстуры</div>
+<div style="text-align: left;">2048x2048 to 4096x4096</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Панель приборов, руль, сиденья, прочие детали интерьера.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип материала</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>wrap</code></div>
+</div><div>
+<div>Размер текстуры</div>
+<div style="text-align: left;">4096x2048</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;"><p>Скин транспортного средства (наклейки и текстуры кузова).</p>
+<p>Использует UV1 для минимизации искажений.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип материала</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>mechanical</code></div>
+</div><div>
+<div>Размер текстуры</div>
+<div style="text-align: left;">2048x2048</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Трансмиссия, мосты, элементы подвески, топливный бак, выхлопная система, рама.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип материала</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>lights</code></div>
+</div><div>
+<div>Размер текстуры</div>
+<div style="text-align: left;">512x512 to 1024x1024</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;"><p>Фары, задние фонари, указатели поворота, противотуманные фары.</p>
+<p>Содержит три текстуры: <strong>Выкл., Вкл., Повреждён</strong>.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип материала</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>engine/transmission</code></div>
+</div><div>
+<div>Размер текстуры</div>
+<div style="text-align: left;">1024x1024 to 2048x2048</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;"><p>Двигатель, коробка передач, радиатор, трубопроводы, выпускной коллектор.</p>
+<p>Создан для возможности повторного использования двигателей/коробок передач на разных транспортных средствах.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип материала</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>gauges</code></div>
+</div><div>
+<div>Размер текстуры</div>
+<div style="text-align: left;">1024x512</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;"><p>Приборная панель.</p>
+<p>Содержит две текстуры: <strong>С подсветкой и без подсветки</strong>.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип материала</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><p><code>grille</code></p>
+<p><em>(альфа-канал)</em></p>
+</div>
+</div><div>
+<div>Размер текстуры</div>
+<div style="text-align: left;">По дизайну</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;"><p>Решётки радиатора, эмблемы, 2D-значки.</p>
+<p>Используется для объектов, требующих прозрачности (например, наклейки с болтами).</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип материала</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><p><code>glass</code></p>
+<p><em>(альфа-канал)</em></p>
+</div>
+</div><div>
+<div>Размер текстуры</div>
+<div style="text-align: left;">1024x1024 to 2048x2048</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;"><p>Стёкла.</p>
+<p>Содержит два состояния материала: <strong>Разбитое и целое</strong>.</p>
+<p>Разбитое состояние переключается динамически при деформации меша.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип материала</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><p><code>lettering</code></p>
+<p><em>(альфа-канал)</em></p>
+</div>
+</div><div>
+<div>Размер текстуры</div>
+<div style="text-align: left;">512x512 to 1024x1024</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Логотипы, эмблемы транспортного средства.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип материала</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>wheel</code></div>
+</div><div>
+<div>Размер текстуры</div>
+<div style="text-align: left;">512x512 to 1024x1024</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Текстура диска.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип материала</div>
+<div style="text-align: left; color: #ff6800; font-weight: bold;"><code>tire</code></div>
+</div><div>
+<div>Размер текстуры</div>
+<div style="text-align: left;">1024x512</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Текстура шины.</div>
+</div></div></div>
+<p><strong>Полезные советы</strong></p>
+<ul>
+<li>
+<p>Помните, что хотя размеры текстур должны строго соответствовать степеням двойки, соотношение сторон не фиксировано. Во многих из этих примеров вы можете использовать набор текстур 1024x512, что рекомендуется, если это наиболее эффективное решение.</p>
+</li>
+<li>
+<p>Всегда используйте только тот размер, который необходим для достаточного качества изображения. Использование больших текстур без необходимости — один из самых простых способов впустую расходовать память.</p>
+</li>
+<li>
+<p>Разрешения текстур в наборе не обязательно должны совпадать. Менее важные или более простые текстуры, например AO или некоторые карты металличности, могут не нуждаться в столь высоком разрешении, как базовый цвет или карта нормалей, и могут иметь более низкое разрешение для экономии памяти.</p>
+</li>
+</ul>
+<div class="line-inner-small"></div>
+<h3 id="dummy-materials">
+
+  Фиктивные материалы
+</h3>
+<h4 id="standard-dummy-material-names">
+
+  Стандартные имена фиктивных материалов
+</h4>
+<div class="bng-table" id="table-1783007352487614865"><div class="bng-table-header"><div><strong>Имя материала</strong></div><div><strong>Описание</strong></div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Имя материала</strong></div>
+<div style=""><code>vehiclename_lowbeam</code></div>
+</div><div>
+<div style=""><strong>Описание</strong></div>
+<div style=""><ul>
+<li>Фары ближнего света</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Имя материала</strong></div>
+<div style=""><code>vehiclename_highbeam</code></div>
+</div><div>
+<div style=""><strong>Описание</strong></div>
+<div style=""><ul>
+<li>Фары дальнего света</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Имя материала</strong></div>
+<div style=""><code>vehiclename_lowhighbeam</code></div>
+</div><div>
+<div style=""><strong>Описание</strong></div>
+<div style=""><ul>
+<li>Огни, которые горят при обоих режимах — дальнем и ближнем свете</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Имя материала</strong></div>
+<div style=""><code>vehiclename_signal_R</code></div>
+</div><div>
+<div style=""><strong>Описание</strong></div>
+<div style=""><ul>
+<li>Правый указатель поворота</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Имя материала</strong></div>
+<div style=""><code>vehiclename_signal_L</code></div>
+</div><div>
+<div style=""><strong>Описание</strong></div>
+<div style=""><ul>
+<li>Левый указатель поворота</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Имя материала</strong></div>
+<div style=""><code>vehiclename_taillight</code></div>
+</div><div>
+<div style=""><strong>Описание</strong></div>
+<div style=""><ul>
+<li>Задние фонари</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Имя материала</strong></div>
+<div style=""><code>vehiclename_brakelight</code></div>
+</div><div>
+<div style=""><strong>Описание</strong></div>
+<div style=""><ul>
+<li>Стоп-сигналы</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Имя материала</strong></div>
+<div style=""><code>vehiclename_reverselight</code></div>
+</div><div>
+<div style=""><strong>Описание</strong></div>
+<div style=""><ul>
+<li>Фонари заднего хода</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Имя материала</strong></div>
+<div style=""><code>vehiclename_foglight</code></div>
+</div><div>
+<div style=""><strong>Описание</strong></div>
+<div style=""><ul>
+<li>Противотуманные фары</li>
+</ul>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style=""><strong>Имя материала</strong></div>
+<div style=""><code>vehiclename_gauges</code></div>
+</div><div>
+<div style=""><strong>Описание</strong></div>
+<div style=""><ul>
+<li>Приборная панель</li>
+</ul>
+</div>
+</div></div></div>
+<hr/>
+<h4 id="shared-dummy-materials">
+
+  Общие фиктивные материалы
+</h4>
+<ul>
+<li><strong>Левые и правые фонари могут использовать один и тот же материал, если их функциональность одинакова</strong> <em>(например, фары, стоп-сигналы)</em></li>
+<li>На некоторых транспортных средствах <strong>задние фонари также используются как указатели поворота</strong> <em>(например, у американских автомобилей, где тот же фонарь мигает как указатель поворота)</em>, поэтому в таком случае необходимо использовать <strong>уникальные материалы для левого и правого фонаря</strong></li>
+</ul>
+<div class="bng-notice usage"><p><strong>Пример:</strong></p>
+<p>Это обеспечит <em>независимое управление</em>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="s2">"vehiclename_taillight_R"</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="s2">"vehiclename_taillight_L"</span>
+</span></span></code></pre>
+</div></div>
+<hr/>
+<h4 id="important-notes">
+
+  Важные замечания
+</h4>
+<ul>
+<li>Объекты, использующие эти материалы, должны быть отделены от остальных</li>
+<li>На одном объекте может находиться несколько фиктивных материалов</li>
+</ul>
+<div class="bng-notice usage"><p><strong>Пример:</strong></p>
+<p>На <em>заднем фонаре</em> могут присутствовать следующие материалы:</p>
+<ul>
+<li><code>vehiclename_taillight</code> <em>(основной задний фонарь)</em></li>
+<li><code>vehiclename_brakelight</code> <em>(функция стоп-сигнала)</em></li>
+<li><code>vehiclename_reverselight</code> <em>(функция фонаря заднего хода)</em></li>
+<li><code>vehiclename_signal_L</code> <em>(функция левого указателя поворота)</em></li>
+</ul>
+</div>
+<div class="line-inner-small"></div>
+<h2 id="dynamic-material-switching">
+
+  Динамическая смена материалов
+</h2>
+<p>Некоторые материалы динамически переключаются в игре, например, <strong>фара, разбивающаяся при аварии</strong>.</p>
+<p><strong>Принцип работы:</strong></p>
+<ol>
+<li>Код JBeam обращается к имени материала</li>
+<li>Триггер активируется при деформации</li>
+<li>Целевой материал заменяется на повреждённый вариант</li>
+</ol>
+<div class="bng-notice note">Триггеры материалов и время их активации <strong>задаются в JBeam</strong>, поэтому <strong>важны только имена материалов</strong>.</div>
+<p><strong>Пример:</strong></p>
+<ul>
+<li><strong>Фара</strong> с материалом <code>vehiclename_headlight</code> <strong>повреждается</strong> во время аварии</li>
+<li>Это заставляет игровой движок заменить её на <code>vehiclename_headlight_dmg</code></li>
+</ul>
+<div class="bng-notice info"><p><strong>Система GlowMaps:</strong></p>
+<p>Также поддерживается система эмиссивных светящихся текстур (например, включение/выключение фар). Фиктивные материалы динамически переключаются между различными состояниями освещения.</p>
+</div>

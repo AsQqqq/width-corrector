@@ -1,0 +1,1009 @@
+<p>В BeamNG есть несколько типов объектов воды на сцене:</p>
+<table>
+<thead>
+<tr>
+<th>Класс</th>
+<th>Форма</th>
+<th>Основное применение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WaterPlane</code></td>
+<td>Бесконечная горизонтальная плоскость</td>
+<td>Океаны, большие озёра, вода у горизонта.</td>
+</tr>
+<tr>
+<td><code>WaterBlock</code></td>
+<td>Ограниченный прямоугольный объём воды</td>
+<td>Бассейны, пруды, водохранилища, замкнутые водные зоны.</td>
+</tr>
+<tr>
+<td><code>River</code></td>
+<td>Объём воды в форме сплайна</td>
+<td>Реки, каналы, ручьи, изогнутые водные пути.</td>
+</tr>
+</tbody>
+</table>
+<p>Все три класса наследуют общее поведение воды от <code>WaterObject</code>, включая водные материалы, проверки нахождения под водой, поддержку тумана/подводных эффектов и опциональные планарные отражения.</p>
+<hr/>
+<h2 id="which-water-object-should-i-use">
+
+  Какой объект воды выбрать?
+</h2>
+<table>
+<thead>
+<tr>
+<th>Сценарий использования</th>
+<th>Рекомендуемый класс</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Океан вокруг острова</td>
+<td><code>WaterPlane</code></td>
+</tr>
+<tr>
+<td>Очень большая плоская водная поверхность, уходящая к горизонту</td>
+<td><code>WaterPlane</code></td>
+</tr>
+<tr>
+<td>Бассейн / небольшое озеро / прямоугольный пруд</td>
+<td><code>WaterBlock</code></td>
+</tr>
+<tr>
+<td>Ограниченная плоская водная зона с вращением/масштабом</td>
+<td><code>WaterBlock</code></td>
+</tr>
+<tr>
+<td>Река, следующая по пути</td>
+<td><code>River</code></td>
+</tr>
+<tr>
+<td>Канал с переменной шириной/глубиной</td>
+<td><code>River</code></td>
+</tr>
+<tr>
+<td>Извилистый водоём с направлением течения</td>
+<td><code>River</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<p><code>WaterPlane</code> представляет бесконечную горизонтальную водную поверхность.</p>
+<p>Этот объект предназначен главным образом для воды океанского типа, наблюдаемой с уровня земли. Он простирается бесконечно по осям X/Y, а его положение задаётся только высотой.</p>
+<p><code>WaterPlane</code> игнорирует вращение и масштаб. Значимым является только компонент Z его позиции.</p>
+<hr/>
+<h2 id="waterplane-example">
+
+  Пример WaterPlane
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterPlane"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"ocean_water"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_ocean"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">101</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridElementSize"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Ключевая часть:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"position"</span><span class="err">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Только <code>position[2]</code> — высота по Z — используется в качестве уровня воды.</p>
+<hr/>
+<h2 id="waterplane-fields">
+
+  Поля WaterPlane
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Должно быть <code>"WaterPlane"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя объекта сцены.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Высота воды берётся из <code>position.z</code>. Компоненты X/Y не влияют на охват.</td>
+</tr>
+<tr>
+<td><code>material</code></td>
+<td>string</td>
+<td>Водный материал, используемый при рендеринге.</td>
+</tr>
+<tr>
+<td><code>gridSize</code></td>
+<td>integer</td>
+<td>Размер сетки рендеринга.</td>
+</tr>
+<tr>
+<td><code>gridElementSize</code></td>
+<td>number</td>
+<td>Расстояние между вершинами водной сетки.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="infinite-bounds">
+
+  Бесконечные границы
+</h2>
+<p><code>WaterPlane</code> использует глобальные границы.</p>
+<p>Это означает, что он считается существующим везде по горизонтали. Подходит для океанов, но не для небольших водоёмов.</p>
+<p>Используйте <code>WaterBlock</code>, если вода должна иметь конечные границы.</p>
+<hr/>
+<h2 id="transform-behavior">
+
+  Поведение трансформации
+</h2>
+<p><code>WaterPlane</code> принимает только изменение высоты.</p>
+<p>Поля вращения и масштаба исключены из постоянных полей и не используются.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterPlane"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"sea_level"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">-2</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Создаёт водную плоскость на высоте Z = <code>-2</code>.</p>
+<hr/>
+<h2 id="grid-settings">
+
+  Настройки сетки
+</h2>
+<p><code>gridSize</code> и <code>gridElementSize</code> управляют сеткой рендеринга, используемой водной плоскостью.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gridSize"</span><span class="err">:</span> <span class="mi">101</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"gridElementSize"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre>
+</div><p><code>WaterPlane</code> рендерит центрированную по камере сетку, а не буквально бесконечный меш. Шейдер воды проецирует эту сетку как большую водную поверхность.</p>
+<p>Очень большие или нестандартные настройки сетки могут увеличить стоимость рендеринга или вызвать визуальные артефакты.</p>
+<hr/>
+<h2 id="waterplane-limitations">
+
+  Ограничения WaterPlane
+</h2>
+<p><code>WaterPlane</code> предназначен для рендеринга океанского типа на уровне земли.</p>
+<p>Поскольку он фактически бесконечен и проецируется вплоть до дальней плоскости отсечения, артефакты могут появляться, когда крупные объекты пересекают дальнюю плоскость отсечения или визуально совпадают с водной плоскостью.</p>
+<p>Типичные проблемные случаи:</p>
+<ul>
+<li>Очень большая высота камеры</li>
+<li>Малое расстояние дальней плоскости отсечения</li>
+<li>Крупные объекты вблизи дальней плоскости отсечения</li>
+<li>Ландшафт, приближающийся к дальней плоскости отсечения или выходящий за неё</li>
+</ul>
+<p>Для наилучших результатов:</p>
+<ul>
+<li>Держите ландшафт и крупные объекты в пределах дальней плоскости отсечения камеры.</li>
+<li>Не используйте <code>WaterPlane</code> для небольших бассейнов или ограниченных зон.</li>
+<li>Используйте <code>WaterBlock</code> для локальных водных объёмов.</li>
+</ul>
+<hr/>
+<h1 class="anchored">
+
+  WaterBlock
+</h1>
+<p><code>WaterBlock</code> — это конечный прямоугольный объём воды.</p>
+<p>Поддерживает позицию, вращение и масштаб. Подходит для ограниченных водоёмов: озёр, бассейнов, прудов, водоёмов и других локальных водных зон.</p>
+<p>В отличие от <code>WaterPlane</code>, <code>WaterBlock</code> имеет конечные границы и поддерживает проверку вхождения точки в объём.</p>
+<hr/>
+<h2 id="waterblock-example">
+
+  Пример WaterBlock
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterBlock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"lake_water"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_lake"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridElementSize"</span><span class="p">:</span> <span class="mi">5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="waterblock-fields">
+
+  Поля WaterBlock
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Должно быть <code>"WaterBlock"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя объекта сцены.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Позиция водного блока. Поверхность воды определяется на основе плоскости позиции объекта.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Вращение объекта.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Размер водного объёма. X/Y задают площадь; Z задаёт вертикальный объём/поведение глубины.</td>
+</tr>
+<tr>
+<td><code>material</code></td>
+<td>string</td>
+<td>Водный материал, используемый при рендеринге.</td>
+</tr>
+<tr>
+<td><code>gridElementSize</code></td>
+<td>number</td>
+<td>Расстояние между вершинами генерируемого водного меша.</td>
+</tr>
+<tr>
+<td><code>gridSize</code></td>
+<td>number</td>
+<td>Псевдоним для обратной совместимости с <code>gridElementSize</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="scale-and-surface-height">
+
+  Масштаб и высота поверхности
+</h2>
+<p><code>WaterBlock</code> использует трансформацию и масштаб объекта для определения прямоугольного водного объёма.</p>
+<p>Типичная настройка:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"position"</span><span class="err">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Масштаб X/Y управляет видимой площадью. Масштаб Z управляет вертикальным объёмом воды, используемым при проверках нахождения под водой и глубины.</p>
+<p>Высота поверхности воды определяется позицией объекта.</p>
+<hr/>
+<h2 id="gridelementsize">
+
+  gridElementSize
+</h2>
+<p><code>gridElementSize</code> управляет расстоянием между генерируемыми вершинами.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gridElementSize"</span><span class="err">:</span> <span class="mi">5</span>
+</span></span></code></pre>
+</div><p>Меньшие значения создают более плотную геометрию:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gridElementSize"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre>
+</div><p>Большие значения создают более дешёвую, менее плотную геометрию:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gridElementSize"</span><span class="err">:</span> <span class="mi">10</span>
+</span></span></code></pre>
+</div><p>Если <code>gridElementSize</code> превышает масштаб блока по X или Y, значение ограничивается меньшим из этих двух измерений.</p>
+<div class="bng-notice warning">Очень маленькие значения <code>gridElementSize</code> для больших <code>WaterBlock</code>ов могут создать значительный объём геометрии.</div>
+<hr/>
+<h2 id="mesh-generation">
+
+  Генерация меша
+</h2>
+<p><code>WaterBlock</code> строит равномерную сетку по своей площади.</p>
+<p>Для больших блоков меш может быть разбит на несколько буферов вершин/индексов, чтобы не превышать ограничение 16-битных индексов.</p>
+<p>Объект регенерирует водный меш при:</p>
+<ul>
+<li>изменении <code>gridElementSize</code></li>
+<li>изменении масштаба</li>
+<li>применении изменений редактором</li>
+<li>изменении статических полей</li>
+</ul>
+<hr/>
+<h2 id="rotated-waterblocks">
+
+  Повёрнутые WaterBlock-и
+</h2>
+<p><code>WaterBlock</code> поддерживает вращение.</p>
+<p>Это может быть полезно для водных объёмов, размещённых на нестандартной геометрии или в зонах, не выровненных по осям.</p>
+<p>Поведение отражений может использовать либо направленную вверх нормаль, либо нормаль поверхности объекта — в зависимости от унаследованных настроек отражений.</p>
+<hr/>
+<h1 class="anchored">
+
+  River
+</h1>
+<p><code>River</code> — это объём воды в форме сплайна.</p>
+<p>Задаётся списком узлов. Каждый узел хранит позицию, ширину, глубину и нормаль.</p>
+<p>Реки подходят для ручьёв, каналов, дренажных канав, извилистых водных путей или любого водного объёма, который должен следовать по кривой.</p>
+<hr/>
+<h2 id="river-example">
+
+  Пример River
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"River"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"main_river"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_river"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"SegmentLength"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"SubdivideLength"</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"FlowMagnitudePhysics"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"LowLODDistance"</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">150</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Каждый узел реки хранится в виде:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[x, y, z, width, depth, normalX, normalY, normalZ]
+</span></span></code></pre>
+</div><hr/>
+<h2 id="river-fields">
+
+  Поля River
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Должно быть <code>"River"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя объекта сцены.</td>
+</tr>
+<tr>
+<td><code>material</code></td>
+<td>string</td>
+<td>Водный материал, используемый при рендеринге.</td>
+</tr>
+<tr>
+<td><code>nodes</code></td>
+<td>array</td>
+<td>Список узлов реки. Каждый узел: <code>[x, y, z, width, depth, normalX, normalY, normalZ]</code>.</td>
+</tr>
+<tr>
+<td><code>SegmentLength</code></td>
+<td>number</td>
+<td>Приблизительная длина в метрах генерируемых сегментов объёма реки.</td>
+</tr>
+<tr>
+<td><code>SubdivideLength</code></td>
+<td>number</td>
+<td>Максимальный размер подразбиения для рендеринга высокодетализированной геометрии.</td>
+</tr>
+<tr>
+<td><code>FlowMagnitudePhysics</code></td>
+<td>number</td>
+<td>Скорость течения реки в метрах в секунду.</td>
+</tr>
+<tr>
+<td><code>LowLODDistance</code></td>
+<td>number</td>
+<td>Расстояние, на котором сегменты реки переключаются на низкодетализированный рендеринг.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="river-node-data">
+
+  Данные узла реки
+</h2>
+<p>Пример узла:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre>
+</div><table>
+<thead>
+<tr>
+<th align="right">Индекс</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right"><code>0</code></td>
+<td>Позиция X</td>
+</tr>
+<tr>
+<td align="right"><code>1</code></td>
+<td>Позиция Y</td>
+</tr>
+<tr>
+<td align="right"><code>2</code></td>
+<td>Позиция Z</td>
+</tr>
+<tr>
+<td align="right"><code>3</code></td>
+<td>Ширина в метрах</td>
+</tr>
+<tr>
+<td align="right"><code>4</code></td>
+<td>Глубина в метрах</td>
+</tr>
+<tr>
+<td align="right"><code>5</code></td>
+<td>Нормаль поверхности X</td>
+</tr>
+<tr>
+<td align="right"><code>6</code></td>
+<td>Нормаль поверхности Y</td>
+</tr>
+<tr>
+<td align="right"><code>7</code></td>
+<td>Нормаль поверхности Z</td>
+</tr>
+</tbody>
+</table>
+<p>Обычно нормали задаются следующим образом:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">0, 0, 1
+</span></span></code></pre>
+</div><p>для вертикально ориентированной водной поверхности.</p>
+<hr/>
+<h2 id="river-generation">
+
+  Генерация реки
+</h2>
+<p>Объект <code>River</code> использует управляющие узлы для построения сплайна Катмулла–Рома.</p>
+<p>Процесс генерации приблизительно таков:</p>
+<ol>
+<li>Чтение узлов реки.</li>
+<li>Построение сплайна через позиции узлов.</li>
+<li>Генерация срезов вдоль сплайна.</li>
+<li>Интерполяция ширины, глубины и нормали.</li>
+<li>Построение сегментов объёма между срезами.</li>
+<li>Генерация геометрии рендеринга.</li>
+<li>Генерация границ для запросов вхождения, глубины, течения и покрытия водой.</li>
+</ol>
+<p>Для генерации пригодной геометрии воды реке необходимо как минимум два узла.</p>
+<hr/>
+<h2 id="segmentlength">
+
+  SegmentLength
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"SegmentLength"</span><span class="err">:</span> <span class="mi">10</span>
+</span></span></code></pre>
+</div><p><code>SegmentLength</code> управляет длиной каждого генерируемого сегмента объёма реки.</p>
+<p>Меньшие значения создают больше сегментов и повышают точность запросов вхождения/покрытия.</p>
+<p>Большие значения создают меньше сегментов и могут снизить нагрузку.</p>
+<p>Минимально допустимое значение приблизительно равно:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">1 meter
+</span></span></code></pre>
+</div><hr/>
+<h2 id="subdividelength">
+
+  SubdivideLength
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"SubdivideLength"</span><span class="err">:</span> <span class="mf">2.5</span>
+</span></span></code></pre>
+</div><p><code>SubdivideLength</code> управляет подразбиением рендеринга для высокодетализированной геометрии реки.</p>
+<p>Меньшие значения создают более плотную геометрию и лучше передают визуальное волнение.</p>
+<p>Большие значения создают более дешёвую геометрию.</p>
+<hr/>
+<h2 id="lowloddistance">
+
+  LowLODDistance
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"LowLODDistance"</span><span class="err">:</span> <span class="mi">50</span>
+</span></span></code></pre>
+</div><p>Рендеринг реки использует два уровня детализации:</p>
+<table>
+<thead>
+<tr>
+<th>LOD</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Высокий LOD</td>
+<td>Подразбитая геометрия с волнением воды.</td>
+</tr>
+<tr>
+<td>Низкий LOD</td>
+<td>Более простая полосовая геометрия для дальних от камеры участков.</td>
+</tr>
+</tbody>
+</table>
+<p>Сегменты ближе <code>LowLODDistance</code> используют высокодетализированный рендеринг.</p>
+<p>Сегменты дальше используют низкодетализированный рендеринг.</p>
+<hr/>
+<h2 id="flowmagnitudephysics">
+
+  FlowMagnitudePhysics
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"FlowMagnitudePhysics"</span><span class="err">:</span> <span class="mi">3</span>
+</span></span></code></pre>
+</div><p>Управляет скоростью течения реки в метрах в секунду.</p>
+<p>Направление течения определяется направлением от одного среза сегмента реки к следующему.</p>
+<p>Порядок узлов имеет значение:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">node 0 -&gt; node 1 -&gt; node 2
+</span></span></code></pre>
+</div><p>Течение воды следует этому порядку.</p>
+<p>Если река течёт в обратную сторону, измените порядок узлов на обратный.</p>
+<hr/>
+<h2 id="river-width-and-depth">
+
+  Ширина и глубина реки
+</h2>
+<p>Ширина и глубина хранятся для каждого узла и интерполируются вдоль сплайна.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Создаёт реку, расширяющуюся с 10 метров до 30 метров и углубляющуюся с 2 метров до 5 метров.</p>
+<p>Ширина и глубина внутренне ограничиваются безопасными диапазонами.</p>
+<p>Приблизительные ограничения согласно реализации:</p>
+<table>
+<thead>
+<tr>
+<th>Значение</th>
+<th>Минимум</th>
+<th>Максимум</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ширина узла</td>
+<td><code>0.25</code></td>
+<td><code>1000</code></td>
+</tr>
+<tr>
+<td>Глубина узла</td>
+<td><code>0.25</code></td>
+<td><code>500</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="river-normals">
+
+  Нормали реки
+</h2>
+<p>Каждый узел имеет вектор нормали.</p>
+<p>Для обычных горизонтальных рек используйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Наклонные нормали могут применяться в особых случаях, однако они влияют на ориентацию генерируемых срезов, плоскость поверхности, вхождение в объём и поведение отражений.</p>
+<p>Для большинства рек нормали следует оставлять вертикальными.</p>
+<hr/>
+<h1 class="anchored">
+
+  Общее поведение воды
+</h1>
+<p>Водные классы разделяют общее поведение рендеринга и водного объёма.</p>
+<hr/>
+<h2 id="materials">
+
+  Материалы
+</h2>
+<p>Водные объекты используют водные материалы.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"material"</span><span class="err">:</span> <span class="s2">"water_lake"</span>
+</span></span></code></pre>
+</div><p>Водный материал обычно управляет:</p>
+<ul>
+<li>Базовым цветом</li>
+<li>Картами нормалей</li>
+<li>Внешним видом волн</li>
+<li>Внешним видом преломления/отражения</li>
+<li>Поведением пены или ряби (там, где поддерживается)</li>
+<li>Непрозрачностью поверхности и эффектами типа Френеля</li>
+</ul>
+<p>Если материал отсутствует или недействителен, объект может отображаться некорректно или использовать резервный материал.</p>
+<hr/>
+<h2 id="reflections">
+
+  Отражения
+</h2>
+<p>Водные объекты поддерживают динамические планарные отражения через унаследованное поведение воды/отражений.</p>
+<p>Обычно это управляется полями базового водного объекта/материала, например <code>fullReflect</code>, где применимо.</p>
+<p>Планарные отражения лучше всего работают для плоской воды.</p>
+<table>
+<thead>
+<tr>
+<th>Объект</th>
+<th>Заметки о качестве отражений</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WaterPlane</code></td>
+<td>Хорошо подходит для океанов и плоских поверхностей.</td>
+</tr>
+<tr>
+<td><code>WaterBlock</code></td>
+<td>Хорошо подходит для плоских ограниченных поверхностей.</td>
+</tr>
+<tr>
+<td><code>River</code></td>
+<td>Может быть менее точным для извилистых, наклонных или сильно изогнутых рек.</td>
+</tr>
+</tbody>
+</table>
+<p>Для рек плоскость отражения выбирается из ближайшей зоны реки и/или усреднённых нормалей поверхности реки. Сильно изогнутые или скрученные реки могут давать артефакты отражений.</p>
+<div class="bng-notice info">Используйте менее отражающие водные материалы для рек, которые изгибаются, наклоняются или резко поворачивают.</div>
+<hr/>
+<h2 id="underwater-checks">
+
+  Проверки нахождения под водой
+</h2>
+<p>Водные объекты реализуют поведение под водой/глубины по-разному:</p>
+<table>
+<thead>
+<tr>
+<th>Класс</th>
+<th>Поведение под водой</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WaterPlane</code></td>
+<td>Под водой, если точка находится ниже высоты плоскости.</td>
+</tr>
+<tr>
+<td><code>WaterBlock</code></td>
+<td>Под водой, если точка находится внутри объёма водного блока ниже поверхности.</td>
+</tr>
+<tr>
+<td><code>River</code></td>
+<td>Под водой, если точка находится внутри одного из генерируемых сегментов объёма реки.</td>
+</tr>
+</tbody>
+</table>
+<p>Это влияет на подводный туман, покрытие водой, запросы плавучести и другие игровые/рендерные системы, запрашивающие у водных объектов глубину или вхождение точки.</p>
+<hr/>
+<h2 id="surface-height">
+
+  Высота поверхности
+</h2>
+<p>Водные объекты могут сообщать высоту поверхности:</p>
+<table>
+<thead>
+<tr>
+<th>Класс</th>
+<th>Поведение высоты поверхности</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WaterPlane</code></td>
+<td>Возвращает высоту Z плоскости.</td>
+</tr>
+<tr>
+<td><code>WaterBlock</code></td>
+<td>Возвращает высоту Z объекта, если запрашиваемая точка XY находится внутри границ блока, иначе <code>-1</code>.</td>
+</tr>
+<tr>
+<td><code>River</code></td>
+<td>Выполняет луч вниз к поверхности реки и возвращает высоту столкновения, иначе <code>-1</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h1 class="anchored">
+
+  Сериализация
+</h1>
+<h2 id="waterplane-json">
+
+  WaterPlane JSON
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterPlane"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"ocean"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_ocean"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">101</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridElementSize"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="waterblock-json">
+
+  WaterBlock JSON
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterBlock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"pool_water"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_pool"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridElementSize"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="river-json">
+
+  River JSON
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"River"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"small_stream"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_stream"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"SegmentLength"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"SubdivideLength"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"FlowMagnitudePhysics"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"LowLODDistance"</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="legacy-river-node-fields">
+
+  Устаревшие поля узла River
+</h2>
+<p>В более старой сериализации в стиле TorqueScript использовались повторяющиеся поля <code>Node</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-ts" data-lang="ts"><span class="line"><span class="cl"><span class="nx">Node</span> <span class="o">=</span> <span class="s2">"0 0 3 6 1 0 0 1"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Node</span> <span class="o">=</span> <span class="s2">"30 5 3 7 1.2 0 0 1"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">Node</span> <span class="o">=</span> <span class="s2">"60 20 2.8 8 1.5 0 0 1"</span><span class="p">;</span>
+</span></span></code></pre>
+</div><p>В современном JSON следует использовать массив <code>nodes</code>.</p>
+<hr/>
+<h1 class="anchored">
+
+  Практические примеры
+</h1>
+<h2 id="ocean-around-an-island">
+
+  Океан вокруг острова
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterPlane"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"level_ocean"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_ocean"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">101</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridElementSize"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Используйте <code>WaterPlane</code> для больших открытых водных пространств.</p>
+<hr/>
+<h2 id="small-lake">
+
+  Небольшое озеро
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterBlock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"mountain_lake"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">250</span><span class="p">,</span> <span class="mi">-100</span><span class="p">,</span> <span class="mi">42</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">180</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_lake"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridElementSize"</span><span class="p">:</span> <span class="mi">4</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Используйте <code>WaterBlock</code>, если озеро должно иметь конечные границы.</p>
+<hr/>
+<h2 id="swimming-pool">
+
+  Плавательный бассейн
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"WaterBlock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"pool_water"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_pool"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridElementSize"</span><span class="p">:</span> <span class="mf">0.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>При необходимости используйте меньший <code>gridElementSize</code> для воды при крупном плане.</p>
+<hr/>
+<h2 id="river-with-flow">
+
+  Река с течением
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"River"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"valley_river"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"water_river"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"SegmentLength"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"SubdivideLength"</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"FlowMagnitudePhysics"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"LowLODDistance"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">-100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">-50</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">70</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">130</span><span class="p">,</span> <span class="mi">-20</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Направление течения определяется порядком узлов: от первого к последнему.</p>
+<hr/>
+<h1 class="anchored">
+
+  Рекомендации
+</h1>
+<ul>
+<li>Используйте <code>WaterPlane</code> только для очень большой/бесконечной воды.</li>
+<li>Используйте <code>WaterBlock</code> для ограниченных прудов, озёр, бассейнов и водоёмов.</li>
+<li>Используйте <code>River</code> для изогнутой воды с шириной, глубиной и течением.</li>
+<li>Располагайте <code>WaterPlane</code> вблизи ожидаемого уровня моря и избегайте экстремальных настроек дальней плоскости отсечения.</li>
+<li>Не используйте <code>WaterPlane</code> для небольших локальных водных зон.</li>
+<li>Подбирайте разумное значение <code>WaterBlock.gridElementSize</code> в соответствии с размером блока.</li>
+<li>Избегайте чрезмерно плотного подразбиения реки, если оно не требуется.</li>
+<li>Используйте вертикальные нормали <code>[0, 0, 1]</code> для обычных рек.</li>
+<li>Измените порядок узлов на обратный, если направление течения неверное.</li>
+<li>Используйте менее отражающие материалы для извилистых или сильно изогнутых рек.</li>
+<li>При необходимости разбивайте очень длинные или сложные реки на управляемые участки, если редактирование или рендеринг становятся затратными.</li>
+<li>Проверьте настройку водного материала, если вода отображается чёрной, невидимой или без отражений.</li>
+</ul>
+<hr/>
+<h1 class="anchored">
+
+  Типичные проблемы
+</h1>
+<h2 id="water-does-not-render">
+
+  Вода не отображается
+</h2>
+<p>Возможные причины:</p>
+<ul>
+<li>Отсутствующий или недействительный материал</li>
+<li>Объект не добавлен на сцену</li>
+<li><code>River</code> имеет менее двух узлов</li>
+<li>Масштаб <code>WaterBlock</code> слишком мал</li>
+<li>Камера/проход рендеринга не включает диффузный проход воды</li>
+<li>Инициализация материала завершилась ошибкой</li>
+</ul>
+<hr/>
+<h2 id="waterplane-appears-at-the-wrong-height">
+
+  WaterPlane отображается на неправильной высоте
+</h2>
+<p>Значимым является только <code>position.z</code>.</p>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"position"</span><span class="err">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="err">desiredWaterHeight</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Вращение и масштаб не влияют на <code>WaterPlane</code>.</p>
+<hr/>
+<h2 id="waterblock-does-not-cover-the-expected-area">
+
+  WaterBlock не покрывает ожидаемую область
+</h2>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="err">width</span><span class="p">,</span> <span class="err">length</span><span class="p">,</span> <span class="err">depth</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Также проверьте вращение и позицию объекта.</p>
+<hr/>
+<h2 id="river-does-not-appear">
+
+  River не отображается
+</h2>
+<p>Убедитесь, что у него как минимум два узла:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Также проверьте настройки материала и подразбиения.</p>
+<hr/>
+<h2 id="river-flow-is-backwards">
+
+  Течение реки направлено в обратную сторону
+</h2>
+<p>Течение реки следует порядку узлов.</p>
+<p>Измените порядок узлов на обратный или отредактируйте реку так, чтобы первый узел находился выше по течению, а последний — ниже.</p>
+<hr/>
+<h2 id="river-looks-too-angular">
+
+  Река выглядит слишком угловатой
+</h2>
+<p>Уменьшите:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"SegmentLength"</span><span class="err">:</span> <span class="mi">10</span>
+</span></span></code></pre>
+</div><p>или уменьшите:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"SubdivideLength"</span><span class="err">:</span> <span class="mf">2.5</span>
+</span></span></code></pre>
+</div><p>Меньшие значения создают больше генерируемых сегментов/подразбиений.</p>
+<hr/>
+<h2 id="water-reflections-look-wrong">
+
+  Отражения воды выглядят неправильно
+</h2>
+<p>Возможные причины:</p>
+<ul>
+<li>Отражения отключены</li>
+<li>Водный материал не настроен для отражений</li>
+<li>Река сильно изогнута или наклонена</li>
+<li>Плоскость отражения не совпадает с видимой поверхностью воды</li>
+<li>Камера находится под водой или вблизи поверхности воды</li>
+</ul>
+<p>Для рек уменьшите отражательность материала, если форма реки сильно скручена.</p>
+<hr/>
+<h2 id="water-causes-far-distance-artifacts">
+
+  Вода вызывает артефакты на дальних расстояниях
+</h2>
+<p>Это в основном касается <code>WaterPlane</code>.</p>
+<p>Возможные решения:</p>
+<ul>
+<li>Увеличьте расстояние дальней плоскости отсечения</li>
+<li>Держите крупный ландшафт/объекты в пределах дальней плоскости отсечения</li>
+<li>Избегайте наблюдения плоскости с очень большой высоты при малом расстоянии дальней плоскости отсечения</li>
+<li>Используйте <code>WaterBlock</code> для ограниченной воды вместо этого</li>
+</ul>
+<hr/>
+<h1 class="anchored">
+
+  Итог
+</h1>
+<p>BeamNG предоставляет три основных водных объекта сцены:</p>
+<ul>
+<li><code>WaterPlane</code> — для бесконечной воды океанского типа.</li>
+<li><code>WaterBlock</code> — для конечных прямоугольных водных объёмов.</li>
+<li><code>River</code> — для текущей воды на основе сплайна с переменной шириной и глубиной.</li>
+</ul>
+<p>Используйте <code>WaterPlane</code> для океанов, <code>WaterBlock</code> для локальных водоёмов и <code>River</code> для воды, следующей по пути. Все водные объекты в значительной мере зависят от правильной настройки материала, разумных параметров геометрии и корректной конфигурации отражений.</p>
+<p><strong>См. также:</strong> <a data-doc="file_formats/materials" href="/docs/file_formats/materials">Формат файла материала</a>
+, <a href="https://documentation.beamng.com/modding/levels/level_classes/levelinfo/" rel="noopener" target="_blank">LevelInfo</a>
+.</p>

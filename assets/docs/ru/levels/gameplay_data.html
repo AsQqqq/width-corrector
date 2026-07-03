@@ -1,0 +1,335 @@
+<p>Игровые данные уровня — это слой, связывающий сцену уровня, дороги, сайты, трафик, миссии, точки интереса и карту. Большинство этих систем уже имеют собственные страницы с описанием формата или класса. Данная страница является обзорным руководством по интеграции: используйте её, чтобы понять, какие системы зависят друг от друга, и где продолжать чтение.</p>
+<p>Для справки по конкретным полям используйте соответствующие страницы вместо этого обзора:</p>
+<ul>
+<li><a data-doc="levels/level_formats/info" href="/docs/levels/level_formats/info">Метаданные уровня (<code>info.json</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/sites" href="/docs/levels/level_formats/sites">Сайты (<code>.sites.json</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/map" href="/docs/levels/level_formats/map">Навигационная карта (<code>map.json</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/signals" href="/docs/levels/level_formats/signals">Сигналы трафика (<code>signals.json</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/buslines" href="/docs/levels/level_formats/buslines">Маршруты автобусов (<code>*.buslines.json</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/facilities" href="/docs/levels/level_formats/facilities">Объекты инфраструктуры (<code>*.facilities.json</code>)</a>
+</li>
+<li><a data-doc="file_formats/vehicle_groups" href="/docs/file_formats/vehicle_groups">Группы транспортных средств (<code>*.vehGroup.json</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/driftspots" href="/docs/levels/level_formats/driftspots">Места для дрифта (<code>driftSpots/</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/crawls" href="/docs/levels/level_formats/crawls">Бездорожные маршруты (<code>crawls/</code>)</a>
+</li>
+<li><a data-doc="levels/level_formats/dragstrips" href="/docs/levels/level_formats/dragstrips">Дрэг-трассы (<code>dragstrips/</code>)</a>
+</li>
+<li><a data-doc="levels/level_classes/decalorad" href="/docs/levels/level_classes/decalorad">DecalRoad</a>
+</li>
+<li><a data-doc="levels/level_classes/beamngwaypoint" href="/docs/levels/level_classes/beamngwaypoint">BeamNGWaypoint</a>
+</li>
+<li><a data-doc="levels/level_classes/beamngtrigger" href="/docs/levels/level_classes/beamngtrigger">BeamNGTrigger</a>
+</li>
+<li><a data-doc="levels/level_classes/gameplayareas" href="/docs/levels/level_classes/gameplayareas">Игровые зоны и точки интереса</a>
+</li>
+<li><a data-doc="levels/speedtraps" href="/docs/levels/speedtraps">Speedtraps</a>
+</li>
+<li><a data-doc="levels/fuelstations" href="/docs/levels/fuelstations">Заправочные станции</a>
+</li>
+</ul>
+<div class="bng-notice info">Большинство игровых данных зависит от стабильных имён. Если сайт, вейпоинт, дорога, триггер, точка интереса, объект инфраструктуры или путь миссии переименованы, обновите все системы, ссылающиеся на них.</div>
+<h2 id="how-the-pieces-fit">
+
+  Как элементы связаны между собой
+</h2>
+<p>Игровые функции обычно объединяют несколько видов данных:</p>
+<table>
+<thead>
+<tr>
+<th>Слой</th>
+<th>Содержит</th>
+<th>Используется в</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>info.json</code></td>
+<td>Метаданные уровня, точки спавна, поддержка трафика, правила дорожного движения, ссылки на слои миникарты</td>
+<td>Выбор уровня, интерфейс спавна, большая карта, миникарта, трафик, региональный геймплей</td>
+</tr>
+<tr>
+<td>Объекты сцены</td>
+<td>Дороги, вейпоинты, триггеры, игровые зоны, точки интереса, сферы спавна</td>
+<td>Навграф, трафик, миссии, объекты инфраструктуры, speedtraps, автобусные остановки</td>
+</tr>
+<tr>
+<td>Файлы <code>.sites.json</code></td>
+<td>Локации, зоны, парковочные места, границы</td>
+<td>Инфраструктура, парковка, трафик, миссии, функции карьеры/свободной езды</td>
+</tr>
+<tr>
+<td><code>map.json</code></td>
+<td>Ручные правки навграфа и специальные связи</td>
+<td>ИИ, трафик, навигация, интерфейс маршрутов, маршруты на миникарте/большой карте</td>
+</tr>
+<tr>
+<td><code>signals.json</code></td>
+<td>Логика светофоров</td>
+<td>ИИ трафика, камеры на красный свет, поведение на перекрёстках</td>
+</tr>
+<tr>
+<td>Папки функций</td>
+<td>Маршруты автобусов, дрэг-трассы, места для дрифта, бездорожные маршруты, быстрые гонки, сценарии</td>
+<td>Специфические Lua-системы и инструменты редактора</td>
+</tr>
+<tr>
+<td><code>gameplay/missions/</code></td>
+<td>Современные определения миссий</td>
+<td>Менеджер миссий, конструкторы типов миссий, Flowgraph</td>
+</tr>
+</tbody>
+</table>
+<p>Рассматривайте эти данные как взаимосвязанные, а не как независимые файлы. Миссия может стартовать из <code>gameplay/missions/</code>, использовать данные пути из <code>race.race.json</code>, запрашивать сайты уровня, прокладывать маршрут по навграфу, показывать маркер через систему точек интереса и зависеть от триггеров или вейпоинтов сцены.</p>
+<h2 id="common-level-side-feature-folders">
+
+  Типичные папки функций на уровне
+</h2>
+<p>Уровень с развитым геймплеем может содержать некоторые из этих папок или файлов:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/
+</span></span><span class="line"><span class="cl">+-- buslines/
+</span></span><span class="line"><span class="cl">+-- crawls/
+</span></span><span class="line"><span class="cl">+-- dragstrips/
+</span></span><span class="line"><span class="cl">+-- driftSpots/
+</span></span><span class="line"><span class="cl">+-- facilities/
+</span></span><span class="line"><span class="cl">+-- quickrace/
+</span></span><span class="line"><span class="cl">+-- scenarios/
+</span></span><span class="line"><span class="cl">+-- camPaths/
+</span></span><span class="line"><span class="cl">+-- city.sites.json
+</span></span><span class="line"><span class="cl">+-- facilities.sites.json
+</span></span><span class="line"><span class="cl">+-- map.json
+</span></span><span class="line"><span class="cl">+-- signals.json
+</span></span><span class="line"><span class="cl">+-- triggers.json
+</span></span><span class="line"><span class="cl">+-- *.vehGroup.json
+</span></span></code></pre>
+</div><p>Не каждому уровню нужны все они. Небольшим песочницам или тестовым уровням может быть достаточно лишь <code>info.json</code>, дерева сцены, точек спавна и простых данных дорог/навграфа.</p>
+<h2 id="facilities-and-sites">
+
+  Инфраструктура и сайты
+</h2>
+<p>Объекты инфраструктуры придают игровое значение таким местам, как гаражи, заправочные станции, автосалоны, компьютеры, службы доставки, частные продавцы и дрэг-трассы. Их пространственные данные обычно предоставляются сайтами и объектами сцены, а не дублируются в записи объекта инфраструктуры.</p>
+<p>Подробности смотрите на соответствующих страницах:</p>
+<ul>
+<li><a data-doc="levels/level_formats/facilities" href="/docs/levels/level_formats/facilities">Инфраструктура (<code>*.facilities.json</code>)</a>
+ — общий формат файла объектов инфраструктуры.</li>
+<li><a data-doc="levels/level_formats/sites" href="/docs/levels/level_formats/sites">Сайты (<code>.sites.json</code>)</a>
+ — зоны, парковочные места, границы и именованные локации.</li>
+<li><a data-doc="levels/fuelstations" href="/docs/levels/fuelstations">Заправочные станции</a>
+ — настройка автозаправочных и зарядных станций.</li>
+<li><a data-doc="levels/level_classes/gameplayareas" href="/docs/levels/level_classes/gameplayareas">Игровые зоны и точки интереса</a>
+ — зоны взаимодействия и объекты точек интереса.</li>
+</ul>
+<p>Если что-то, связанное с инфраструктурой, не отображается в режиме свободной езды, карьере или на большой карте, проверяйте цепочку в следующем порядке: запись объекта инфраструктуры, связанный файл сайтов, связанные имена зон/парковочных мест, связанные объекты сцены и поведение провайдера точек интереса.</p>
+<h2 id="bus-routes">
+
+  Маршруты автобусов
+</h2>
+<p>Данные маршрутов автобусов хранятся в папке <code>buslines/</code>, однако маршрут обычно зависит от большего, чем просто JSON-файл. Маршрут может требовать объектов автобусных остановок или триггеров в сцене, корректных идентификаторов остановок, вспомогательных нод маршрута и подключённого навграфа.</p>
+<p>Сохраняйте имена маршрутов автобусов, идентификаторы остановок и имена вейпоинтов неизменными после того, как на них ссылаются миссии или интерфейс. Подробности формата смотрите в <a data-doc="levels/level_formats/buslines" href="/docs/levels/level_formats/buslines">Маршруты автобусов (<code>*.buslines.json</code>)</a>
+. О поведении объектов триггеров смотрите в <a data-doc="levels/level_classes/beamngtrigger" href="/docs/levels/level_classes/beamngtrigger">BeamNGTrigger</a>
+.</p>
+<h2 id="drift-crawl-and-drag-gameplay">
+
+  Дрифт, бездорожные маршруты и дрэг-гонки
+</h2>
+<p>Эти папки функций представляют собой локальные игровые данные уровня. Они часто связывают специфические для функции файлы с общими системами: сайтами, маршрутами навграфа, маркерами сцены, инфраструктурой и миссиями.</p>
+<table>
+<thead>
+<tr>
+<th>Функция</th>
+<th>Типичная папка на уровне</th>
+<th>Обычно зависит от</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Места для дрифта</td>
+<td><code>driftSpots/&lt;spotName&gt;/</code></td>
+<td>Метаданные дрифта, данные маршрута/пути, сайты границ, маркерные объекты сцены, точки интереса на большой карте</td>
+</tr>
+<tr>
+<td>Бездорожные маршруты</td>
+<td><code>crawls/</code></td>
+<td>Данные пути/трейла, границы, стартовые позиции, сайты, локальные данные миссий (при необходимости)</td>
+</tr>
+<tr>
+<td>Дрэг-трассы</td>
+<td><code>dragstrips/</code></td>
+<td>Данные трассы, данные хронометража/старта, вейпоинты полос, префабы, инфраструктура, объекты сцены</td>
+</tr>
+</tbody>
+</table>
+<p>Смотрите <a data-doc="levels/level_formats/driftspots" href="/docs/levels/level_formats/driftspots">Места для дрифта</a>
+, <a data-doc="levels/level_formats/crawls" href="/docs/levels/level_formats/crawls">Бездорожные маршруты</a>
+ и <a data-doc="levels/level_formats/dragstrips" href="/docs/levels/level_formats/dragstrips">Дрэг-трассы</a>
+ для справки по папкам и файлам.</p>
+<h2 id="traffic-authoring">
+
+  Настройка трафика
+</h2>
+<p>Трафик является результатом совместной работы следующих компонентов:</p>
+<ul>
+<li>Метаданные уровня: поддержка трафика, регион и правила дорожного движения в <code>info.json</code></li>
+<li>Проезжие дороги и вейпоинты в сцене</li>
+<li>Ручные правки навграфа в <code>map.json</code></li>
+<li>Данные парковочных мест и зон в <code>.sites.json</code></li>
+<li>Данные светофоров в <code>signals.json</code></li>
+<li>Необязательные группы транспортных средств уровня, например <code>traffic.vehGroup.json</code> или <code>police.vehGroup.json</code></li>
+<li>Функциональные объекты: speedtraps или триггеры камер на красный свет</li>
+</ul>
+<p>Используйте <a data-doc="levels/level_formats/map" href="/docs/levels/level_formats/map">Навигационную карту (<code>map.json</code>)</a>
+ для правок графа, <a data-doc="levels/level_formats/signals" href="/docs/levels/level_formats/signals">Сигналы трафика (<code>signals.json</code>)</a>
+ для данных светофоров, <a data-doc="levels/level_classes/decalorad" href="/docs/levels/level_classes/decalorad">DecalRoad</a>
+ для полей дорог и <a data-doc="levels/speedtraps" href="/docs/levels/speedtraps">Speedtraps</a>
+ для настройки камер.</p>
+<p>Используйте <a data-doc="file_formats/vehicle_groups" href="/docs/file_formats/vehicle_groups">Группы транспортных средств (<code>*.vehGroup.json</code>)</a>
+ для общих, уровне-специфичных или миссионных пулов транспортных средств.</p>
+<p>После редактирования дорог, вейпоинтов, сегментов карты, светофоров или сайтов, связанных с трафиком, перезагрузите навграф и проверьте работу с живым трафиком. Тот же граф используется для предпросмотра маршрутов, миссий, маршрутов автобусов и интерфейса карты, поэтому проблемы с трафиком часто указывают на общую проблему графа.</p>
+<h2 id="missions-and-flowgraph">
+
+  Миссии и Flowgraph
+</h2>
+<p>Современные миссии обычно располагаются вне папки уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">gameplay/missions/&lt;levelName&gt;/&lt;missionType&gt;/&lt;missionName&gt;/
+</span></span></code></pre>
+</div><p>Папки миссий обычно связаны с данными уровня:</p>
+<table>
+<thead>
+<tr>
+<th>Данные миссии</th>
+<th>Связаны с</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Миссионный <code>info.json</code></td>
+<td>Тип миссии, метаданные интерфейса, разблокировки, награды, стартовые данные</td>
+</tr>
+<tr>
+<td><code>race.race.json</code> или файлы пути функции</td>
+<td>Чекпоинты, пути маршрутов, стартовые позиции, точки восстановления</td>
+</tr>
+<tr>
+<td><code>*.flow.json</code></td>
+<td>Логика миссии Flowgraph и пользовательское поведение</td>
+</tr>
+<tr>
+<td><code>bounds.sites.json</code> или другие сайты</td>
+<td>Границы, зоны и области миссии</td>
+</tr>
+<tr>
+<td>Объекты сцены уровня</td>
+<td>Триггеры, вейпоинты, маркеры, точки интереса, барьеры</td>
+</tr>
+<tr>
+<td>Системы уровня</td>
+<td>Навграф, инфраструктура, маршруты автобусов, дрэг-трассы, трафик, парковка</td>
+</tr>
+</tbody>
+</table>
+<p>Типы миссий, такие как <code>busMode</code>, <code>crawl</code>, <code>drift</code>, <code>dragStripRace</code>, <code>delivery</code>, <code>garageToGarage</code>, <code>timeTrial</code>, <code>aiRace</code>, <code>rallyStage</code> и <code>flowgraph</code>, используют разные комбинации этих данных. Если миссия отображается в интерфейсе, но работает некорректно, сначала проверьте папку миссии, затем системы уровня, на которые она ссылается.</p>
+<p>Устаревший контент в папке <code>levels/&lt;levelName&gt;/scenarios/</code> отделён от современного <code>gameplay/missions/</code>. Некоторые уровни по-прежнему содержат оба варианта.</p>
+<h2 id="pois-and-map-ui">
+
+  Точки интереса и интерфейс карты
+</h2>
+<p>Точки интереса не принадлежат какому-то одному обязательному файлу уровня. Большая карта агрегирует точки интереса из метаданных спавна, миссий, инфраструктуры, заправочных станций, мест для дрифта, бездорожных маршрутов, дрэг-трасс, парковок/сайтов и объектов <code>BeamNGPointOfInterest</code> в сцене.</p>
+<p>Необязательная папка <code>levels/&lt;levelName&gt;/pois/</code> может использоваться инструментами, но она не является единственным источником точек интереса. Если маркер отсутствует, сначала определите, какая функция им владеет, а затем проверьте её ссылки.</p>
+<p>Миникарта и большая карта также используют навграф. Слой изображения миникарты может быть корректным при неработающей генерации маршрутов, и генерация маршрутов может работать при отсутствующем изображении миникарты. Проверяйте ссылки на миникарту в <code>info.json</code> отдельно от дорог, вейпоинтов и <code>map.json</code>.</p>
+<h2 id="other-level-gameplay-and-presentation-data">
+
+  Прочие игровые и презентационные данные уровня
+</h2>
+<p>Некоторые папки уровня специфичны для отдельных функций и не должны попадать на главные страницы форматов файлов, если только у них нет отдельной справочной страницы схемы:</p>
+<table>
+<thead>
+<tr>
+<th>Папка или файл</th>
+<th>Назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>quickrace/</code></td>
+<td>Локальные трассы для быстрых гонок и сгенерированный гоночный контент уровня.</td>
+</tr>
+<tr>
+<td><code>camPaths/</code></td>
+<td>Файлы пути камеры, используемые инструментами, миссиями, сценариями или в презентационных целях.</td>
+</tr>
+<tr>
+<td><code>triggers.json</code></td>
+<td>Конфигурация триггеров для свободной езды или уровне-специфичных сценариев.</td>
+</tr>
+<tr>
+<td><code>*.vehGroup.json</code></td>
+<td>Необязательные пулы транспортных средств для трафика, полиции или миссий.</td>
+</tr>
+</tbody>
+</table>
+<p>Используйте их как точки интеграции. Если у функции есть собственная страница документации, размещайте подробные инструкции по настройке там и давайте ссылку на неё из этого обзора.</p>
+<h2 id="clean-authoring-order">
+
+  Рекомендуемый порядок создания уровня
+</h2>
+<p>При создании нового уровня с развитым геймплеем этот порядок позволяет управлять зависимостями:</p>
+<ol>
+<li>Создайте дороги, вейпоинты, точки спавна и необходимые объекты сцены.</li>
+<li>Настройте метаданные <code>info.json</code>, записи спавна, поддержку трафика, правила дорожного движения и ссылки на миникарту.</li>
+<li>Создайте и проверьте навграф с помощью дорог, вейпоинтов и <code>map.json</code>.</li>
+<li>Добавьте сайты для парковок, зон, инфраструктуры, границ и именованных локаций.</li>
+<li>Добавьте инфраструктуру, точки интереса, маршруты автобусов, данные дрифта/бездорожных маршрутов/дрэга, быстрые гонки или другие папки функций.</li>
+<li>Добавьте миссии и подключите их к путям, сайтам, Flowgraph'ам и объектам сцены.</li>
+<li>Добавьте светофоры, speedtraps, группы транспортных средств и настройте трафик.</li>
+<li>Проверьте работу в режиме свободной езды, трафике, интерфейсе миссий, большой карте, миникарте и любом специализированном редакторе функций.</li>
+</ol>
+<h2 id="validation-checklist">
+
+  Чек-лист проверки
+</h2>
+<p>Перед публикацией игровых данных уровня проверьте:</p>
+<ul>
+<li>Существуют ли имена объектов, сайтов, вейпоинтов, маршрутов, триггеров, точек интереса и объектов инфраструктуры, на которые ссылаются данные.</li>
+<li>JSON-файлы загружаются без ошибок разбора.</li>
+<li>Навграф перезагружается после редактирования дорог, вейпоинтов, <code>map.json</code>, светофоров или сайтов.</li>
+<li>Трафик может появляться, прокладывать маршруты и реагировать на светофоры там, где это ожидается.</li>
+<li>Маршруты автобусов, миссии и контент быстрых гонок могут разрешать свои ссылки на пути и остановки.</li>
+<li>Объекты инфраструктуры разрешают свои сайты, парковочные места, игровые зоны и точки интереса.</li>
+<li>Speedtraps и камеры на красный свет проверены с помощью специального рабочего процесса.</li>
+<li>Миникарта и большая карта отображают ожидаемые маршруты, точки интереса и точки спавна.</li>
+<li>Устаревшие сценарии и современные миссии не перепутаны между собой.</li>
+</ul>
+<h2 id="related-pages">
+
+  Связанные страницы
+</h2>
+<ul>
+<li><a data-doc="levels/level_formats" href="/docs/levels/level_formats">Форматы файлов уровня</a>
+</li>
+<li><a data-doc="levels/level_classes" href="/docs/levels/level_classes">Классы объектов уровня</a>
+</li>
+<li><a href="https://documentation.beamng.com/world_editor/" rel="noopener" target="_blank">World Editor</a>
+</li>
+<li><a data-doc="levels/level_formats/facilities" href="/docs/levels/level_formats/facilities">Инфраструктура</a>
+</li>
+<li><a data-doc="file_formats/vehicle_groups" href="/docs/file_formats/vehicle_groups">Группы транспортных средств</a>
+</li>
+<li><a data-doc="levels/level_formats/driftspots" href="/docs/levels/level_formats/driftspots">Места для дрифта</a>
+</li>
+<li><a data-doc="levels/level_formats/crawls" href="/docs/levels/level_formats/crawls">Бездорожные маршруты</a>
+</li>
+<li><a data-doc="levels/level_formats/dragstrips" href="/docs/levels/level_formats/dragstrips">Дрэг-трассы</a>
+</li>
+<li><a data-doc="levels/fuelstations" href="/docs/levels/fuelstations">Заправочные станции</a>
+</li>
+<li><a data-doc="levels/speedtraps" href="/docs/levels/speedtraps">Speedtraps</a>
+</li>
+</ul>

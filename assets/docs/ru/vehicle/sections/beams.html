@@ -1,0 +1,769 @@
+<p>Откуда BeamNG получила своё название — балки (beams).</p>
+<p>Это соединения пружина/демпфер между нодами, составляющие основную структуру любого транспортного средства в игре и обеспечивающие деформацию и разрушение там, где это необходимо.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/beams/beam_explanation.jpg" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/beams/beam_explanation_huf293690fc4ce121a68fd76916576dd29_231039_0x300_resize_q85_bgfff_box.jpg"/>
+</span></a></p>
+<p>Существует несколько типов балок для самых разных целей, которые подробно описаны в соответствующих примерах. Стандартные балки работают как простые пружины с демпфированием, способны деформироваться и ломаться при необходимости и применяются в большинстве случаев.</p>
+<p>Все аргументы, применимые к стандартным балкам, можно использовать с каждым из специализированных типов балок.</p>
+<h3 id="required-arguments">
+
+  Обязательные аргументы
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Имя первой ноды</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Имя второй ноды</div>
+</div>
+</div>
+<h3 id="optional-arguments">
+
+  Необязательные аргументы
+</h3>
+<p>Секция Beams содержит множество необязательных аргументов. Мы разобьём их на категории, расположенные от наиболее часто используемых к наименее часто используемым.</p>
+<h4 id="general">
+
+  Основные
+</h4>
+<p>Это наиболее базовые аргументы, используемые повсеместно в Jbeam-файлах и необходимые для корректной симуляции. <a data-doc="vehicle/intro_jbeam" data-frag="basic-properties-of-node-beam-structures" href="/docs/vehicle/intro_jbeam#basic-properties-of-node-beam-structures">Простое объяснение смотрите на вводной странице.</a>
+</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">NORMAL<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Тип балки определяет её поведение при сжатии и растяжении.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Возможные значения:</p>
+<ul>
+<li>NORMAL — Балки общего назначения, не обладают специальными свойствами, используются в большинстве конструкций.</li>
+<li><a data-doc="vehicle/sections/beams/support" href="/docs/vehicle/sections/beams/support">SUPPORT</a>
+ — Второй по распространённости тип балок. Они сопротивляются силам только при сжатии, но не при растяжении. При предкомпрессии начинают сопротивляться силам, когда достигают предкомпрессированной длины. Могут автоматически ломаться при достижении заданной длины. Обычно используются при соединении нескольких деталей: они не служат крепёжными элементами, а выполняют роль ограничителей, не позволяя нодам одной детали проникать внутрь поверхности другой.</li>
+<li><a data-doc="vehicle/sections/hydros" href="/docs/vehicle/sections/hydros">HYDRO</a>
+ — Определяются в отдельной секции, но наследуют все свойства обычных балок; гидравлические элементы могут изменять длину по команде — как правило, используются для рулевых реек. Также могут задавать угол блокировки рулевого колеса автомобиля.</li>
+<li><a data-doc="vehicle/sections/beams/anisotropic" href="/docs/vehicle/sections/beams/anisotropic">ANISOTROPIC</a>
+ — Имеют отдельные значения beamSpring и beamDamp для растяжения и для сжатия, могут задавать переходную зону между двумя вариантами поведения, а также автоматически ломаться при превышении определённого соотношения длин. Используются для моделирования конструкций, которые жёстче при растяжении, чем при сжатии, — например, шин (где генерируются автоматически), тросов или мягких верхов кузова.</li>
+<li><a data-doc="vehicle/sections/beams/bounded" href="/docs/vehicle/sections/beams/bounded">BOUNDED</a>
+ — Более сложные, чем анизотропные балки; могут иметь разные значения beamSpring и beamDamp не только для сжатия и растяжения, но и для малых и больших скоростей сжатия и растяжения. Диапазоны сжатия и растяжения задаются как соотношение или в метрах, переходная зона может быть изменена. Вычислительно затратны и должны применяться только в компонентах подвески — например, в амортизаторах и буферах отбоя.</li>
+<li><a data-doc="vehicle/sections/beams/l-beam" href="/docs/vehicle/sections/beams/l-beam">LBEAM</a>
+ — Задаются тремя идентификаторами нод вместо двух; сопротивляются изменению угла между двумя балками, образованными этими нодами, а не расстоянию между двумя нодами. Обеспечивают высокую боковую жёсткость при малом сопротивлении сжатию. Используются в шинах (генерируются автоматически) и листовых рессорах.</li>
+<li><a data-doc="vehicle/sections/beams/pressured" href="/docs/vehicle/sections/beams/pressured">PRESSURED</a>
+ — Специальные балки для моделирования пневматических цилиндров. Их силы обратно пропорциональны текущей длине. Можно задать начальное давление в Па или PSI, максимальное давление, при превышении которого балка ломается, площадь поперечного сечения цилиндра и коэффициент объёма. Используются в шинах (генерируются автоматически) и прогрессивных пневматических пружинах.</li>
+<li>BROKEN — Сломанные балки перестают сопротивляться силам. Этот тип нельзя задать непосредственно в Jbeam.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">4300000<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Жёсткость балки (Н/м).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Сила, необходимая для изменения длины балки на заданную величину.
+Чрезмерно высокая жёсткость по сравнению с массой ноды может вызвать вибрацию балки и проблемы с устойчивостью симуляции.</p>
+<p>Балка со значением beamSpring равным 0 не будет отображаться в консоли как дублирующаяся. Это позволяет добавлять дополнительные демпфирующие балки в конструкцию.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">580<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Демпфирование балки (Н/м/с).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Демпфирование уменьшает колебания со временем. Чрезмерно высокое демпфирование по сравнению с массой ноды может вызывать пульсирующие напряжения и нестабильность.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Прочность балки (Н).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Какую силу балка способна выдержать до разрушения.</p>
+<p>Значение "FLT_MAX" делает балку неразрушимой.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">220000<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Какая сила (Н) необходима для постоянной деформации балки.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Значение "FLT_MAX" делает балку не поддающейся постоянной деформации.</div>
+</div>
+</div>
+<h4 id="breakable">
+
+  Разрушаемые
+</h4>
+<p>Используются только для разрушаемых балок — тех, у которых beamStrength отличается от "FLT_MAX". Такие балки применяются для имитации пластика или соединения различных компонентов транспортного средства.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string/table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Балка автоматически ломается, когда ломается другая балка из той же breakGroup</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Если аргумент является строкой, балка принадлежит одной указанной breakGroup. Это стандартный случай.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span><span class="s2">"b"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">"group_1"</span><span class="p">}],</span>
+</span></span></code></pre>
+</div><p>Если аргумент является таблицей, балка принадлежит ко всем указанным breakGroup. Это означает, что она автоматически ломается при поломке любой балки в любой из этих групп, а также инициирует поломку группы сразу в обеих группах. На практике это используется крайне редко и не поддерживается режимами отладки визуализации балок.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span><span class="s2">"b"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="p">[</span><span class="s2">"group_1"</span><span class="p">,</span><span class="s2">"group_2"</span><span class="p">]}],</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Задаёт поведение breakGroup</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Если задано значение 0, эта балка будет ломать другие балки в breakGroup. Если задано значение 1, эта балка НЕ будет ломать другие в breakGroup, но будет ломаться вместе с группой.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Отключает разрушение меша</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Разрушение меша позволяет динамически удалять полигоны флексбоди-меша при поломке лежащей в его основе балки. Это позволяет избежать чрезмерного растягивания мешей, когда часть назначенной им jbeam-структуры разрушается.</p>
+<p>Отключение разрушения меша полезно, когда разрушаемая балка выполняет лишь роль структурного элемента, например в пассажирских салонах.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Отключает разрушение треугольников</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Разрушение треугольников позволяет динамически переводить треугольники транспортного средства в состояние без коллизии и аэродинамики при поломке лежащей в их основе балки. Это применяется, когда треугольник соединяет два компонента, которые могут разделиться, — например, кузов и раму, — а также для разрушаемого стекла, чтобы динамически образовывать в нём физическое отверстие.</p>
+<p>Отключение разрушения треугольников полезно, когда разрушаемая балка выполняет лишь роль структурного элемента, например в пассажирских салонах.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Отключает ошибки при отсутствии одной из нод балки</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Используется в случаях, когда одна из нод, составляющих балку, расположена в необязательном компоненте.</p>
+<p>Также скрывает предупреждения о дублирующихся балках.</p>
+</div>
+</div>
+</div>
+<h4 id="deformation-limiters">
+
+  Ограничители деформации
+</h4>
+<p>Используются для ограничения деформации балки. DeformLimitExpansion является наиболее часто используемым из них и применяется в большинстве Jbeam-файлов.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Ограничивает деформацию балки при сжатии в долях от исходной длины</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">deformLimit<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Ограничивает деформацию балки при растяжении в долях от исходной длины</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Используется для предотвращения чрезмерного растяжения.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Ограничивает прирост beamDeform этим значением (Н)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">beamDeform возрастает по мере деформации балки; это свойство ограничивает деформацию. Полезно для моделирования трения в определённых типах подвески.</div>
+</div>
+</div>
+<h4 id="deform-groups">
+
+  Группы деформации
+</h4>
+<p>Группы деформации используются для инициирования действия при деформации балки. Чаще всего применяются только для визуального повреждения стёкол/фар и повреждения трансмиссии.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string/table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Указывает, к какой группе деформации принадлежит данная балка.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Используется для активации групп деформации <a data-doc="vehicle/sections/flexbodies" href="/docs/vehicle/sections/flexbodies">флексбоди</a>
+. Также применяется для моделирования повреждений некоторых компонентов трансмиссии.</p>
+<p>Если аргумент является строкой, балка принадлежит одной указанной deformGroup. Это стандартный случай.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span><span class="s2">"b"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"group_1"</span><span class="p">}],</span>
+</span></span></code></pre>
+</div><p>Если аргумент является таблицей, балка принадлежит ко всем указанным deformGroup. Это означает, что она одновременно запускает несколько видов поведения при деформации. На практике используется крайне редко и не поддерживается режимами отладки визуализации балок.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span><span class="s2">"b"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="p">[</span><span class="s2">"group_1"</span><span class="p">,</span><span class="s2">"group_2"</span><span class="p">]}],</span>
+</span></span></code></pre>
+</div><p>Балка с deformGroup не будет считаться дублирующейся в консоли. Это обусловлено распространённым случаем использования хрупких дублирующихся балок для имитации разрушаемого стекла.</p>
+<p>Если балка имеет одновременно breakGroup и deformGroup, её поломка генерирует частицы стекла или дерева в зависимости от nodeMaterial обеих её нод. Это используется для стёкол транспортных средств и деревянных реквизитов, например пианино.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Уровень деформации, при превышении которого активируется deformGroup.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Типичные значения — очень малые числа, меньше 0.1. Если балка сократилась или удлинилась более чем на это значение, deformGroup будет активирована.</p>
+<p>Наличие этого свойства у балки создаёт триггер деформации, при котором при каждой деформации любой балки с этим свойством выполняется дополнительный код. Это может быть ресурсоёмко, поэтому использовать данный параметр следует только там, где это необходимо.</p>
+</div>
+</div>
+</div>
+<h4 id="precompression">
+
+  Предварительное сжатие
+</h4>
+<p>Эти аргументы задают изменение длины балки при спауне. Чаще всего используются в компонентах подвески.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Длина, которую балка примет сразу после спауна</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Значение 2.0 соответствует двойной длине, 0.5 — половинной длине.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Изменение длины балки при спауне в метрах</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Переопределяет beamPrecompression.</p>
+<p>Значение 0.2 удлинит балку на 0.2 метра при спауне, а значение -0.2 укоротит балку на 0.2 метра при спауне.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Время в секундах, за которое предварительно сжатые балки достигают заданной длины</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Помогает избежать деформации при спауне, когда предкомпрессированные балки резко переходят к требуемой длине.</div>
+</div>
+</div>
+<h4 id="drivetrain-and-suspension">
+
+  Трансмиссия и подвеска
+</h4>
+<p>Используется только в определённых компонентах подвески и других ответственных деталях транспортного средства.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Имя балки</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Используется рядом систем для идентификации конкретной балки.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Ограничивает частоту вибрации (Гц), выше которой применяется демпфирование</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Применяется только к балкам типов normal, bounded и l-beam.</p>
+<p>Используется преимущественно в компонентах подвески и других ответственных элементах jbeam для повышения демпфирования до наступления нестабильности.</p>
+<p>Вычислительно затратно; следует применять только там, где это необходимо.</p>
+</div>
+</div>
+</div>
+<h4 id="suspension-sounds">
+
+  Звуки подвески
+</h4>
+<p>Эти аргументы используются для балок, выполняющих роль стоек или амортизаторов транспортного средства. Все они должны применяться исключительно совместно на этих балках.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Событие FMOD для воспроизведения при сжатии балки.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Список всех доступных путей событий можно найти в World Editor: Window &gt; Audio &gt; SFX Previewer.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.5<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Уменьшает общую громкость события FMOD на величину до 10 дБ.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Значение 0 уменьшит громкость звука на 10 дБ, значение 1 сохранит оригинальную громкость.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">10<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Задаёт коэффициент атаки огибающей звука.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Задаёт время, за которое амплитуда звука нарастает от 0% до 100%. Чем меньше значение, тем медленнее атака.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Задаёт зависимость между степенью сжатия балки и громкостью звука.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Значение 0 означает, что максимальная громкость достигается при 0% сжатия, значение 1 — при 100% сжатия. Поскольку балки амортизаторов не сжимаются полностью, так как часть из них работает как буфер отбоя, хорошим значением может быть около 0.8.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">10<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Задаёт коэффициенты спада/затухания огибающей звука.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Задаёт время, за которое амплитуда звука спадает от 100% до 0%. Чем больше число, тем быстрее спад/затухание звука.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Коэффициент изменения высоты тона на основе импульса.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Чем больше значение, тем сильнее изменение высоты тона в рамках импульса.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Влияет на длину шумового хвоста звука.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Длина шумового хвоста также зависит от скорости балки.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">35000<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Значение напряжения балки (Н/м²), принимаемое звуковой системой за полное сжатие.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Используется для нормализации. Этот параметр следует подбирать исходя из физической точки зрения, а не звукоинженерной. Параметр volumeFactor всё равно должен охватывать весь ожидаемый диапазон сжатия.</div>
+</div>
+</div>
+<h4 id="cargo">
+
+  Груз
+</h4>
+<p>Используется только для грузовых нагрузок.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Функция, определяющая изменение beamSpring в зависимости от загрузки cargoGroup в режиме доставки карьерного режима игры</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamSpringFunction"</span><span class="o">:</span><span class="s2">"=150*$load+1100"</span><span class="p">,</span><span class="s2">"cargoGroup"</span><span class="o">:</span><span class="s2">"RoofbarTank1"</span><span class="p">},</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Функция, определяющая изменение beamDamp в зависимости от загрузки cargoGroup в режиме доставки карьерного режима игры</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamDampFunction"</span><span class="o">:</span><span class="s2">"=0.2*$load+50"</span><span class="p">,</span><span class="s2">"cargoGroup"</span><span class="o">:</span><span class="s2">"RoofbarTank1"</span><span class="p">},</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Функция, определяющая изменение beamStrength в зависимости от загрузки cargoGroup в режиме доставки карьерного режима игры</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamStrengthFunction"</span><span class="o">:</span><span class="s2">"=150*$load+1100"</span><span class="p">,</span><span class="s2">"cargoGroup"</span><span class="o">:</span><span class="s2">"RoofbarTank1"</span><span class="p">},</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Функция, определяющая изменение beamDeform в зависимости от загрузки cargoGroup в режиме доставки карьерного режима игры</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamDeformFunction"</span><span class="o">:</span><span class="s2">"=150*$load+1100"</span><span class="p">,</span><span class="s2">"cargoGroup"</span><span class="o">:</span><span class="s2">"RoofbarTank1"</span><span class="p">},</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<h4 id="debug">
+
+  Отладка
+</h4>
+<p>Предназначены для кратковременных целей отладки и должны быть удалены из финальной версии конструкции.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"radius":0,"col":"#00000000"}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Выделяет балку с указанными радиусом и цветом при включённом режиме отладки визуализации балок.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Таблица состоит из 3 элементов, включая 2 обязательных и 1 необязательный: "radius" — число, задающее радиус выделения в метрах, а "col" — либо строка с шестнадцатеричным значением цвета, либо таблица со значениями RGB. Пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span><span class="s2">"b"</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"highlight"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"radius"</span><span class="o">:</span><span class="mf">0.005</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"col"</span><span class="o">:</span><span class="s2">"#ff0000ff"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span></code></pre>
+</div><p>Следующий вариант даёт тот же эффект:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span><span class="s2">"b"</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"highlight"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"radius"</span><span class="o">:</span><span class="mf">0.005</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"col"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"r"</span><span class="o">:</span><span class="mi">255</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"g"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"b"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"a"</span><span class="o">:</span><span class="mi">255</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span></code></pre>
+</div><p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/beams/highlight1.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/beams/highlight1.png"/>
+</span></a></p>
+<p>"length" — необязательный аргумент, который перезаписывает длину цилиндра, выделяющего балку, указанным значением в метрах. Цилиндр может быть длиннее или короче балки по умолчанию. Центр цилиндра всегда находится в центре балки. Этот аргумент доступен начиная с версии BeamNG 0.34 и выше.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span><span class="s2">"b"</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"highlight"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"radius"</span><span class="o">:</span><span class="mf">0.005</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"col"</span><span class="o">:</span><span class="s2">"#ff0000ff"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"length"</span><span class="o">:</span><span class="mf">0.1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span></code></pre>
+</div><p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/beams/highlight2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/beams/highlight2.png"/>
+</span></a></p>
+</div>
+</div>
+</div>
+<h3 id="simple-example">
+
+  Простой пример
+</h3>
+<p>Балка между нодами <code>a</code> и <code>b</code></p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"beams"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span> <span class="s2">"id2:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span><span class="s2">"b"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div>
+<h3 id="advanced-example">
+
+  Расширенный пример
+</h3>
+<p>Пример типичной секции балок, которая начинается с инициализации всех свойств, применяемых к последующим балкам.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"beams"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span> <span class="s2">"id2:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="c1">//--BODYWORK--
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>          <span class="c1">//roof main shape lengthwise
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>          <span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">1401000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">140</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">32700</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="s2">"FLT_MAX"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="p">{</span><span class="s2">"deformLimitExpansion"</span><span class="o">:</span><span class="mf">1.1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="s2">"rf1r"</span><span class="p">,</span><span class="s2">"rf2r"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="s2">"rf1"</span><span class="p">,</span><span class="s2">"rf2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="s2">"rf1l"</span><span class="p">,</span><span class="s2">"rf2l"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="s2">"rf2r"</span><span class="p">,</span><span class="s2">"rf3r"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="s2">"rf2"</span><span class="p">,</span><span class="s2">"rf3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="s2">"rf2l"</span><span class="p">,</span><span class="s2">"rf3l"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="s2">"rf3r"</span><span class="p">,</span><span class="s2">"rf4r"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="s2">"rf3"</span><span class="p">,</span><span class="s2">"rf4"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="s2">"rf3l"</span><span class="p">,</span><span class="s2">"rf4l"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p></p><div class="bng-notice note"><code>0.38.5.0</code> contains
+<code>833060</code> entries in
+<code>10985</code> sections distributed over
+<code>20043</code> parts in
+<code>5090</code> jbeam files.</div>
+<br/>

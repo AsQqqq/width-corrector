@@ -1,0 +1,374 @@
+<p>Это руководство покажет вам, как создавать правильные номерные знаки для BeamNG.drive.</p>
+<h3 id="requirements">
+
+  Требования
+</h3>
+<p>Для этого руководства вам потребуется лишь инструмент редактирования изображений и текстовый редактор. Мы будем использовать
+    <a class="link-ext" href="https://www.gimp.org" rel="noopener" target="_blank">GIMP</a>
+ и
+    <a class="link-ext" href="https://code.visualstudio.com/download" rel="noopener" target="_blank">Visual Studio Code</a>
+ в этом руководстве.</p>
+<p>Вы можете воспользоваться <a href="https://documentation.beamng.com/modding/vehicle/tutorials/license-plate-tutorial/license_plate_template_mod.zip" rel="noopener" target="_blank">этим файлом-шаблоном</a>
+ или создать всё с нуля. Шаблон содержит рабочий мод номерного знака, который можно изменять как угодно.</p>
+<p>Если вы используете шаблон, просто поместите его в папку mods и распакуйте через менеджер модов внутри игры. Не забудьте переименовать файлы, как показано в разделе <a href="#preparing-the-folder-structure">подготовки структуры папок</a>
+ этого руководства.</p>
+<hr/>
+<h3 id="introduction">
+
+  Введение
+</h3>
+<p>Для полноценного мода номерного знака необходимо иметь как минимум три файла — jbeam-файл, json-файл и файл текстуры.</p>
+<p>Jbeam-файл определяет ваш новый номерной знак как дополнительную деталь, которую игрок сможет выбрать в меню выбора деталей. Он также содержит всю необходимую информацию о моде номерного знака и указывает путь к соответствующему json-файлу.</p>
+<p>Json-файл указывает пути ко всем файлам текстур, которые вы будете использовать в своём моде номерного знака.</p>
+<p>Файл текстуры будет служить фоном для вашего номерного знака.</p>
+<hr/>
+<h3 id="creating-a-license-plate-mod">
+
+  Создание мода номерного знака
+</h3>
+<h4 id="preparing-the-folder-structure">
+
+  Подготовка структуры папок
+</h4>
+<p>Перейдите в <a href="https://documentation.beamng.com/support/userfolder/" rel="noopener" target="_blank">пользовательскую папку</a>
+, затем в <code>/mods/unpacked</code> и создайте несколько папок, соответствующих пути к файлам номерных знаков.</p>
+<p>В итоге у вас должен получиться путь следующего вида:</p>
+<p><em>/mods/unpacked/<strong>username_mod</strong>/vehicles/common/licenseplates/<strong>username_license_plate</strong>/</em></p>
+<p>Части, выделенные жирным шрифтом, следует заменить на любые удобные для вас названия. Лучше избегать пробелов и специальных символов в именах файлов и путях — их можно заменить на <code>-</code> или <code>_</code>.</p>
+<p>Убедитесь, что вы используете уникальные имена во избежание конфликтов с модами других пользователей или базовым контентом. Также следует избегать пробелов и специальных символов, так как они иногда могут вызывать проблемы.</p>
+<p>Включение вашего имени пользователя в название папки — простой способ убедиться, что имя вашего мода будет уникальным.</p>
+<div class="bng-notice info"><strong>username_mod</strong> соответствует имени zip-файла вашего мода и, следовательно, будет именем, отображаемым в менеджере модов внутри игры</div>
+<br/>
+<h4 id="creating-the-texture">
+
+  Создание текстуры
+</h4>
+<p>Откройте GIMP или любой другой редактор изображений.</p>
+<p>Сейчас мы создадим фон для номерного знака. Текстура фона должна соответствовать шаблонам: 512x256 пикселей для стандартного знака и 1024x196 пикселей для номерного знака формата 52-11.</p>
+<p>Используйте <a href="https://documentation.beamng.com/modding/vehicle/tutorials/license-plate-tutorial/license_plate_texture_template.zip" rel="noopener" target="_blank">этот файл-шаблон</a>
+ для создания собственного фона номерного знака. Не наносите номер на текстуру — он будет сгенерирован игрой и наложен поверх фоновой текстуры.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/license-plate-tutorial/License_plate_gimp.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/license-plate-tutorial/License_plate_gimp_hu302d90a1a9df614ffaa8d52da7b283a9_213919_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>По завершении экспортируйте файл в формате <code>.png</code> в созданную ранее папку и дайте ему уникальное имя.</p>
+<div class="bng-notice tip">Если ваш номерной знак предусматривает новые текстуры для карт нормалей и карт отражений (specular), их можно пометить соответственно, добавив "_n" или "_s" в конце имени файла.</div>
+<h4 id="create-the-json-file">
+
+  Создание json-файла
+</h4>
+<p>После завершения работы с текстурой мы создадим json-файл, который установит связь между номерным знаком и текстурой.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span> <span class="p">:</span> <span class="s2">"username_license_plate"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"data"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"gen"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pattern"</span> <span class="p">:</span> <span class="s2">"BNG*%nb%nb"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"patternData"</span><span class="p">:{</span> <span class="nt">"nb"</span><span class="p">:[</span><span class="s2">"A"</span><span class="p">,</span><span class="s2">"B"</span><span class="p">,</span><span class="s2">"C"</span><span class="p">,</span><span class="s2">"1"</span><span class="p">,</span><span class="s2">"2"</span><span class="p">,</span><span class="s2">"3"</span><span class="p">]}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"format"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"30-15"</span><span class="p">:</span> <span class="p">{</span> <span class="c1">//US
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nt">"size"</span> <span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"x"</span> <span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"y"</span><span class="p">:</span> <span class="mi">256</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"text"</span> <span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"x"</span> <span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"y"</span> <span class="p">:</span> <span class="mf">0.65</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"scale"</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"color"</span> <span class="p">:</span> <span class="s2">"rgb(187, 61, 0)"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"limit"</span> <span class="p">:</span> <span class="mi">8</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"generator"</span><span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/user_license_plate/licenseplate.html"</span><span class="p">,</span> <span class="c1">//Optional
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nt">"characterLayout"</span><span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/user_license_plate/platefont.json"</span><span class="p">,</span> <span class="c1">//Optional
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nt">"diffuse"</span> <span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"spriteImg"</span> <span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/default/platefont_d.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"backgroundImg"</span> <span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/user_license_plate/user_license_plate_background_d.png"</span><span class="p">,</span> <span class="c1">//Change this to your path
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>          <span class="nt">"fillStyle"</span> <span class="p">:</span> <span class="s2">"black"</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"bump"</span> <span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"spriteImg"</span> <span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/default/platefont_n.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"backgroundImg"</span> <span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/default/licenseplate-default_n.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"fillStyle"</span> <span class="p">:</span> <span class="s2">"rgb(0,0,255)"</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"specular"</span> <span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"spriteImg"</span> <span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/default/platefont_s.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"fillStyle"</span> <span class="p">:</span> <span class="s2">"rgb(233,233,233)"</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"52-11"</span><span class="p">:</span> <span class="p">{</span> <span class="c1">//EU
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nt">"size"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"x"</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"y"</span><span class="p">:</span> <span class="mi">196</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"text"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"x"</span><span class="p">:</span> <span class="mf">0.54</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"y"</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"scale"</span><span class="p">:</span> <span class="mf">1.7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"color"</span><span class="p">:</span> <span class="s2">"black"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"limit"</span><span class="p">:</span> <span class="mi">9</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"generator"</span><span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/user_license_plate/licenseplate.html"</span><span class="p">,</span> <span class="c1">//Optional
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nt">"characterLayout"</span><span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/user_license_plate/platefont.json"</span><span class="p">,</span> <span class="c1">//Optional
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nt">"backgroundImg"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"spriteImg"</span><span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/default/platefont_d.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"backgroundImg"</span> <span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/user_license_plate/user_license_plate_background_52-11_d.png"</span><span class="p">,</span><span class="c1">//Change this to your path
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>          <span class="nt">"fillStyle"</span><span class="p">:</span> <span class="s2">"white"</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"bump"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"spriteImg"</span><span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/default/platefont_n.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"backgroundImg"</span><span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/driver_training/license_plate_german_new_wide_n.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"fillStyle"</span><span class="p">:</span> <span class="s2">"rgb(0,0,255)"</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"specular"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"spriteImg"</span><span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/default/platefont_s.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"fillStyle"</span><span class="p">:</span> <span class="s2">"rgb(233,233,233)"</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><br/>
+<h5 id="required-changes">
+
+  Обязательные изменения
+</h5>
+<p>Эти изменения необходимы для работы вашего мода.</p>
+<ul>
+<li><strong>name:</strong> Может быть любым.</li>
+<li><strong>gen:</strong> Определяет шаблон символов, которые будут сгенерированы, если пользователь не использует фиксированный текст. Подробнее см. <a href="#pattern-text-generation">этот раздел</a>
+.</li>
+<li><strong>data section:</strong>
+<ul>
+<li><em>spriteImg / backgroundImg:</em> Определяет, какая текстура будет использоваться для текста (spriteImg) и фона (backgroundImg). Замените это на путь к вашему собственному фоновому изображению.</li>
+</ul>
+</li>
+</ul>
+<p>Для пути важна часть внутри корневой папки мода. Например, в приведённом ниже случае путь будет выглядеть как "/vehicles/common/licenseplates/TutorialPlate/TestBackground.png" и "/vehicles/common/licenseplates/TutorialPlate/TestBackground_52-11.png"</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/license-plate-tutorial/PlatePath.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/license-plate-tutorial/PlatePath.png"/>
+</span></a></p>
+<h5 id="optional-properties">
+
+  Дополнительные свойства
+</h5>
+<p>Хотя прочие свойства изменять не обязательно, вы можете использовать их для добавления дополнительных элементов в свой мод.</p>
+<ul>
+<li><strong>data section:</strong>
+<ul>
+<li><em>formats:</em> Игра поддерживает 2 формата номерных знаков по умолчанию. 30-15 — стандартный американский знак, а 52-11 — стандартный европейский. Рекомендуется использовать стандартные форматы для большинства применений, когда размеры достаточно близки. Если вам нужен только один из размеров, просто удалите ненужный раздел.</li>
+<li><em>text:</em> Определяет внешний вид текста. Измените значения x и y для позиционирования текста, скорректируйте коэффициент масштаба для изменения его размера, а RGB-значение параметра color — для изменения цвета текста. limit задаёт максимальное количество символов, отображаемых на номерном знаке.</li>
+<li><em>generator:</em> Вы можете задать внешний вид номерного знака, создав собственный html для него и указав ссылку здесь. Если эта строка отсутствует, будет использован html по умолчанию.</li>
+<li><em>characterLayout:</em> Ссылается на json-файл, определяющий шрифт, используемый для данного номерного знака. Подробнее см. <a href="#modified-font-style">этот раздел</a>
+. Если эта строка отсутствует, будет использован html по умолчанию.</li>
+<li><em>diffuse / bump / specular:</em> Здесь необходимо указать пути к различным файлам текстур. Можно использовать до трёх типов карт: диффузную (diffuse), карту рельефа (bump) и/или карту отражений (specular).</li>
+<li><em>fillStyle:</em> Определяет цвет, который будет использоваться, если файл spriteImg / backgroundImg не задан. Может быть предопределённым HTML-цветом (например: black, white, ..) или значением RGB.</li>
+<li><em>version:</em> Это свойство предназначено только для внутреннего использования и не должно изменяться.</li>
+</ul>
+</li>
+</ul>
+<div class="bng-notice tip">Если вы создали собственный мод карты, вы можете задать для неё собственный номерной знак по умолчанию. Для этого достаточно назвать папку с номерными знаками так же, как и карту, и переименовать один из json-файлов в licensePlate-default.json. Убедитесь, что пути в ваших jbeam-файлах соответствуют новым.</div>
+<br/>
+<h4 id="create-the-jbeam-file">
+
+  Создание jbeam-файла
+</h4>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"USERNAME_license_plate_2_1"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"information"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"authors"</span><span class="p">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"name"</span><span class="p">:</span><span class="s2">"License Plate Mod"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"value"</span><span class="p">:</span><span class="mi">50</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"slotType"</span> <span class="p">:</span> <span class="s2">"licenseplate_design_2_1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"licenseplate_path"</span> <span class="p">:</span> <span class="s2">"vehicles/common/licenseplates/user_license_plate/user_license_plate.json"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><ul>
+<li><strong>Измените имя детали:</strong> Прежде всего измените имя детали во 2-й строке на уникальное.</li>
+<li><strong>Измените раздел информации:</strong>
+<ul>
+<li>authors: Введите имя автора</li>
+<li>name: Введите название вашего номерного знака. Это имя будет отображаться в меню выбора деталей внутри игры.</li>
+</ul>
+</li>
+<li><strong>slotType:</strong> Тип слота всегда должен быть "licenseplate_design_2_1"</li>
+<li><strong>licenseplate_path:</strong> Указывает путь к соответствующему json-файлу. Введите здесь путь к вашему json-файлу.</li>
+</ul>
+<hr/>
+<p>После выполнения всех вышеперечисленных шагов протестируйте мод в игре.</p>
+<p>Откройте меню выбора деталей и проверьте, отображается ли ваш мод.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/license-plate-tutorial/Part_selector_license_plate.jpg" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/license-plate-tutorial/Part_selector_license_plate.jpg"/>
+</span></a></p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/license-plate-tutorial/License_plate.jpg" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/license-plate-tutorial/License_plate_hu244efad55daa4367bb4f1e9eee436984_609615_0x300_resize_q85_bgfff_box.jpg"/>
+</span></a></p>
+<p><strong>ГОТОВО!</strong> Если всё работает правильно, вы можете запаковать мод в zip-файл с помощью менеджера модов игры и загрузить его в репозиторий -&gt;
+    <a class="link-ext" href="https://wiki.beamng.com/Uploading_Mods" rel="noopener" target="_blank">Uploading Mods</a>
+</p>
+<hr/>
+<h3 id="additional-options">
+
+  Дополнительные возможности
+</h3>
+<br/>
+<h4 id="modified-font-style">
+
+  Изменённый стиль шрифта
+</h4>
+<p>Вы можете создать собственный файл <code>platefont.json</code>, если хотите использовать нестандартный шрифт. Просто скопируйте <a href="https://documentation.beamng.com/modding/vehicle/tutorials/license-plate-tutorial/platefont.zip" rel="noopener" target="_blank">этот шаблон</a>
+, переименуйте и измените его.</p>
+<p>Наиболее важная часть файла — список chars. Здесь вы можете определить различные символы вашего шрифта и указать их расположение на текстуре.</p>
+<div class="bng-notice info">Для каждого символа на знаке вам потребуется часть кода от <code>{</code> до <code>},</code> — просто добавьте её на новой строке после <code>},</code></div>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"chars"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"count"</span><span class="p">:</span> <span class="s2">"64"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"char"</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"45"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"x"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"y"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"width"</span><span class="p">:</span> <span class="s2">"56"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"height"</span><span class="p">:</span> <span class="s2">"115"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"xoffset"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"yoffset"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"xadvance"</span><span class="p">:</span> <span class="s2">"56"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"page"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"chnl"</span><span class="p">:</span> <span class="s2">"15"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl"> <span class="p">}</span>
+</span></span></code></pre>
+</div><ul>
+<li><strong>count:</strong> Указывает, сколько символов содержит ваш пользовательский шрифт.</li>
+<li><strong>id:</strong> Соответствует десятичному значению символа в таблице ASCII. Чтобы узнать значение каждого символа, воспользуйтесь
+    <a class="link-ext" href="https://www.asciitable.com/" rel="noopener" target="_blank">этой ссылкой</a>
+.</li>
+<li><strong>x / y:</strong> Определяет начальную точку символа.</li>
+<li><strong>width / height:</strong> Определяет размер символа в пикселях.</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/tutorials/license-plate-tutorial/Platefont.jpg" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/tutorials/license-plate-tutorial/Platefont_hu51b7a1e8682d9a6e3628dcf6f7d5e4bd_383963_0x300_resize_q85_bgfff_box.jpg"/>
+</span></a></p>
+<h4 id="pattern-text-generation">
+
+  Генерация текста по шаблону
+</h4>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"data"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"gen"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pattern"</span> <span class="p">:</span> <span class="s2">"BNG*%nb%nb"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">//"pattern" : ["BNG*%c%c%D%d%d","BNG*%c%D%d%d%d","BNG*%c%c%D%d"],
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="nt">"patternData"</span><span class="p">:{</span> <span class="nt">"nb"</span><span class="p">:[</span><span class="s2">"t1"</span><span class="p">,</span><span class="s2">"t2"</span><span class="p">,</span><span class="s2">"t3"</span><span class="p">]}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span></code></pre>
+</div><div class="bng-table" id="license-plates"><div class="bng-table-header"><div>Имя</div><div>Тип</div><div>Необязательный</div><div>Значение по умолчанию</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="">pattern</div>
+</div><div>
+<div>Тип</div>
+<div style="">string or Array of strings</div>
+</div><div>
+<div>Необязательный</div>
+<div style="">true</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">Old generator</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Эта строка используется для определения типа случайных символов, которые должны быть сгенерированы.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="">patternData</div>
+</div><div>
+<div>Тип</div>
+<div style="">Dict of array of strings</div>
+</div><div>
+<div>Необязательный</div>
+<div style="">true</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">empty</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Используется для расширения генераторов случайных значений по умолчанию. При использовании имени словаря в шаблоне будет случайным образом выбрана одна из строк массива.</div>
+</div></div></div>
+<p>В приведённом выше файле сгенерированный текст будет выглядеть примерно как <code>BNG*t3t1</code></p>
+<p>При каждом использовании из <code>nb</code> будет случайным образом выбрана одна строка. Нет гарантии, что результат будет одним и тем же каждый раз.</p>
+<p>В строке 7 вместо одной строки используется массив строк. Таким образом можно генерировать один из случайных форматов, который имитирует ваш номерной знак. Например, именно такой формат используется для немецких знаков.</p>
+<h5 id="default-generators">
+
+  Генераторы по умолчанию
+</h5>
+<div class="bng-table" id="license-plates2"><div class="bng-table-header"><div>Имя</div><div>Эквивалент regex или пример</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="text-align: left;">%c</div>
+</div><div>
+<div>Эквивалент regex или пример</div>
+<div style="text-align: left;">[A-Z]</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Возвращает одну случайную заглавную букву латинского алфавита</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="text-align: left;">%D</div>
+</div><div>
+<div>Эквивалент regex или пример</div>
+<div style="text-align: left;">[1-9]</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Возвращает одну цифру, кроме нуля</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="text-align: left;">%d</div>
+</div><div>
+<div>Эквивалент regex или пример</div>
+<div style="text-align: left;">[0-9]</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Возвращает одну цифру</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="text-align: left;">%vid</div>
+</div><div>
+<div>Эквивалент regex или пример</div>
+<div style="text-align: left;">Eg: 2048</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Возвращает игровой идентификатор (engine id) автомобиля</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="text-align: left;">%vname</div>
+</div><div>
+<div>Эквивалент regex или пример</div>
+<div style="text-align: left;">Eg: "sunburst"</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Возвращает название папки jbeam автомобиля или модели</div>
+</div></div></div>
+<br/>
+<h4 id="adding-your-own-plate-format">
+
+  Добавление собственного формата знака
+</h4>
+<div class="bng-notice note">Рассмотрите возможность использования форматов, уже включённых в игру, если соотношение сторон близко к нужному.</div>
+<br/>
+<p>Вам необходимо добавить новый меш, материал и файлы номерного знака.</p>
+<p>Разместите их в папке следующим образом:</p>
+<p><code>/vehicles/common/licenseplates/%NEW_FORMAT%/</code> или <code>/vehicles/common/licenseplates/%NEW_MAP%/</code></p>
+<p>Имя материала должно соответствовать соглашению об именовании: <code>licenseplate-</code> ширина в сантиметрах, дефис, высота в сантиметрах, необязательный код страны (одна или две буквы). Код страны следует использовать только в редких случаях, когда существует похожий формат, но требующий другого материала.</p>
+<p>Также необходимо создать оформление по умолчанию, чтобы карты или стили, не определяющие ваш новый формат, всё равно отображали что-либо вместо ошибки <code>no texture</code>.</p>
+<p>Создайте резервный файл здесь: <code>/vehicles/common/licenseplates/default/licensePlate-default-%NEW_FORMAT%.json</code></p>

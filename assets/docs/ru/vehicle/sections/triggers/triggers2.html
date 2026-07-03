@@ -1,0 +1,1029 @@
+<p><code>This feature is supported as of BeamNG.tech and .drive version 0.31 to latest.</code></p>
+<p>Triggers2 — это улучшенная версия раздела Triggers. В сочетании с разделами triggerEventLinks2 и actionsEnabled она обеспечивает более естественную связь между триггерами и входными действиями. Эти разделы позволяют показывать и скрывать определённые действия в пользовательском интерфейсе в зависимости от деталей, установленных на транспортном средстве.</p>
+<h3 id="interaction-maps">
+
+  Карты взаимодействий
+</h3>
+<p>Triggers2 требует <a data-doc="input/action-maps" href="/docs/input/action-maps">карты действий</a>
+ или карты взаимодействий для работы. Карта взаимодействий может быть определена в файле с суффиксом *.interaction.json. Формат файла совпадает с форматом <a data-doc="input/actions" href="/docs/input/actions">input_actions.json</a>
+, и он может заменить этот файл. Связанные с ним карты ввода с клавиатуры и контроллера продолжат работать после смены имени. Для целей модификации может существовать несколько файлов с суффиксом *.interaction.json. Также имеется общая карта взаимодействий в папке общего транспортного средства, содержащая некоторые типовые взаимодействия, например защёлки дверей. Пример файла карты взаимодействий:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"fileversion"</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"actions"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//the content here is the same as in input_actions.json
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="s2">"sleeper_door_R"</span><span class="o">:</span>      <span class="p">{</span><span class="s2">"order"</span><span class="o">:</span>   <span class="mf">50.1</span><span class="p">,</span> <span class="s2">"onDown"</span><span class="o">:</span><span class="s2">"controller.getControllerSafe('sleeperDoorRCoupler').toggleGroup()"</span><span class="p">,</span> <span class="s2">"title"</span><span class="o">:</span> <span class="s2">"vehicle.interaction.sleeperDoorR.toggle.title"</span><span class="p">,</span> <span class="s2">"desc"</span><span class="o">:</span> <span class="s2">"vehicle.interaction.sleeperDoorR.toggle.desc"</span> <span class="p">},,</span> 
+</span></span><span class="line"><span class="cl">        <span class="s2">"sleeper_door_L"</span><span class="o">:</span>      <span class="p">{</span><span class="s2">"order"</span><span class="o">:</span>   <span class="mf">50.2</span><span class="p">,</span> <span class="s2">"onDown"</span><span class="o">:</span><span class="s2">"controller.getControllerSafe('sleeperDoorLCoupler').toggleGroup()"</span><span class="p">,</span> <span class="s2">"title"</span><span class="o">:</span> <span class="s2">"vehicle.interaction.sleeperDoorL.toggle.title"</span><span class="p">,</span> <span class="s2">"desc"</span><span class="o">:</span> <span class="s2">"vehicle.interaction.sleeperDoorL.toggle.desc"</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Полный формат файла <code>*.interaction.json</code> и рабочий процесс см. в разделе <a data-doc="input/interaction-maps" href="/docs/input/interaction-maps">Карты взаимодействий</a>
+.</p>
+<h3 id="triggers2-section-arguments">
+
+  Аргументы раздела Triggers2
+</h3>
+<p>Примечание: аргумент "label" был удалён.</p>
+<h4 id="required-arguments">
+
+  Обязательные аргументы
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Уникально идентифицирует триггер. <strong>Должен быть уникальным</strong> для всего транспортного средства</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Опорная нода для системы координат</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Нода X для системы координат</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Нода Y для системы координат</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Тип триггера</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>допустимые значения:</p>
+<ul>
+<li>box</li>
+<li>sphere</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary or number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":1, "y":1, "z":1} (box), 1 (sphere)<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Размер в трёхмерных координатах для типа Box, радиус для типа Sphere</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>пример значения для типа Box:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.25</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.05</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.08</span><span class="p">}</span>
+</span></span></code></pre>
+</div><p>пример значения для типа Sphere:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="mf">0.25</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Поворот в углах Эйлера (градусы)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Использует внутреннюю систему вращения Эйлера -X -Z -Y; центр вращения — угол бокса, задающий положение.</p>
+<p>пример значения:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">}</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Поворот в углах Эйлера (градусы)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Используется для анимации и подобного. В настоящее время не задействован.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Смещение в локальной системе координат</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Используется для анимации и подобного. В настоящее время не задействован.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Начальное смещение в локальной системе координат</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Использует внутреннюю систему вращения Эйлера -X -Z -Y; центр вращения — угол бокса, задающий положение.</p>
+<p>пример значения:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.2</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.26</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mf">0.05</span><span class="p">}</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<h4 id="optional-arguments">
+
+  Необязательные аргументы
+</h4>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Группа деформации (deformGroup), которая отключит триггер при активации</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">array<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Дробные значения RGBA, задающие цвет триггера</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>пример значения:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"color"</span><span class="o">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<h3 id="triggereventlinks2-section-arguments">
+
+  Аргументы раздела TriggerEventLinks2
+</h3>
+<p>Примечание: данный раздел больше не ссылается на события. Они не поддерживаются в triggers2. Аргумент "triggerInput" аналогичен старому аргументу "action".</p>
+<h4 id="required-arguments-1">
+
+  Обязательные аргументы
+</h4>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">ID триггера из triggers2</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Название ввода, используемого для активации события</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Часто используемые значения:</p>
+<ul>
+<li>action0 = левая кнопка мыши</li>
+<li>action1 = shift + левая кнопка мыши</li>
+<li>action2 = средняя кнопка мыши</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">имя действия из карты действий / карты взаимодействий для активации</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Без префикса имя будет найдено в файле с суффиксом *.interaction.json в собственной папке транспортного средства или в общей папке.</p>
+<div class="border border-default collapse-wrapper">
+<a class="d-flex py-2 collapse-head" data-toggle="collapse" href="#uid17" role="button">
+    Список доступных стандартных взаимодействий <i class="ti-plus ml-auto"></i>
+</a>
+<div class="collapse" id="uid17"><ul>
+<li>Открываемые элементы</li>
+</ul>
+<div class="bng-table" id="table-1783007352021125071"><div class="bng-table-header"><div>Action</div><div>Event</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">door_L</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('door_L_coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">door_R</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('door_R_coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">door_FL</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('door_FL_coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">door_FR</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('door_FR_coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">door_RL</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('door_RL_coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">door_RR</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('door_RR_coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">door_RL_half</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('door_RL_coupler').toggleGroupConditional({{ 'door_FL_coupler','attached','vehicle.advancedCouplerControl.openFrontDoorFirst'}})</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">door_RR_half</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('door_RR_coupler').toggleGroupConditional({{ 'door_FR_coupler','attached','vehicle.advancedCouplerControl.openFrontDoorFirst'}})</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">door_rear</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('rearDoorCoupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">barndoor_L</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('barndoor_L_coupler').toggleGroupConditional({{ 'barndoor_R_coupler','attached','vehicle.advancedCouplerControl.openOtherSideFirst'}})</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">barndoor_L_alt</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('barndoor_L_coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">barndoor_RR</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('barndoor_RR_coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">barndoor_RL</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('barndoor_RL_coupler').toggleGroupConditional({{ 'barndoor_RR_coupler','attached','vehicle.advancedCouplerControl.openOtherSideFirst'}})</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">barndoor_R</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('barndoor_R_coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">sidedoor</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('sidedoor_coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">sidedoor_F</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('sidedoor_F_coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">sidedoor_R</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('sidedoor_R_coupler').toggleGroupConditional({{ 'sidedoor_F_coupler','attached','vehicle.advancedCouplerControl.openOtherSideFirst'}})</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hoodCatch</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('hoodCatchCoupler').toggleGroupConditional({{ 'hoodLatchCoupler','attached','vehicle.advancedCouplerControl.releaseHoodFirstInterior'}})</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hoodRelease</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('hoodLatchCoupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">toggle_cargodoorRL</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('cargoDoorRLCoupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">toggle_cargodoorRR</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('cargoDoorRRCoupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">tailgate</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('tailgateCoupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">tailgate_lower</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('tailgateCoupler').toggleGroupConditional({{ 'tailgateCouplerUpper','attached','vehicle.advancedCouplerControl.openUpperPartFirst'},{'spareholderCoupler','attached','vehicle.advancedCouplerControl.openSpareHolderFirst'}})</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">tailgate_upper</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('tailgateCouplerUpper').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">tailgate_lower_alt</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('tailgateCoupler').toggleGroupConditional({{ 'spareholderCoupler','attached','vehicle.advancedCouplerControl.openSpareHolderFirst'}})</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">tailgate_upper_alt</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('tailgateCouplerUpper').toggleGroupConditional({{ 'tailgateCoupler','attached','vehicle.advancedCouplerControl.openLowerPartFirst'}})</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">tailgateCatch</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('tailgateCatchCoupler').toggleGroupConditional({{ 'tailgateLatchCoupler','attached','vehicle.advancedCouplerControl.releaseTailgateFirstInterior'}})</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">tailgateRelease</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('tailgateLatchCoupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">trunk</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('trunkCoupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hatch</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('hatchCoupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">decklid</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('decklidCoupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">spareholder</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('spareholderCoupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">folding_step</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('step_coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">roofbox</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('roofboxCoupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">lid_B</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('lidBCoupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">lid_F</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('lidFCoupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">lid_R</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('lidRCoupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">lid_B2</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('lidB2Coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">lid_F2</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('lidF2Coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">lid_R2</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('lidR2Coupler').toggleGroup()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">porta_potty_door</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('portaPottyDoorCoupler').toggleGroupConditional({{ 'portaPottyLockCoupler','attached','vehicle.advancedCouplerControl.portaPotty'}})</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">porta_potty_lock</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('portaPottyLockCoupler').toggleGroup()</div>
+</div></div></div>
+<ul>
+<li>Полицейские детали</li>
+</ul>
+<div class="bng-table" id="table-1783007352022237038"><div class="bng-table-header"><div>Action</div><div>Event</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">toggle_beacon</div>
+</div><div>
+<div style="">Event</div>
+<div style="">
+<pre><code>    electrics.set_lightbar_signal(electrics.values.lightbar == 0 and 1 or 0)</code></pre>
+
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">toggle_lightbar</div>
+</div><div>
+<div style="">Event</div>
+<div style="">
+<pre><code>  electrics.set_lightbar_signal(electrics.values.lightbar == 0 and 1 or 0)</code></pre>
+
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">toggle_siren</div>
+</div><div>
+<div style="">Event</div>
+<div style="">
+<pre><code>     electrics.set_lightbar_signal(electrics.values.lightbar == 2 and 1 or 2)</code></pre>
+
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">toggle_lightbar_siren</div>
+</div><div>
+<div style="">Event</div>
+<div style="">electrics.set_lightbar_signal(electrics.values.lightbar == 0 and 2 or 0)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">lightbar_setmode_1</div>
+</div><div>
+<div style="">Event</div>
+<div style="">for _, v in pairs(controller.getControllersByType('lightbar')) do v.setModeIndex(1) end</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">lightbar_setmode_2</div>
+</div><div>
+<div style="">Event</div>
+<div style="">for _, v in pairs(controller.getControllersByType('lightbar')) do v.setModeIndex(2) end</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">lightbar_setmode_3</div>
+</div><div>
+<div style="">Event</div>
+<div style="">for _, v in pairs(controller.getControllersByType('lightbar')) do v.setModeIndex(3) end</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">lightbar_setmode_4</div>
+</div><div>
+<div style="">Event</div>
+<div style="">for _, v in pairs(controller.getControllersByType('lightbar')) do v.setModeIndex(4) end</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">toggle_lightbar_mode</div>
+</div><div>
+<div style="">Event</div>
+<div style="">for _ ,v in pairs(controller.getControllersByType('lightbar')) do v.toggleMode()    end</div>
+</div></div></div>
+<ul>
+<li>Седельный тягач и прицеп</li>
+</ul>
+<div class="bng-table" id="table-1783007352022509492"><div class="bng-table-header"><div>Action</div><div>Event</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">fifthwheelDecouple</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('fifthwheel').detachFifthwheel()</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">pintleHitchToggle</div>
+</div><div>
+<div style="">Event</div>
+<div style="">beamstate.toggleCouplers('pintle', true, false, false)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">feet_up</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('trailerFeet').moveFeet(-VALUE)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">feet_down</div>
+</div><div>
+<div style="">Event</div>
+<div style="">controller.getControllerSafe('trailerFeet').moveFeet(VALUE)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">toggle_jack</div>
+</div><div>
+<div style="">Event</div>
+<div style="">electrics.values.feet = 1 - (electrics.values.feet or 0)</div>
+</div></div></div>
+<ul>
+<li>Гидравлика лоурайдера</li>
+</ul>
+<div class="bng-table" id="table-1783007352022696889"><div class="bng-table-header"><div>Action</div><div>onDown</div><div>onUp</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_jump_full</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsPosition({'full'},1,15)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'full'},0.9)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_jump_front</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsPosition({'frontAxle'},1,15)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'frontAxle'},1)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_jump_rear</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsPosition({'rearAxle'},1,15)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'rearAxle'},1)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_jump_left</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsPosition({'leftSide'},1,15)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'leftSide'},1)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_jump_right</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsPosition({'rightSide'},1,15)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'rightSide'},1)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_lower_full</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'full'},0.1)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'full'},0)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_raise_full</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsMomentaryIncrease({'full'},true,1)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsMomentaryIncrease({'full'},false,1)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_lower_front</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'frontAxle'},0.1)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'frontAxle'},0)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_lower_rear</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'rearAxle'},0.1)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'rearAxle'},0)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_lower_FL</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'frontLeft'},0.1)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'frontLeft'},0)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_lower_FR</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'frontRight'},0.1)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'frontRight'},0)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_lower_RL</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'rearLeft'},0.1)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'rearLeft'},0)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_lower_RR</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'rearRight'},0.1)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsBleed({'rearRight'},0)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_raise_front</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsMomentaryIncrease({'frontAxle'},true,1)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsMomentaryIncrease({'frontAxle'},false,1)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_raise_rear</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsMomentaryIncrease({'rearAxle'},true,1)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsMomentaryIncrease({'rearAxle'},false,1)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_raise_FL</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsMomentaryIncrease({'frontLeft'},true,1)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsMomentaryIncrease({'frontLeft'},false,1)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_raise_FR</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsMomentaryIncrease({'frontRight'},true,1)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsMomentaryIncrease({'frontRight'},false,1)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_raise_RL</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsMomentaryIncrease({'rearLeft'},true,1)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsMomentaryIncrease({'rearLeft'},false,1)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">hydraulics_raise_RR</div>
+</div><div>
+<div style="">onDown</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsMomentaryIncrease({'rearRight'},true,1)</div>
+</div><div>
+<div style="">onUp</div>
+<div style="">controller.getControllerSafe('hydraulicSuspension').setGroupsMomentaryIncrease({'rearRight'},false,1)</div>
+</div></div></div>
+<ul>
+<li>Крепления транспортных контейнеров</li>
+</ul>
+<div class="bng-table" id="table-1783007352023485823"><div class="bng-table-header"><div>Action</div><div>Event</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">container_attach_h_bot</div>
+</div><div>
+<div style="">Event</div>
+<div style="">beamstate.toggleCouplers('cp1_h', true)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">container_attach_h_top</div>
+</div><div>
+<div style="">Event</div>
+<div style="">beamstate.toggleCouplers('cp2_h', true)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">container_attach_v_top</div>
+</div><div>
+<div style="">Event</div>
+<div style="">beamstate.toggleCouplers('cp_v',  true)</div>
+</div></div></div>
+<ul>
+<li>JATO</li>
+</ul>
+<div class="bng-table" id="table-1783007352023615302"><div class="bng-table-header"><div>Action</div><div>Event</div></div>
+<div class="bng-table-row"><div>
+<div style="">Action</div>
+<div style="">jato</div>
+</div><div>
+<div style="">Event</div>
+<div style="">electrics.values.jatoInput = 1 - (electrics.values.jatoInput or 0)</div>
+</div></div></div>
+</div>
+</div>
+<p>Если к имени действия добавлен префикс "common:", оно будет найдено в <a data-doc="input/action-maps" href="/docs/input/action-maps">VehicleCommonActionMap</a>
+. Доступные действия можно посмотреть в файле lua\ge\extensions\core\input\actions\vehicle.json.</p>
+</div>
+</div>
+</div>
+<h4 id="optional-arguments-1">
+
+  Необязательные аргументы
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Если установлено значение true, значение VALUE, переданное связанному событию в *.interaction.json, будет умножено на -1</div>
+</div>
+</div>
+<h3 id="actionsenabled">
+
+  ActionsEnabled
+</h3>
+<p>Действия в файлах *.interaction.json, аналогично пользовательским картам действий, по умолчанию будут отключены (это означает, что подсказка, показывающая назначенную клавишу в правом верхнем углу экрана, отображаться не будет, однако код будет выполняться при нажатии этой клавиши). Их можно включить в Jbeam для детали транспортного средства, которая их использует, с помощью раздела ActionsEnabled. Он принимает только один аргумент — ID действия для включения. Пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"actionsEnabled"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"door_FR"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p>Это особенно удобно для транспортных средств с большим количеством возможных действий, из которых одновременно доступна лишь небольшая часть в зависимости от выбранных деталей, — например, для седельного тягача с несколькими вариантами комплектации и внутренними органами управления.</p>
+<h3 id="simple-example">
+
+  Простой пример
+</h3>
+<p>Стандартная конфигурация triggers2 для защёлки двери. Используется действие door_FR, определённое в common_default.interaction.json.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"triggers2"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"idRef:"</span><span class="p">,</span> <span class="s2">"idX:"</span><span class="p">,</span> <span class="s2">"idY:"</span><span class="p">,</span> <span class="s2">"type"</span><span class="p">,</span> <span class="s2">"size"</span><span class="p">,</span> <span class="s2">"baseRotation"</span><span class="p">,</span> <span class="s2">"rotation"</span><span class="p">,</span> <span class="s2">"translation"</span><span class="p">,</span> <span class="s2">"baseTranslation"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"door_R"</span><span class="p">,</span> <span class="s2">"d3r"</span><span class="p">,</span><span class="s2">"d2r"</span><span class="p">,</span><span class="s2">"d6r"</span><span class="p">,</span> <span class="s2">"box"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.1</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.03</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.1</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">90</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.24</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.13</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mf">0.003</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"door_R_int"</span><span class="p">,</span> <span class="s2">"d4r"</span><span class="p">,</span><span class="s2">"d5r"</span><span class="p">,</span><span class="s2">"d1r"</span><span class="p">,</span> <span class="s2">"box"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.1</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.03</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.1</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.15</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:-</span><span class="mf">0.2</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.0175</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"triggerEventLinks2"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"triggerId:triggers2"</span><span class="p">,</span> <span class="s2">"triggerInput"</span><span class="p">,</span> <span class="s2">"inputAction"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"door_R"</span><span class="p">,</span> <span class="s2">"action0"</span><span class="p">,</span> <span class="s2">"door_FR"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"door_R_int"</span><span class="p">,</span> <span class="s2">"action0"</span><span class="p">,</span> <span class="s2">"door_FR"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"actionsEnabled"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"door_FR"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div>
+<h3 id="advanced-example">
+
+  Расширенный пример
+</h3>
+<p>Более сложная конфигурация, использующая цветные триггеры, действия из VehicleCommonActionMap и пользовательское действие из карты взаимодействий транспортного средства.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"triggers2"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"idRef:"</span><span class="p">,</span> <span class="s2">"idX:"</span><span class="p">,</span> <span class="s2">"idY:"</span><span class="p">,</span> <span class="s2">"type"</span><span class="p">,</span> <span class="s2">"size"</span><span class="p">,</span> <span class="s2">"baseRotation"</span><span class="p">,</span> <span class="s2">"rotation"</span><span class="p">,</span> <span class="s2">"translation"</span><span class="p">,</span> <span class="s2">"baseTranslation"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"sw_ignition"</span><span class="p">,</span> <span class="s2">"dsh"</span><span class="p">,</span><span class="s2">"dshr"</span><span class="p">,</span><span class="s2">"dsh2"</span><span class="p">,</span> <span class="s2">"box"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.05</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.02</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.02</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">17</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:-</span><span class="mi">5</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">8</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.19</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.155</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.129</span><span class="p">},</span> <span class="p">{</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"color"</span><span class="o">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"sw_starter"</span><span class="p">,</span> <span class="s2">"dsh"</span><span class="p">,</span><span class="s2">"dshr"</span><span class="p">,</span><span class="s2">"dsh2"</span><span class="p">,</span> <span class="s2">"box"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.05</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.05</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.05</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">17</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:-</span><span class="mi">5</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">8</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.18</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.24</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.094</span><span class="p">},</span> <span class="p">{</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"color"</span><span class="o">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"trailerAir"</span><span class="p">,</span>  <span class="s2">"dsh"</span><span class="p">,</span><span class="s2">"dshr"</span><span class="p">,</span><span class="s2">"dsh2"</span><span class="p">,</span> <span class="s2">"box"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.07</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.03</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.07</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">8</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:-</span><span class="mi">8</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mi">24</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.025</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.053</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mf">0.036</span><span class="p">},</span> <span class="p">{</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"color"</span><span class="o">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"parkingBrake"</span><span class="p">,</span>  <span class="s2">"dsh"</span><span class="p">,</span><span class="s2">"dshr"</span><span class="p">,</span><span class="s2">"dsh2"</span><span class="p">,</span> <span class="s2">"box"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.07</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.03</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.07</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">8</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:-</span><span class="mi">8</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mi">24</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.001</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.057</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mf">0.025</span><span class="p">},</span> <span class="p">{</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"color"</span><span class="o">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"triggerEventLinks2"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"triggerId:triggers2"</span><span class="p">,</span> <span class="s2">"triggerInput"</span><span class="p">,</span> <span class="s2">"inputAction"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"sw_ignition"</span><span class="p">,</span> <span class="s2">"action0"</span><span class="p">,</span> <span class="s2">"common:activateStarterMotor"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"sw_starter"</span><span class="p">,</span> <span class="s2">"action0"</span><span class="p">,</span> <span class="s2">"common:setIgnitionLevel3Momentary"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"parkingBrake"</span><span class="p">,</span> <span class="s2">"action0"</span><span class="p">,</span> <span class="s2">"common:parkingbrake"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"trailerAir"</span><span class="p">,</span> <span class="s2">"action0"</span><span class="p">,</span> <span class="s2">"toggleTrailerAirSupply"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"actionsEnabled"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"toggleTrailerAirSupply"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p>Соответствующее действие из карты взаимодействий:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"toggleTrailerAirSupply"</span><span class="o">:</span>  <span class="p">{</span><span class="s2">"order"</span><span class="o">:</span>   <span class="mf">30.1</span><span class="p">,</span> <span class="s2">"energyStorage.getStorageSafe('mainAirTank'):toggleConsumerPressureCoef()""title"</span><span class="o">:</span> <span class="s2">"vehicle.interaction.pneumatics.trailerAirSupply.toggle.title"</span><span class="p">,</span> <span class="s2">"desc"</span><span class="o">:</span> <span class="s2">"vehicle.interaction.pneumatics.trailerAirSupply.toggle.desc"</span> <span class="p">},</span>
+</span></span></code></pre>
+</div>

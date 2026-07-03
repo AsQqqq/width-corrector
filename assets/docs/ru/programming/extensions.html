@@ -1,0 +1,84 @@
+<h3 id="description">
+
+  Описание
+</h3>
+<p>Расширения BeamNG на Lua — это простой и масштабируемый способ расширить функциональность. Расширения BeamNG позволяют объединять несколько фрагментов кода без необходимости изменять официальные файлы (что, скорее всего, создавало бы проблемы после каждого официального обновления и делало бы ваш мод неприемлемым в
+    <a class="link-ext" href="https://www.beamng.com/resources" rel="noopener" target="_blank">официальном репозитории модов BeamNG</a>
+).</p>
+<p>Например: вы можете написать мод, который реагирует на использование системы замедленного воспроизведения игроком, не редактируя официальные исходные файлы этой системы и не вставляя явные вызовы вашего мода.</p>
+<p>Это достигается с помощью функциональности «хуков», при которой расширения могут подписываться на различные события и сами вызывать события.</p>
+<h3 id="show-me-the-code">
+
+  Покажи мне код
+</h3>
+<p>Расширение BeamNG на Lua — это по сути файл Lua, возвращающий таблицу. Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">  <span class="kd">local</span> <span class="n">M</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="n">M.myData</span> <span class="o">=</span> <span class="mi">10</span>
+</span></span><span class="line"><span class="cl">  <span class="n">M.myFunction</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span> <span class="n">print</span><span class="p">(</span><span class="s2">"hello world"</span><span class="p">)</span> <span class="kr">end</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">return</span> <span class="n">M</span>
+</span></span></code></pre>
+</div><p>После упаковки мода в zip-файл файлы расширений должны располагаться где-либо в:</p>
+
+<pre tabindex="0"><code>  (someMod.zip) /lua/common/extensions/
+  (someMod.zip) /lua/ge/extensions/
+  (someMod.zip) /lua/vehicle/extensions/
+</code></pre>
+<p>Ваш выбор определит, в какой <a data-doc="programming/virtualmachines" href="/docs/programming/virtualmachines">виртуальной машине Lua</a>
+ можно использовать расширение BeamNG. Дополнительный контекст см. в разделе <a data-doc="programming/virtualmachines" data-frag="source-code-location" href="/docs/programming/virtualmachines#source-code-location">расположение исходного кода</a>
+.</p>
+<h3 id="using-an-extension">
+
+  Использование расширения
+</h3>
+<p>Созданное вами расширение не будет загружено до тех пор, пока вы явно не напишете код для его загрузки. Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">  <span class="n">extensions.load</span><span class="p">(</span><span class="s2">"myMod_myExtension"</span><span class="p">)</span>       <span class="c1">-- this loads extensions/myMod/myExtension.lua</span>
+</span></span></code></pre>
+</div><p>После загрузки расширения BeamNG вы можете получить доступ к его таблице:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">  <span class="n">myMod_myExtension.myFunction</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="n">myMod_myExtension.myData</span> <span class="o">=</span> <span class="mi">20</span>
+</span></span></code></pre>
+</div><p>Вы также можете выполнить функцию во всех расширениях, загруженных в данный момент в этой виртуальной машине Lua:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">  <span class="n">extensions.hook</span><span class="p">(</span><span class="s2">"myCustomEvent"</span><span class="p">)</span>        <span class="c1">-- this will call myMod_myExtension.myCustomEvent(), and it will myCustomEvent() in all other loaded extensions</span>
+</span></span></code></pre>
+</div><p>Когда расширение больше не нужно, его необходимо выгрузить:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">  <span class="n">extensions.unload</span><span class="p">(...)</span>
+</span></span></code></pre>
+</div><p>Держать расширения загруженными без необходимости — значит расходовать ресурсы компьютера и снижать частоту кадров, поэтому избегайте этого.</p>
+<p>Примечание 1:
+Существует синтаксис вида <code>extensions.myMod_myExtension.foo()</code>. Избегайте его, потому что
+а) он снижает частоту кадров по сравнению с <code>myMod_myExtension.foo()</code>, и…
+б) он автоматически загружает расширение, если оно не было загружено. Как правило, вам не следует загружать расширение автоматически — делайте это явно.</p>
+<p>Примечание 2:
+Ваше расширение может явно объявить, от каких других расширений оно зависит. Это делается следующим образом:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">  <span class="n">M.dependencies</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">"foo_bar"</span><span class="p">,</span> <span class="s2">"baz_qux"</span><span class="p">,</span> <span class="p">...}</span>
+</span></span></code></pre>
+</div><p>Это сообщит системе расширений BeamNG, что она должна загружать/выгружать эти зависимости за вас. Система также упорядочит вызовы хук-функций так, чтобы они следовали дереву зависимостей в соответствующем порядке. Иными словами, хук сначала выполнится в зависимостях, затем в вашем собственном расширении, и так далее.</p>
+<h3 id="common-extension-functions-data">
+
+  Общие функции/данные расширений
+</h3>
+<p>Помимо ваших собственных специфических членов «myFunction», «myData», ваша таблица может содержать более общие члены.</p>
+<p>Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">  <span class="n">M.onExtensionLoaded</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span> <span class="p">...</span> <span class="kr">end</span>   <span class="c1">-- called when the extension is loaded</span>
+</span></span><span class="line"><span class="cl">  <span class="n">M.onUpdate</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span> <span class="p">...</span> <span class="kr">end</span>            <span class="c1">-- called once per GFX frame</span>
+</span></span><span class="line"><span class="cl">  <span class="n">M.onGuiUpdate</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span> <span class="p">...</span> <span class="kr">end</span>         <span class="c1">-- called once per UI frame</span>
+</span></span><span class="line"><span class="cl">  <span class="n">M.state</span> <span class="o">=</span> <span class="p">{</span> <span class="n">foo</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bar</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="p">...</span> <span class="p">}</span>            <span class="c1">-- may be used to save+load extension state during a reload of the Lua virtual machine</span>
+</span></span><span class="line"><span class="cl">  <span class="n">M.onSerialize</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span> <span class="p">...</span> <span class="kr">end</span>         <span class="c1">-- may be used to save+load extension state during a reload of the Lua virtual machine using a custom serializing function</span>
+</span></span><span class="line"><span class="cl">  <span class="n">M.dependencies</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">"core_camera"</span><span class="p">,</span> <span class="p">...</span> <span class="p">}</span>    <span class="c1">-- may be used to automatically load other extensions</span>
+</span></span><span class="line"><span class="cl">  <span class="n">etc</span>
+</span></span></code></pre>
+</div><p>Централизованного списка с этими специальными функциями и переменными не существует; исходный код И ЕСТЬ документация (tm). Например, вы можете изучить код внутри lua/ge/main.lua, lua/common/extensions.lua и т. д. Посмотрите, кто вызывает хуки расширений, или обратите внимание на то, как написаны другие расширения, и т. д.</p>
+<h5 id="programming-documentation-feedback">
+
+  Обратная связь по документации для программистов
+</h5>
+<p><em>Если вы считаете, что эта <strong>документация для программистов</strong> слишком высокоуровневая, слишком низкоуровневая, в ней отсутствуют важные темы, есть ошибки и т. д., напишите
+    <a class="link-ext" href="https://www.beamng.com/threads/new-beamng-drive-documentation.77939/" rel="noopener" target="_blank">сообщение в этой теме</a>
+ и упомяните меня лично, написав <code>@stenyak</code>, чтобы я получил уведомление.</em></p>

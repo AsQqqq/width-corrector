@@ -1,0 +1,673 @@
+<p>На этой странице описывается, как добавить топливные заправочные станции и электрические зарядные станции на уровень.</p>
+<p>Настройка топливной станции состоит из двух основных частей:</p>
+<ul>
+<li>Запись объекта в файле <code>facilities.facilities.json</code> уровня.</li>
+<li>Пара объектов уровня для каждой колонки:
+<ul>
+<li><code>BeamNGGameplayArea</code></li>
+<li><code>BeamNGPointOfInterest</code></li>
+</ul>
+</li>
+</ul>
+<p>Запись объекта определяет данные станции: название, изображение предпросмотра, поддерживаемые типы топлива и ссылки на объекты колонок. Объекты уровня задают место, где игрок может взаимодействовать со станцией.</p>
+<hr/>
+<h2 id="file-location">
+
+  Расположение файла
+</h2>
+<p>Топливные станции определяются в файле объектов уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/facilities.facilities.json
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/italy/facilities/facilities.facilities.json
+</span></span></code></pre>
+</div><p>Изображения предпросмотра также можно размещать в той же папке:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/&lt;previewImage&gt;.jpg
+</span></span></code></pre>
+</div><hr/>
+<h2 id="basic-structure">
+
+  Базовая структура
+</h2>
+<p>Топливные станции перечислены в массиве <code>gasStations</code>.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gasStations"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"fuel_example_station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Example Fuel Station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"A fuel station near the main road."</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"fuel_example_station.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"energyTypes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"gasoline"</span><span class="p">,</span> <span class="s2">"diesel"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pumps"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"fuel_example_station_pump_area_1"</span><span class="p">,</span> <span class="s2">"fuel_example_station_pump_icon_1"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"fuel_example_station_pump_area_2"</span><span class="p">,</span> <span class="s2">"fuel_example_station_pump_icon_2"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Файл <code>facilities.facilities.json</code> может содержать и другие типы объектов. В таком случае <code>gasStations</code> является лишь одним из разделов файла.</p>
+<hr/>
+<h2 id="gas-station-fields">
+
+  Поля записи заправочной станции
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>String</td>
+<td>Уникальный идентификатор станции.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>String</td>
+<td>Отображаемое название или ключ локализации.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>String</td>
+<td>Отображаемое описание или ключ локализации.</td>
+</tr>
+<tr>
+<td><code>preview</code></td>
+<td>String</td>
+<td>Имя файла изображения предпросмотра. Обычно хранится в папке <code>facilities</code> уровня.</td>
+</tr>
+<tr>
+<td><code>energyTypes</code></td>
+<td>Array</td>
+<td>Типы топлива/энергии, поддерживаемые данной станцией.</td>
+</tr>
+<tr>
+<td><code>pumps</code></td>
+<td>Array</td>
+<td>Список пар объектов колонок. Каждая пара содержит имя объекта зоны и имя объекта иконки.</td>
+</tr>
+<tr>
+<td><code>prices</code></td>
+<td>Object</td>
+<td>Необязательные данные о ценах на топливо. Используются табло цен и системой карьеры.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="pump-references">
+
+  Ссылки на колонки
+</h2>
+<p>Каждая запись колонки представляет собой массив из двух имён объектов:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"&lt;areaObjectName&gt;"</span><span class="p">,</span> <span class="s2">"&lt;iconObjectName&gt;"</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"fuel_example_station_pump_area_1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"fuel_example_station_pump_icon_1"</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Первый объект должен быть <code>BeamNGGameplayArea</code>.</p>
+<p>Второй объект должен быть <code>BeamNGPointOfInterest</code>.</p>
+<p>Порядок важен:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[BeamNGGameplayArea name, BeamNGPointOfInterest name]
+</span></span></code></pre>
+</div><hr/>
+<h2 id="energy-types">
+
+  Типы энергии
+</h2>
+<p>Массив <code>energyTypes</code> определяет, какие типы накопителей энергии транспортного средства станция может дозаправлять или перезаряжать.</p>
+<p>Распространённые значения:</p>
+<table>
+<thead>
+<tr>
+<th>Тип энергии</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gasoline</code></td>
+<td>Бензиновое топливо.</td>
+</tr>
+<tr>
+<td><code>diesel</code></td>
+<td>Дизельное топливо.</td>
+</tr>
+<tr>
+<td><code>electricEnergy</code></td>
+<td>Энергия аккумулятора электромобиля.</td>
+</tr>
+<tr>
+<td><code>kerosine</code></td>
+<td>Реактивное/авиационное топливо.</td>
+</tr>
+<tr>
+<td><code>n2o</code></td>
+<td>Закись азота.</td>
+</tr>
+<tr>
+<td><code>any</code></td>
+<td>Позволяет станции заправлять любым типом энергии.</td>
+</tr>
+<tr>
+<td><code>unknown</code></td>
+<td>Резервное значение для типов топлива, не перечисленных явно.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice note">Используйте точный тип энергии, соответствующий накопителю энергии транспортного средства. Лучшим справочником для нестандартных типов топлива служит официальный контент уровней и транспортных средств.</div>
+<hr/>
+<h2 id="common-energy-type-setups">
+
+  Типичные наборы типов энергии
+</h2>
+<h3 id="regular-fuel-station">
+
+  Обычная топливная станция
+</h3>
+<p>Используйте для большинства обычных заправочных станций:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"energyTypes"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"gasoline"</span><span class="p">,</span> <span class="s2">"diesel"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Поддерживает бензин, дизельное топливо и неизвестные/резервные типы топлива.</p>
+<h3 id="electric-charging-station">
+
+  Электрическая зарядная станция
+</h3>
+<p>Используйте для зарядных станций электромобилей:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"energyTypes"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"electricEnergy"</span><span class="p">]</span>
+</span></span></code></pre>
+</div>
+<h3 id="universal-station">
+
+  Универсальная станция
+</h3>
+<p>Используйте только в том случае, если станция должна поддерживать все типы энергии:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"energyTypes"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"any"</span><span class="p">]</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="game-object-setup">
+
+  Настройка игровых объектов
+</h2>
+<p>Для каждой колонки создайте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">BeamNGGameplayArea
+</span></span><span class="line"><span class="cl">BeamNGPointOfInterest
+</span></span></code></pre>
+</div><p><code>BeamNGGameplayArea</code> определяет зону взаимодействия.</p>
+<p><code>BeamNGPointOfInterest</code> определяет место отображения иконки колонки в игровом мире.</p>
+<hr/>
+<h2 id="beamnggameplayarea-placement">
+
+  Размещение BeamNGGameplayArea
+</h2>
+<p>Разместите <code>BeamNGGameplayArea</code> там, где транспортное средство должно останавливаться для дозаправки.</p>
+<p>Рекомендации по размещению:</p>
+<ul>
+<li>Расположите зону на земле рядом с топливной колонкой или вокруг неё.</li>
+<li>Сделайте её достаточно широкой, чтобы транспортное средство могло в неё въехать.</li>
+<li>Сделайте её достаточно большой для транспортных средств разных размеров.</li>
+<li>Сделайте её достаточно маленькой, чтобы транспортные средства не активировали её с соседних полос или дорог.</li>
+<li>По возможности выровняйте её по заправочному боксу.</li>
+</ul>
+<p>Игрок может взаимодействовать с топливной станцией, когда его транспортное средство перекрывает эту зону.</p>
+<div class="bng-notice warning">Если зона взаимодействия слишком мала или расположена слишком далеко от колонки, игроки могут не иметь возможности надёжно дозаправиться.</div>
+<hr/>
+<h2 id="beamngpointofinterest-placement">
+
+  Размещение BeamNGPointOfInterest
+</h2>
+<p>Разместите <code>BeamNGPointOfInterest</code> на колонке или над ней.</p>
+<p>Рекомендации по размещению:</p>
+<ul>
+<li>Поместите его над топливной колонкой или зарядным устройством.</li>
+<li>Держите его визуально связанным с колонкой.</li>
+<li>Используйте одну точку интереса на каждую зону колонки.</li>
+<li>Дайте ему уникальное имя.</li>
+<li>Сошлитесь на него в соответствующей паре колонок в файле <code>facilities.facilities.json</code>.</li>
+</ul>
+<p>Положение точки интереса используется для иконки в игровом мире и маркера на миникарте.</p>
+<hr/>
+<h2 id="object-naming">
+
+  Именование объектов
+</h2>
+<p>Используйте понятные и стабильные имена объектов.</p>
+<p>Пример схемы именования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">fuel_&lt;stationName&gt;_pump_area_1
+</span></span><span class="line"><span class="cl">fuel_&lt;stationName&gt;_pump_icon_1
+</span></span><span class="line"><span class="cl">fuel_&lt;stationName&gt;_pump_area_2
+</span></span><span class="line"><span class="cl">fuel_&lt;stationName&gt;_pump_icon_2
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">fuel_apex_mountainside_pump_area_1
+</span></span><span class="line"><span class="cl">fuel_apex_mountainside_pump_icon_1
+</span></span></code></pre>
+</div><p>Затем укажите их в файле объектов:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"pumps"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"fuel_apex_mountainside_pump_area_1"</span><span class="p">,</span> <span class="s2">"fuel_apex_mountainside_pump_icon_1"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"fuel_apex_mountainside_pump_area_2"</span><span class="p">,</span> <span class="s2">"fuel_apex_mountainside_pump_icon_2"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><div class="bng-notice warning">Имена в файле JSON должны точно совпадать с именами объектов уровня.</div>
+<hr/>
+<h2 id="complete-basic-example">
+
+  Полный базовый пример
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gasStations"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"fuel_apex_mountainside"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Apex Mountainside Fuel"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"Fuel station near the mountainside road."</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"fuel_apex_mountainside.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"energyTypes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"gasoline"</span><span class="p">,</span> <span class="s2">"diesel"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pumps"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"fuel_apex_mountainside_pump_area_1"</span><span class="p">,</span> <span class="s2">"fuel_apex_mountainside_pump_icon_1"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"fuel_apex_mountainside_pump_area_2"</span><span class="p">,</span> <span class="s2">"fuel_apex_mountainside_pump_icon_2"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Необходимые объекты уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">BeamNGGameplayArea:     fuel_apex_mountainside_pump_area_1
+</span></span><span class="line"><span class="cl">BeamNGPointOfInterest:  fuel_apex_mountainside_pump_icon_1
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">BeamNGGameplayArea:     fuel_apex_mountainside_pump_area_2
+</span></span><span class="line"><span class="cl">BeamNGPointOfInterest:  fuel_apex_mountainside_pump_icon_2
+</span></span></code></pre>
+</div><p>Необязательное изображение предпросмотра:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/fuel_apex_mountainside.jpg
+</span></span></code></pre>
+</div><hr/>
+<h2 id="electric-charging-station-example">
+
+  Пример электрической зарядной станции
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gasStations"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"charge_downtown_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Downtown Charging Station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"Electric vehicle charging station."</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"charge_downtown_01.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"energyTypes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"electricEnergy"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pumps"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"charge_downtown_01_area_1"</span><span class="p">,</span> <span class="s2">"charge_downtown_01_icon_1"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"charge_downtown_01_area_2"</span><span class="p">,</span> <span class="s2">"charge_downtown_01_icon_2"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Станции с <code>electricEnergy</code> используют иконки карты и взаимодействия в стиле зарядных устройств.</p>
+<hr/>
+<h2 id="preview-image">
+
+  Изображение предпросмотра
+</h2>
+<p>Поле <code>preview</code> указывает на изображение, используемое в интерфейсе карты и объектов.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"preview"</span><span class="err">:</span> <span class="s2">"fuel_apex_mountainside.jpg"</span>
+</span></span></code></pre>
+</div><p>Рекомендуемое расположение:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/fuel_apex_mountainside.jpg
+</span></span></code></pre>
+</div><p>Рекомендации:</p>
+<ul>
+<li>Используйте чёткое изображение станции.</li>
+<li>Следите за разумным размером файла.</li>
+<li>Используйте описательное имя файла.</li>
+<li>Убедитесь, что имя файла в JSON совпадает с реальным файлом.</li>
+</ul>
+<hr/>
+<h2 id="localization">
+
+  Локализация
+</h2>
+<p>Поля <code>name</code> и <code>description</code> могут содержать обычный текст или ключи локализации.</p>
+<p>Пример с обычным текстом:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"name"</span><span class="err">:</span> <span class="s2">"Apex Mountainside Fuel"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"description"</span><span class="err">:</span> <span class="s2">"Fuel station near the mountainside road."</span>
+</span></span></code></pre>
+</div><p>Пример с ключом локализации:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"name"</span><span class="err">:</span> <span class="s2">"levels.italy.gasStationPoints.fuel_apex_mountainside"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"description"</span><span class="err">:</span> <span class="s2">"levels.italy.gasStationPoints.fuel_apex_mountainside.description"</span>
+</span></span></code></pre>
+</div><p>Для публичных модов обычный текст вполне допустим. Для контента с поддержкой нескольких языков используйте ключи локализации и предоставьте переводы.</p>
+<hr/>
+<h2 id="optional-fuel-prices">
+
+  Необязательные цены на топливо
+</h2>
+<p>Топливные станции могут опционально определять данные о ценах с помощью объекта <code>prices</code>.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"fuel_example_station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Example Fuel Station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"A station with fuel price data."</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"fuel_example_station.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"energyTypes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"gasoline"</span><span class="p">,</span> <span class="s2">"diesel"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pumps"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fuel_example_station_pump_area_1"</span><span class="p">,</span> <span class="s2">"fuel_example_station_pump_icon_1"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"prices"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"gasoline"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"priceBaseline"</span><span class="p">:</span> <span class="mf">1.65</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"diesel"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"priceBaseline"</span><span class="p">:</span> <span class="mf">1.72</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Объект <code>prices</code> индексируется по типу топлива.</p>
+<h3 id="price-fields">
+
+  Поля цен
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>priceBaseline</code></td>
+<td>Number</td>
+<td>Базовая цена для данного типа топлива.</td>
+</tr>
+<tr>
+<td><code>priceRandomnessGain</code></td>
+<td>Number</td>
+<td>Необязательная величина случайного отклонения.</td>
+</tr>
+<tr>
+<td><code>priceRandomnessBias</code></td>
+<td>Number</td>
+<td>Необязательное смещение случайного отклонения.</td>
+</tr>
+<tr>
+<td><code>displayObjects</code></td>
+<td>Array</td>
+<td>Необязательные имена объектов, используемых для отображения цифр на физическом табло цен.</td>
+</tr>
+<tr>
+<td><code>disabled</code></td>
+<td>Boolean</td>
+<td>Если true, табло цен показывает отключённые заглушки.</td>
+</tr>
+<tr>
+<td><code>us_9_10_tax</code></td>
+<td>Boolean</td>
+<td>Необязательный вспомогательный параметр отображения для американских ценников на топливо в формате 9/10.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice note">Поддержка цен на топливо полезна прежде всего для систем карьеры/свободного режима и физических ценовых табло. Базовой топливной станции раздел <code>prices</code> не нужен.</div>
+<hr/>
+<h2 id="optional-physical-price-displays">
+
+  Необязательные физические табло цен
+</h2>
+<p>Станция может управлять физическими объектами ценовых табло с помощью <code>displayObjects</code>.</p>
+<p>Табло настраивается как список позиций цифр. Каждая позиция цифры содержит одно или несколько имён объектов.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"prices"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gasoline"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"priceBaseline"</span><span class="p">:</span> <span class="mf">1.659</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"displayObjects"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_gasoline_digit_1"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_gasoline_digit_2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_gasoline_digit_3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_gasoline_digit_4"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"us_9_10_tax"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Цена форматируется до трёх знаков после запятой и затем отображается в виде отдельных цифр.</p>
+<p>Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">1.659 -&gt; 1659
+</span></span></code></pre>
+</div><p>Каждый объект табло заменяется во время выполнения соответствующим мешем цифры.</p>
+<p>Если задан параметр <code>disabled</code>, табло показывает заглушки <code>-</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"prices"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"diesel"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"disabled"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"displayObjects"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_diesel_digit_1"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_diesel_digit_2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_diesel_digit_3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"fuel_price_diesel_digit_4"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><div class="bng-notice warning">Настройка физического табло цен является необязательной и более сложной. Для большинства станций параметр <code>displayObjects</code> можно опустить.</div>
+<hr/>
+<h2 id="runtime-behavior">
+
+  Поведение во время выполнения
+</h2>
+<p>Топливные станции загружаются из файла объектов уровня.</p>
+<p>При наличии они отображаются как точки интереса на карте и в виде маркеров колонок в игровом мире.</p>
+<p>Игрок может взаимодействовать со станцией, когда:</p>
+<ul>
+<li>Транспортное средство перекрывает одну из зон колонки <code>BeamNGGameplayArea</code> станции.</li>
+<li>Станция поддерживает тип энергии транспортного средства.</li>
+<li>Топливные станции включены для текущего игрового режима.</li>
+</ul>
+<p>В режиме свободной езды поддерживаемые баки заправляются напрямую.</p>
+<p>В режиме карьеры дозаправка может обрабатываться системой топливных транзакций карьеры.</p>
+<hr/>
+<h2 id="fuel-compatibility-behavior">
+
+  Поведение совместимости топлива
+</h2>
+<p>Когда игрок взаимодействует со станцией, игра проверяет типы накопителей энергии транспортного средства.</p>
+<p>Поведение:</p>
+<ul>
+<li>Если станция поддерживает тип топлива транспортного средства, этот бак может быть заправлен.</li>
+<li>Если станция имеет тип <code>any</code>, могут быть заправлены все типы топлива.</li>
+<li>Если у транспортного средства есть неподдерживаемый тип топлива, этот бак не заправляется.</li>
+<li>Накопители типа <code>air</code> игнорируются.</li>
+<li><code>unknown</code> может использоваться как резервная категория для нераспознанных типов топлива.</li>
+</ul>
+<p>Если у транспортного средства несколько накопителей энергии, станция может частично заправить только поддерживаемые.</p>
+<hr/>
+<h2 id="map-and-marker-behavior">
+
+  Поведение карты и маркеров
+</h2>
+<p>Маркеры топливных станций формируются на основе записи объекта.</p>
+<p>Положение маркера определяется по зонам колонок. Радиус рассчитывается исходя из расположения колонок.</p>
+<p>Иконка в игровом мире отображается рядом с объектом <code>BeamNGPointOfInterest</code> каждой колонки.</p>
+<p>Тип иконки маркера зависит от типов энергии:</p>
+<table>
+<thead>
+<tr>
+<th>Тип станции</th>
+<th>Поведение иконки</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Топливная станция</td>
+<td>Иконка топливной колонки.</td>
+</tr>
+<tr>
+<td>Электрическая зарядная станция</td>
+<td>Иконка зарядного устройства.</td>
+</tr>
+</tbody>
+</table>
+<p>Станция считается электрической, если её <code>energyTypes</code> включает:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"electricEnergy"</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>Добавляйте одну запись <code>gasStations</code> на каждую станцию.</li>
+<li>Используйте уникальный и стабильный <code>id</code>.</li>
+<li>Используйте понятные имена объектов для зон и иконок колонок.</li>
+<li>Используйте один <code>BeamNGGameplayArea</code> и один <code>BeamNGPointOfInterest</code> на каждую колонку.</li>
+<li>Размещайте зону взаимодействия там, где должно останавливаться транспортное средство игрока.</li>
+<li>Делайте зону взаимодействия достаточно большой для разных транспортных средств.</li>
+<li>Размещайте точку интереса над колонкой или на ней.</li>
+<li>Добавьте изображение предпросмотра для интерфейса карты.</li>
+<li>Используйте <code>["gasoline", "diesel", "unknown"]</code> для обычных топливных станций.</li>
+<li>Используйте <code>["electricEnergy"]</code> для зарядных станций.</li>
+<li>Не ссылайтесь в списке <code>pumps</code> на несуществующие объекты.</li>
+<li>Сохраняйте имена колонок неизменными после выпуска, чтобы не нарушить ссылки.</li>
+<li>Тестируйте с несколькими типами и размерами транспортных средств.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="station-does-not-appear">
+
+  Станция не отображается
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Станция не указана в <code>gasStations</code>.</li>
+<li>Файл <code>facilities.facilities.json</code> находится в неправильной папке.</li>
+<li>Файл JSON содержит ошибки.</li>
+<li>Топливные станции отключены в текущем режиме/настройках.</li>
+<li>У станции нет допустимых пар объектов колонок.</li>
+</ul>
+<h3 id="interaction-prompt-does-not-appear">
+
+  Подсказка взаимодействия не появляется
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Транспортное средство не перекрывает <code>BeamNGGameplayArea</code>.</li>
+<li>Зона взаимодействия слишком мала.</li>
+<li>Имя объекта зоны взаимодействия не совпадает с записью в JSON.</li>
+<li>Станция не поддерживает тип топлива транспортного средства.</li>
+<li>Пара колонок ссылается на несуществующие объекты.</li>
+</ul>
+<h3 id="icon-appears-in-the-wrong-place">
+
+  Иконка отображается в неправильном месте
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li><code>BeamNGPointOfInterest</code> расположен неправильно.</li>
+<li>В паре колонок указан неверный объект иконки.</li>
+<li>Порядок элементов в паре колонок перепутан.</li>
+</ul>
+<p>Правильный порядок:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"area_object_name"</span><span class="p">,</span> <span class="s2">"icon_object_name"</span><span class="p">]</span>
+</span></span></code></pre>
+</div>
+<h3 id="vehicle-does-not-refuel">
+
+  Транспортное средство не заправляется
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Транспортное средство использует тип энергии, не указанный в <code>energyTypes</code>.</li>
+<li>Станция не включает <code>unknown</code> или <code>any</code>.</li>
+<li>У транспортного средства несколько баков, и только часть из них поддерживается.</li>
+<li>Топливные транзакции в режиме карьеры недоступны или заблокированы.</li>
+</ul>
+<h3 id="preview-image-is-missing">
+
+  Изображение предпросмотра отсутствует
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Неверное имя файла в поле <code>preview</code>.</li>
+<li>Изображение не включено в уровень или мод.</li>
+<li>Изображение находится не в ожидаемой папке.</li>
+</ul>
+<hr/>
+<h2 id="summary">
+
+  Итог
+</h2>
+<p>Чтобы добавить топливную станцию:</p>
+<ol>
+<li>
+<p>Создайте запись в разделе <code>gasStations</code> в файле:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/facilities.facilities.json
+</span></span></code></pre>
+</div></li>
+<li>
+<p>Задайте станции уникальный <code>id</code>.</p>
+</li>
+<li>
+<p>Укажите <code>name</code>, <code>description</code> и <code>preview</code>.</p>
+</li>
+<li>
+<p>Задайте поддерживаемые <code>energyTypes</code>.</p>
+</li>
+<li>
+<p>Для каждой колонки создайте:</p>
+<ul>
+<li><code>BeamNGGameplayArea</code></li>
+<li><code>BeamNGPointOfInterest</code></li>
+</ul>
+</li>
+<li>
+<p>Добавьте каждую пару колонок в массив <code>pumps</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"pump_area_name"</span><span class="p">,</span> <span class="s2">"pump_icon_name"</span><span class="p">]</span>
+</span></span></code></pre>
+</div></li>
+<li>
+<p>При необходимости добавьте изображение предпросмотра и данные о ценах.</p>
+</li>
+<li>
+<p>Протестируйте станцию в игре с совместимыми транспортными средствами.</p>
+</li>
+</ol>

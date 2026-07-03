@@ -1,0 +1,438 @@
+<p>Карты взаимодействий определяют действия взаимодействия с транспортным средством в файлах с расширением:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.interaction.json
+</span></span></code></pre>
+</div><p>Они используют тот же формат кодов действий, что и <code>input_actions.json</code>, но предназначены в первую очередь для интерактивных триггеров транспортного средства, особенно <code>triggers2</code> и <code>triggerEventLinks2</code>.</p>
+<p>Типичные сферы применения:</p>
+<ul>
+<li>ручки дверей, капота, багажника, люка и задней двери</li>
+<li>управление опорами прицепа и седельно-сцепным устройством</li>
+<li>рычаги надстроек</li>
+<li>управление оборудованием полицейских автомобилей</li>
+<li>управление гидравликой</li>
+<li>лебёдки, защёлки, замки и другие кликабельные элементы транспортного средства</li>
+</ul>
+<hr/>
+<h2 id="file-location">
+
+  Расположение файлов
+</h2>
+<p>Карты взаимодействий хранятся в папках транспортных средств:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicles/&lt;vehicleName&gt;/*.interaction.json
+</span></span></code></pre>
+</div><p>Примеры:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicles/cannon/cannon_default.interaction.json
+</span></span><span class="line"><span class="cl">vehicles/us_semi/us_semi_default.interaction.json
+</span></span><span class="line"><span class="cl">vehicles/common/common_default.interaction.json
+</span></span></code></pre>
+</div><p>Для одного транспортного средства может быть несколько файлов карт взаимодействий.</p>
+<p>В общей папке транспортного средства можно определять совместно используемые действия, на которые могут ссылаться другие транспортные средства.</p>
+<hr/>
+<h2 id="basic-structure">
+
+  Базовая структура
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"fileversion"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"actions"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"tailgate"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"order"</span><span class="p">:</span> <span class="mf">1005.1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"onDown"</span><span class="p">:</span> <span class="s2">"controller.getControllerSafe('tailgateCoupler').toggleGroup()"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"vehicle.interaction.tailgate.toggle.title"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"vehicle.interaction.tailgate.toggle.desc"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Объект <code>actions</code> содержит записи действий того же вида, что и в <code>input_actions.json</code>.</p>
+<hr/>
+<h2 id="top-level-fields">
+
+  Поля верхнего уровня
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fileversion</code></td>
+<td>integer</td>
+<td>Версия формата карты взаимодействий. В поставляемых файлах обычно используется значение <code>2</code>.</td>
+</tr>
+<tr>
+<td><code>actions</code></td>
+<td>object</td>
+<td>Словарь идентификаторов действий и их определений.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="action-fields">
+
+  Поля действий
+</h2>
+<p>Каждая запись внутри <code>actions</code> является входным действием.</p>
+<p>Общие поля:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>order</code></td>
+<td>number</td>
+<td>Порядок отображения/сортировки.</td>
+</tr>
+<tr>
+<td><code>onChange</code></td>
+<td>string</td>
+<td>Код, выполняемый при изменении входного значения.</td>
+</tr>
+<tr>
+<td><code>onDown</code></td>
+<td>string</td>
+<td>Код, выполняемый при нажатии клавиши/кнопки/триггера.</td>
+</tr>
+<tr>
+<td><code>onUp</code></td>
+<td>string</td>
+<td>Код, выполняемый при отпускании клавиши/кнопки/триггера.</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>string</td>
+<td>Ключ перевода или краткий заголовок для отображения.</td>
+</tr>
+<tr>
+<td><code>desc</code></td>
+<td>string</td>
+<td>Ключ перевода или краткое описание.</td>
+</tr>
+<tr>
+<td><code>isCentered</code></td>
+<td>bool</td>
+<td>Использует входные значения в диапазоне <code>-1..1</code> вместо <code>0..1</code>.</td>
+</tr>
+<tr>
+<td><code>icon</code></td>
+<td>string</td>
+<td>Необязательная подсказка UI/иконки, используемая в некоторых системах взаимодействия.</td>
+</tr>
+</tbody>
+</table>
+<p>Полную модель кода действий см. в разделе <a data-doc="input/actions" data-frag="writing-action-code" href="/docs/input/actions#writing-action-code">Написание кода действий</a>
+.</p>
+<hr/>
+<h2 id="action-code">
+
+  Код действий
+</h2>
+<p>Действия взаимодействия обычно выполняются в Lua транспортного средства.</p>
+<p>Пример переключателя:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"door_FR"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"order"</span><span class="p">:</span> <span class="mf">1000.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"onDown"</span><span class="p">:</span> <span class="s2">"controller.getControllerSafe('door_FR_coupler').toggleGroup()"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"vehicle.interaction.doors.FR.toggle.title"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"vehicle.interaction.doors.FR.toggle.desc"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Пример аналогового / удерживаемого действия:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"lift"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"order"</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"onChange"</span><span class="p">:</span> <span class="s2">"custom_input.liftBarrel(VALUE)"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"ui.inputActions.cannon.lift.title"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"ui.inputActions.cannon.lift.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isCentered"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p><code>VALUE</code> заменяется текущим входным значением перед выполнением кода.</p>
+<p>Используйте:</p>
+<ul>
+<li><code>onDown</code> для переключателей и одноразовых действий.</li>
+<li><code>onChange</code> для рычагов, ползунков, аналоговых входов и удерживаемых элементов управления.</li>
+<li><code>onUp</code> для поведения при отпускании.</li>
+</ul>
+<hr/>
+<h2 id="relationship-with-triggers2">
+
+  Связь с triggers2
+</h2>
+<p><code>triggers2</code> определяет кликабельные триггерные области на транспортном средстве.</p>
+<p><code>triggerEventLinks2</code> связывает эти триггерные области с входными действиями.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"triggerEventLinks2"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"triggerId:triggers2"</span><span class="p">,</span> <span class="s2">"triggerInput"</span><span class="p">,</span> <span class="s2">"inputAction"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"door_R"</span><span class="p">,</span> <span class="s2">"action0"</span><span class="p">,</span> <span class="s2">"door_FR"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Это означает:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>triggerId:triggers2</code></td>
+<td>Идентификатор триггерной области.</td>
+</tr>
+<tr>
+<td><code>triggerInput</code></td>
+<td>Какой триггерный ввод её активирует, например <code>action0</code>.</td>
+</tr>
+<tr>
+<td><code>inputAction</code></td>
+<td>Идентификатор действия взаимодействия для выполнения.</td>
+</tr>
+</tbody>
+</table>
+<p>Распространённые значения <code>triggerInput</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Значение</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>action0</code></td>
+<td>Левая кнопка мыши / основное действие.</td>
+</tr>
+<tr>
+<td><code>action1</code></td>
+<td>Дополнительное действие, обычно Shift + левая кнопка мыши или правая кнопка мыши в зависимости от контекста.</td>
+</tr>
+<tr>
+<td><code>action2</code></td>
+<td>Средняя кнопка мыши / третичное действие.</td>
+</tr>
+</tbody>
+</table>
+<p><code>inputAction</code> обычно указывает на действие в файле <code>*.interaction.json</code>.</p>
+<div class="bng-notice note"><code>triggerEventLinks2</code> не ссылается на устаревшие <code>events</code>. Он ссылается на входные действия.</div>
+<hr/>
+<h2 id="common-actions">
+
+  Общие действия
+</h2>
+<p>Общий файл взаимодействий:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicles/common/common_default.interaction.json
+</span></span></code></pre>
+</div><p>определяет множество совместно используемых действий, таких как действия для дверей, капота, багажника, защёлок, световых балок, сцепки, прицепа, гидравлики и контейнеров.</p>
+<p>Детали транспортного средства могут ссылаться на эти действия из <code>triggerEventLinks2</code>.</p>
+<p>Когда в ссылке на триггер используется префикс <code>common:</code>, действие разрешается из общей карты действий / набора общих действий, а не только из карты взаимодействий текущего транспортного средства.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"door_R"</span><span class="p">,</span> <span class="s2">"action0"</span><span class="p">,</span> <span class="s2">"common:door_FR"</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Используйте общие действия, если нужное поведение уже реализовано и подходит для вашей детали.</p>
+<hr/>
+<h2 id="actionsenabled">
+
+  actionsEnabled
+</h2>
+<p>Действия взаимодействия можно скрыть или отключить в интерфейсе до тех пор, пока деталь транспортного средства не объявит об их доступности.</p>
+<p>Используйте секцию JBeam <code>actionsEnabled</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"actionsEnabled"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"tiltUp"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"tiltDown"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"extend"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"retract"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Это полезно для транспортных средств с множеством опциональных деталей. Игроку должны отображаться только действия для установленных деталей.</p>
+<div class="bng-notice warning">Если действие отсутствует в <code>actionsEnabled</code>, его подсказка или легенда привязки может не отображаться, даже если действие существует.</div>
+<hr/>
+<h2 id="interaction-map-vs-input-actionsjson">
+
+  Карта взаимодействий и input_actions.json
+</h2>
+<table>
+<thead>
+<tr>
+<th>Файл</th>
+<th>Основное назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>input_actions.json</code> / <code>input_actions*.json</code></td>
+<td>Общие привязки, специфичные для транспортного средства.</td>
+</tr>
+<tr>
+<td><code>*.interaction.json</code></td>
+<td>Действия взаимодействия с транспортным средством, особенно кликабельные элементы управления <code>triggers2</code>.</td>
+</tr>
+<tr>
+<td>JBeam <code>events</code></td>
+<td>Устаревшие локальные определения действий детали, используемые со старыми <code>triggers</code> / <code>triggerEventLinks</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Для новых кликабельных взаимодействий транспортного средства рекомендуется использовать:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">triggers2 + triggerEventLinks2 + *.interaction.json
+</span></span></code></pre>
+</div><p>Используйте <code>input_actions*.json</code> для обычных элементов управления транспортным средством, не относящихся к кликабельной карте взаимодействий.</p>
+<hr/>
+<h2 id="legacy-triggers-and-events">
+
+  Устаревшие триггеры и события
+</h2>
+<p>Старые конфигурации триггеров используют:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">triggers
+</span></span><span class="line"><span class="cl">triggerEventLinks
+</span></span><span class="line"><span class="cl">events
+</span></span></code></pre>
+</div><p>В этой системе <code>events</code> определяет код действия непосредственно внутри детали JBeam.</p>
+<p>Более новые конфигурации <code>triggers2</code> используют:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">triggers2
+</span></span><span class="line"><span class="cl">triggerEventLinks2
+</span></span><span class="line"><span class="cl">*.interaction.json
+</span></span><span class="line"><span class="cl">actionsEnabled
+</span></span></code></pre>
+</div><p>Код действия переносится из JBeam <code>events</code> в карту взаимодействий.</p>
+<hr/>
+<h2 id="default-bindings">
+
+  Привязки по умолчанию
+</h2>
+<p>Действия взаимодействия могут иметь обычные привязки ввода.</p>
+<p>Файлы привязок по умолчанию находятся в:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicles/&lt;vehicleName&gt;/inputmaps/
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicles/cannon/inputmaps/keyboard.json
+</span></span><span class="line"><span class="cl">vehicles/cannon/inputmaps/xidevice.json
+</span></span></code></pre>
+</div><p>Используйте меню «Управление» для создания привязок, затем при необходимости перемещайте/переименовывайте сгенерированные файлы <code>.diff</code> в папку <code>inputmaps</code> транспортного средства в качестве файлов <code>.json</code> по умолчанию.</p>
+<p>Используйте уникальный суффикс для файлов привязок, предоставляемых модом:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicles/my_vehicle/inputmaps/keyboard_my_mod.json
+</span></span></code></pre>
+</div><hr/>
+<h2 id="minimal-example">
+
+  Минимальный пример
+</h2>
+<p>Карта взаимодействий:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"fileversion"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"actions"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"open_toolbox"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"order"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"onDown"</span><span class="p">:</span> <span class="s2">"controller.getControllerSafe('toolboxLatch').toggleGroup()"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"vehicle.interaction.toolbox.open.title"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"vehicle.interaction.toolbox.open.desc"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Ссылка в JBeam:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"actionsEnabled"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"open_toolbox"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="s2">"triggerEventLinks2"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"triggerId:triggers2"</span><span class="p">,</span> <span class="s2">"triggerInput"</span><span class="p">,</span> <span class="s2">"inputAction"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"toolbox_handle"</span><span class="p">,</span> <span class="s2">"action0"</span><span class="p">,</span> <span class="s2">"open_toolbox"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Триггер <code>toolbox_handle</code> вызывает действие <code>open_toolbox</code> из карты взаимодействий.</p>
+<hr/>
+<h2 id="tool-notes">
+
+  Примечания для инструментов
+</h2>
+<p>Для инструментов, генерирующих или изменяющих взаимодействия:</p>
+<ul>
+<li>Сохраняйте <code>fileversion</code>.</li>
+<li>Сохраняйте идентификаторы действий, на которые ссылаются <code>triggerEventLinks2</code> и <code>actionsEnabled</code>.</li>
+<li>Сохраняйте неизвестные поля действий.</li>
+<li>Сохраняйте уникальность идентификаторов действий в пределах транспортного средства.</li>
+<li>Не переносите код действий обратно в устаревшие <code>events</code>, если только намеренно не выполняется преобразование к старой системе триггеров.</li>
+<li>Проверяйте каждую ссылку <code>inputAction</code> в <code>triggerEventLinks2</code>.</li>
+<li>Проверяйте каждую запись <code>actionsEnabled</code> на соответствие доступным действиям.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="clickable-trigger-does-nothing">
+
+  Кликабельный триггер не реагирует
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li><code>triggerEventLinks2.inputAction</code> не совпадает с идентификатором действия.</li>
+<li>Файл карты взаимодействий отсутствует или повреждён.</li>
+<li>Код действия обращается к отсутствующему контроллеру.</li>
+<li>Триггер использует неверный <code>triggerInput</code>.</li>
+</ul>
+<h3 id="binding-legend-does-not-show-the-action">
+
+  Легенда привязок не отображает действие
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Действие не указано в <code>actionsEnabled</code>.</li>
+<li>Действие недоступно для текущей установленной детали.</li>
+<li>Для действия не существует привязки.</li>
+</ul>
+<h3 id="action-works-from-keyboard-but-not-from-clicking-the-trigger">
+
+  Действие работает с клавиатуры, но не при нажатии на триггер
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Привязка клавиатуры указывает на действие, а <code>triggerEventLinks2</code> указывает на другой идентификатор.</li>
+<li>Триггерная область расположена неверно.</li>
+<li>Неправильно указан ввод действия триггера (<code>action0</code>, <code>action1</code>, <code>action2</code>).</li>
+</ul>
+<hr/>
+<h2 id="validation-criteria">
+
+  Критерии проверки
+</h2>
+<ul>
+<li>JSON взаимодействий корректно разбирается.</li>
+<li>Каждое действие <code>triggerEventLinks2</code> успешно разрешается.</li>
+<li>Каждое отображаемое взаимодействие указано в <code>actionsEnabled</code>.</li>
+<li>Кликабельные триггеры активируют нужное действие.</li>
+<li>Привязки клавиатуры/геймпада продолжают работать, если предоставлены стандартные inputmaps.</li>
+<li>Отсутствующие опциональные детали не отображают нерелевантных действий.</li>
+</ul>
+<p><strong>См. также:</strong> <a data-doc="input/actions" href="/docs/input/actions">Действия</a>
+, <a data-doc="input/bindings" href="/docs/input/bindings">Привязки</a>
+, <a data-doc="input/vehicle-specific-bindings" href="/docs/input/vehicle-specific-bindings">Привязки для конкретного транспортного средства</a>
+, <a data-doc="vehicle/sections/triggers/triggers2" href="/docs/vehicle/sections/triggers/triggers2">Triggers2</a>
+.</p>

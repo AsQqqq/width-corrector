@@ -1,0 +1,665 @@
+<p><video autoplay="" controls="" src="nb1.mp4"></video></p>
+<p>Ноды — это точечные массы и основа физики BeamNG. Всё построено вокруг них. Нода сама по себе — это не имеющая размеров (бесконечно малая) точечная масса в трёхмерном пространстве. Каждая нода определяется уникальным именем и позицией в 3D-пространстве.</p>
+<p>Имя ноды может быть любой строкой, лишь бы имена не конфликтовали. Хорошая схема именования: запоминающаяся/подходящая буква, затем цифра, затем буква, обозначающая сторону автомобиля. Например, первую крайнюю правую ноду рамы можно назвать <code>f1rr</code>, а третью левую ноду рамы — <code>f3l</code>. Нода, находящаяся посередине (posX = 0), не получает буквенного суффикса.</p>
+<p>Ниже приведён пример секции нод. У нод есть множество свойств, которые задаются строками-словарями, расположенными выше тех нод, на которые они должны действовать. Вес нод указывается в килограммах, координаты — в метрах. Модификатор «group» предназначен для назначения флексбоди. Материал ноды влияет только на звуковые и частичные эффекты, но не на физику.</p>
+<p>Наш игровой движок использует систему координат <strong>Z-вверх</strong> и <strong>единицы СИ</strong> (метры, килограммы) для большинства параметров.</p>
+<div class="bng-notice warning"><p><strong>Важно — координаты нод используют пространство транспортного средства BeamNG, а не +X вперёд.</strong></p>
+<p>Каждое значение <code>posX</code>, <code>posY</code> и <code>posZ</code> в JBeam задаётся относительно системы отсчёта <a data-doc="vehicle/sections/refnodes" href="/docs/vehicle/sections/refnodes">refnode</a>
+ транспортного средства: <strong>+X = влево</strong>, <strong>+Y = назад</strong>, <strong>+Z = вверх</strong>; <strong>вперёд = −Y</strong>. Не считайте, что +X — это направление движения, а +Y — это боковое направление; такое предположение приведёт к неверному расположению нод. Подробнее см. в разделе <a data-doc="vehicle/coordinate_systems" href="/docs/vehicle/coordinate_systems">Системы координат</a>
+ с полным описанием системы отсчёта и схемами.</p>
+</div>
+<br/>
+<h3 id="collision-system">
+
+  Система коллизий
+</h3>
+<p>В BeamNG коллизия обрабатывается исключительно нодами. <em>(Балки не могут ни с чем сталкиваться.)</em></p>
+<p>Существует 3 типа коллизии нод:</p>
+<ul>
+<li><code>Heightmap</code> (с землёй)</li>
+<li><code>Static</code> (с полигонами коллизии объектов карты)</li>
+<li><code>Dynamic</code> (с <a data-doc="vehicle/sections/triangles" href="/docs/vehicle/sections/triangles">треугольниками</a>
+ транспортного средства), который дополнительно делится на:
+<ul>
+<li><code>Self-collision</code> (треугольники того же транспортного средства, которому принадлежит нода)</li>
+<li><code>External collision</code> (треугольники других транспортных средств)</li>
+</ul>
+</li>
+</ul>
+<p>Коллизия с картой высот отличается от статической наличием нескольких слоёв, что помогает шинам транспортного средства вращаться плавнее. Типы коллизии имеют приоритет: динамическая коллизия имеет приоритет над статической и коллизией с картой высот. На практике это означает, что при достаточно большой силе нода может слегка проникнуть сквозь твёрдую стену или землю, а затем выйдет обратно, как только (поверхностный) треугольник перестанет её толкать. Коллизия с картой высот также оказывает меньшее влияние на производительность, чем статическая — поэтому для транспортного средства, которое будет часто ездить по ассетам карты (например, по камням), а не по обычной дорожной разметке, важнее иметь меньше нод снизу.</p>
+<p>В Jbeam эти типы управляются тремя свойствами:</p>
+<ul>
+<li>Аргумент <code>collision</code> влияет на все типы коллизий и имеет наивысший приоритет — включение любого другого типа коллизии не сработает, если этот параметр отключён.</li>
+<li>Аргумент <code>selfCollision</code> влияет только на тип самостолкновения в рамках динамической коллизии.</li>
+<li>Аргумент <code>staticCollision</code> влияет на статическую коллизию и коллизию с картой высот.</li>
+</ul>
+<p>Со стороны (поверхностных) <a data-doc="vehicle/sections/triangles" href="/docs/vehicle/sections/triangles">треугольников</a>
+, когда нода приближается к треугольнику, на неё начинают действовать силы коллизии, которые пытаются остановить ноду, и сила <code>anti-clip</code>, определяющая, с какой стороны треугольника окажется нода. Если нода приближается к треугольнику спереди (отображается зелёным при включённой визуализации треугольников), силы начинают действовать примерно на расстоянии 2,5 см от треугольника, чтобы предотвратить проникновение. Управлять этими силами можно с помощью соответствующих свойств. Свойство <code>externalCollisionBias</code> смещает расстояние, на котором начинают действовать силы. Когда при загрузке сцены много нод сталкиваются с треугольниками, это может заметно снизить производительность, поэтому лучше поддерживать расстояние около 3 или 3,5 см между ними.</p>
+<p>Когда <code>triangleType</code> установлен в <code>NONCOLLIDABLE</code>, треугольник не будет участвовать в коллизии, однако система anti-clip для него сохраняется. Все ноды с включённой коллизией должны иметь между собой хотя бы <code>NONCOLLIDABLE</code>-треугольники, чтобы автомобили не застревали друг в друге при столкновении. Треугольник типа <code>NORMALTYPE</code> не оказывает дополнительного влияния на производительность, если в радиусе 50 см от его поверхности нет нод, однако каждая такая нода добавляет дополнительную нагрузку. Треугольник типа <code>NONCOLLIDABLE</code> не имеет таких последствий для производительности, поэтому предпочтительнее использовать их в небольших конструкциях с плотно расположенными нодами, например во внедорожных фарах.</p>
+<p>В целях оптимизации и проектирования: группы нод (<code>groups</code>) не позволяют ноде сталкиваться с треугольниками, образованными нодами той же группы (аргумент <code>group</code>), даже если для <code>selfCollision</code> установлено значение true. Если хотя бы одна из нод принадлежит нескольким группам (<code>groups</code>), для каждой ноды учитывается первая группа из списка. Например, нода с группами <code>{"A", "B"}</code> будет сталкиваться с треугольниками, образованными нодами с группами <code>{"C", "B"}</code>, но не с треугольниками, образованными нодами с группами <code>{"A", "C"}</code>. Эта система может работать не так, как ожидается, если ни одна из групп, назначенных нодам, не содержит флексбоди.</p>
+<p>У динамической коллизии есть ещё одно особое свойство. Если в радиусе более 10 см от треугольника нет ни одной ноды с включённой коллизией, треугольник становится <code>неактивным</code> с точки зрения обнаружения коллизий. Это помогает улучшить производительность, поэтому рекомендуется по умолчанию поддерживать расстояние более 10 см между коллидирующими компонентами там, где это возможно.</p>
+<br/>
+<h3 id="required-arguments">
+
+  Обязательные аргументы
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Задаёт имя ноды. <strong>Должно быть уникальным</strong> для всего транспортного средства</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Позиция по оси X (влево/вправо) в 3D-пространстве (м)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Влево — положительное значение, вправо — отрицательное</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Позиция по оси Y (вперёд/назад) в 3D-пространстве (м)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Назад — положительное значение, вперёд — отрицательное</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Позиция по оси Z (вверх/вниз) в 3D-пространстве (м)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Вверх — положительное значение, вниз — отрицательное</div>
+</div>
+</div>
+<h3 id="optional-arguments">
+
+  Необязательные аргументы
+</h3>
+<p>Секция нод имеет множество необязательных аргументов. Мы разделим их на категории, отсортированные от наиболее часто используемых к наименее.</p>
+<h4 id="general">
+
+  Общие
+</h4>
+<p>Это наиболее базовые аргументы, используемые повсеместно в Jbeam-файлах и необходимые для корректной симуляции.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">options.nodeWeight<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Вес ноды в кг</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Начиная с версии игры <code>0.38.5.0</code>, вес ноды по умолчанию составляет <code>25 кг</code></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string/table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Объединяет набор нод в группу, которую можно использовать в других секциях</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Преимущественно используется для привязки видимых частей модели к группам нод для деформации.</p>
+<p>Если аргумент является строкой, он задаёт точное имя группы, к которой принадлежит нода:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"f6ll"</span><span class="p">,</span> <span class="mf">0.76</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.72</span><span class="p">,</span> <span class="mf">0.83</span><span class="p">,</span> <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">"coupe_engine"</span><span class="p">}],</span>
+</span></span></code></pre>
+</div><p>Если аргумент является таблицей, нода одновременно принадлежит всем указанным группам:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"f6ll"</span><span class="p">,</span> <span class="mf">0.76</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.72</span><span class="p">,</span> <span class="mf">0.83</span><span class="p">,</span> <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="p">[</span><span class="s2">"coupe_engine"</span><span class="p">,</span><span class="s2">"coupe_windshield"</span><span class="p">]}],</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">options.nodeMaterial<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Физический материал ноды: резина, металл и т.д.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Физический материал ноды влияет на стандартные звуковые события, генерируемые нодой, а также на тип испускаемых частиц.</p>
+<p>Имя должно иметь вид "NM_" + название физического материала, например "NM_METAL". Начиная с версии <code>0.38.5.0</code>, доступны следующие физические материалы:<br/><code>METAL</code>, <code>PLASTIC</code>, <code>RUBBER</code>, <code>GLASS</code>, <code>WOOD</code>, <code>FOLIAGE</code>, <code>CLOTH</code>, <code>WATER</code>, <code>ASPHALT</code>, <code>ASPHALT_WET</code>, <code>SLIPPERY</code>, <code>ROCK</code>, <code>DIRT_DUSTY</code>, <code>DIRT</code>, <code>SAND</code>, <code>SANDY_ROAD</code>, <code>MUD</code>, <code>GRAVEL</code>, <code>GRASS</code>, <code>ICE</code>, <code>SNOW</code>, <code>FIRESMALL</code>, <code>FIREMEDIUM</code>, <code>FIRELARGE</code>, <code>SMOKESMALLBLACK</code>, <code>SMOKEMEDIUMBLACK</code>, <code>STEAM</code>, <code>RUMBLE_STRIP</code>, <code>COBBLESTONE</code>, <code>FOLIAGE_THIN</code>, <code>SPIKE_STRIP</code></p>
+<p>Некоторые часто используемые материалы нод имеют дополнительные свойства:</p>
+<ul>
+<li>NM_PLASTIC: при обрыве балки, соединённой с нодой этого материала, между обеими нодами появятся частицы пластика.</li>
+<li>NM_RUBBER: при скольжении по асфальтовой поверхности нода будет оставлять следы торможения.</li>
+<li>NM_WOOD: если для балки задано испускание частиц разбитого стекла, а одна из её нод имеет этот материал, вместо стекла будут использоваться частицы дерева.</li>
+</ul>
+</div>
+</div>
+</div>
+<h4 id="collision">
+
+  Коллизия
+</h4>
+<p>Эти параметры определяют, с чем нода будет сталкиваться. Используются в каждом Jbeam-файле. Как правило, collision и selfCollision применяются вместе, тогда как staticCollision используется редко.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">true<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Может ли нода сталкиваться с чем-либо</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Этот аргумент влияет на все типы коллизий и имеет наивысший приоритет — включение любого другого типа коллизии не сработает, если этот параметр отключён.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Может ли нода сталкиваться с транспортным средством, которому принадлежит</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Этот аргумент влияет только на тип самостолкновения в рамках динамической коллизии. Обычно устанавливается в false для нод, которые могут вызвать проблемы при столкновении с остальными частями транспортного средства, но всё же должны сталкиваться со всем остальным — например, колёса и шины.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">true<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Может ли нода сталкиваться с объектами карты и рельефом</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Этот аргумент влияет на статическую коллизию и коллизию с картой высот. Устанавливается в false для нод центра колеса, которые не должны сталкиваться с миром — иначе коллизия будет смещена относительно краёв диска — но всё же должны сталкиваться с другими транспортными средствами для корректной деформации при аварии.</div>
+</div>
+</div>
+<h4 id="friction">
+
+  Трение
+</h4>
+<p>Задаёт статическое и скользящее трение ноды. frictionCoef используется в каждом Jbeam-файле и в большинстве случаев равен 0.5; slidingFrictionCoef используется значительно реже — как правило, только в шинах, поскольку его значение по умолчанию совпадает со значением frictionCoef.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Статическое трение ноды</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">По умолчанию влияет как на статическое, так и на динамическое трение, которые для большинства деталей транспортного средства одинаковы в целях оптимизации.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">frictionCoef<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Скользящее трение ноды</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Если этот аргумент не задан, скользящее трение по умолчанию будет равно значению статического трения.</div>
+</div>
+</div>
+<h4 id="powertrain">
+
+  Силовая установка
+</h4>
+<p>Эти аргументы используются компонентами силовой установки автомобиля, такими как двигатель.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Особый вид группы, связанный с симуляцией силовой установки</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Часто используемые группы двигателя:</p>
+<ul>
+<li><code>engine_intake</code>: Используется для симуляции повреждений от воды. Когда все ноды этой группы оказываются под водой, двигатель начинает заполняться водой — до тех пор, пока одна из нод не поднимется на поверхность, или двигатель не выйдет из строя от повреждений.</li>
+<li><code>engine_block</code>: Группа, которую разделяют все ноды, образующие структурный «куб» из Jbeam для двигателя автомобиля. Каждому двигателю должно принадлежать не менее 2 таких нод. Они используются тепловой симуляцией для расчёта массы компонентов двигателя и определения местоположения частичных эффектов при отказе двигателя.</li>
+<li><code>radiator</code>: Используется для определения местоположения и направления частиц дыма из радиатора. В этой engineGroup должно быть не менее 2 нод.</li>
+<li><code>fuel</code>: Эти ноды содержат массу топлива в топливном баке транспортного средства, которая равномерно распределяется между ними и прибавляется к их nodeWeight. На транспортном средстве может быть несколько топливных баков, каждый со своим именем engineGroup для топлива — <code>fuel</code> является наиболее распространённым. Другие ёмкостные баки на транспортном средстве также могут использовать эту систему — например, баки с закисью азота и баллоны с воздухом под давлением.</li>
+</ul>
+</div>
+</div>
+</div>
+<h4 id="props-only">
+
+  Только для пропсов
+</h4>
+<p>Используются исключительно для пропсов, так как не имеют смысла на транспортном средстве.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Зафиксирована ли нода в 3D-пространстве (не может двигаться вообще)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Верхняя нода зафиксирована:
+<video autoplay="" controls="" src="nb1.mp4"></video></p>
+<p>Зафиксированные ноды не участвуют в коллизии, даже если аргумент collision установлен в true.</p>
+</div>
+</div>
+</div>
+<h4 id="sound-override">
+
+  Переопределение звука
+</h4>
+<p>Переопределяет стандартные звуки удара ноды, заданные материалом. Используется для нестандартных деталей транспортного средства, например биотуалета в качестве груза. Список всех доступных путей событий можно найти в World Editor: Window &gt; Audio &gt; SFX Previewer.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Переопределяет стандартное звуковое событие удара ноды</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Переопределяет звуковое событие удара о металл для ноды</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Переопределяет звуковое событие удара о пластик для ноды</div>
+</div>
+</div>
+<h4 id="cargo">
+
+  Груз
+</h4>
+<p>Используется только для грузов.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Функция, определяющая изменение веса ноды в зависимости от загрузки cargoGroup в режиме доставки карьерного прохождения</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Простейший пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rbc6"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">{</span><span class="s2">"nodeWeightFunction"</span><span class="o">:</span><span class="s2">"=1+$load"</span><span class="p">,</span><span class="s2">"cargoGroup"</span><span class="o">:</span><span class="s2">"roofBarCargoBoxA"</span><span class="p">}],</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<h4 id="offsets">
+
+  Смещения
+</h4>
+<p>Эти аргументы практически никогда не задаются явно в секции нод, а передаются из секции <a data-doc="vehicle/sections/slots" href="/docs/vehicle/sections/slots">Slots</a>
+. Аргументы можно использовать совместно; порядок операций по умолчанию: <code>nodeRotate</code>, <code>nodeOffset</code>, <code>nodeMove</code>. Имена аргументов также могут содержать числовые суффиксы для определения порядка операций и допускают многократное использование каждого аргумента.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Смещает ноду по осям YZ, а по оси X — симметрично (м)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Смещает ноду по осям XYZ (м)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0, "px":0, "py":0, "pz":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Поворачивает ноду на <code>x, y, z</code> градусов вокруг осей XYZ, относительно центра поворота <code>px, py, pz</code></div>
+</div>
+</div>
+<h4 id="advanced-tire-friction-parameters">
+
+  Расширенные параметры трения шин
+</h4>
+<p>Используется системой колёс и шин, не задаётся вручную.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Модификатор коэффициента трения при нулевой нагрузке.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Это значение должно быть выше, чем "fullLoadCoef".</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Модификатор коэффициента трения при полной нагрузке.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Это значение должно быть ниже, чем "noLoadCoef".</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.75<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Обеспечивает более тонкое управление кривой скользящего трения.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Меньшие значения дают более плавный переход.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Обеспечивает более тонкое управление кривой скользящего трения.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Влияет на скорость, при которой начинает действовать коэффициент скольжения.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.6<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Влияет на временное поведение трения шины.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Более высокие значения (максимум 1) делают шину похожей на мягкую гоночную слик-резину, а более низкие — на более жёский состав. Также влияет на звуки шин: жёсткие шины визжат сильнее.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Умножает коэффициент шероховатости поверхности для данной ноды.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Для слик-шины это значение равно 0, для внедорожной шины — около 0.9, для стандартной — 0.7.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Потеря коэффициента на ньютон нормальной силы</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Коэффициент трения будет снижаться от "noLoadCoef" до тех пор, пока не достигнет "fullLoadCoef", после чего стабилизируется.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Группирует внутренние и внешние ноды шины в пары</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Этот аргумент используется для генерации следов шин. Средняя точка между двумя спаренными нодами, касающимися земли, задаётся как местоположение следа шины, а расстояние между ними определяет его ширину.</p>
+<p>Этот аргумент задаётся автоматически генератором колёс. Не используйте его вручную — это может привести к проблемам с шинами транспортного средства.</p>
+</div>
+</div>
+</div>
+<h4 id="debug">
+
+  Отладка
+</h4>
+<p>Предназначены для кратковременной отладки и должны быть удалены из финальной версии конструкции.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"radius":0,"col":"#00000000"}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Подсвечивает ноду с указанным радиусом и цветом при включённом режиме отладочной визуализации нод.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Таблица состоит из 2 элементов: "radius" — число, задающее радиус подсветки в метрах, а "col" — либо строка с шестнадцатеричным значением цвета, либо таблица со значениями RGB. Пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.90</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"highlight"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"radius"</span><span class="o">:</span><span class="mf">0.005</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"col"</span><span class="o">:</span><span class="s2">"#ff0000ff"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span></code></pre>
+</div><p>Следующий код даёт тот же эффект:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.90</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"highlight"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"radius"</span><span class="o">:</span><span class="mf">0.005</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"col"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"r"</span><span class="o">:</span><span class="mi">255</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"g"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"b"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"a"</span><span class="o">:</span><span class="mi">255</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<h3 id="simple-example">
+
+  Простой пример
+</h3>
+<p>Нода <code>a</code> расположена в некоторой точке 3D-пространства:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"nodes"</span> <span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.90</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p>Нода <code>a</code> расположена в некоторой точке 3D-пространства и имеет массу 3 кг.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"nodes"</span> <span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.90</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">,</span> <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span> <span class="mi">3</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div>
+<h3 id="advanced-example">
+
+  Расширенный пример
+</h3>
+<p>Пример типичной секции нод, которая начинается с инициализации всех свойств, которые будут использоваться для последующих нод.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="s2">"nodes"</span> <span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">     <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">     <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">"body"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">     <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">false</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">     <span class="p">{</span><span class="s2">"collision"</span> <span class="o">:</span><span class="kc">true</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">     <span class="p">{</span><span class="s2">"nodeMaterial"</span><span class="o">:</span><span class="s2">"|NM_METAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">     <span class="p">{</span><span class="s2">"frictionCoef"</span><span class="o">:</span><span class="mf">0.7</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">     <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span><span class="mf">12.5</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">     <span class="c1">// a comment
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>     <span class="p">[</span><span class="s2">"n1rr"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.90</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">     <span class="p">[</span><span class="s2">"n1r"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.33</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">     <span class="p">[</span><span class="s2">"n1l"</span><span class="p">,</span> <span class="mf">0.33</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">     <span class="p">[</span><span class="s2">"n1ll"</span><span class="p">,</span> <span class="mf">0.90</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">     <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><div class="bng-notice note"><code>0.38.5.0</code> содержит
+<code>144711</code> записей в
+<code>10471</code> секциях, распределённых по
+<code>20043</code> деталям в
+<code>5090</code> jbeam-файлах.</div>

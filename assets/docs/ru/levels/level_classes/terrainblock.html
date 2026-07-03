@@ -1,0 +1,199 @@
+<p><code>TerrainBlock</code> — это объект сцены, представляющий рельеф на основе карты высот в уровне.</p>
+<p>Он загружает данные высот рельефа из файла <code>.ter</code> и связывает их с данными материалов рельефа, изображением миникарты, коллизией рельефа и его рендерингом.</p>
+<p>В большинстве обычных уровней с открытым пространством есть один основной объект рельефа, которому обычно присваивают имя:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">theTerrain
+</span></span></code></pre>
+</div><hr/>
+<h2 id="basic-example">
+
+  Basic example
+</h2>
+<p>Типичная запись <code>TerrainBlock</code> в файле <code>items.level.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TerrainBlock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"theTerrain"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"LevelObjects"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-1024</span><span class="p">,</span> <span class="mi">-1024</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"terrainFile"</span><span class="p">:</span> <span class="s2">"/levels/example/theTerrain.ter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTextureSet"</span><span class="p">:</span> <span class="s2">"exampleTerrainMaterialTextureSet"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"minimapImage"</span><span class="p">:</span> <span class="s2">"levels/example/example_minimap.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"squareSize"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxHeight"</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"baseTexSize"</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"castShadows"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="important-fields">
+
+  Important fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Должно быть <code>"TerrainBlock"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя объекта сцены. Обычно <code>"theTerrain"</code>.</td>
+</tr>
+<tr>
+<td><code>__parent</code></td>
+<td>string</td>
+<td>Родительская группа, как правило <code>MissionGroup</code> или группа объектов уровня.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Позиция блока рельефа в мировых координатах.</td>
+</tr>
+<tr>
+<td><code>terrainFile</code></td>
+<td>string/path</td>
+<td>Исходный файл данных рельефа, обычно <code>.ter</code>.</td>
+</tr>
+<tr>
+<td><code>minimapImage</code></td>
+<td>string/path</td>
+<td>Изображение миникарты для данного блока рельефа.</td>
+</tr>
+<tr>
+<td><code>materialTextureSet</code></td>
+<td>string</td>
+<td>Набор текстур материала рельефа, используемый для базового, макро- и детализированного размеров текстур.</td>
+</tr>
+<tr>
+<td><code>castShadows</code></td>
+<td>bool</td>
+<td>Позволяет рельефу отбрасывать тени.</td>
+</tr>
+<tr>
+<td><code>squareSize</code></td>
+<td>number</td>
+<td>Шаг сетки рельефа в метрах на один замер высоты.</td>
+</tr>
+<tr>
+<td><code>maxHeight</code></td>
+<td>number</td>
+<td>Максимальный диапазон высот в метрах.</td>
+</tr>
+<tr>
+<td><code>baseTexSize</code></td>
+<td>integer</td>
+<td>Настройка размера базовой текстуры рельефа.</td>
+</tr>
+<tr>
+<td><code>lightMapSize</code></td>
+<td>integer</td>
+<td>Устаревший размер карты освещения рельефа.</td>
+</tr>
+<tr>
+<td><code>screenError</code></td>
+<td>integer</td>
+<td>Устаревший параметр; в целом не полезен при современном создании контента.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice note"><code>TerrainBlock</code> не поддерживает обычное масштабирование объекта. Вместо масштабирования объекта используйте <code>squareSize</code>, <code>maxHeight</code>, карту высот и рабочий процесс импорта рельефа.</div>
+<hr/>
+<h2 id="terrain-file">
+
+  Terrain file
+</h2>
+<p>Наиболее важное поле:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"terrainFile"</span><span class="err">:</span> <span class="s2">"/levels/example/theTerrain.ter"</span>
+</span></span></code></pre>
+</div><p>Этот файл хранит данные карты высот рельефа, используемые движком.</p>
+<p>Уровень также может использовать связанные изображения и данные рельефа:</p>
+<ul>
+<li>Исходные изображения карты высот</li>
+<li>Карты отверстий</li>
+<li>Карты слоёв материалов рельефа</li>
+<li>Карты глубины</li>
+<li>Изображение миникарты</li>
+<li>Набор текстур материала рельефа</li>
+</ul>
+<p>Подробнее о форматах <code>.ter</code>, <code>.terrain.json</code>, материалах рельефа и упаковке текстур см. в документации <a data-doc="levels/level_formats/terrain" href="/docs/levels/level_formats/terrain">Terrain format</a>
+.</p>
+<hr/>
+<h2 id="position-and-size">
+
+  Position and size
+</h2>
+<p><code>position</code> задаёт расположение блока рельефа в мировом пространстве.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"position"</span><span class="err">:</span> <span class="p">[</span><span class="mi">-1024</span><span class="p">,</span> <span class="mi">-1024</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p><code>squareSize</code> управляет расстоянием между замерами высоты:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"squareSize"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre>
+</div><p><code>maxHeight</code> управляет диапазоном высот рельефа:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"maxHeight"</span><span class="err">:</span> <span class="mi">256</span>
+</span></span></code></pre>
+</div><p>Изменение этих значений после создания контента может повлиять на дороги, расстановку объектов, выравнивание материалов рельефа и читаемость игрового пространства.</p>
+<hr/>
+<h2 id="terrain-materials">
+
+  Terrain materials
+</h2>
+<p><code>materialTextureSet</code> ссылается на настройку текстур рельефа, используемую рендерером.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"materialTextureSet"</span><span class="err">:</span> <span class="s2">"exampleTerrainMaterialTextureSet"</span>
+</span></span></code></pre>
+</div><p>Материалы рельефа отличаются от обычных материалов мешей. Они наносятся поверх рельефа и используют базовые, макро- и детализированные текстуры.</p>
+<p>Поведение модели грунта обычно задаётся через настройку материалов рельефа, а не через сам объект <code>TerrainBlock</code>.</p>
+<hr/>
+<h2 id="tool-notes">
+
+  Tool notes
+</h2>
+<p>Для инструментов, создающих или изменяющих данные рельефа:</p>
+<ul>
+<li>Следите за тем, чтобы пути в <code>terrainFile</code> были корректными и переносимыми.</li>
+<li>Сохраняйте значения <code>position</code>, <code>squareSize</code> и <code>maxHeight</code>, если инструмент не перестраивает масштаб рельефа намеренно.</li>
+<li>Там, где это требуется, выравнивайте изображения, связанные с рельефом, по разрешению рельефа.</li>
+<li>При перемещении или изменении масштаба рельефа обновляйте дороги, данные леса, почвенное покрытие, путевые точки и точки появления.</li>
+<li>Не добавляйте обычное поле <code>scale</code> к <code>TerrainBlock</code> — это не рабочий процесс масштабирования рельефа.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<ul>
+<li>Рельеф отображается не там, где нужно, потому что <code>position</code> не совпадает с расстановкой объектов и дорог.</li>
+<li>Рельеф рендерится чёрным или некорректно, так как отсутствует <code>materialTextureSet</code> или материалы рельефа.</li>
+<li>Дороги, леса или почвенное покрытие смещаются после изменения <code>squareSize</code>, <code>maxHeight</code> или позиции рельефа.</li>
+<li>Миникарта не совпадает с рельефом, потому что <code>minimapImage</code> указывает на устаревшее изображение.</li>
+</ul>
+<hr/>
+<h2 id="validation-criteria">
+
+  Validation criteria
+</h2>
+<ul>
+<li><code>terrainFile</code> существует и загружается.</li>
+<li>Набор текстур материала рельефа существует.</li>
+<li>Позиция, размер и высота рельефа соответствуют задуманному масштабу мира.</li>
+<li>Почвенное покрытие и расположение леса по-прежнему совпадают с рельефом.</li>
+<li>Дороги, точки появления, путевые точки и основные реквизиты по-прежнему расположены на ожидаемых поверхностях.</li>
+</ul>
+<p><strong>См. также:</strong> <a data-doc="levels/level_formats/terrain" href="/docs/levels/level_formats/terrain">Terrain files</a>
+, <a data-doc="levels/level_formats/groundmodels" href="/docs/levels/level_formats/groundmodels">Groundmodels</a>
+, <a data-doc="levels/level_classes/groundcover" href="/docs/levels/level_classes/groundcover">GroundCover</a>
+.</p>

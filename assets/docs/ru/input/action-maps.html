@@ -1,0 +1,125 @@
+<h3 id="overview">
+
+  Обзор
+</h3>
+<p><strong>Карты действий</strong> — это по сути группы привязок (bindings), объединённые под одним именем.</p>
+<p>Их основное назначение — определять приоритеты своих привязок, а также
+позволять включать и отключать все их сразу.</p>
+<h4 id="example">
+
+  Пример
+</h4>
+<p>Рассмотрим функциональность воспроизведения записи в качестве примера:</p>
+<blockquote>
+<p>Все привязки, связанные с воспроизведением, сгруппированы в одну карту действий с именем <code>"ReplayPlaybackActionMap"</code></p>
+</blockquote>
+<blockquote>
+<p>Эта карта действий активируется при открытии записи воспроизведения.</p>
+</blockquote>
+<blockquote>
+<p>Ей также можно назначить более высокий приоритет, чем обычным элементам управления вождением, — тогда нажатие стрелки вправо не будет пытаться повернуть транспортное средство, а вместо этого перемотает запись на 10 секунд вперёд.</p>
+</blockquote>
+<h3 id="action-map-execution-order">
+
+  Порядок выполнения карт действий
+</h3>
+<p>Когда генерируется <a data-doc="input/introduction" data-frag="event" href="/docs/input/introduction#event">событие</a>
+, BeamNG.drive берёт первую карту действий и проверяет, содержит ли она соответствующие привязки для выполнения:</p>
+<ul>
+<li>Если с данным <a data-doc="input/introduction" data-frag="event" href="/docs/input/introduction#event">событием</a>
+ не связано ни одной <a href="https://documentation.beamng.com/modding/input/introuction/#binding" rel="noopener" target="_blank">привязки</a>
+, будет взята следующая карта действий по порядку и проверена снова (пока не закончатся все карты действий).</li>
+<li>Если имеется какая-либо подходящая <a href="https://documentation.beamng.com/modding/input/introuction/#binding" rel="noopener" target="_blank">привязка</a>
+, она/они будут выполнены, и после этого больше ни одна карта действий проверяться не будет*.</li>
+</ul>
+<p><em>(* за исключением случаев, когда установлен <a href="#trapping-handled-events">флаг trap</a>
+)</em></p>
+<h3 id="hierarchy">
+
+  Иерархия
+</h3>
+<p>Карты действий могут быть активными или неактивными, и для каждого состояния существует отдельный список. Вы можете просмотреть оба списка в любое время, выполнив следующую команду в консоли GE-Lua:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="n">dump</span><span class="p">(</span><span class="n">ActionMap</span><span class="p">:</span><span class="n">getList</span><span class="p">())</span>
+</span></span></code></pre>
+</div>
+<h4 id="list-of-active-action-maps">
+
+  Список активных карт действий
+</h4>
+<p>Ниже приведены карты действий, активные по умолчанию сразу после запуска игры, и их порядок:</p>
+<ol>
+<li>GlobalActionMap</li>
+<li>MenuActionMap</li>
+<li>GuiActionMap</li>
+<li>&lt;- <a href="#activating-and-deactivating-action-maps">точка активации</a>
+ -</li>
+<li>VehicleSpecificActionMap</li>
+<li>VehicleCommonActionMap</li>
+<li>NormalActionMap</li>
+</ol>
+<p>Карты действий, расположенные выше, имеют больший приоритет: они получают возможность обработать привязки раньше тех, что расположены ниже.</p>
+<h4 id="list-of-inactive-action-maps">
+
+  Список неактивных карт действий
+</h4>
+<p>Существует второй список, содержащий все неактивные карты действий.</p>
+<p>Неактивные карты никогда не принимаются во внимание, конечный пользователь не может использовать ни одну из их привязок, поэтому их порядок не имеет значения.</p>
+<p>На момент написания этой статьи список неактивных карт обычно содержит:</p>
+<ul>
+<li>FlexmeshDebugActionMap</li>
+<li>ReplayPlaybackActionMap</li>
+<li>ExplorationGeneralActionMap</li>
+</ul>
+<h3 id="custom-action-maps">
+
+  Пользовательские карты действий
+</h3>
+<p>Модификации могут добавлять дополнительные карты действий, просто указав новое имя поля <code>actionMap</code> в <a data-doc="input/actions" data-frag="action-files-format" href="/docs/input/actions#action-files-format">файлах действий</a>
+ формата <code>.json</code>.</p>
+<p>Это имя в сочетании с суффиксом <code>"ActionMap"</code> будет использоваться в качестве идентификатора в дереве сцены. Например, использование <code>'actionMap':'FunStuff'</code> приведёт к созданию карты действий, доступной через <code>scenetree.findObject('FunStuffActionMap')</code>.</p>
+<p>Все дополнительные карты действий по умолчанию будут <a href="#list-of-inactive-action-maps">неактивными</a>
+.</p>
+<p>Чтобы новые карты действий можно было использовать, их необходимо сначала <a href="#activating-and-deactivating-action-maps">активировать</a>
+ (а затем деактивировать, если/когда работа с ними будет завершена).</p>
+<h3 id="activating-and-deactivating-action-maps">
+
+  Активация и деактивация карт действий
+</h3>
+<p>Активация карты действий означает перемещение её из неактивного списка в активный.</p>
+<p>Другими словами, карта действий <em><strong>помещается</strong></em> в активный список или <em><strong>извлекается</strong></em> из него.</p>
+<p>Карты действий можно активировать в любое время, выполнив следующий код GE-Lua:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">actionMapName</span> <span class="o">=</span> <span class="s2">"MyActionMap"</span>
+</span></span><span class="line"><span class="cl"><span class="n">scenetree.findObject</span><span class="p">(</span><span class="n">actionMapName</span><span class="p">):</span><span class="n">push</span><span class="p">()</span>
+</span></span></code></pre>
+</div><p>Чтобы впоследствии деактивировать её, используйте следующее:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">actionMapName</span> <span class="o">=</span> <span class="s2">"MyActionMap"</span>
+</span></span><span class="line"><span class="cl"><span class="n">scenetree.findObject</span><span class="p">(</span><span class="n">actionMapName</span><span class="p">):</span><span class="n">pop</span><span class="p">()</span>
+</span></span></code></pre>
+</div><p>Это переместит карту действий обратно в неактивный список.</p>
+<p>Карты действий активируются (помещаются) примерно сразу под <code>GuiActionMap</code> (см. <a href="#list-of-inactive-action-maps">Список активных карт действий</a>
+).</p>
+<p>Таким образом, их приоритет ниже, чем у карт действий gui/menu/global, и выше, чем у ранее активированных карт действий.</p>
+<p>На практике это означает, что модификация никогда не сможет переопределить, например, привязку <kbd>ALT+F4</kbd>, завершающую игру. Это сделано намеренно.</p>
+<h3 id="enabling-and-disabling-action-maps">
+
+  Включение и отключение карт действий
+</h3>
+<p>Это отображается как <code>enabled = true</code> или <code>enabled = false</code> при просмотре <a href="#hierarchy">иерархии карт действий</a>
+.</p>
+<p>Это редко используемая возможность, задокументированная здесь для полноты описания. Она позволяет деактивировать карту действий <strong>без потери её позиции</strong> (приоритета) в <a href="#list-of-inactive-action-maps">Списке активных карт действий</a>
+ (не перемещая карту действий из активного в неактивный список).</p>
+<p>Основное назначение — возможность отключать все привязки карты действий <code>Menu</code>, пока меню закрыты (и повторно включать их, если конечный пользователь начинает навигацию по меню), сохраняя при этом правильный приоритет её привязок.</p>
+<h3 id="trapping-handled-events">
+
+  Перехват обработанных событий
+</h3>
+<p>Этот булев флаг может быть установлен для каждой карты действий. Его значение по умолчанию — <code>true</code>.</p>
+<p>Он отображается как <code>trapHandledEvents = true</code> или <code>trapHandledEvents = false</code> при просмотре <a href="#hierarchy">иерархии карт действий</a>
+.</p>
+<p>Ещё одна редко используемая возможность, снова задокументированная здесь для полноты описания.</p>
+<p>Если этот флаг равен <code>false</code>, поведение <a href="#actionmap-execution-order">порядка выполнения карт действий</a>
+ изменяется: карты действий с более низким приоритетом будут проверяться даже после того, как привязка была найдена в текущей карте действий.</p>
+<p>Например, если у первой половины стека карт действий этот флаг установлен в false, а у второй половины — в true, то будут обработаны все привязки из первой половины. После этого будет обработана первая карта действий с подходящей привязкой, а остальные карты действий не получат шанса на обработку (поскольку событие было только что перехвачено этой последней подходящей картой действий).</p>

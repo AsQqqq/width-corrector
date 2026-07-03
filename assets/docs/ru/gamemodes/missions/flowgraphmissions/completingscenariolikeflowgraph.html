@@ -1,0 +1,83 @@
+<p>Шаблон миссии на основе флоуграфа «ScenarioLike» является наиболее полным из доступных шаблонов и представляет собой игровой цикл, схожий с ранее существовавшими сценариями: вступление, игровая фаза и завершение, а также петля сброса, позволяющая игроку перезапустить миссию в любой момент.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/FlowgraphScenarioLike.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/FlowgraphScenarioLike_hu53a3a52ecf3493987b38a8fcbf1a907c_68832_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Мы не будем подробно разбирать каждый элемент, но постараемся дать достаточное объяснение того, что делает каждая секция и зачем, чтобы вы могли применить эти принципы в собственных миссиях.</p>
+<h3 id="loading">
+
+  Загрузка
+</h3>
+<p>Первое состояние — состояние загрузки, в котором всё настраивается при первом запуске миссии.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/Loading.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/Loading_hu7291a882554a6adcd48e7195e0fdd305_132982_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Два блока секций блокируют несколько входных действий, таких как замедленное движение и восстановление транспортного средства, и переключают интерфейс на раскладку сценария, закрывая доступ к некоторым меню, например к выбору деталей.</p>
+<p>Вторая секция загружает префаб, имя которого совпадает со строковой нодой «myPrefab». Чтобы добавить префаб, необходимо поместить файл префаба с уже заданным именем файла в папку миссии.</p>
+<p>После этого миссия переходит в следующее состояние.</p>
+<h3 id="intro">
+
+  Вступление
+</h3>
+<p>Состояние вступления загружается как при первом запуске, так и каждый раз, когда игрок сбрасывает транспортное средство.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/Intro.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/Intro_hu8b3d6b93ca16f06f106b1adc1d9ce8e1_179982_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>На первом кадре при входе в состояние выполняются все действия из верхнего блока: сброс префаба, сброс транспортного средства игрока и заморозка транспортного средства игрока. Одновременно с этим сбрасываются все одноразовые ноды в данном состоянии.</p>
+<p>Параллельно с этим запускается вступительная последовательность: плавное появление из чёрного экрана, отображение стартового экрана и затем обратного отсчёта.</p>
+<p>После завершения обратного отсчёта происходит выход из данного состояния, и в этот момент нижняя нода размораживает транспортное средство игрока.</p>
+<h3 id="gameplay">
+
+  Геймплей
+</h3>
+<p>Геймплей определён как групповое состояние, состоящее из 3 состояний, выполняющихся параллельно.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/GameplayState.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/GameplayState_hu242bd4bdb061858201b7c021498e9282_147023_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Переход в следующее состояние произойдёт, как только одно из 3 состояний заполнит свой параметр перехода, блокируя два остальных. Это означает, например, что выполнить состояние «arrive» будет невозможно, если достигнут лимит времени.</p>
+<h4 id="arrive">
+
+  Arrive
+</h4>
+<p>Состояние Arrive представляет главную цель данной миссии, которая по умолчанию настроена как миссия «доехать до».
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/ArriveState.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/ArriveState_hu556afbde7554a9805255e7a3e7f1b13d_163124_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Оно состоит из пользовательского триггера с его параметрами и перехода в следующее состояние при «входе» транспортного средства игрока в триггер.</p>
+<p>Вы можете переместить целевую зону, нажав на ноду трансформации и затем переместив её в мировом редакторе.</p>
+<p>Рядом с переходом можно видеть булеву ноду, которая устанавливает переменную «failure» в значение «false». Тот же принцип можно использовать для добавления условий провала игрока — в этом случае переменная «failure» устанавливается в значение «true».</p>
+<h4 id="time-limit">
+
+  Time Limit
+</h4>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/TimeLimitState.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/TimeLimitState_hua7eaccec986fca7cbc8743d9eccd09fb_147319_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="retry-detector">
+
+  Retry Detector
+</h4>
+<p>Детектор повтора ожидает, когда игрок воспользуется вводом для сброса своего автомобиля (по умолчанию <kbd>R</kbd>), и переходит в состояние «retry» при наступлении этого события.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/RetryDetectorState.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/RetryDetectorState.png"/>
+</span></a></p>
+<p>Он используется как триггер для сброса миссии при сбросе автомобиля игроком, как это происходит в сценариях.</p>
+<h3 id="reset-fade">
+
+  Reset fade
+</h3>
+<p>Состояние сброса с затуханием выполняет плавное затухание до чёрного экрана при сбросе игрока, после чего возвращается в состояние вступления, которое сбросит префаб и автомобиль игрока, а затем выполнит плавное появление из чёрного экрана.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/ResetFadeState.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/ResetFadeState_hu8c65f604d889f169badeb94dd28eaf1a_52838_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="outro">
+
+  Завершение
+</h3>
+<p>Состояние завершения отображает финальный экран, а затем позволяет игроку продолжить или сбросить миссию.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/OutroState.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/gamemodes/missions/flowgraphmissions/completingscenariolikeflowgraph/OutroState_hu10bdfb46b8142a449b8c091696191a2d_123034_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Первая секция включает режим замедления («bullet time»), замедляя игру.</p>
+<p>Затем отображается финальный экран с сообщением о провале или успехе.</p>
+<p>Если игрок продолжает, происходит затухание до чёрного экрана и завершение миссии, после чего префабы автоматически выгружаются. Если игрок сбрасывает миссию, флоуграф переходит в состояние сброса с затуханием.</p>
+<p>В обоих случаях при выходе из данного состояния режим замедления деактивируется.</p>

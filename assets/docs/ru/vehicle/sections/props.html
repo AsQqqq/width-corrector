@@ -1,0 +1,870 @@
+<p>Props — это меши, которые не деформируются, но могут анимироваться. Они очень полезны для таких элементов, как рулевые колёса, рычаги переключения передач, стрелки приборов, педали и другие детали, которые лучше анимировать, чем симулировать. Их также можно использовать для создания прожекторов, связанных с системой glowMap/electrics, чтобы сделать работающие фары.</p>
+<p><video autoplay="" controls="" src="PropVideo.mp4"></video></p>
+<p>По умолчанию меши будут расположены так же, как в вашей программе моделирования, однако их необходимо повернуть в нужное положение с помощью аргумента базового вращения. Подробнее см. <a href="https://documentation.beamng.com/modding/modelling/vehicle_modeling/#props" rel="noopener" target="_blank">рекомендации по моделированию</a>
+</p>
+<h3 id="prop-axis-reference">
+
+  Система осей пропа
+</h3>
+<p>Каждый проп использует собственную систему отсчёта, состоящую из 3 нод. Это позволяет пропу перемещаться вместе с этими нодами — например, при столкновениях или для таких применений, как подвижные фары.</p>
+<p>Ноды, выбранные для аргументов idRef, idX и idY, должны образовывать прямоугольный треугольник — аналогично <a data-doc="vehicle/sections/refnodes" href="/docs/vehicle/sections/refnodes">refnodes</a>
+. Эти ноды образуют оси X и Y системы координат пропа. Ось Z создаётся на их основе.</p>
+<p>Например, пропы приборной панели Pigeon используют ноды "dsh2", "dsh2r", "dsh3" в качестве ref-, x- и y-нод соответственно: dsh2 находится в центре панели, dsh2r — справа от неё, dsh3 — снизу.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/props/PropCoordinateSystem.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/props/PropCoordinateSystem_hu038c3db3cbf5866e6a67dad6b96c0846_432337_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Это означает, что положительные значения по оси Y перемещают пропы вниз, а по оси Z — назад.</p>
+<p>Все перемещения при трансляции выполняются в этой системе координат, а не в системе координат транспортного средства, как у нод и других смещений. Вращение выполняется вокруг каждой оси системы координат меша, с центром вращения в начале координат пропа, как описано в <a href="https://documentation.beamng.com/modding/modelling/vehicle_modeling/" rel="noopener" target="_blank">рекомендациях по моделированию</a>
+</p>
+<h3 id="functions-and-limits">
+
+  Функции и ограничения
+</h3>
+<p>Движение пропа задаётся функцией, использующей одно из значений <a data-doc="vehicle/vehicle_system/electrics" href="/docs/vehicle/vehicle_system/electrics">electrics</a>
+ транспортного средства, вместе со значениями вращения и трансляции.</p>
+<p>Значения вращения и трансляции определяют, на сколько градусов повернётся проп и на сколько метров сместится при увеличении значения функции на единицу. Например, если датчик температуры имеет следующий параметр вращения, он будет поворачиваться на 1 градус вокруг оси x при каждом изменении температуры на один градус.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Угол поворота можно рассчитать, разделив используемый диапазон значения electrics на угол между минимальным и максимальным положениями.</p>
+<p>Значения min и max используются для ограничения движения пропа. Например, для имитации «упоров» на шкалах приборов многих автомобилей, не позволяющих стрелке выходить за определённый диапазон. Они задаются как значения функции, а не как угол или трансляция.</p>
+<p>Значение offset работает аналогично min и max, добавляя статический сдвиг к показанию прибора. Это используется для компенсации нулевой точки, которая не совпадает с начальным положением стрелки.</p>
+<p>Multiplier делает именно то, что написано, однако он редко используется — вместо этого изменяют значения вращения и трансляции.</p>
+<p>Возьмём в качестве примера тахометр D-Series.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/props/GaugeProps.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/props/GaugeProps.png"/>
+</span></a>
+Он имеет диапазон отклонения 180 градусов при диапазоне значений 6000 об/мин, что даёт функцию вращения: 180 / 6000 = 0,03 градуса/об/мин. Используем отрицательное значение, поскольку стрелка движется по часовой стрелке.</p>
+<p>Чтобы шкала не выходила за 6000 об/мин, max устанавливается равным 6000, min — 0. Для датчика температуры min и max могут быть, например, 60 и 120.
+Для offset: в данном случае при offset равном 0 стрелка указывает на 4000, то есть offset должен быть -4000, чтобы стрелка указывала на правильное значение.
+Если стрелка не выровнена с плоскостью приборной панели, параметр baseRotation используется для поворота пропа и его оси вращения.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">(...)</span><span class="s2">"baseRotation"</span><span class="p">,</span>           <span class="s2">"rotation"</span><span class="p">,</span>                 <span class="s2">"translation"</span><span class="p">,</span>       <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"multiplier"</span>
+</span></span><span class="line"><span class="cl"><span class="p">(...){</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">160</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">180</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mf">0.03</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span>     <span class="mi">6000</span><span class="p">,</span> <span class="o">-</span><span class="mi">4000</span><span class="p">,</span>     <span class="mi">1</span>
+</span></span></code></pre>
+</div>
+<h3 id="lights">
+
+  Фары
+</h3>
+<p>Фары в beamNG состоят из двух основных элементов. Блик (flare) — шар света у излучателя, представляющий саму лампочку.</p>
+<p>Второй элемент — «cookie», представляющий собой свет, отражённый от поверхностей «лучом» фары.</p>
+<p>Фары часто используются в сочетании с glow map и эмиссионными текстурами, чтобы вся фара выглядела светящейся.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/props/Lights.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/props/Lights_hue88f011a1b286d0dc86c0a33792e09be_858200_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Фары включаются, как только значение их функции становится больше 0, и могут быть связаны с группами деформации и поломки, чтобы отключаться при повреждении физического источника света.</p>
+<p>Фары могут плавно переходить между включённым и выключенным состояниями с помощью линейной шкалы, если в качестве значения функции используются пользовательские значения, заданные в разделе <a data-doc="vehicle/sections/electrics" href="/docs/vehicle/sections/electrics">electrics</a>
+. Для изменения эффекта перехода предусмотрены специальные аргументы:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">(...){</span><span class="s2">"lightScaling"</span><span class="o">:</span><span class="p">{</span><span class="s2">"brightnessMinInput"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"brightnessMaxInput"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"flareScaleMinInput"</span><span class="o">:</span><span class="mf">0.6</span><span class="p">,</span> <span class="s2">"flareScaleMaxInput"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"lightColorOffsetRed"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"lightColorOffsetGreen"</span><span class="o">:</span><span class="mi">60</span><span class="p">,</span> <span class="s2">"lightColorOffsetBlue"</span><span class="o">:</span><span class="mi">80</span><span class="p">}}</span>
+</span></span></code></pre>
+</div><p>Однако, как правило, их не требуется задавать, поскольку значения по умолчанию уже дают убедительный эффект.</p>
+<h3 id="required-arguments">
+
+  Обязательные аргументы
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Определяет значение electrics, которое будет управлять этим пропом</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Подробнее см. <a data-doc="vehicle/vehicle_system/electrics" href="/docs/vehicle/vehicle_system/electrics">страницу electrics</a>
+.</p>
+<p>Для фар: фара включается, пока значение функции больше 0.</p>
+<p>Если вы не хотите анимировать проп, используйте "nop" — функцию, которая всегда возвращает 0.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Название меша, используемого для данного пропа</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Опорная нода, которая будет использоваться для позиционирования данного пропа</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Опорная нода оси X</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Опорная нода оси Y</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Вращение пропа вокруг каждой оси.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Задаётся в градусах вращения на каждое изменение значения функции на 1.</p>
+<p>Использует внутреннюю систему вращения Эйлера -X -Z -Y.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Трансляция пропа вдоль каждой оси.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Задаётся в метрах перемещения на каждое изменение значения функции на 1.</div>
+</div>
+</div>
+<h3 id="optional-arguments">
+
+  Необязательные аргументы
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Начальная трансляция пропа (для обычных пропов — в метрах, для прожекторов — в единицах xnorm по x и y и в метрах по z)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Перезаписывает параметры расположения из программы моделирования.</p>
+<p>Задаётся относительно определённой системы осей. {"x":0, "y":0, "z":0} помещает проп в расположение ноды idRef.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Начальная трансляция пропа в пространстве JBeam/мира (метры)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Перезаписывает параметры расположения из программы моделирования.</p>
+<p>Задаётся относительно координат Jbeam/мира.
+{"x":0, "y":0, "z":0} помещает проп в позицию 0, 0, 0 согласно координатам программы моделирования.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">То же, что baseTranslationGlobal, но позволяет пропу сохранять определённое пропорциональное расстояние от опорных нод при их растяжении или сжатии</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">То же, что baseTranslationGlobal, но проп фиксируется на определённом расстоянии от опорных нод</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Начальное вращение (градусы)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Использует внутреннюю систему вращения Эйлера -X -Z +Y.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Начальное вращение пропа в пространстве JBeam/мира (градусы)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Использует внутреннюю систему вращения Эйлера +Y +Z +X.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Минимальное значение функции, которое будет использоваться</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">100<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Максимальное значение функции, которое будет использоваться</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Значение смещения</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Множитель входного значения</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Название группы деформации, при активации которой данный проп будет отключён</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Преимущественно используется для фар — чтобы отключать их при поломке.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Название группы поломки, при активации которой данный проп будет отключён</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Преимущественно используется для фар — чтобы отключать их при поломке.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Отключает ошибки, если одна или несколько нод пропа не найдены.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Полезно для карданных валов, один конец оси вращения которых находится в отдельном компоненте.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Смещает меш по осям YZ и зеркально смещает его по оси X, если позиция не центрирована на ней (м).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Это никогда не задаётся явно в разделе Props, а передаётся из раздела <a data-doc="vehicle/sections/slots" href="/docs/vehicle/sections/slots">Slots</a>
+.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Смещает меш по осям XYZ (м).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Это никогда не задаётся явно в разделе Props, а передаётся из раздела <a data-doc="vehicle/sections/slots" href="/docs/vehicle/sections/slots">Slots</a>
+.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0, "px":0, "py":0, "pz":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Поворачивает меш на <code>x, y, z</code> градусов по осям XYZ вокруг центральной точки <code>px, py, pz</code></div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Это никогда не задаётся явно в разделе Props, а передаётся из раздела <a data-doc="vehicle/sections/slots" href="/docs/vehicle/sections/slots">Slots</a>
+.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Должна ли позиция меша игнорировать модификатор nodeOffset.</div>
+</div>
+</div>
+<h3 id="optional-arguments-lights-only">
+
+  Необязательные аргументы (только для фар)
+</h3>
+<p>Работают только если "mesh" установлен в "SPOTLIGHT" или "POINTLIGHT".</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">40<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Угол, при котором яркость максимальна (градусы).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">45<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Внешний край светового пучка (градусы).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Яркость постепенно снижается от внутреннего угла до внешнего.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Яркость светового пучка.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">10<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Расстояние (в метрах), на котором свет ещё отражается.</div>
+</div>
+</div>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"r":0, "g":0, "b":0, "a":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Цвет блика и излучаемого света.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>В формате RGBA.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"lightColor"</span><span class="o">:</span><span class="p">{</span><span class="s2">"r"</span><span class="o">:</span><span class="mi">255</span><span class="p">,</span> <span class="s2">"g"</span><span class="o">:</span><span class="mi">255</span><span class="p">,</span> <span class="s2">"b"</span><span class="o">:</span><span class="mi">150</span><span class="p">,</span> <span class="s2">"a"</span><span class="o">:</span><span class="mi">255</span><span class="p">},</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":1, "z":1}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Скорость затухания света в соответствующих направлениях.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"lightAttenuation"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">}</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Будет ли свет отбрасывать тени на объекты, которые он освещает.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Включение этой опции увеличивает нагрузку на GPU и должно использоваться только для фар и других основных источников освещения. Для указателей поворота и задних фонарей это не требуется.</div>
+</div>
+</div>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">vehicleDefaultLightflare<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Название блика (flare), который будет использоваться.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Часто используемые значения:</p>
+<ul>
+<li>"vehicleDefaultLightflare"</li>
+<li>"vehicleBrakeLightFlare"</li>
+<li>"vehicleHeadLightFlare"</li>
+<li>"vehicleReverseLightFlare"</li>
+</ul>
+<p>Другие допустимые значения:</p>
+<ul>
+<li>"BNG_LightFlare_1"</li>
+<li>"BNG_SpokeFlare_1"</li>
+<li>"BNG_Sunflare_1"</li>
+<li>"BNG_Sunflare_2"</li>
+<li>"BNG_Sunflare_3"</li>
+<li>"LightningLightAnim"</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Масштабный коэффициент блика.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Путь к файлу изображения, определяющему форму и текстуру отражённого света.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Часто используемые значения:</p>
+<ul>
+<li>"/art/special/BNG_light_cookie_headlight.dds"</li>
+<li>"/art/special/BNG_light_cookie_lightbar.dds"</li>
+<li>"/art/special/BNG_light_cookie_underglow.dds"</li>
+</ul>
+<p>Подойдёт любое другое изображение в градациях серого: белый — 100% видимость, чёрный — 100% невидимость.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">256<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Разрешение отражения света (пикс.).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Увеличение делает изображение более плавным, но повышает нагрузку на GPU.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Определяет внешний вид краёв теней.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Содержит дополнительные параметры для переходов материалов.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">(...){</span><span class="s2">"lightScaling"</span><span class="o">:</span><span class="p">{</span><span class="s2">"brightnessMinInput"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"brightnessMaxInput"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"flareScaleMinInput"</span><span class="o">:</span><span class="mf">0.6</span><span class="p">,</span> <span class="s2">"flareScaleMaxInput"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"lightColorOffsetRed"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"lightColorOffsetGreen"</span><span class="o">:</span><span class="mi">60</span><span class="p">,</span> <span class="s2">"lightColorOffsetBlue"</span><span class="o">:</span><span class="mi">80</span><span class="p">}}</span>
+</span></span></code></pre>
+</div><p>Аргументы описаны ниже. Все переходы используют линейную шкалу. Они предназначены для совместного использования с переходами glowMap. Как правило, значения по умолчанию менять не нужно. В таком случае словарь можно оставить пустым:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">(...){</span><span class="s2">"lightScaling"</span><span class="o">:</span><span class="p">{}}</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<h4 id="lightscaling-arguments">
+
+  Аргументы LightScaling
+</h4>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Значение функции, при котором lightBrightness будет равна 0 во время перехода материала</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Значение функции, при котором lightBrightness будет иметь значение по умолчанию во время перехода материала</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.6<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Значение функции, при котором flareScale будет равен 0 во время перехода материала</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Значение функции, при котором flareScale будет иметь значение по умолчанию во время перехода материала</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Число, вычитаемое из красного канала по мере снижения значения функции до 0 во время перехода материала</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">60<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Число, вычитаемое из зелёного канала по мере снижения значения функции до 0 во время перехода материала</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">80<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Число, вычитаемое из синего канала по мере снижения значения функции до 0 во время перехода материала</div>
+</div>
+</div>
+<h3 id="simple-examples">
+
+  Простые примеры
+</h3>
+<p>Набор из двух стрелок приборов.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"props"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"func"</span><span class="p">,</span> <span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"idRef:"</span><span class="p">,</span> <span class="s2">"idX:"</span><span class="p">,</span> <span class="s2">"idY:"</span><span class="p">,</span> <span class="s2">"baseRotation"</span><span class="p">,</span> <span class="s2">"rotation"</span><span class="p">,</span> <span class="s2">"translation"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"multiplier"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//needles
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"wheelspeed"</span><span class="p">,</span> <span class="s2">"needle_speedo"</span><span class="p">,</span> <span class="s2">"f7r"</span><span class="p">,</span><span class="s2">"f7l"</span><span class="p">,</span><span class="s2">"f8r"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mi">4</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="o">-</span><span class="mi">27</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"rpm"</span><span class="p">,</span> <span class="s2">"needle_tacho"</span><span class="p">,</span> <span class="s2">"f7r"</span><span class="p">,</span><span class="s2">"f7l"</span><span class="p">,</span><span class="s2">"f8r"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mf">0.038</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">6000</span><span class="p">,</span> <span class="o">-</span><span class="mi">2900</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div>
+<p>Проп рулевого колеса</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"props"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"func"</span><span class="p">,</span> <span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"idRef:"</span><span class="p">,</span> <span class="s2">"idX:"</span><span class="p">,</span> <span class="s2">"idY:"</span><span class="p">,</span> <span class="s2">"baseRotation"</span><span class="p">,</span> <span class="s2">"rotation"</span><span class="p">,</span> <span class="s2">"translation"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"multiplier"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//steering wheel
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"steering"</span><span class="p">,</span> <span class="s2">"steer_04a"</span><span class="p">,</span> <span class="s2">"f1l"</span><span class="p">,</span><span class="s2">"f1r"</span><span class="p">,</span><span class="s2">"f6l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mi">78</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">"baseTranslation"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.070</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mf">0.605</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:-</span><span class="mf">0.56</span><span class="p">},</span> <span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">"steeringWheelBreak"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"> <span class="p">],</span>
+</span></span></code></pre>
+</div>
+<h3 id="advanced-examples">
+
+  Расширенные примеры
+</h3>
+<p>Набор различных интерьерных пропов для педалей и других органов управления водителя.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"props"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"func"</span><span class="p">,</span> <span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"idRef:"</span><span class="p">,</span> <span class="s2">"idX:"</span><span class="p">,</span> <span class="s2">"idY:"</span><span class="p">,</span> <span class="s2">"baseRotation"</span><span class="p">,</span> <span class="s2">"rotation"</span><span class="p">,</span> <span class="s2">"translation"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"multiplier"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//pedals
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"brake"</span><span class="p">,</span> <span class="s2">"pedal_brake"</span><span class="p">,</span> <span class="s2">"b1l"</span><span class="p">,</span><span class="s2">"b1r"</span><span class="p">,</span><span class="s2">"b5l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mi">25</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"throttle"</span><span class="p">,</span> <span class="s2">"pedal_gas"</span><span class="p">,</span> <span class="s2">"b1l"</span><span class="p">,</span><span class="s2">"b1r"</span><span class="p">,</span><span class="s2">"b5l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mi">25</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"parkingbrake"</span><span class="p">,</span> <span class="s2">"pedal_parkingbrake"</span><span class="p">,</span> <span class="s2">"b1l"</span><span class="p">,</span><span class="s2">"b1r"</span><span class="p">,</span><span class="s2">"b5l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mi">25</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//turn signal stalk
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"turnsignal"</span><span class="p">,</span> <span class="s2">"signalstalk"</span><span class="p">,</span> <span class="s2">"dsh"</span><span class="p">,</span><span class="s2">"dshl"</span><span class="p">,</span><span class="s2">"dsh2"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">27</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">180</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">175</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:-</span><span class="mi">15</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:-</span><span class="mi">2</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p>Одна фара с ближним и дальним светом.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"props"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"func"</span><span class="p">,</span> <span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"idRef:"</span><span class="p">,</span> <span class="s2">"idX:"</span><span class="p">,</span> <span class="s2">"idY:"</span><span class="p">,</span> <span class="s2">"baseRotation"</span><span class="p">,</span> <span class="s2">"rotation"</span><span class="p">,</span> <span class="s2">"translation"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"multiplier"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"lightInnerAngle"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"lightOuterAngle"</span><span class="o">:</span><span class="mi">120</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"lightColor"</span><span class="o">:</span><span class="p">{</span><span class="s2">"r"</span><span class="o">:</span><span class="mi">255</span><span class="p">,</span> <span class="s2">"g"</span><span class="o">:</span><span class="mi">255</span><span class="p">,</span> <span class="s2">"b"</span><span class="o">:</span><span class="mi">170</span><span class="p">,</span> <span class="s2">"a"</span><span class="o">:</span><span class="mi">255</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"lightAttenuation"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"lightCastShadows"</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"flareName"</span><span class="o">:</span><span class="s2">"vehicleHeadLightFlare"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"cookieName"</span><span class="o">:</span><span class="s2">"art/special/BNG_light_cookie_headlight.dds"</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"texSize"</span><span class="o">:</span><span class="mi">512</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"shadowSoftness"</span><span class="o">:</span><span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//low beams angled right slightly to avoid blinding oncoming traffic
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"lowbeam"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"fa2rr"</span><span class="p">,</span> <span class="s2">"fa2r"</span><span class="p">,</span> <span class="s2">"fa1rr"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">180</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">10</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">"baseTranslation"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.75</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.3</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"lightRange"</span><span class="o">:</span><span class="mi">50</span><span class="p">,</span><span class="s2">"lightBrightness"</span><span class="o">:</span><span class="mf">0.3</span><span class="p">,</span><span class="s2">"lightOuterAngle"</span><span class="o">:</span><span class="mi">95</span><span class="p">,</span><span class="s2">"flareScale"</span><span class="o">:</span><span class="mf">0.07</span><span class="p">,</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"headlightglass_R_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//high beams
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"highbeam"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"fa2rr"</span><span class="p">,</span> <span class="s2">"fa2r"</span><span class="p">,</span> <span class="s2">"fa1rr"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">180</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">10</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">"baseTranslation"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.3</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"lightRange"</span><span class="o">:</span><span class="mi">80</span><span class="p">,</span><span class="s2">"lightBrightness"</span><span class="o">:</span><span class="mf">0.6</span><span class="p">,</span><span class="s2">"lightOuterAngle"</span><span class="o">:</span><span class="mi">80</span><span class="p">,</span><span class="s2">"flareScale"</span><span class="o">:</span><span class="mf">0.09</span><span class="p">,</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"headlightglass_R_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div>

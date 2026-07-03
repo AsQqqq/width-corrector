@@ -1,0 +1,533 @@
+<p>Ниже приведены несколько примеров материалов, которые помогут вам создать материалы для собственных проектов.</p>
+<p>В любом случае не стесняйтесь использовать стандартный контент в качестве образца, а также применять готовые текстуры и материалы там, где это уместно. В общей папке игры есть набор предопределённых материалов для таких элементов, как решётки радиатора, обычные фонари и т. п.</p>
+<p>Имейте в виду, что перечислить все возможные материалы, которые вам могут понадобиться, невозможно, однако эти примеры помогут вам начать работу. Не бойтесь экспериментировать с редактором материалов, доступным через меню F11: это отличный способ в реальном времени увидеть эффект от различных настроек.</p>
+<p>При создании материалов рекомендуется использовать файлы png в соответствии со схемой именования, описанной на странице <a data-doc="materials/texture_cooker" href="/docs/materials/texture_cooker">Texture Cooker</a>
+. После завершения редактирования текстур и проверки того, что всё выглядит так, как нужно, скопируйте файлы dds и удалите файлы png из папки мода. Этот шаг поможет сократить время загрузки до минимума: в противном случае игра будет вынуждена конвертировать текстуры в dds каждый раз при первом запуске вашего мода у пользователя.</p>
+<p>Есть 2 способа редактировать материалы: вручную в текстовом редакторе (рекомендуется
+    <a class="link-ext" href="https://code.visualstudio.com/download" rel="noopener" target="_blank">Visual Studio Code</a>
+ для подсветки синтаксиса json) или в редакторе материалов игры. Редактор доступен через Мировой редактор (клавиша F11 по умолчанию): откройте вкладку Window и нажмите Material Editor. Редактор предлагает систему динамического предпросмотра и более читаемые параметры, которые автоматически преобразуются в код Json при сохранении материала. Результат будет сохранён в пользовательской папке, в папке транспортного средства, которому принадлежит данный материал.</p>
+<h2 id="header">
+
+  Header
+</h2>
+<p>Начнём с параметров, которые используются всегда.</p>
+<p>Можно начать с создания нового файла main.materials.json, вставить в него пару фигурных скобок и поместить внутрь следующее:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"vivace_main"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"vivace_main"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"mapTo"</span><span class="p">:</span> <span class="s2">"vivace"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dynamicCubemap"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag0"</span><span class="p">:</span> <span class="s2">"beamng"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag1"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="err">,</span>
+</span></span></code></pre>
+</div><p>Вот как эти параметры выглядят в редакторе материалов:
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/typicalmaterials/header.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/typicalmaterials/header_hu9002f3418b5a3b56a1298e7825dd63a6_115235_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Первая строка вместе с именем должна быть уникальной для данного материала. Её редактирование в редакторе материалов потребует перезагрузки игры, поэтому лучше всего сделать это вручную до входа в редактор.</p>
+<p>MapTo определяет, какой материал в Blender применяется к данному материалу. Для наглядности обычно это то же самое, что и имя материала, за исключением основного материала транспортного средства, у которого суффикс _main присутствует в имени, но отсутствует в mapTo.</p>
+<p>Параметр Class следует оставить без изменений.</p>
+<p>Stages — это место, куда вы будете вносить информацию о различных используемых текстурах; в редакторе этот раздел отображается как Layers.</p>
+<p>Dynamic cubemap означает, что данный материал будет использовать динамические отражения. Как правило, этот параметр оставляют включённым. В редакторе материалов он управляется настройкой Reflection Mode.</p>
+<p>Параметр Material tags можно оставить без изменений.</p>
+<p>Версия 1.5 означает, что данный материал является PBR-материалом. Не откатывайте его в Мировом редакторе, иначе потеряете информацию о текстурах, не поддерживавшихся в старых версиях.</p>
+<h2 id="main-vehicle-material">
+
+  Main vehicle material
+</h2>
+<p>Основной материал любого автомобиля должен быть в основном перекрашиваемым, чтобы игрок мог изменить цвет краски кузова.</p>
+<p>На стандартных транспортных средствах этот материал нередко включает и некоторые механические компоненты, которые не перекрашиваются. Разделение между перекрашиваемыми и неперекрашиваемыми участками выполняется с помощью 2 слоёв. В первом слое находятся все неперекрашиваемые части материала, во втором — все перекрашиваемые.</p>
+<p>Параметр "activeLayers" указывает, сколько объявленных слоёв будет использоваться; его следует установить равным количеству слоёв в вашем материале, если их больше 1. В противном случае параметр следует удалить — тогда его значение по умолчанию станет равным 1.</p>
+<p>Если вы создаёте скины, имейте в виду, что у большинства стандартных транспортных средств на кузове есть 2 разные UV-карты. Первая зеркальная и используется для большинства компонентов материала — она помогает экономить UV-пространство для небольших деталей. Вторая не зеркальная и включает только поверхности кузова. Именно эту UV-карту вы обычно будете использовать при создании скинов.</p>
+<p>Если вы создаёте материалы для собственного автомобиля и все поверхности основного материала перекрашиваемы, можно использовать содержимое второго слоя в качестве первого. Просто убедитесь, что параметр "activeLayers" удалён.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl">  <span class="s2">"vivace_main"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"vivace_main"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"mapTo"</span><span class="p">:</span> <span class="s2">"vivace"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"persistentId"</span><span class="p">:</span> <span class="s2">"c149d182-981e-4864-8d0d-6449b0372ece"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_b.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_m.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"vehicles/vivace/vivace_n.dds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_r.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"instanceDiffuse"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"colorPaletteMapUseUV"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatRoughnessFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_cc.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_n.dds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"opacityMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_c.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"colorPaletteMap"</span><span class="p">:</span> <span class="s2">"/vehicles/common/nullcolormaskR.dds"</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"activeLayers"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dynamicCubemap"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"materialTag0"</span><span class="p">:</span> <span class="s2">"beamng"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"materialTag1"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order_simset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span><span class="err">,</span>
+</span></span></code></pre>
+</div>
+<h3 id="persistentid">
+
+  PersistentId
+</h3>
+<p>PersistentId — это постоянный идентификатор блока данных в игровом движке; всю эту строку следует удалить при ручном редактировании материала. При использовании редактора материалов новый идентификатор генерируется автоматически и эта строка добавляется за вас.</p>
+<h3 id="first-layer">
+
+  First layer
+</h3>
+<p>Первый слой практически идентичен стандартному материалу. Подробнее см. соответствующий раздел.</p>
+<h3 id="second-layer">
+
+  Second layer
+</h3>
+<p>Второй слой — хороший пример полностью перекрашиваемого материала.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"instanceDiffuse"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"colorPaletteMapUseUV"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clearCoatFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clearCoatRoughnessFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clearCoatMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_cc.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_n.dds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"opacityMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_main_c.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"colorPaletteMap"</span><span class="p">:</span> <span class="s2">"/vehicles/common/nullcolormaskR.dds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>В редакторе материалов этот слой разделён на базовые и расширенные свойства.
+Обратите внимание: из-за сжатия DDS-файлов у оттенков серого каналы зелёного и синего цвета удаляются и текстуры отображаются красными в целях оптимизации; аналогично у карт нормалей отсутствует синий канал и они выглядят жёлтыми. При работе с png-файлами не следует удалять эти каналы вручную — это будет сделано Texture Cooker.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/typicalmaterials/layer2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/typicalmaterials/layer2_hu45a8c255f6a339803b49b97984a05649_151899_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>ambientOcclusionMap : Это обычная чёрно-белая карта окружающего затенения. Она будет такой же, как и в первом слое.</p>
+<p>instanceDiffuse : В редакторе материалов также называется «Instance BaseColor» — означает, что данный материал будет реагировать на выбор цвета.</p>
+<p>useAnisotropic : При значении true данный слой будет использовать анизотропную фильтрацию. Для большинства материалов это значение обычно оставляют без изменений.</p>
+<p>colorPaletteMapUseUV : Значение 1 означает, что эта текстура привязана ко второй, незеркальной UV-карте. Это очень распространённая настройка для скинов; здесь она полезна, если вы хотите, чтобы краска по умолчанию была двухтонной. В редакторе управляется через список выбора.</p>
+<p>clearCoatFactor : Умножает значения цвета на clearCoatMap. При значении 1 игрок может использовать ползунок лакового покрытия во вкладке покраски транспортного средства; при значении 0 ползунок недоступен. Промежуточные значения делают ползунок частично эффективным. Значение не должно быть выше 1. В редакторе материалов управляется ползунком Factor рядом с картой лакового покрытия.</p>
+<p>clearCoatRoughnessFactor : Работает аналогично clearCoatFactor, но применительно к шероховатости лакового покрытия. Поскольку карта шероховатости лакового покрытия в данном случае не задана, по умолчанию выбирается полностью белая текстура, что делает это значение коэффициентом шероховатости лакового покрытия. В редакторе материалов управляется ползунком Factor Roughness рядом с картой лакового покрытия.</p>
+<p>metallicFactor : Работает аналогично вышеописанным параметрам, но для эффекта металлика. Важно установить значение 1 в материале, так как значение по умолчанию равно 0, из-за чего ползунок металлической краски становится недоступным.</p>
+<p>clearCoatMap: Карта в оттенках серого, определяющая, какие части текстуры могут получить эффект лакового покрытия. Все внешние окрашиваемые части автомобиля следует обозначить белым, остальные окрашиваемые части — различными оттенками серого в зависимости от желаемого максимального уровня лакового покрытия, а остальное — чёрным. Не используйте этот параметр за пределами области покраски транспортного средства, так как он требователен к производительности.</p>
+<p>normalMap : Карта нормалей кузова. Поскольку она не содержит специфической информации, её можно оставить такой же, как и в первом слое.</p>
+<p>opacityMap : Карта в оттенках серого, преимущественно чёрно-белая, определяющая, какие части текстур данного слоя будут видимы, а какие нет. В данном случае она фактически определяет, какие части автомобиля будут перекрашиваться. Эти части следует обозначить полностью белым, остальные — полностью чёрным. В редких случаях, когда нужен плавный переход, некоторые части можно обозначить различными оттенками серого.</p>
+<p>colorPaletteMap : Определяет, какая цветовая палитра будет использоваться для каждой перекрашиваемой части транспортного средства. Красный цвет — первая палитра, зелёный — вторая, синий — третья. В большинстве случаев вы захотите, чтобы эта карта была полностью красной (оставьте ту, что задана по умолчанию), но если вы хотите, чтобы заводская двухтонная опция была выбрана по умолчанию без необходимости выбирать скин, можно обозначить некоторые части полностью зелёным. Имейте в виду, что здесь используется вторая незеркальная UV-карта.</p>
+<h2 id="other-materials">
+
+  Other materials
+</h2>
+<h3 id="single-color-material">
+
+  Single color material
+</h3>
+<p>Одноцветный материал, хоть и не самый красивый, способен справиться с задачей для начинающих и может быть задан очень простым способом с использованием модификаторов.</p>
+<p>Имейте в виду, что такие материалы будут выглядеть несколько плоскими, однако они представляют собой простой способ добавить цвет в первый проект.</p>
+<p>Схожую логику можно применить для некоторых конкретных параметров других примеров материалов, когда для данного применения подходит однородный цвет или карта шероховатости.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"example_single_color_material"</span> <span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span> <span class="p">:</span> <span class="s2">"example_single_color_material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"mapTo"</span> <span class="p">:</span> <span class="s2">"example_single_color_material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span> <span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"persistentId"</span> <span class="p">:</span> <span class="s2">"7d9f2774-c0f3-4440-ba16-de7086669244"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"Stages"</span> <span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"baseColorFactor"</span> <span class="p">:</span> <span class="p">[</span> <span class="mf">0.11</span><span class="p">,</span> <span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">2.0</span> <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"roughnessFactor"</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"activeLayers"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dynamicCubemap"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag0"</span><span class="p">:</span> <span class="s2">"beamng"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag1"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"order_simset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="err">,</span>
+</span></span></code></pre>
+</div><p>baseColorFactor : умножает значение в baseColorMap на набор чисел — по одному для каждого канала RGBA. Управляется значениями Color рядом с картой базового цвета в редакторе материалов. Поскольку в данном случае baseColorMap не задана, по умолчанию используется чисто белый цвет, а числа выступают непосредственно в качестве значений RGBA, каждое из которых определяет коэффициент своего канала.</p>
+<p>roughnessFactor : Умножает значения цвета на roughnessMap. Поскольку roughnessMap не задана, по умолчанию используется полностью белый цвет, поэтому это число выступает как коэффициент шероховатости. Аналогичным образом можно использовать metallicMap, clearCoatMap и clearCoatRoughnessMap. Все они управляются ползунками Factor в редакторе.</p>
+<h3 id="standard-material">
+
+  Standard material
+</h3>
+<p>Стандартные материалы включают всё, что является непрозрачным и неперекрашиваемым. Такие материалы создаются с использованием одного слоя и используют текстуры для всех или большинства карт текстур. Первый слой кузова автомобиля выполнен очень схожим образом.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"vivace_mechanical"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"vivace_mechanical"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"mapTo"</span><span class="p">:</span> <span class="s2">"vivace_mechanical"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_mechanical_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_mechanical_b.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"metallicMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_mechanical_m.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"vehicles/vivace/vivace_mechanical_nm.normal.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="s2">"/vehicles/vivace/vivace_mechanical_r.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dynamicCubemap"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag0"</span><span class="p">:</span> <span class="s2">"beamng"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag1"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"order_simset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="err">,</span>
+</span></span></code></pre>
+</div><p>Вот как слой вышеуказанного материала выглядит в редакторе материалов:
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/typicalmaterials/layer1.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/typicalmaterials/layer1_hub125038ab385932303409dae885856c1_110879_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>ambientOcclusionMap : Как и в перекрашиваемом материале, это текстура в оттенках серого, управляющая окружающим затенением материала.</p>
+<p>baseColorMap : В литературе часто называется «Albedo» — эта карта просто задаёт цвета объекта. Имейте в виду, что тени включать не следует, поэтому использовать необработанную фотографию реальной детали транспортного средства здесь невозможно.</p>
+<p>metallicFactor : Умножает значения яркости, заданные metallicMap. Важно установить значение 1 при использовании metallicMap, так как значение по умолчанию равно 0, что обнуляет карту.</p>
+<p>metallicMap : Чёрно-белая карта, определяющая, какие части объекта будут реагировать на свет как металлическая поверхность. В большинстве случаев не следует использовать оттенки серого, так как поверхность не может быть частично металлической в обычных условиях.</p>
+<p>roughnessMap : Карта в оттенках серого, определяющая степень рассеивания света различными частями поверхности.</p>
+<p>useAnisotropic : При значении true данный слой будет использовать анизотропную фильтрацию. Для большинства материалов это значение обычно оставляют без изменений.</p>
+<h3 id="transparent-materials">
+
+  Transparent materials
+</h3>
+<p>Прозрачные материалы в основном используются для таких элементов, как стёкла и линзы фонарей. У них есть уникальные свойства, отсутствующие у обычных материалов.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"etkc_glass"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"etkc_glass"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"mapTo"</span><span class="p">:</span> <span class="s2">"etkc_glass"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/etkc/etkc_glass_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"vehicles/etkc/etkc_glass_b.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"metallicMap"</span><span class="p">:</span> <span class="s2">"/vehicles/etkc/etkc_glass_m.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"/vehicles/etkc/etkc_glass_nm.normal.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"opacityMap"</span><span class="p">:</span> <span class="s2">"/vehicles/etkc/etkc_glass_o.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pixelSpecular"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"roughnessFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="s2">"/vehicles/etkc/etkc_glass_r.data.png"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"alphaRef"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"castShadows"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dynamicCubemap"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag0"</span><span class="p">:</span> <span class="s2">"beamng"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag1"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucent"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucentBlendOp"</span><span class="p">:</span> <span class="s2">"PreMulAlpha"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucentRecvShadows"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="err">,</span>
+</span></span></code></pre>
+</div><p>Эти свойства находятся на вкладке "Advanced - All Layers" в редакторе материалов.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/typicalmaterials/transparent.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/typicalmaterials/transparent_hu6b86e0645b89cbae65241e86a4e90d5c_90593_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>alphaRef : Также известен как Alpha Clip Threshold. Определяет, когда отображать объекты, перекрытые другими прозрачными объектами. Для стёкол транспортного средства следует оставить значение 0.</p>
+<p>castShadows : Определяет, должен ли объект отбрасывать тени на другие объекты; для прозрачных материалов следует установить значение false.</p>
+<p>translucent: Определяет, будет ли материал просвечивающим. При значении true области, не закрытые полностью белым цветом на картах непрозрачности данного материала, будут полностью или частично прозрачными в зависимости от совокупной яркости пикселей карт opacityMap. Проще говоря, чем темнее участок на нашей opacityMap, тем он прозрачнее.</p>
+<p>translucentBlendOp : Также известен как «Alpha Blend Mode» — определяет, как несколько просвечивающих объектов будут отображаться поверх друг друга. Лучшее значение для стёкол транспортного средства — "PreMulAlpha".</p>
+<p>translucentRecvShadows : При значении true прозрачные объекты будут получать тени от других объектов, несмотря на то что сами тени не отбрасывают.</p>
+<p>Параметры pixelSpecular и order_simset следует оставить без изменений.</p>
+<p>Многие моддеры забывают о том, что внутренняя сторона стекла должна иметь материал, отличный от внешней, с отключёнными отражениями. Это связано с тем, что транспортное средство не может отражать собственные части, поэтому внутренняя сторона стекла отражала бы дорогу и окружение. Это можно сделать, убрав roughnessMap, что установит её значение по умолчанию в полностью белый цвет и тем самым отключит отражения.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"etkc_glass_int"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"etkc_glass_int"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"mapTo"</span><span class="p">:</span> <span class="s2">"etkc_glass_int"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"persistentId"</span><span class="p">:</span> <span class="s2">"00181ae3-4f76-4c7b-947f-5e78687b5f3f"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/etkc/etkc_glass_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"vehicles/etkc/etkc_glass_b.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"metallicMap"</span><span class="p">:</span> <span class="s2">"/vehicles/etkc/etkc_glass_m.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"/vehicles/etkc/etkc_glass_nm.normal.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"opacityMap"</span><span class="p">:</span> <span class="s2">"/vehicles/etkc/etkc_glass_o.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pixelSpecular"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"alphaRef"</span><span class="p">:</span> <span class="mi">210</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"alphaTest"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"castShadows"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dynamicCubemap"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag0"</span><span class="p">:</span> <span class="s2">"beamng"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag1"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucent"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucentBlendOp"</span><span class="p">:</span> <span class="s2">"None"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucentRecvShadows"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="err">,</span>
+</span></span></code></pre>
+</div><p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/typicalmaterials/transparent_int.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/typicalmaterials/transparent_int_hu01906480bcc9db78477b93eb3446c027_64418_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Внутреннее стекло не нуждается в режиме смешивания альфа-канала. Значение alphaRef должно быть выше, чем у внешнего стекла. Также должен присутствовать параметр alphaTest, включающий систему отсечения альфа-канала.</p>
+<p>Прозрачные части транспортного средства, такие как стёкла, часто имеют дополнительный материал для отображения в повреждённом состоянии. Второй материал создаётся схожим образом, но имеет несколько уникальных свойств.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"etkc_glass_dmg"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"etkc_glass_dmg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"mapTo"</span><span class="p">:</span> <span class="s2">"etkc_glass_dmg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"persistentId"</span><span class="p">:</span> <span class="s2">"4b35d61e-684d-43f6-bbfa-7ce1551d1024"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/etkc/etkc_glass_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"vehicles/etkc/etkc_glass_dmg_b.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"metallicMap"</span><span class="p">:</span> <span class="s2">"/vehicles/etkc/etkc_glass_dmg_m.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"/vehicles/etkc/etkc_glass_dmg_nm.normal.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"opacityMap"</span><span class="p">:</span> <span class="s2">"/vehicles/etkc/etkc_glass_dmg_o.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pixelSpecular"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"roughnessFactor"</span><span class="p">:</span> <span class="mf">0.310000002</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"alphaRef"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"alphaTest"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"castShadows"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dynamicCubemap"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag0"</span><span class="p">:</span> <span class="s2">"beamng"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag1"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucent"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucentBlendOp"</span><span class="p">:</span> <span class="s2">"PreMulAlpha"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucentRecvShadows"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="err">,</span>
+</span></span></code></pre>
+</div><p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/typicalmaterials/transparent_dmg.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/typicalmaterials/transparent_dmg_hudd913960448d2957fa9c1d1ef2e0660a_94277_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Карта базового цвета, карта нормалей и карта непрозрачности должны включать большое отверстие в центре стекла, закрашенное полностью чёрным на opacityMap, и трещины на видимой его части, выполненные с помощью normalMap.</p>
+<p>Значение alphaRef должно быть выше, чем у целого стекла. Также должен присутствовать параметр alphaTest, включающий систему отсечения альфа-канала.</p>
+<h3 id="emissive-materials">
+
+  Emissive materials
+</h3>
+<p>Светящиеся материалы используются для таких элементов, как фонари и приборные панели, чтобы они выглядели включёнными при работающих огнях. Варианты в выключенном и повреждённом состоянии вместо этого должны использовать стандартные материалы.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"bastion_lights_on"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"bastion_lights_on"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"mapTo"</span><span class="p">:</span> <span class="s2">"bastion_lights_on"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"persistentId"</span><span class="p">:</span><span class="s2">"5e194b74-4312-436d-8815-0fb83c22bd20"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/bastion/bastion_lights_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"/vehicles/bastion/bastion_lights_b.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"emissiveFactor"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="mf">5.0980401</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="mf">5.0980401</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="mf">5.0980401</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"emissiveMap"</span><span class="p">:</span> <span class="s2">"/vehicles/bastion/bastion_lights_g.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"metallicMap"</span><span class="p">:</span> <span class="s2">"/vehicles/bastion/bastion_lights_m.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"vehicles/bastion/bastion_lights_nm.normal.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pixelSpecular"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="s2">"/vehicles/bastion/bastion_lights_r.data.png"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dynamicCubemap"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag0"</span><span class="p">:</span> <span class="s2">"beamng"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag1"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="err">,</span>
+</span></span></code></pre>
+</div><p>В редакторе материалов эти настройки находятся в расширенных свойствах того слоя, с которым вы работаете.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/typicalmaterials/emissive.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/typicalmaterials/emissive_hu0c2feff107d0c4183e543c21270a2cab_62271_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>emissiveFactor : Таблица коэффициентов RGB, умножающих значения в emissiveMap. Значения выше 1 добавляют дополнительную энергию светящемуся материалу, что в некоторых случаях создаёт ослепляющий эффект, известный как Bloom. Bloom появляется, когда энергия превышает пороговое значение по умолчанию; использование больших чисел не усилит Bloom, но облегчит преодоление порога, что в некоторых условиях освещения может сделать материал нереалистичным. В редакторе материалов это значения Factor рядом с картой эмиссии в формате RGB.</p>
+<p>emissiveMap : Управляет цветом света, излучаемого частями материала. Полностью чёрный цвет означает отсутствие эмиссии. Может использовать текстуры BC6H, позволяя задавать значения RGB выше 255. Текстура тогда будет содержать значения энергии для отдельных пикселей, что может дать лучший эффект, чем использование emissiveFactor.</p>
+<p>Фонари транспортного средства нередко имеют 2 активных состояния: on и on_intense. У последнего значение emissiveFactor должно быть немного выше, чтобы оно светилось ярче.</p>
+<h3 id="decals">
+
+  Decals
+</h3>
+<p>Декали (decals) — это очень простые меши с частично прозрачным фоном. Обычно они используются для таких элементов, как эмблемы, что позволяет легко добавлять и убирать их без необходимости сложной геометрии.</p>
+<p>Они создаются с использованием одного слоя. Имейте в виду, что предпочтительно размещать все варианты декали на одной текстуре с UV-привязкой каждого к нужной области — это упрощает определение материала.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"bastion_lettering"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"bastion_lettering"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"mapTo"</span><span class="p">:</span> <span class="s2">"bastion_lettering"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"persistentId"</span><span class="p">:</span> <span class="s2">"4bb0aad6-cd6b-4710-9621-c20357f42de9"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/bastion/bastion_lettering_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"/vehicles/bastion/bastion_lettering_b.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"metallicMap"</span><span class="p">:</span> <span class="s2">"/vehicles/bastion/bastion_lettering_m.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"/vehicles/bastion/bastion_lettering_nm.normal.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"opacityMap"</span><span class="p">:</span> <span class="s2">"/vehicles/bastion/bastion_lettering_o.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="s2">"/vehicles/bastion/bastion_lettering_r.data.png"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"alphaRef"</span><span class="p">:</span> <span class="mi">195</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"alphaTest"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dynamicCubemap"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag0"</span><span class="p">:</span> <span class="s2">"beamng"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materialTag1"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucentBlendOp"</span><span class="p">:</span> <span class="s2">"None"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucentRecvShadows"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="err">,</span>
+</span></span></code></pre>
+</div><p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/typicalmaterials/decals.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/typicalmaterials/decals_hu35b035ff0047983e180ead25e0690811_114913_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="dummy-materials">
+
+  Dummy materials
+</h3>
+<p>Dummy-материалы — это «пустые» определения материалов, используемые для материалов, которым назначены <a data-doc="vehicle/sections/glowmaps" href="/docs/vehicle/sections/glowmaps">glowMaps</a>
+. Поскольку glowMap задаёт материалы, которые всегда будут заменять данный, основному материалу не нужно назначать никаких текстур, и обычно он остаётся максимально простым для уменьшения размера файла материалов (это может существенно снизить размер, если в разделе glowMap задано множество материалов).</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"bastion_chmsl"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"bastion_chmsl"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"mapTo"</span><span class="p">:</span> <span class="s2">"bastion_chmsl"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[{},</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">{}]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="err">,</span>
+</span></span></code></pre>
+</div>
+<h3 id="dynamic-texture-materials">
+
+  Dynamic texture materials
+</h3>
+<p>Динамические текстурные материалы позволяют создавать динамические ливреи транспортных средств в карьерном режиме. Этот материал должен быть полностью идентичен базовому окрашиваемому материалу, за исключением того, что имена должны иметь постфикс ".skin.dynamicTextures", а текстуры, которые вы хотите изменять динамически, должны быть заменены ссылками на динамические текстуры, например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="nt">"moonhawk.skin.dynamicTextures"</span> <span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span> <span class="p">:</span> <span class="s2">"moonhawk.skin.dynamicTextures"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"mapTo"</span> <span class="p">:</span> <span class="s2">"moonhawk.skin.dynamicTextures"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span> <span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"persistentId"</span> <span class="p">:</span> <span class="s2">"18752d24-5e7a-4164-92f8-7fc2311e19b5"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_main_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_main_b.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_main_m.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"roughnessFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"vehicles/moonhawk/moonhawk_n.dds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_main_r.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_main_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"diffuseMapUseUV"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"colorPaletteMapUseUV"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"instanceDiffuse"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatRoughnessFactor"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicMapUseUV"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_main_cc.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_n.dds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"opacityMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_main_alt_c.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"@DynamicTextureBaseColor"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"colorPaletteMap"</span><span class="p">:</span> <span class="s2">"@DynamicTextureColorPalette"</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"activeLayers"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dynamicCubemap"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"materialTag0"</span><span class="p">:</span> <span class="s2">"beamng"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"materialTag1"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order_simset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"moonhawk_nosecone_alt.skin.dynamicTextures"</span> <span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span> <span class="p">:</span> <span class="s2">"moonhawk_nosecone_alt.skin.dynamicTextures"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"mapTo"</span> <span class="p">:</span> <span class="s2">"moonhawk_nosecone_alt.skin.dynamicTextures"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span> <span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"persistentId"</span> <span class="p">:</span> <span class="s2">"c65efec7-da6b-4fa1-bc18-37d819d89db9"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_nosecone_alt_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_nosecone_alt_b.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_nosecone_alt_m.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"vehicles/moonhawk/moonhawk_nosecone_alt_n.dds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_nosecone_alt_r.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"@DynamicTextureBaseColor"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_nosecone_alt_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_nosecone_alt_c.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatRoughnessFactor"</span><span class="p">:</span> <span class="mf">0.06</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"colorPaletteMap"</span><span class="p">:</span> <span class="s2">"@DynamicTextureColorPalette"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"colorPaletteMapUseUV"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"diffuseMapUseUV"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"instanceDiffuse"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicMap"</span><span class="p">:</span> <span class="s2">"@DynamicTextureMetallic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicMapUseUV"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_nosecone_alt_n.dds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"opacityMap"</span><span class="p">:</span> <span class="s2">"/vehicles/moonhawk/moonhawk_nosecone_alt_c.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="s2">"@DynamicTextureRoughness"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"roughnessMapUseUV"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"activeLayers"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dynamicCubemap"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"materialTag0"</span><span class="p">:</span> <span class="s2">"beamng"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"materialTag1"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order_simset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>

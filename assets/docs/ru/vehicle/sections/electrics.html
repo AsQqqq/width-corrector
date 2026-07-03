@@ -1,0 +1,418 @@
+<p><code>This feature is supported as of BeamNG.tech and .drive version 0.34 to latest.</code></p>
+<p>Electrics — это секция в Jbeam, позволяющая определять пользовательские <a data-doc="vehicle/vehicle_system/electrics" href="/docs/vehicle/vehicle_system/electrics">значения electrics</a>
+ и назначать им сглаживатели (smoothers). Она состоит из 2 таблиц: customValues, которая определяет имя значения и функцию, из которой оно вычисляется, и smoothers, которая назначает сглаживатели значениям по имени. Пользовательские значения electrics можно использовать для плавных переходов между бинарными входами — например, для фар sealed beam, которые плавно включаются и выключаются. Их также можно применять для сложения или перемножения нескольких входных сигналов, что позволяет добиться эффекта затемнения фар при нагрузке на электрическую систему автомобиля, например при использовании стартера.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"electrics"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"customValues"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"electricsName"</span><span class="p">,</span> <span class="s2">"electricsFunction"</span><span class="p">,</span><span class="s2">"electricsDefault"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"customValue1"</span><span class="p">,</span><span class="s2">"electrics.existingValue1 * electrics.existingValue2"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"smoothers"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"electricsName"</span><span class="p">,</span> <span class="s2">"smootherType"</span><span class="p">,</span> <span class="s2">"params"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"customValue1"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Вся секция electrics может существовать внутри секции <a data-doc="vehicle/sections/components" href="/docs/vehicle/sections/components">components</a>
+ и при этом будет нормально считываться. Это удобно при глубоком слиянии таблиц — например, для добавления нового пользовательского значения или сглаживателя в другой части транспортного средства.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"components"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"electrics"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"customValues"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="p">[</span><span class="s2">"electricsName"</span><span class="p">,</span> <span class="s2">"electricsFunction"</span><span class="p">,</span><span class="s2">"electricsDefault"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">            <span class="p">[</span><span class="s2">"customValue1"</span><span class="p">,</span><span class="s2">"electrics.existingValue1 * electrics.existingValue2"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"smoothers"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="p">[</span><span class="s2">"electricsName"</span><span class="p">,</span> <span class="s2">"smootherType"</span><span class="p">,</span> <span class="s2">"params"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">            <span class="p">[</span><span class="s2">"customValue1"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="customvalues-arguments">
+
+  Аргументы CustomValues
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Имя нового пользовательского значения electrics.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Не может совпадать с одним из существующих значений транспортного средства. Список значений можно вывести в консоль с помощью dump(electrics) при выбранном автомобиле.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Выражение на Lua для вычисления выходного значения.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Пример выражения:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"(electrics.lowhighbeam  + electrics.brakelight_signal_L) * electrics.electricalLoadCoef"</span>
+</span></span></code></pre>
+</div><p>Выражение не может содержать присваиваний или одиночных знаков «=»! Оно может содержать:</p>
+<ul>
+<li>числа</li>
+<li>все стандартные операторы Lua</li>
+<li>все стандартные математические функции и константы Lua</li>
+<li>имена существующих значений electrics с префиксом "electrics."</li>
+<li>имена переменных, существующих на транспортном средстве, с префиксом "$"</li>
+<li>разрешённые слова: "not", "true", "false", "nil", "and", "or", "dt"</li>
+<li>пользовательские функции, перечисленные ниже.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Выходное значение, которое будет установлено при сбросе транспортного средства.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Если задана пустая строка, значение сохранится между сбросами (не рекомендуется). В большинстве случаев здесь используется значение 0.</div>
+</div>
+</div>
+<h3 id="available-functions">
+
+  Доступные функции
+</h3>
+<div class="bng-table" id="table-1783007351425522713"><div class="bng-table-header"><div>Имя</div><div>Описание</div><div>Пример</div><div>Примечания</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">dump(table)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">выводит строковое представление таблицы в консоль, включая все вложенные таблицы</div>
+</div><div>
+<div style="">Example</div>
+<div style="">dump(electrics)</div>
+</div><div>
+<div style="">Notes</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">dumpz(table, depth)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">выводит строковое представление таблицы в консоль до указанного уровня глубины для вложенных таблиц</div>
+</div><div>
+<div style="">Example</div>
+<div style="">dumpz(electrics, 1)</div>
+</div><div>
+<div style="">Notes</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">round(x)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">округляет x до целого числа</div>
+</div><div>
+<div style="">Example</div>
+<div style="">round(electrics.val1 / electrics.val2)</div>
+</div><div>
+<div style="">Notes</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">square(x)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">возводит x в квадрат</div>
+</div><div>
+<div style="">Example</div>
+<div style="">square(electrics.val)</div>
+</div><div>
+<div style="">Notes</div>
+<div style="">Даёт тот же результат, что и '(electrics.val)^2'</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">clamp(x, y, z)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">ограничивает x значениями y (минимум) и z (максимум)</div>
+</div><div>
+<div style="">Example</div>
+<div style="">clamp(electrics.val, 0, 1)</div>
+</div><div>
+<div style="">Notes</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">smoothstep(x)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">выполняет сигмоидную интерполяцию Smoothstep</div>
+</div><div>
+<div style="">Example</div>
+<div style="">smoothstep(electrics.val)</div>
+</div><div>
+<div style="">Notes</div>
+<div style="">Из семейства интерполяций и ограничений Smoothstep, широко применяемых в игровых движках и графике</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">smootherstep(x)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">выполняет сигмоидную интерполяцию Smootherstep</div>
+</div><div>
+<div style="">Example</div>
+<div style="">smootherstep(electrics.val)</div>
+</div><div>
+<div style="">Notes</div>
+<div style="">Из семейства интерполяций и ограничений Smoothstep, широко применяемых в игровых движках и графике</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">smoothmin(x)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">выполняет сигмоидную интерполяцию Smoothmin</div>
+</div><div>
+<div style="">Example</div>
+<div style="">smoothmin(electrics.val)</div>
+</div><div>
+<div style="">Notes</div>
+<div style="">Из семейства интерполяций и ограничений Smoothstep, широко применяемых в игровых движках и графике</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">sign(x)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Возвращает 1, если x положительное; -1, если отрицательное; 0, если 0</div>
+</div><div>
+<div style="">Example</div>
+<div style="">sign(electrics.val)</div>
+</div><div>
+<div style="">Notes</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">case(selector, …)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">селектор case, работает двумя способами:<br/><br/>1-й способ: если 1-й параметр — булево значение, при true возвращает 2-й параметр, при false — 3-й параметр<br/><br/>2-й способ: если 1-й параметр — целое число «n», возвращает (n+1)-й параметр (возвращает последний параметр, если «n» &gt; числа параметров).</div>
+</div><div>
+<div style="">Example</div>
+<div style="">case(electrics.val == nil, 0.25, electrics.val)<br/>if electrics.val = nil: return 0.25<br/>if electrics.val = 0.5: return electrics.val<br/><br/>case(electrics.val, 'foo', 'bar', 'baz')<br/>if electrics.val = 1: return 'foo'<br/>if electrics.val = 2: return 'bar'<br/>if electrics.val = 3: return 'baz'</div>
+</div><div>
+<div style="">Notes</div>
+<div style="">Нельзя использовать для арифметических операций в выражении над переменными, которые могут иметь значение nil</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">pwm(input, frequency, dutyCycle, timeOffset)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Генерирует ШИМ-сигнал на основе синусоиды, нормализованной к [0, 1], с заданной частотой в Гц и временным смещением в секундах, с заданным коэффициентом заполнения</div>
+</div><div>
+<div style="">Example</div>
+<div style="">pwm(electrics.val1, 0.5, 0.5, 1.0) <br/><br/> pwm(electrics.val1, 0.5, 0.5)</div>
+</div><div>
+<div style="">Notes</div>
+<div style="">Аргумент timeOffset является необязательным. Минимальная поддерживаемая частота — 1/3600 Гц, или 1 цикл в час. Можно использовать для мигающих огней с повторением</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">logValue(value, label)</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Выводит в консоль: 'Custom Electric: [label] = [value]'</div>
+</div><div>
+<div style="">Example</div>
+<div style="">logValue(electrics.val, name)<br/>logValue(electrics.val)</div>
+</div><div>
+<div style="">Notes</div>
+<div style="">Если метка не указана, на её месте будет выведено 'no label'</div>
+</div></div></div>
+<p>Пример выражения с функциями:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pwm(sign(electrics.lightbar), 0.5, 0.5) * electrics.electricalLoadCoef"</span>
+</span></span></code></pre>
+</div>
+<h3 id="smoothers-arguments">
+
+  Аргументы Smoothers
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Имя пользовательского значения electrics, к которому будет применён сглаживатель.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Тип сглаживателя.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Поддерживаемые типы сглаживателей:</p>
+<ul>
+<li>"exponential" — экспоненциальное сглаживание</li>
+<li>"temporal" — линейное временное сглаживание</li>
+<li>"temporalNonLinear" — нелинейное временное сглаживание</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Параметры для выбранного сглаживателя.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Для экспоненциального сглаживания обычно используется только первый:</p>
+<ul>
+<li>window — количество кадров для сглаживания</li>
+<li>startingValue — по умолчанию 0, если не задано</li>
+<li>fixedDt — шаг по времени в секундах, по умолчанию 0.0005, если не задано</li>
+</ul>
+<p>Для временного сглаживания обычно используются первые два:</p>
+<ul>
+<li>inRate — по умолчанию 1, если не задано</li>
+<li>outRate — по умолчанию равен inRate, если не задано</li>
+<li>autoCenterRate — существует только для линейного варианта, по умолчанию равен inRate, если не задано</li>
+<li>startingValue — по умолчанию 0, если не задано</li>
+</ul>
+</div>
+</div>
+</div>
+<p>Наиболее полезный тип сглаживателя — нелинейный временной с заданными скоростями включения и выключения, используемый для переходов включения-выключения галогенных фар и фар sealed beam:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"smoothers"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"electricsName"</span><span class="p">,</span> <span class="s2">"smootherType"</span><span class="p">,</span> <span class="s2">"params"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"lowbeam_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"highbeam_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Некоторые значения electrics имеют экспоненциальный сглаживатель по умолчанию:</p>
+<ul>
+<li>С окном в 10 кадров: <code>wheelspeed, gear_A, rpm, lights, turnsignal, airspeed, airflowspeed, altitude</code></li>
+<li>С окном в 100 кадров: <code>fuel, oiltemp, watertemp</code></li>
+</ul>
+<h3 id="simple-example">
+
+  Простой пример
+</h3>
+<p>Пользовательские значения electrics для простых галогенных фар и фар sealed beam, которые плавно включаются и выключаются и реагируют на нагрузку электрической системы.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"electrics"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"customValues"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"electricsName"</span><span class="p">,</span> <span class="s2">"electricsFunction"</span><span class="p">,</span><span class="s2">"electricsDefault"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"lowbeam_filament"</span><span class="p">,</span><span class="s2">"electrics.lowbeam * electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"highbeam_filament"</span><span class="p">,</span><span class="s2">"electrics.highbeam * electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"lowhighbeam_filament"</span><span class="p">,</span><span class="s2">"electrics.lowhighbeam * electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"taillight_filament"</span><span class="p">,</span><span class="s2">"electrics.lowhighbeam * electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"brakelight_filament"</span><span class="p">,</span><span class="s2">"electrics.brakelights * electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"brakelight_signal_L_filament"</span><span class="p">,</span><span class="s2">"electrics.brakelight_signal_L * electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"brakelight_signal_R_filament"</span><span class="p">,</span><span class="s2">"electrics.brakelight_signal_R * electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"lowhighbeam_signal_L_filament"</span><span class="p">,</span><span class="s2">"electrics.lowhighbeam_signal_L * electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"lowhighbeam_signal_R_filament"</span><span class="p">,</span><span class="s2">"electrics.lowhighbeam_signal_R * electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"reverselight_filament"</span><span class="p">,</span><span class="s2">"electrics.reverse * electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"foglight_filament"</span><span class="p">,</span><span class="s2">"electrics.fog * electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"signal_L_filament"</span><span class="p">,</span><span class="s2">"electrics.signal_L * electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"signal_R_filament"</span><span class="p">,</span><span class="s2">"electrics.signal_R * electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"smoothers"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"electricsName"</span><span class="p">,</span> <span class="s2">"smootherType"</span><span class="p">,</span> <span class="s2">"params"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"lowbeam_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"highbeam_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"lowhighbeam_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"taillight_signal_L_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"taillight_signal_R_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"taillight_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"brakelight_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"brakelight_signal_L_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"brakelight_signal_R_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"lowhighbeam_signal_L_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"lowhighbeam_signal_R_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"reverselight_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"foglight_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"signal_L_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"signal_R_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="advanced-examples">
+
+  Расширенные примеры
+</h3>
+<p>Пользовательские значения electrics для комбинированных галогенных функциональных огней.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"electrics"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"customValues"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"electricsName"</span><span class="p">,</span> <span class="s2">"electricsFunction"</span><span class="p">,</span><span class="s2">"electricsDefault"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"lowhighBrakeSignal_L_filament"</span><span class="p">,</span><span class="s2">"(electrics.lowhighbeam + electrics.brakelight_signal_L)*electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"lowhighBrakeSignal_R_filament"</span><span class="p">,</span><span class="s2">"(electrics.lowhighbeam + electrics.brakelight_signal_R)*electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"smoothers"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"electricsName"</span><span class="p">,</span> <span class="s2">"smootherType"</span><span class="p">,</span> <span class="s2">"params"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"lowhighBrakeSignal_L_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"lowhighBrakeSignal_R_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Пользовательское значение electrics для анимированной галогенной полицейской мигалки, которая плавно включается и выключается, постоянно мигая при включённой световой панели.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"electrics"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"customValues"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"electricsName"</span><span class="p">,</span> <span class="s2">"electricsFunction"</span><span class="p">,</span><span class="s2">"electricsDefault"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"police_flasher_filament"</span><span class="p">,</span><span class="s2">"pwm(sign(electrics.lightbar), 0.5, 0.5) * electrics.electricalLoadCoef"</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"smoothers"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"electricsName"</span><span class="p">,</span> <span class="s2">"smootherType"</span><span class="p">,</span> <span class="s2">"params"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"police_flasher_filament"</span><span class="p">,</span><span class="s2">"temporalNonLinear"</span><span class="p">,</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>

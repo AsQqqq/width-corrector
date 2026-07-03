@@ -1,0 +1,117 @@
+<h3 id="overview">
+
+  Обзор
+</h3>
+<p>Иногда также называется <code>input mapping</code> или <code>inputmap</code>.</p>
+<p>Привязки определяют, какие <a data-doc="input/introduction" data-frag="control" href="/docs/input/introduction#control">элементы управления</a>
+ будут запускать то или иное <a data-doc="input/introduction" data-frag="action" href="/docs/input/introduction#action">действие</a>
+.</p>
+<p>Например: привязка газа связывает элемент управления <kbd>↑</kbd> с действием <code>"accelerate"</code>.</p>
+<p>Конечные пользователи могут настраивать привязки в меню <code>Options</code> → <code>Controls</code>.</p>
+<div class="bng-notice note"><ul>
+<li>Один элемент управления можно привязать к нескольким действиям (порядок карт действий определит, какое из них будет вызвано).</li>
+<li>Одно действие может быть вызвано несколькими элементами управления.</li>
+</ul>
+</div>
+<h3 id="file-locations">
+
+  Расположение файлов
+</h3>
+<h4 id="factory-bindings">
+
+  Заводские привязки
+</h4>
+<p><strong>Заводские привязки</strong> — это привязки, входящие в стандартную поставку игры.</p>
+<p>При нажатии кнопки <code>Options</code> → <code>Controls</code> → <code>RESET ALL</code> они возвращаются к состоянию заводских привязок.</p>
+<p>Они хранятся в папке установки игры в двух возможных местах:</p>
+<ul>
+<li>Обычные привязки: <code>settings/inputmaps/*.json</code></li>
+<li>Привязки транспортных средств: <code>vehicles/vehicle_directory_name/inputmaps/*.json</code></li>
+</ul>
+<p>Примечание: некоторые из них могут быть упакованы внутри gameengine.zip для уменьшения объёма загрузки и занимаемого места.</p>
+<h4 id="user-bindings">
+
+  Пользовательские привязки
+</h4>
+<p>Когда конечные пользователи настраивают свои привязки, эти <strong>различия</strong> сохраняются в <a href="https://documentation.beamng.com/support/userfolder/" rel="noopener" target="_blank">пользовательской папке</a>
+:</p>
+<ul>
+<li>Обычные привязки: <code>settings/inputmaps/*.diff</code></li>
+<li>Привязки транспортных средств: <code>settings/inputmaps/vehicle_directory_name/*.diff</code></li>
+</ul>
+<p>Они содержат только то, что изменилось по сравнению со значениями по умолчанию (какие привязки были добавлены, удалены или заменены и т. д.). Если удалить все diff-файлы, игра вернётся к настройкам по умолчанию.</p>
+<h3 id="file-names">
+
+  Имена файлов
+</h3>
+<p>Имена файлов привязок начинаются с идентификатора, за которым опционально следует суффикс, а затем расширение: <code>identifierSuffix.extension</code>.</p>
+<ul>
+<li>Идентификатор: определяет, к какому контроллеру относится файл.</li>
+<li>Суффикс: начиная с BeamNG.drive 0.25 суффикс можно включать или опускать, используя любой произвольный текст. Это позволяет модам предоставлять собственные привязки по умолчанию.</li>
+<li>Расширение: как описано выше, может быть <code>diff</code> или <code>json</code>.</li>
+</ul>
+<p><strong>Например</strong>: <code>keyboard.json</code>, <code>keyboardGiantExcavatorMod.json</code>, <code>c29b046d.diff</code> и т. д.</p>
+<p>Для поля идентификатора существует два варианта:</p>
+<h4 id="identifier-device-type">
+
+  Идентификатор: тип устройства
+</h4>
+<p>Игра распознаёт любую из следующих строк:</p>
+<ul>
+<li>'mouse'</li>
+<li>'keyboard'</li>
+<li>'xidevice' — контроллер в режиме Xbox (например, геймпад Xbox или руль PC+Xbox, переведённый в режим Xbox вместо режима PC)</li>
+<li>'joystick' — джойстики (не Xbox)</li>
+<li>'wheel' — рули (не Xbox)</li>
+<li>'gamepad' — геймпады (не Xbox)</li>
+<li>'vinput' — виртуальный ввод; система для передачи ввода из произвольных источников, например из другой программы на компьютере или из наших приложений для Android/iOS для дистанционного управления</li>
+</ul>
+<h4 id="identifier-usb-pidvid">
+
+  Идентификатор: USB Pidvid
+</h4>
+<p>Игра может распознавать USB-идентификаторы. Они выглядят как 8 шестнадцатеричных символов, например <code>1357acef</code>. Они представляют 4 символа идентификатора производителя (vendor ID) + 4 символа идентификатора продукта (product ID).</p>
+<p><strong>Важно:</strong> как создателю мода, так и конечному пользователю <strong>не</strong> нужно выяснять имена <strong>pidvid</strong> вручную — это обрабатывается автоматически BeamNG.drive при создании или изменении привязок через меню <code>Options</code> → <code>Controls</code>.</p>
+<p>Идентификатор продукта и идентификатор производителя — это коды, присвоенные конкретным производителям аппаратного обеспечения для продаваемых ими USB-устройств. Использование <strong>pidvid</strong> позволяет адаптировать привязки под конкретную модель устройства (например, «применять ко всем устройствам Logitech G27»), а не к обобщённому типу контроллера (например, «применять к любому <code>wheel</code>»).</p>
+<p>Например, имя <strong>pidvid</strong> <code>c29b046d</code> соответствует устройству Logitech (vendor ID <code>046d</code>) и их модели G27 (product ID <code>c29b</code>).</p>
+<div class="bng-notice note">Мыши, клавиатуры и контроллеры Xbox не поддерживают идентификаторы pidvid в именах файлов привязок — только идентификаторы «тип устройства».</div>
+<br/>
+<h3 id="file-format">
+
+  Формат файла
+</h3>
+<p><strong>Важно:</strong> как создателю мода, так и конечному пользователю <strong>не</strong> нужно знать формат файла — <strong>не</strong> следует создавать эти файлы вручную; вместо этого используйте меню Options &gt; Controls для определения заводских привязок вашего мода.</p>
+<p>Файлы привязок в основном следуют
+    <a class="link-ext" href="https://en.wikipedia.org/wiki/JSON" rel="noopener" target="_blank">формату json</a>
+. Они должны начинаться с <code>{</code> и заканчиваться <code>}</code>. Ниже приведён пример того, как должна выглядеть общая структура:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">keyboard</span><span class="p">.</span><span class="nx">json</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"bindings"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"action"</span><span class="o">:</span> <span class="s2">"menu_select"</span><span class="p">,</span> <span class="s2">"control"</span><span class="o">:</span> <span class="s2">"numpad9"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"action"</span><span class="o">:</span> <span class="s2">"menu_back"</span><span class="p">,</span> <span class="s2">"control"</span> <span class="o">:</span> <span class="s2">"numpad7"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// ...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Как видно, это простой список отношений <a data-doc="input/introduction" data-frag="action" href="/docs/input/introduction#action">действие</a>
+ ↔ <a data-doc="input/introduction" data-frag="control" href="/docs/input/introduction#control">элемент управления</a>
+.</p>
+<p>В некоторых случаях для каждой привязки содержится дополнительная информация (например, линейность привязки, параметры обратной силовой связи и т. д.). Мы не будем подробно останавливаться на этом.</p>
+<p>Если файл является файлом <code>.diff</code> с <a href="#user-bindings">настроенными пользовательскими привязками</a>
+, он может содержать дополнительный список <code>"removed"</code>, как в этом примере:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="nx">keyboard</span><span class="p">.</span><span class="nx">diff</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"bindings"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"action"</span><span class="o">:</span> <span class="s2">"menu_select"</span><span class="p">,</span> <span class="s2">"control"</span><span class="o">:</span> <span class="s2">"numpad3"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"action"</span><span class="o">:</span> <span class="s2">"accelerate"</span><span class="p">,</span> <span class="s2">"control"</span><span class="o">:</span> <span class="s2">"up"</span><span class="p">,</span> <span class="s2">"filterType"</span><span class="o">:</span> <span class="s2">"1"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"removed"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"action"</span><span class="o">:</span> <span class="s2">"menu_back"</span><span class="p">,</span> <span class="s2">"control"</span> <span class="o">:</span> <span class="s2">"numpad7"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Раздел <code>"bindings"</code> внутри файла <code>.diff</code> может перезаписать <a href="#factory-bindings">заводскую привязку</a>
+ другим элементом управления (menu_select в примере выше) или другими/новыми параметрами (accelerate в примере выше).</p>
+<p>Помимо <code>"bindings"</code> и <code>"removed"</code>, в этих файлах могут присутствовать другие поля, такие как <code>"guid"</code>, <code>"name"</code> и т. д. Вам не нужно беспокоиться об этом.</p>

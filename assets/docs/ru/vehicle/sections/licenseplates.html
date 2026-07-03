@@ -1,0 +1,172 @@
+<p>В jbeam существует 3 различных компонента номерных знаков. Свойство license plate_path задаёт путь к Json-файлу, используемому для генерации текстур номерного знака. Свойство license plateFormat определяет, какой из форматов из этого Json-файла будет применяться. Сама модель номерного знака, на которую накладываются текстуры, добавляется в раздел Flexbodies.</p>
+<h4 id="global-modifiers">
+
+  Глобальные модификаторы
+</h4>
+<p>Они присутствуют рядом с таблицами и словарями в корневой части Jbeam.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">vehicles/common/licenseplates/default/licensePlate-default.json<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Путь к Json-файлу с настройками для генерации номерного знака.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Это свойство присутствует в общих деталях в слоте License Plate Design (внутреннее имя: licenseplate_design_2_1).</p>
+<p>Свойство работает только в том случае, если slotType детали содержит <code>'licenseplate_design'</code> в названии.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">30-15<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Выбирает, какой из форматов Json-файла будет использоваться.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Значения, используемые в официальных номерных знаках — 30-15 и 52-11; они представляют собой пропорции размеров номерного знака в игре для американских и европейских знаков соответственно. Вы можете добавить собственный формат — для этого его необходимо описать в Json.</p>
+<p>Это свойство присутствует в частях номерных знаков отдельных транспортных средств. Поскольку 30-15 является форматом по умолчанию, он обычно не задаётся для вариантов с американскими знаками, и только для европейских вариантов устанавливается значение 52-11. В отдельных случаях из-за приоритета загрузки деталей действует исключение, при котором формат 30-15 необходимо задавать вручную.</p>
+<p>Формат по умолчанию 30-15 будет применяться только в том случае, если slotType детали содержит <code>'_licenseplate'</code> в названии.</p>
+</div>
+</div>
+</div>
+<h4 id="license-plate-models">
+
+  Модели номерных знаков
+</h4>
+<p>3D-модели номерных знаков находятся в общей папке и могут использоваться на любом транспортном средстве. В файле "empty.dae" в корне общей папки присутствует 1 вариант американского формата номерного знака с именем "licenseplate", а также несколько вариантов европейских знаков в файле "licenseplate-52-11.dae" в подпапке driver_training. Варианты отличаются кривизной — каждый согнут по разному радиусу (чем меньше радиус, тем сильнее изогнут знак), что позволяет устанавливать их на различные бамперы. Доступны следующие варианты:</p>
+<ul>
+<li>"licenseplate-52-11" - прямой</li>
+<li>"licenseplate-52-11-r4" - изогнутый с радиусом 4 м</li>
+<li>"licenseplate-52-11-r2" - изогнутый с радиусом 2 м</li>
+<li>"licenseplate-52-11-r1_5" - изогнутый с радиусом 1,5 м</li>
+<li>"licenseplate-52-11-r1" - изогнутый с радиусом 1 м</li>
+<li>"licenseplate-52-11-r0_5" - изогнутый с радиусом 0,5 м</li>
+<li>"licenseplate-52-11-r0_3" - изогнутый с радиусом 0,3 м</li>
+<li>"licenseplate-52-11-b45" - согнутый посередине примерно под углом 90 градусов</li>
+</ul>
+<p>Если ни один из них не подходит к вашему кастомному бамперу, вы можете создать собственный вариант, отредактировав один из существующих. Пока материал и UV-развёртка остаются неизменными, он будет работать так же, как оригинальные знаки.</p>
+<p>Создание Jbeam-файла номерного знака для транспортного средства может показаться сложным при таком объёме информации, однако на практике всё очень просто. Всё, что нужно сделать — задать свойству licenseplateFormat правильное значение, а затем добавить меш номерного знака в группу, к которой относится бампер (или другая деталь, к которой крепится знак), и позиционировать его с помощью модификаторов "pos" флексбоди. Помните, что задние номерные знаки также необходимо повернуть на 180 градусов по оси Z с помощью модификатора "rot". Также имейте в виду, что позиции европейских номерных знаков могут отличаться от американских.</p>
+<h4 id="examples">
+
+  Примеры
+</h4>
+<p>Несколько примеров настройки номерных знаков транспортных средств с использованием различных вариантов моделей знаков и свойства licenseplateFormat.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"autobello_licenseplate_F"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Front License Plate"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"autobello_licenseplate_F"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"licenseplate"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"bumper_F"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:-</span><span class="mf">1.69</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.345</span><span class="p">},</span> <span class="s2">"rot"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="s2">"scale"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"autobello_licenseplate_F_EU"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Front EU License Plate"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"autobello_licenseplate_F"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"licenseplateFormat"</span><span class="o">:</span> <span class="s2">"52-11"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"licenseplate-52-11-r2"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"bumper_F"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:-</span><span class="mf">1.690</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.370</span><span class="p">},</span> <span class="s2">"rot"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="s2">"scale"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"autobello_licenseplate_F_empty"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Front License Plate"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"autobello_bumper_F"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"licenseplateFormat"</span><span class="o">:</span> <span class="s2">"30-15"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"licenseplate"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"body"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:-</span><span class="mf">1.598</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.355</span><span class="p">},</span> <span class="s2">"rot"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">7</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="s2">"scale"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"autobello_licenseplate_F_EU_empty"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Front EU License Plate"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"autobello_bumper_F"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"licenseplateFormat"</span><span class="o">:</span> <span class="s2">"52-11"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"licenseplate-52-11-r4"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"body"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:-</span><span class="mf">1.60</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.386</span><span class="p">},</span> <span class="s2">"rot"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="s2">"scale"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"autobello_licenseplate_R_decklid"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Rear License Plate"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"autobello_licenseplate_R_decklid"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"licenseplate"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"decklid"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">1.69</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.66</span><span class="p">},</span> <span class="s2">"rot"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">28</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span> <span class="s2">"scale"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"autobello_licenseplate_R_bumper"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Rear License Plate"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"autobello_licenseplate_R_bumper"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"licenseplate"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"bumper_R"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">1.835</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.405</span><span class="p">},</span> <span class="s2">"rot"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span> <span class="s2">"scale"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"autobello_licenseplate_R_bumper_EU"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Rear EU License Plate"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"autobello_licenseplate_R_bumper"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"licenseplateFormat"</span><span class="o">:</span> <span class="s2">"52-11"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"licenseplate-52-11"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"bumper_R"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">1.835</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.405</span><span class="p">},</span> <span class="s2">"rot"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span> <span class="s2">"scale"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div><p>Пример детали в слоте licenseplate_design_2_1 с использованием свойства licenseplate_path.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"license_plate_nz_1"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"New Zealand Plate Design"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">50</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"licenseplate_design_2_1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"licenseplate_path"</span> <span class="o">:</span> <span class="s2">"vehicles/common/licenseplates/automation_test_track/licensePlate-default.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>

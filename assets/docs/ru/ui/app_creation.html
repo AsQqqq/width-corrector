@@ -1,0 +1,193 @@
+<h3 id="introduction">
+
+  Введение
+</h3>
+<p>Пользовательский интерфейс и приложения BeamNG.drive написаны с использованием
+фреймворка <code>AngularJS (1.5.8)</code>.</p>
+<p>Некоторое знакомство с фреймворком будет полезным, хотя и не обязательным. В данном контексте приложения представляют собой простые
+директивы в модуле beamng.apps.</p>
+<p>Каждое приложение состоит из 3 важных частей:</p>
+<ol>
+<li>Файл <code>app.js</code> со всем кодом, используемым приложением</li>
+<li>Файл <code>app.json</code>, содержащий информацию о приложении</li>
+<li>Файл изображения <code>app.png</code>, отображаемый в селекторе приложений</li>
+</ol>
+<h4 id="the-appjs-file">
+
+  Файл app.js
+</h4>
+<p>Директива приложения BeamNG в общем случае имеет следующую структуру:</p>
+
+<pre tabindex="0"><code>angular.module('beamng.apps')
+.directive('myApp', ['StreamsManager', function (StreamsManager) {
+  return {
+    template:  '[Some HTML Content]',
+    replace: true,
+    restrict: 'EA',
+    link: function (scope, element, attrs) {
+      // An optional list of streams that will be used in the app
+      var streamsList = [/* streams here */];
+
+      // Make the needed streams available.
+      StreamsManager.add(streamsList);
+
+      // Make sure we clean up after closing the app.
+      scope.$on('$destroy', function () {
+        StreamsManager.remove(streamsList);
+      });
+
+      scope.$on('streamsUpdate', function (event, streams) {
+        /* Some code that uses the streams' values */
+      });
+    }
+  };
+}]);
+</code></pre>
+<p>Приведённый выше пример — это приложение, использующее потоки данных транспортных средств
+(что является наиболее распространённым случаем). Однако так бывает не всегда:
+приложения могут использоваться для самых разных целей. Ещё раз отметим, что код должен
+быть включён в функцию <code>link</code> файла <code>app.js file</code>, например:</p>
+
+<pre tabindex="0"><code>angular.module('beamng.apps')
+.directive('myApp', ['StreamsManager', function (StreamsManager) {
+  return {
+    template:  '&lt;button ng-click="hello()"&gt;Click Me&lt;/button&gt;',
+    replace: true,
+    restrict: 'EA',
+    link: function (scope, element, attrs) {
+      scope.hello = function () {
+        // do something here.
+      };
+    }
+  };
+}])
+</code></pre>
+<p>Иногда приложениям необходимо хранить некоторые данные. В этом случае
+в папку приложения можно добавить дополнительный файл
+<code>settings.json</code> с этими данными. Чтобы его использовать, директива должна быть немного изменена, как показано в этом
+примере:</p>
+
+<pre tabindex="0"><code>angular.module('beamng.apps')
+.directive('myApp', ['StreamsManager', function (StreamsManager) {
+  return {
+    template:  '[Some HTML Content]',
+    replace: true,
+    restrict: 'EA',
+    // [1] we "require" the bngApp parent controller
+    require: '^bngApp',
+    // [2] the controller is available as 4th argument of the link function
+    link: function (scope, element, attrs, ctrl) {
+      var streamsList = ['sensors'];
+
+      StreamsManager.add(streamsList);
+
+      // [3] Use a variable to keep the settings
+      var appSettings = null;
+
+      // When DOM is ready and controllers are set up, get the stored settings.
+      element.ready(function () {
+        // [4] Call the getSettings() function of the controller
+        ctrl.getSettings()
+          .then(function (settings) {
+            appSettings = settings;
+          })
+      });
+
+      scope.$on('$destroy', function () {
+        StreamsManager.remove(streamsList);
+        // [5] Optionally save the (possibly modified) app settings when done
+        ctrl.saveSettings(appSettings);
+      });
+
+      scope.$on('streamsUpdate', function (event, streams) {
+        /* Some code that uses the streams' values */
+      });
+    }
+  };
+}])
+</code></pre>
+
+<h4 id="the-appjson-file">
+
+  Файл app.json
+</h4>
+<p>Этот файл очень прост и содержит лишь информацию о приложении,
+необходимую для его загрузки. Тем не менее следует быть очень внимательным с
+названиями полей, поскольку опечатки или пропущенные поля могут повлиять на корректную
+работу приложения. Содержимое файла имеет следующий вид:</p>
+
+<pre tabindex="0"><code>{
+  "name" : "My App",
+  "author": "Me",
+  "version": "0.1",
+  "description": "Just a tutorial app",
+  "directive": "myApp",
+  "domElement": "&lt;my-app&gt;&lt;/my-app&gt;",
+  "css": { "width": "150px", "height": "150px", "top": "200px", "left": "200px" },
+  "preserveAspectRatio": true
+}
+</code></pre>
+<p>Обязательные поля:</p>
+<div class="bng-table" id="table-1783007350572291477"><div class="bng-table-header"><div>Поле</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div style="">Поле</div>
+<div style=""><strong>name</strong></div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Отображаемое название приложения</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Поле</div>
+<div style=""><strong>author</strong></div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Авторы приложения</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Поле</div>
+<div style=""><strong>version</strong></div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Номер версии приложения</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Поле</div>
+<div style=""><strong>description</strong></div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Краткое описание приложения</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Поле</div>
+<div style=""><strong>directive</strong></div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Название директивы (то же, что и в файле app.js)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Поле</div>
+<div style=""><strong>domElement</strong></div>
+</div><div>
+<div style="">Описание</div>
+<div style="">DOM-элемент, который непосредственно содержит приложение. Значение domElement определяется из имени директивы и представляет собой простое преобразование из <em>camelCase</em> в <em>lisp-case</em>: в нашем примере это будет <code>myApp</code> → <code>&lt;my-app&gt;&lt;/my-app&gt;</code></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Поле</div>
+<div style=""><strong>css</strong></div>
+</div><div>
+<div style="">Описание</div>
+<div style="">CSS-атрибуты по умолчанию, применяемые при первом запуске приложения. Это значения ширины и высоты, а также свойства top/bottom и left/right, которые также определяют угол экрана, к которому будет привязано приложение</div>
+</div></div></div>
+<h4 id="the-apppng-file">
+
+  Файл app.png
+</h4>
+<p>Это изображение, отображаемое в окне выбора приложений. Рекомендуемый размер: <strong>250x120</strong>px.</p>
+<h3 id="using-your-app">
+
+  Использование приложения
+</h3>
+<p>Чтобы сделать ваше приложение видимым в игре, переместите папку с
+файлами приложения в директорию UI пользовательской папки (<code>&lt;Userfolder&gt;\ui\modules\apps</code>).</p>
+<p>После этого приложение появится в списке выбора. Возможно, потребуется закрыть и снова открыть
+список.</p>

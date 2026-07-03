@@ -1,0 +1,135 @@
+<div class="bng-notice warning">Этот документ создан на основе Blender 2.8, однако большинство положений применимо и к другому программному обеспечению для моделирования.</div>
+<p>BeamNG использует формат collada, или .dae, для моделей. Если не считать способа разделения деталей и дополнительных элементов — особенно механических компонентов, — создание моделей для BeamNG не сильно отличается от создания автомобильных моделей для большинства других видеоигр. Ниже приведены несколько рекомендаций, которые помогут избежать типичных проблем.</p>
+<p>Имейте в виду, что это не руководство по моделированию. Если у вас нет опыта в моделировании, в сети есть множество отличных обучающих материалов. При первом знакомстве с Blender необязательно искать именно автомобильные уроки.</p>
+<p>Несколько рекомендуемых материалов от Blender Guru на YouTube:</p>
+<p>
+<a class="link-ext" href="https://www.youtube.com/watch?v=7tdUxzhEy_E&amp;list=PLjEaoINr3zgHJVJF3T3CFUAZ6z11jKg6a" rel="noopener" target="_blank">Blender Beginner Tutorial</a>
+</p>
+<p>
+<a class="link-ext" href="https://www.youtube.com/watch?v=TPrnSACiTJ4&amp;list=PLjEaoINr3zgEq0u2MzVgAaHEBt--xLB6U&amp;index=2" rel="noopener" target="_blank">Beginner Blender Anvil Tutorial Trailer</a>
+</p>
+<h3 id="polygon-density">
+
+  Плотность полигонов
+</h3>
+<p>Плотность полигонов должна соответствовать балансу между качеством и производительностью; при этом нужно учитывать, что BeamNG пересчитывает положение каждой вершины в зависимости от деформации кузова.
+Это делает модели с большим числом полигонов вычислительно дорогостоящими, поэтому следует экономить полигоны там, где это возможно, и использовать карты нормалей для таких деталей, как фаски зазоров панелей и элементы днища: вырезы, силовые элементы, болты.
+В качестве ориентира очень полезно использовать ванильные модели игры.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/ExampleModel.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/ExampleModel_huc31567ee2ad15b90fcd0ac1e5de9c617_406145_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="polyflow">
+
+  Топология полигонов
+</h3>
+<p>Как и в любой 3D-модели, хорошая топология необходима для получения красивых отражений на изогнутых поверхностях. Однако в BeamNG топология вдвойне важна из-за принципа работы системы деформации. Модель с плохой топологией может приводить к проблемам с деформацией, которые обычно проявляются в виде «шипов» и артефактов.</p>
+<h3 id="materials">
+
+  Материалы
+</h3>
+<p>Каждому компоненту должен быть назначен материал. Также настоятельно рекомендуется добавлять к названиям материалов префикс, содержащий ваш никнейм или название мода. Это гарантирует, что ваши материалы не будут конфликтовать с общими материалами, определёнными в папке common.</p>
+<h3 id="part-separation">
+
+  Разделение деталей
+</h3>
+<p>Строгих правил относительно того, что моделировать отдельно, а что вместе, не существует — главное, чтобы компоненты, которые могут отсоединяться или двигаться независимо от других, были отдельными меш-объектами в вашем файле. Компоненты, для которых могут использоваться группы деформации (например, фары и стёкла), также следует разбивать на несколько отдельных объектов, каждый со своим материалом.</p>
+<h3 id="part-names">
+
+  Названия деталей
+</h3>
+<p>Как и в случае с материалами, хорошей практикой является добавление префикса с названием мода или сокращённым никнеймом ко всем деталям, чтобы избежать перезаписи чего-либо в папке common.</p>
+<h3 id="multi-dae">
+
+  Несколько файлов .dae
+</h3>
+<p>Игра поддерживает использование нескольких файлов dae для одного транспортного средства. Если они расположены в папке транспортного средства или в папке common, игра сможет загружать меши из нескольких файлов одновременно.</p>
+<h3 id="part-origins">
+
+  Точки привязки деталей
+</h3>
+<p>Одна из наиболее распространённых проблем — неправильное расположение точки привязки (origin) детали. Точку привязки детали в Blender можно увидеть, кликнув на компонент и найдя оранжевую точку.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/PartOrigin.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/PartOrigin_hubf95162a9d41fe446277abab3c050768_156066_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="flexbodies">
+
+  Флексбоди
+</h4>
+<p>Для <a data-doc="vehicle/sections/flexbodies" href="/docs/vehicle/sections/flexbodies">флексбоди</a>
+ — компонентов, положение и форма которых зависят от jbeam (кузов, элементы подвески и т. д.), — точка привязки детали должна находиться в точке 0,0,0.
+Если точка привязки одного из ваших компонентов смещена, как на изображении ниже, деталь отобразится в BeamNG со смещением.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/OffsetPartOrigin.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/OffsetPartOrigin_hue5bd0d27233ca9550cbcd8a86696687f_123867_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Если вы столкнулись с этой проблемой, исправить её несложно. В Blender нажмите «Ctrl-A» и выберите «All transforms».</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/PartOriginResetBlender.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/PartOriginResetBlender_hu067f01d190f5f1600db3bb5b37e7c6f3_92911_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="props">
+
+  Пропы
+</h4>
+<p>«Пропы» — это компоненты, положение которых определяется «функцией» — в виде вращения или перемещения. К ним относятся вентилятор радиатора, рулевое колесо, педали, рычаг переключения передач, шкивы двигателя и т. д. Подробнее можно узнать в статье о <a data-doc="vehicle/sections/props" href="/docs/vehicle/sections/props">пропах</a>.
+Точка привязки пропа должна совпадать с осью вращения, а один из векторов направления должен быть направлен вдоль оси вращения (это можно проверить с помощью режима отображения трансформаций «local»).</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/PropOrigin.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/PropOrigin_hu7616a8d77dfa069d2642ce994046635d_105201_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="exporting-models">
+
+  Экспорт моделей
+</h3>
+<p>Чтобы экспортировать модель, убедитесь, что вы находитесь в режиме «Object mode» и не редактируете геометрию ни одного объекта.
+Затем перейдите в File -&gt; Export -&gt; Collada</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/BlenderExportDae.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/BlenderExportDae_hu6494976fa066c34dceea486818a51469_98225_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+В окне экспорта перейдите в раздел «Geom» и установите флажок «Apply Modifiers», выбрав режим «Render». Это гарантирует, что все модификаторы — такие как зеркалирование и разделение рёбер — будут применены к экспортируемой модели.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/DAESettings.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/DAESettings_hu55446335f4ed4544a6ef476ba5458b1c_49601_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+Затем нажмите «Export Collada», чтобы экспортировать модель в папку вашего мода.</p>
+<p>Если BeamNG запущен с загруженным автомобилем в другом окне, это приведёт к немедленному обновлению модели транспортного средства, что удобно для проверки изменений в игре после небольших правок.</p>
+<h3 id="importing-models-from-the-game">
+
+  Импорт моделей из игры
+</h3>
+<p>Первым шагом во многих модинговых проектах является импорт деталей из ванильных моделей.
+Перейдите в «C:\Program Files (x86)\Steam\steamapps\common\BeamNG.drive\content\vehicles» или в папку vehicles вашего каталога установки BeamNG. Там находятся zip-архивы всех транспортных средств и пропов игры.
+Папка содержит отдельные каталоги для каждого автомобиля/пропа, а также папку «common» с ресурсами, общими для нескольких транспортных средств: колёса, шины, компоненты, используемые совместно в D-Series/H-Series, и т. д.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/VehiclesFolder.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/VehiclesFolder_huc3b05958bc0071a30329058601ea09aa_44746_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Обратите внимание, что все эти названия являются «внутренними» именами транспортных средств. Некоторые из них очевидны — например, «etk800» соответствует ETK 800 series. Однако во многих случаях, особенно для более старых автомобилей, внутреннее имя отражает тип кузова. Например, папка для 200BX называется «coupe».</p>
+<p>Откройте папку и найдите нужный файл .dae. Для автомобилей он обычно находится в той же папке, что и файлы jbeam.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/ExampleVehicleFiles.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/ExampleVehicleFiles_hubdddea4732aad8cdc8d155c141b36694_73833_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Нам нужен только файл модели с расширением «.dae». Сначала скопируйте его за пределы zip-архива, например на рабочий стол, чтобы Blender мог его открыть.</p>
+<p>В Blender выберите «File» -&gt; «Import» -&gt; «Collada» и укажите файл, который вы только что извлекли из архива.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/BlenderImport.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/BlenderImport_hu686c7bca530a976f74e5ab09db57dcbc_263582_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/BlenderImport2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/BlenderImport2.png"/>
+</span></a></p>
+<p>После этого модель должна появиться в Blender.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/ImportedModel.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/ImportedModel_hu315d249028f80de84979003f6c0cacf9_476437_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Обратите внимание, что модель обычно включает абсолютно все опциональные компоненты автомобиля, то есть может содержать несколько вариантов бамперов и других элементов. Файлы моделей транспортных средств не включают колёса, шины и общие компоненты — такие как двигатель и подвеска у пикапа/фургона. Если вам нужно импортировать эти компоненты, их файлы моделей находятся в папке «common».</p>
+<h4 id="weird-shading-on-imported-models">
+
+  Артефакты затенения на импортированных моделях
+</h4>
+<p>При импорте некоторых моделей в Blender могут появляться артефакты затенения, наиболее заметные в области дверей.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/ImportShadingIssue.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/ImportShadingIssue_hu19f6386eceaae4e12a9bce75c35bc42d_171500_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Это связано с тем, что данные модели экспортировались из 3DSMax, который использует другой метод определения острых рёбер. Чтобы устранить эту проблему, можно применить автосглаживание (auto-smooth) в диапазоне 45–60 градусов.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/Autosmooth.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/Autosmooth_hu37f15c54705ddf806146658393cafaf5_32404_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Хотя результат не будет идентичен оригинальной модели, для целей моддинга его вполне достаточно.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_modeling/ShadingFix.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_modeling/ShadingFix_huf7aa868056fbe001507611a15152f4b3_155327_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>

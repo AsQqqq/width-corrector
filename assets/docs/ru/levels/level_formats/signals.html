@@ -1,0 +1,1027 @@
+<p>В этом документе описывается файл <code>signals.json</code>, используемый уровнями BeamNG для управления дорожными сигналами.</p>
+<p><code>signals.json</code> хранит данные о дорожных сигналах: знаки «Стоп», светофоры, контроллеры сигналов и временны́е последовательности фаз. Файл используется системами дорожного ИИ, навигации, визуализации сигналов и игрового процесса.</p>
+<hr/>
+<h2 id="file-location">
+
+  Расположение файла
+</h2>
+<p>Файл дорожных сигналов по умолчанию находится в корне уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/signals.json
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/west_coast_usa/signals.json
+</span></span></code></pre>
+</div><p>Если файл существует, он автоматически загружается при запуске уровня.</p>
+<hr/>
+<h2 id="related-files">
+
+  Связанные файлы
+</h2>
+<table>
+<thead>
+<tr>
+<th>Файл</th>
+<th>Назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>signals.json</code></td>
+<td>Экземпляры сигналов, контроллеры и последовательности уровня.</td>
+</tr>
+<tr>
+<td><code>signalControllerDefinitions.json</code></td>
+<td>Необязательные пользовательские определения состояний и типов контроллеров для конкретного уровня.</td>
+</tr>
+<tr>
+<td><code>settings/trafficSignals.json</code></td>
+<td>Глобальные определения состояний и типов контроллеров по умолчанию.</td>
+</tr>
+<tr>
+<td><code>map.json</code> / navgraph</td>
+<td>Используется для привязки сигналов к узлам графа дорог.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="overview">
+
+  Обзор
+</h2>
+<p>Дорожные сигналы делятся на три основных типа данных:</p>
+<table>
+<thead>
+<tr>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Экземпляр (Instance)</strong></td>
+<td>Размещённая в мире точка сигнала. Содержит позицию, направление, контроллер и необязательную последовательность.</td>
+</tr>
+<tr>
+<td><strong>Контроллер (Controller)</strong></td>
+<td>Определяет тип сигнала и набор доступных состояний.</td>
+</tr>
+<tr>
+<td><strong>Последовательность (Sequence)</strong></td>
+<td>Определяет временны́е фазы для одного или нескольких контроллеров, как правило для светофорных перекрёстков.</td>
+</tr>
+</tbody>
+</table>
+<p>Данные хранятся в трёх массивах верхнего уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"instances"</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"controllers"</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sequences"</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>или в современных сохранённых файлах:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"instances"</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"controllers"</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sequences"</span><span class="p">:</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><div class="bng-notice note">В некоторых старых файлах <code>sequences</code> может быть представлен как пустой объект (<code>{}</code>). В новых файлах следует использовать массив (<code>[]</code>).</div>
+<hr/>
+<h2 id="minimal-stop-sign-example">
+
+  Минимальный пример знака «Стоп»
+</h2>
+<p>Простую настройку знака «Стоп» можно реализовать с одним контроллером и множеством экземпляров.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"controllers"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"stop"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"signStop"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"isSimple"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"states"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"state"</span><span class="p">:</span> <span class="s2">"basicStop"</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"instances"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"stop 1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"controllerId"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"sequenceId"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mf">734.165</span><span class="p">,</span> <span class="mf">755.369</span><span class="p">,</span> <span class="mf">177.949</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"dir"</span><span class="p">:</span> <span class="p">[</span><span class="mf">-0.925</span><span class="p">,</span> <span class="mf">0.378</span><span class="p">,</span> <span class="mf">-0.005</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"group"</span><span class="p">:</span> <span class="s2">"group_1_3"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"startDisabled"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sequences"</span><span class="p">:</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Создаётся один экземпляр знака «Стоп», использующий общий контроллер <code>stop</code>.</p>
+<hr/>
+<h2 id="ids-and-references">
+
+  Идентификаторы и ссылки
+</h2>
+<p>Сигналы используют числовые идентификаторы для связи элементов между собой.</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>instance.id</code></td>
+<td>Уникальный идентификатор экземпляра сигнала.</td>
+</tr>
+<tr>
+<td><code>controller.id</code></td>
+<td>Уникальный идентификатор контроллера.</td>
+</tr>
+<tr>
+<td><code>sequence.id</code></td>
+<td>Уникальный идентификатор последовательности.</td>
+</tr>
+<tr>
+<td><code>instance.controllerId</code></td>
+<td>Ссылка на идентификатор контроллера.</td>
+</tr>
+<tr>
+<td><code>instance.sequenceId</code></td>
+<td>Ссылка на идентификатор последовательности. <code>0</code> означает отсутствие последовательности / базовое поведение.</td>
+</tr>
+</tbody>
+</table>
+<p>Идентификаторы должны быть уникальными среди всех экземпляров, контроллеров и последовательностей.</p>
+<div class="bng-notice warning">Не используйте один и тот же числовой идентификатор для нескольких элементов. Дублирующиеся идентификаторы удаляются или игнорируются при загрузке данных сигналов.</div>
+<hr/>
+<h2 id="signal-instances">
+
+  Экземпляры сигналов
+</h2>
+<p>Экземпляры сигналов представляют размещённые в мире сигналы.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"id"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"stop 1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"controllerId"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sequenceId"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mf">734.165</span><span class="p">,</span> <span class="mf">755.369</span><span class="p">,</span> <span class="mf">177.949</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dir"</span><span class="p">:</span> <span class="p">[</span><span class="mf">-0.925</span><span class="p">,</span> <span class="mf">0.378</span><span class="p">,</span> <span class="mf">-0.005</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"group"</span><span class="p">:</span> <span class="s2">"group_1_3"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"startDisabled"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="instance-fields">
+
+  Поля экземпляра
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>number</td>
+<td>Уникальный идентификатор экземпляра сигнала.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя экземпляра сигнала. Также используется для связи с объектами сигналов в мире.</td>
+</tr>
+<tr>
+<td><code>pos</code></td>
+<td>array[3]</td>
+<td>Позиция точки сигнала в мире.</td>
+</tr>
+<tr>
+<td><code>dir</code></td>
+<td>array[3]</td>
+<td>Направление, в котором обращён / действует сигнал.</td>
+</tr>
+<tr>
+<td><code>group</code></td>
+<td>string</td>
+<td>Необязательное имя перекрёстка / группы.</td>
+</tr>
+<tr>
+<td><code>controllerId</code></td>
+<td>number</td>
+<td>Контроллер, используемый этим экземпляром. Обязателен для работающих сигналов.</td>
+</tr>
+<tr>
+<td><code>sequenceId</code></td>
+<td>number</td>
+<td>Последовательность, используемая этим экземпляром. <code>0</code> означает отсутствие последовательности / простой сигнал.</td>
+</tr>
+<tr>
+<td><code>useCurrentLane</code></td>
+<td>bool</td>
+<td>Необязательное/экспериментальное поведение для конкретной полосы. В настоящее время не используется.</td>
+</tr>
+<tr>
+<td><code>startDisabled</code></td>
+<td>bool</td>
+<td>Если true, сигнал запускается в неактивном/выключенном состоянии.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="position-and-direction">
+
+  Позиция и направление
+</h2>
+<p><code>pos</code> определяет, где размещается логическая точка сигнала.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"pos"</span><span class="err">:</span> <span class="p">[</span><span class="mf">734.165</span><span class="p">,</span> <span class="mf">755.369</span><span class="p">,</span> <span class="mf">177.949</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p><code>dir</code> определяет направление, в котором действует сигнал.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"dir"</span><span class="err">:</span> <span class="p">[</span><span class="mf">-0.925</span><span class="p">,</span> <span class="mf">0.378</span><span class="p">,</span> <span class="mf">-0.005</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Для знака «Стоп» или светофора <code>dir</code> как правило должен указывать в направлении движения транспортных средств, подъезжающих к сигналу или проезжающих мимо него.</p>
+<p>Система сигналов использует <code>pos</code> и <code>dir</code> для:</p>
+<ul>
+<li>Поиска ближайшего/наиболее подходящего участка дороги</li>
+<li>Определения того, проехало ли транспортное средство мимо сигнала</li>
+<li>Привязки состояния сигнала к рёбрам навигационного графа</li>
+<li>Отправки команд сигнала ИИ транспортного средства</li>
+</ul>
+<hr/>
+<h2 id="signal-groups">
+
+  Группы сигналов
+</h2>
+<p>Необязательное поле <code>group</code> объединяет связанные сигналы, как правило на одном перекрёстке.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"group"</span><span class="err">:</span> <span class="s2">"group_8_9_10_11"</span>
+</span></span></code></pre>
+</div><p>Группы — это преимущественно метаданные редактора / организационная информация. Редактор может автоматически группировать экземпляры, находящиеся рядом, использующие одну последовательность и обращённые к одной и той же зоне перекрёстка.</p>
+<hr/>
+<h2 id="signal-controllers">
+
+  Контроллеры сигналов
+</h2>
+<p>Контроллеры определяют тип поведения сигнала для экземпляра.</p>
+<p>Пример контроллера знака «Стоп»:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"id"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"stop"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"signStop"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isSimple"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"states"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"state"</span><span class="p">:</span> <span class="s2">"basicStop"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="controller-fields">
+
+  Поля контроллера
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>number</td>
+<td>Уникальный идентификатор контроллера.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя контроллера.</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>string</td>
+<td>Ключ типа контроллера из определений контроллеров.</td>
+</tr>
+<tr>
+<td><code>isSimple</code></td>
+<td>bool</td>
+<td>Если true, контроллеру не требуется логика временно́й последовательности.</td>
+</tr>
+<tr>
+<td><code>defaultIndex</code></td>
+<td>number</td>
+<td>Необязательный индекс состояния по умолчанию.</td>
+</tr>
+<tr>
+<td><code>states</code></td>
+<td>array</td>
+<td>Упорядоченный список состояний контроллера.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="controller-states">
+
+  Состояния контроллера
+</h2>
+<p>Каждый контроллер содержит упорядоченный список состояний:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"states"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"state"</span><span class="p">:</span> <span class="s2">"greenTrafficLight"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"duration"</span><span class="p">:</span> <span class="mi">12</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"state"</span><span class="p">:</span> <span class="s2">"yellowTrafficLight"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"duration"</span><span class="p">:</span> <span class="mi">4</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"state"</span><span class="p">:</span> <span class="s2">"redTrafficLight"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"duration"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div>
+<h3 id="controller-state-fields">
+
+  Поля состояния контроллера
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>state</code></td>
+<td>string</td>
+<td>Ключ состояния из определений контроллеров.</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>number</td>
+<td>Длительность данного состояния в секундах. Необязательно для простых контроллеров.</td>
+</tr>
+</tbody>
+</table>
+<p>Отрицательная длительность интерпретируется как бесконечная в логике редактора/среды выполнения.</p>
+<hr/>
+<h2 id="simple-controllers">
+
+  Простые контроллеры
+</h2>
+<p>Простым контроллерам не требуется последовательность.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"id"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"stop"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"signStop"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isSimple"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"states"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"state"</span><span class="p">:</span> <span class="s2">"basicStop"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Экземпляры сигналов, использующие простые контроллеры, могут применять:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"sequenceId"</span><span class="err">:</span> <span class="mi">0</span>
+</span></span></code></pre>
+</div><p>Это типично для:</p>
+<ul>
+<li>Знаков «Стоп»</li>
+<li>Знаков «Уступи дорогу»</li>
+<li>Статических дорожных знаков</li>
+<li>Простых сигналов, работающих постоянно</li>
+</ul>
+<hr/>
+<h2 id="sequences">
+
+  Последовательности
+</h2>
+<p>Последовательности определяют временны́е фазы сигналов.</p>
+<p>Они используются преимущественно для светофоров на перекрёстках.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"id"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"intersection_sequence"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"startTime"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"startDisabled"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"ignoreTimer"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"phases"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"controllerIds"</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"controllerIds"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="sequence-fields">
+
+  Поля последовательности
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>number</td>
+<td>Уникальный идентификатор последовательности.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя последовательности.</td>
+</tr>
+<tr>
+<td><code>phases</code></td>
+<td>array</td>
+<td>Упорядоченный список фаз.</td>
+</tr>
+<tr>
+<td><code>startTime</code></td>
+<td>number</td>
+<td>Начальное смещение в секундах. Может быть отрицательным для пропуска вперёд.</td>
+</tr>
+<tr>
+<td><code>startDisabled</code></td>
+<td>bool</td>
+<td>Если true, последовательность запускается в отключённом/выключенном состоянии.</td>
+</tr>
+<tr>
+<td><code>ignoreTimer</code></td>
+<td>bool</td>
+<td>Если true, последовательность не продвигается вместе с основным таймером.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="phases">
+
+  Фазы
+</h2>
+<p>Фаза определяет, какие контроллеры работают одновременно.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"controllerIds"</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Каждый контроллер может использоваться в последовательности только один раз.</p>
+<p>Последовательность может содержать несколько фаз:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"phases"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span> <span class="nt">"controllerIds"</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span> <span class="nt">"controllerIds"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Длительность фазы вычисляется по наибольшей длительности контроллера в этой фазе.</p>
+<hr/>
+<h2 id="advanced-phase-start-times">
+
+  Расширенная настройка времени начала фаз
+</h2>
+<p>Фаза может дополнительно определять <code>startTime</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"startTime"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"controllerIds"</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Это позволяет фазам перекрываться или начинаться с явными смещениями внутри временно́й шкалы последовательности.</p>
+<p>Если <code>startTime</code> не задан, фазы выполняются последовательно одна за другой.</p>
+<hr/>
+<h2 id="controller-definitions">
+
+  Определения контроллеров
+</h2>
+<p>Имена <code>type</code> и <code>state</code> контроллера разрешаются из данных определений контроллеров.</p>
+<p>Определения по умолчанию загружаются из:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">settings/trafficSignals.json
+</span></span></code></pre>
+</div><p>Уровень может переопределить или дополнить их с помощью:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/signalControllerDefinitions.json
+</span></span></code></pre>
+</div><p>При загрузке уровня система сигналов:</p>
+<ol>
+<li>Загружает определения по умолчанию.</li>
+<li>Ищет <code>signalControllerDefinitions.json</code> в папке уровня.</li>
+<li>Объединяет пользовательские <code>states</code> и <code>types</code> с определениями по умолчанию.</li>
+<li>Загружает <code>signals.json</code>.</li>
+</ol>
+<hr/>
+<h2 id="signalcontrollerdefinitionsjson">
+
+  signalControllerDefinitions.json
+</h2>
+<p>Этот необязательный файл определяет пользовательские состояния сигналов и типы контроллеров для уровня.</p>
+<p>Упрощённый пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"states"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"customFlashingYellow"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Custom Flashing Yellow"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"action"</span><span class="p">:</span> <span class="s2">"slow"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"duration"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"lights"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yellow"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"flashingLights"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"yellow"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"black"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"flashingInterval"</span><span class="p">:</span> <span class="mf">0.5</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"types"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"customWarningLight"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Custom Warning Light"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"states"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"customFlashingYellow"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"defaultIndex"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"isSimple"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="state-definition-fields">
+
+  Поля определения состояния
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Отображаемое имя состояния.</td>
+</tr>
+<tr>
+<td><code>action</code></td>
+<td>string</td>
+<td>Действие ИИ/навигации, связанное с этим состоянием.</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>number</td>
+<td>Длительность по умолчанию в секундах.</td>
+</tr>
+<tr>
+<td><code>lights</code></td>
+<td>array[string]</td>
+<td>Видимые цвета огней для этого состояния.</td>
+</tr>
+<tr>
+<td><code>flashingLights</code></td>
+<td>array[array[string]]</td>
+<td>Необязательная последовательность массивов цветов огней для мигающего поведения.</td>
+</tr>
+<tr>
+<td><code>flashingInterval</code></td>
+<td>number</td>
+<td>Интервал между сменами цвета мигающих огней.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="type-definition-fields">
+
+  Поля определения типа
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Отображаемое имя типа контроллера.</td>
+</tr>
+<tr>
+<td><code>states</code></td>
+<td>array[string]</td>
+<td>Упорядоченный список ключей состояний, используемых данным типом.</td>
+</tr>
+<tr>
+<td><code>defaultIndex</code></td>
+<td>number</td>
+<td>Индекс состояния по умолчанию.</td>
+</tr>
+<tr>
+<td><code>isSimple</code></td>
+<td>bool</td>
+<td>Определяет, можно ли использовать данный тип без последовательности.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="signal-actions">
+
+  Действия сигналов
+</h2>
+<p>Состояния сигналов могут определять <code>action</code>. Это действие передаётся ИИ транспортного средства через навигационные данные сигналов.</p>
+<p>Известные названия действий:</p>
+<table>
+<thead>
+<tr>
+<th>Действие</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>alert</code></td>
+<td>Поведение предупреждения/осторожности.</td>
+</tr>
+<tr>
+<td><code>stop</code></td>
+<td>Поведение остановки.</td>
+</tr>
+<tr>
+<td><code>briefStop</code></td>
+<td>Поведение кратковременной остановки.</td>
+</tr>
+<tr>
+<td><code>slow</code></td>
+<td>Поведение снижения скорости/осторожности.</td>
+</tr>
+<tr>
+<td><code>none</code></td>
+<td>Никаких специальных действий.</td>
+</tr>
+</tbody>
+</table>
+<p>Внутри системы эти действия преобразуются в числовые значения и передаются в Lua транспортного средства.</p>
+<hr/>
+<h2 id="light-colors">
+
+  Цвета огней
+</h2>
+<p>Состояния сигналов определяют видимые цвета огней с помощью строк.</p>
+<p>Распространённые цвета:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">red
+</span></span><span class="line"><span class="cl">amber
+</span></span><span class="line"><span class="cl">yellow
+</span></span><span class="line"><span class="cl">green
+</span></span><span class="line"><span class="cl">cyan
+</span></span><span class="line"><span class="cl">blue
+</span></span><span class="line"><span class="cl">white
+</span></span><span class="line"><span class="cl">black
+</span></span></code></pre>
+</div><p><code>black</code> означает выключено.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"lights"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"red"</span><span class="p">,</span> <span class="s2">"black"</span><span class="p">,</span> <span class="s2">"black"</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Объекты дорожных сигналов используют поля цветов экземпляра:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">instanceColor
+</span></span><span class="line"><span class="cl">instanceColor1
+</span></span><span class="line"><span class="cl">instanceColor2
+</span></span><span class="line"><span class="cl">instanceColor3
+</span></span></code></pre>
+</div><p>Система сигналов включает и выключает эти значения в зависимости от текущего состояния.</p>
+<hr/>
+<h2 id="linking-signal-objects">
+
+  Привязка объектов сигналов
+</h2>
+<p>Экземпляр сигнала — это логические данные. Видимые 3D-объекты светофора/знака представляют собой отдельные объекты сцены.</p>
+<p>Видимые объекты сигналов, как правило, являются объектами <code>TSStatic</code> с динамическим полем:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">signalInstance
+</span></span></code></pre>
+</div><p>Значение должно совпадать с именем экземпляра сигнала.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">signalInstance = "traffic light 1"
+</span></span></code></pre>
+</div><p>При смене состояния сигнала обновляются все связанные объекты с данным значением <code>signalInstance</code>.</p>
+<div class="bng-notice info">Если экземпляр сигнала не имеет связанных объектов, он всё равно может влиять на ИИ/навигацию, однако визуальный меш светофора меняться не будет.</div>
+<hr/>
+<h2 id="runtime-processing">
+
+  Обработка во время выполнения
+</h2>
+<p>При запуске уровня система сигналов:</p>
+<ol>
+<li>Загружает определения контроллеров.</li>
+<li>Загружает <code>signals.json</code>.</li>
+<li>Создаёт экземпляры, контроллеры и последовательности.</li>
+<li>Ожидает загрузки навигационного графа.</li>
+<li>Находит наиболее подходящий участок дороги для каждого экземпляра сигнала.</li>
+<li>Строит таблицу соответствия узлов карты и сигналов.</li>
+<li>Активирует последовательности и таймеры.</li>
+<li>Отправляет обновления сигналов ИИ транспортного средства.</li>
+</ol>
+<p>Система сигналов зависит от навигационного графа. При перезагрузке навгрaфа дорожные сигналы финализируются повторно.</p>
+<hr/>
+<h2 id="map-node-signals">
+
+  Сигналы узлов карты
+</h2>
+<p>Во время выполнения сигналы привязываются к рёбрам графа дорог.</p>
+<p>Для каждого экземпляра сигнала система определяет наиболее подходящий участок дороги и сохраняет такие данные, как:</p>
+<ul>
+<li>Имя экземпляра</li>
+<li>Позиция</li>
+<li>Состояние</li>
+<li>Действие</li>
+<li>Необязательное использование полосы</li>
+</ul>
+<p>Эти данные передаются в Lua транспортного средства, чтобы ИИ-автомобили могли реагировать на знаки «Стоп», светофоры и другие сигналы.</p>
+<hr/>
+<h2 id="editor-workflow">
+
+  Работа в редакторе
+</h2>
+<p>Используйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">World Editor → Gameplay → Traffic Signals Editor
+</span></span></code></pre>
+</div><p>Редактор предоставляет вкладки для работы с:</p>
+<ul>
+<li>Сигналами</li>
+<li>Контроллерами</li>
+<li>Последовательностями</li>
+<li>Симуляцией</li>
+</ul>
+<p>Редактор позволяет:</p>
+<ul>
+<li>Создавать экземпляры сигналов</li>
+<li>Перемещать и поворачивать экземпляры сигналов</li>
+<li>Связывать видимые объекты сигналов</li>
+<li>Создавать/редактировать контроллеры</li>
+<li>Создавать/редактировать временны́е последовательности</li>
+<li>Симулировать синхронизацию сигналов</li>
+<li>Проверять ошибки сигналов</li>
+<li>Сохранять <code>signals.json</code></li>
+<li>Редактировать пользовательские определения контроллеров</li>
+</ul>
+<hr/>
+<h2 id="basic-workflow">
+
+  Базовый рабочий процесс
+</h2>
+<ol>
+<li>Откройте редактор дорожных сигналов.</li>
+<li>Создайте или загрузите <code>signals.json</code>.</li>
+<li>Создайте контроллеры или используйте существующие типы контроллеров.</li>
+<li>Разместите экземпляры сигналов в мире.</li>
+<li>Назначьте каждому сигналу контроллер.</li>
+<li>Назначьте последовательность, если это тактируемый светофор.</li>
+<li>Свяжите видимые объекты сигналов <code>TSStatic</code>.</li>
+<li>Запустите симуляцию для проверки состояний.</li>
+<li>Сохраните файл.</li>
+</ol>
+<hr/>
+<h2 id="minimal-examples">
+
+  Минимальные примеры
+</h2>
+<h3 id="stop-signs">
+
+  Знаки «Стоп»
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"controllers"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"stop"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"signStop"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"isSimple"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"states"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"state"</span><span class="p">:</span> <span class="s2">"basicStop"</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"instances"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"stop 1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"controllerId"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"sequenceId"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"dir"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"startDisabled"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sequences"</span><span class="p">:</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="two-phase-traffic-light">
+
+  Двухфазный светофор
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"controllers"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"north_south"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"lightsBasic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"states"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"state"</span><span class="p">:</span> <span class="s2">"greenTrafficLight"</span><span class="p">,</span> <span class="nt">"duration"</span><span class="p">:</span> <span class="mi">12</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"state"</span><span class="p">:</span> <span class="s2">"yellowTrafficLight"</span><span class="p">,</span> <span class="nt">"duration"</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"state"</span><span class="p">:</span> <span class="s2">"redTrafficLight"</span><span class="p">,</span> <span class="nt">"duration"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"east_west"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"lightsBasic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"states"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"state"</span><span class="p">:</span> <span class="s2">"greenTrafficLight"</span><span class="p">,</span> <span class="nt">"duration"</span><span class="p">:</span> <span class="mi">12</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"state"</span><span class="p">:</span> <span class="s2">"yellowTrafficLight"</span><span class="p">,</span> <span class="nt">"duration"</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"state"</span><span class="p">:</span> <span class="s2">"redTrafficLight"</span><span class="p">,</span> <span class="nt">"duration"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sequences"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"intersection_sequence"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"startTime"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"phases"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"controllerIds"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"controllerIds"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">]}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"instances"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"traffic light north"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"controllerId"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"sequenceId"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"dir"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">-1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"group"</span><span class="p">:</span> <span class="s2">"intersection_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"startDisabled"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"traffic light east"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"controllerId"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"sequenceId"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"dir"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"group"</span><span class="p">:</span> <span class="s2">"intersection_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"startDisabled"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>По возможности используйте редактор дорожных сигналов вместо ручного редактирования.</li>
+<li>Обеспечивайте уникальность идентификаторов.</li>
+<li>Обеспечивайте уникальность имён.</li>
+<li>Используйте простые контроллеры для знаков «Стоп» и статических знаков.</li>
+<li>Используйте последовательности для тактируемых светофоров.</li>
+<li>Убедитесь, что экземпляры сигналов расположены рядом с действительными дорогами.</li>
+<li>Направьте <code>dir</code> вдоль направления подъезда/проезда транспортных средств.</li>
+<li>Связывайте видимые объекты сигналов с помощью <code>signalInstance</code>.</li>
+<li>Используйте группы для перекрёстков.</li>
+<li>Перед сохранением проверьте работу в режиме симуляции.</li>
+<li>Выполняйте проверку через <strong>Tools → Check Signal Errors</strong>.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="signal-does-not-affect-ai">
+
+  Сигнал не влияет на ИИ
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Сигнал расположен слишком далеко от действительного участка дороги.</li>
+<li>Поле <code>controllerId</code> отсутствует или содержит недопустимое значение.</li>
+<li>Поле <code>sequenceId</code> содержит недопустимое значение.</li>
+<li>Навигационный граф не был загружен/перезагружен.</li>
+<li>Направление сигнала задано неверно.</li>
+</ul>
+<h3 id="traffic-light-mesh-does-not-change-lights">
+
+  Меш светофора не меняет огни
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Отсутствует связанный объект <code>TSStatic</code>.</li>
+<li>У объекта нет корректного динамического поля <code>signalInstance</code>.</li>
+<li>Значение <code>signalInstance</code> не совпадает с именем сигнала.</li>
+<li>Меш/материал не использует ожидаемые поля цветов экземпляра.</li>
+</ul>
+<h3 id="signal-appears-as-error-in-debug">
+
+  Сигнал отображается как ошибка в отладчике
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Отсутствует контроллер.</li>
+<li>Отсутствует последовательность.</li>
+<li>Не удалось найти ближайший узел дороги.</li>
+<li>Дублирующееся имя элемента.</li>
+<li>Дублирующийся идентификатор.</li>
+</ul>
+<h3 id="sequence-does-not-advance">
+
+  Последовательность не продвигается
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li><code>ignoreTimer</code> имеет значение true.</li>
+<li>Последовательность отключена.</li>
+<li>Длительности контроллеров отсутствуют или бесконечны.</li>
+<li>Длительность последовательности равна нулю.</li>
+</ul>
+<h3 id="stop-sign-needs-a-sequence">
+
+  Знак «Стоп» требует последовательность
+</h3>
+<p>Контроллеры знака «Стоп» / простые контроллеры сигналов обычно <strong>не</strong> требуют последовательности. Используйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"sequenceId"</span><span class="err">:</span> <span class="mi">0</span>
+</span></span></code></pre>
+</div>
+<h3 id="custom-signal-type-not-found">
+
+  Пользовательский тип сигнала не найден
+</h3>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">signalControllerDefinitions.json
+</span></span></code></pre>
+</div><p>и убедитесь, что <code>type</code> контроллера существует.</p>
+<hr/>
+<h2 id="summary">
+
+  Итог
+</h2>
+<p><code>signals.json</code> определяет логику дорожных сигналов уровня.</p>
+<p>Файл содержит:</p>
+<ul>
+<li><code>instances</code> — размещённые точки сигналов</li>
+<li><code>controllers</code> — списки поведения/состояний сигналов</li>
+<li><code>sequences</code> — логика временны́х фаз</li>
+</ul>
+<p>Система привязывает экземпляры сигналов к ближайшим рёбрам навигационного графа, обновляет видимые объекты сигналов через <code>signalInstance</code> и передаёт действия сигналов ИИ транспортного средства.</p>

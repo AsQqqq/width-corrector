@@ -1,0 +1,233 @@
+<p><code>This feature is supported as of BeamNG.tech and .drive version 0.14.0 to latest.</code></p>
+<p>Торсионные стержни применяются, когда необходимо обеспечить определённое сопротивление крутящему моменту между двумя рычагами. Они задаются с помощью 4 нод: конец первого рычага, две ноды, образующие ось, и конец второго рычага.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/torsionbars/TorsionBeam.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/torsionbars/TorsionBeam.png"/>
+</span></a></p>
+<p>Они используются для моделирования конструкций, сопротивляющихся крутящим усилиям, — например, стабилизаторов поперечной устойчивости, а также для повышения жёсткости плоских конструкций, таких как рамы лестничного типа и точки крепления амортизаторов рычагов подвески, без использования нод-усилителей жёсткости.</p>
+<p>Если балка, расположенная между двумя соседними нодами торсионного стержня, разрушается, сам торсионный стержень тоже разрушается.</p>
+<p>Угол между осью и рычагом должен быть как можно ближе к 90 градусам. Чем дальше он от этого значения, тем менее стабилен торсионный стержень (выше риск нестабильности Jbeam). Поэтому следует тщательно выбирать ноды для рычагов.</p>
+<h3 id="anisotropic-torsionbars">
+
+  Анизотропные торсионные стержни
+</h3>
+<p>Анизотропные торсионные стержни — это аналог <a data-doc="vehicle/sections/beams/anisotropic" href="/docs/vehicle/sections/beams/anisotropic">анизотропных балок</a>
+ (балок с разными значениями жёсткости и демпфирования при сжатии и растяжении) применительно к торсионным стержням. Такие торсионные стержни по-разному сопротивляются крутящему моменту в зависимости от направления скручивания рычага. Чтобы лучше это представить, вообразите, что один из рычагов зафиксирован в пространстве. Скручивание одного рычага равнозначно скручиванию другого в противоположном направлении.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/torsionbars/anisotropicTorsionbar.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/torsionbars/anisotropicTorsionbar_hu6c5004626b01cfa13c11a64c5ba5d47e_52628_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Торсионный стержень становится анизотропным, как только определены значения spring2 и/или damp2. В зависимости от того, в какую сторону скручен рычаг относительно начального положения, торсионный стержень будет использовать либо значения spring и damp, либо spring2 и damp2 для сопротивления крутящему моменту. Угол предварительного сжатия смещает начальную точку так же, как он обычно смещает угол спавна. Это полезно для создания аналога <a data-doc="vehicle/sections/beams/support" href="/docs/vehicle/sections/beams/support">опорной балки</a>
+ в виде торсионного стержня: нужно установить spring и damp равными 0, а с помощью precompressionAngle задать угол, при достижении которого торсионный стержень начнёт сопротивляться крутящему моменту, используя spring2 и damp2.</p>
+<h3 id="required-arguments">
+
+  Обязательные аргументы
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Нода конца первого рычага</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Первая нода оси</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Вторая нода оси</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Нода конца второго рычага</div>
+</div>
+</div>
+<h3 id="optional-arguments">
+
+  Необязательные аргументы
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Жёсткость торсионного стержня (Нм/рад)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Демпфирование торсионного стержня (Нм·с/рад)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">spring<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Жёсткость торсионного стержня (Нм/рад) с другой стороны от угла спавна</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Использование этого свойства делает торсионный стержень анизотропным.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">damp<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Демпфирование торсионного стержня (Нм·с/рад) с другой стороны от угла спавна</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Использование этого свойства делает торсионный стержень анизотропным.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Максимальный крутящий момент, который выдерживает торсионный стержень перед деформацией (Нм)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Максимальный крутящий момент, который выдерживает торсионный стержень перед разрушением (Нм)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Величина предварительного скручивания торсионного стержня при спавне (рад)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Также смещает опорный угол для анизотропных торсионных стержней.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Время, за которое торсионный стержень скручивается при спавне (с)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Название торсионного стержня, используемое некоторыми системами, например контроллером адаптивного стабилизатора поперечной устойчивости</div>
+</div>
+</div>
+<h3 id="simple-example">
+
+  Простой пример
+</h3>
+<p>Стандартные торсионные стержни</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl">    <span class="s2">"torsionbars"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span> <span class="s2">"id2:"</span><span class="p">,</span> <span class="s2">"id3:"</span><span class="p">,</span> <span class="s2">"id4:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"spring"</span><span class="o">:</span><span class="mi">10000000</span><span class="p">,</span> <span class="s2">"damp"</span><span class="o">:</span><span class="mi">100</span><span class="p">,</span> <span class="s2">"deform"</span><span class="o">:</span><span class="mi">25000</span><span class="p">,</span> <span class="s2">"strength"</span><span class="o">:</span><span class="mi">100000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//rigidify steering arm
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">[</span><span class="s2">"oma1tl"</span><span class="p">,</span> <span class="s2">"oma1l"</span><span class="p">,</span> <span class="s2">"oma1r"</span><span class="p">,</span> <span class="s2">"omatiltr"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"oma1tr"</span><span class="p">,</span> <span class="s2">"oma1r"</span><span class="p">,</span> <span class="s2">"oma1l"</span><span class="p">,</span> <span class="s2">"omatiltl"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span></code></pre>
+</div>
+<h3 id="advanced-example">
+
+  Расширенный пример
+</h3>
+<p>Анизотропные торсионные стержни</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"torsionbars"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span> <span class="s2">"id2:"</span><span class="p">,</span> <span class="s2">"id3:"</span><span class="p">,</span> <span class="s2">"id4:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">//steering limiters
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">{</span><span class="s2">"deform"</span><span class="o">:</span><span class="mi">25000</span><span class="p">,</span> <span class="s2">"strength"</span><span class="o">:</span><span class="mi">125000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"fh3r"</span><span class="p">,</span><span class="s2">"fax2r"</span><span class="p">,</span><span class="s2">"fax1r"</span><span class="p">,</span><span class="s2">"fax3r"</span><span class="p">,{</span><span class="s2">"precompressionAngle"</span><span class="o">:</span><span class="mf">0.75</span><span class="p">,</span><span class="s2">"precompressionTime"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"spring"</span><span class="o">:</span><span class="mi">200000</span><span class="p">,</span><span class="s2">"damp"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"spring2"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"damp2"</span><span class="o">:</span><span class="mi">0</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"fh3r"</span><span class="p">,</span><span class="s2">"fax1r"</span><span class="p">,</span><span class="s2">"fax2r"</span><span class="p">,</span><span class="s2">"fax3r"</span><span class="p">,{</span><span class="s2">"precompressionAngle"</span><span class="o">:</span><span class="mf">1.05</span><span class="p">,</span><span class="s2">"precompressionTime"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"spring"</span><span class="o">:</span><span class="mi">200000</span><span class="p">,</span><span class="s2">"damp"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"spring2"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"damp2"</span><span class="o">:</span><span class="mi">0</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"fh3l"</span><span class="p">,</span><span class="s2">"fax1l"</span><span class="p">,</span><span class="s2">"fax2l"</span><span class="p">,</span><span class="s2">"fax3l"</span><span class="p">,{</span><span class="s2">"precompressionAngle"</span><span class="o">:</span><span class="mf">0.75</span><span class="p">,</span><span class="s2">"precompressionTime"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"spring"</span><span class="o">:</span><span class="mi">200000</span><span class="p">,</span><span class="s2">"damp"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"spring2"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"damp2"</span><span class="o">:</span><span class="mi">0</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"fh3l"</span><span class="p">,</span><span class="s2">"fax2l"</span><span class="p">,</span><span class="s2">"fax1l"</span><span class="p">,</span><span class="s2">"fax3l"</span><span class="p">,{</span><span class="s2">"precompressionAngle"</span><span class="o">:</span><span class="mf">1.05</span><span class="p">,</span><span class="s2">"precompressionTime"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"spring"</span><span class="o">:</span><span class="mi">200000</span><span class="p">,</span><span class="s2">"damp"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"spring2"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"damp2"</span><span class="o">:</span><span class="mi">0</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div>

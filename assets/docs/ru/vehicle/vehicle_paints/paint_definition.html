@@ -1,0 +1,112 @@
+<p>Окраска транспортного средства — это, по сути, пресет для настроек <a data-doc="vehicle/vehicle_paints/paint_materials_intro" href="/docs/vehicle/vehicle_paints/paint_materials_intro">цветовой палитры</a>
+. Её можно выбрать при спауне транспортного средства через селектор машин или при перекраске с помощью меню покраски в конфигураторе.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/paint_definition/paints_veh.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/paint_definition/paints_veh.png"/>
+</span></a>
+<em>Варианты окраски транспортного средства в селекторе машин. Они представляют заводские цвета, доступные для данного автомобиля.</em></p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/paint_definition/paints_part.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/paint_definition/paints_part.png"/>
+</span></a>
+<em>Варианты окраски транспортного средства в конфигураторе. Помимо заводских окрасок, здесь также отображаются подходящие пользовательские варианты и сохранённые пресеты окрасок пользователя.</em></p>
+<h3 id="defining-the-paints">
+
+  Определение окрасок
+</h3>
+<p>Самый простой способ задать окраску — внутри основного файла <code>info.json</code> транспортного средства. В этом файле каждая окраска имеет заголовок с названием и несколько базовых свойств:</p>
+<ul>
+<li><code>baseColor</code>: RGBA-цвет окраски в диапазоне 0–1 для каждого канала. Свойство Alpha определяет параметр <code>Chrominess</code> окраски — это устаревшая функция, не поддерживаемая системой физически корректного рендеринга (PBR).</li>
+<li><code>clearCoat</code>: определяет интенсивность эффекта лакового покрытия.</li>
+<li><code>clearCoatRoughness</code>: определяет шероховатость эффекта лакового покрытия.</li>
+<li><code>metallic</code>: определяет коэффициент металличности.</li>
+<li><code>roughness</code>: определяет коэффициент шероховатости.</li>
+</ul>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"paints"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Mica"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"baseColor"</span><span class="o">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span>  <span class="mf">0.42</span><span class="p">,</span>  <span class="mf">0.39</span><span class="p">,</span>  <span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoat"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoatRoughness"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"metallic"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"roughness"</span><span class="o">:</span> <span class="mf">0.07</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">(...)</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p><em>Пример базового определения окраски.</em></p>
+<p>Дополнительным свойством окраски является <code>class</code>. Если задать значение <code>custom</code>, окраска появится в разделе «Пользовательские» в меню покраски конфигуратора транспортного средства.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"Noce"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line hl"><span class="cl">  <span class="s2">"class"</span><span class="o">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"baseColor"</span><span class="o">:</span> <span class="p">[</span><span class="mf">0.16</span><span class="p">,</span>  <span class="mf">0.1</span><span class="p">,</span>  <span class="mf">0.06</span><span class="p">,</span>  <span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"clearcoat"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"clearcoatRoughness"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"metallic"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"roughness"</span><span class="o">:</span> <span class="mf">0.07</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div><p><em>Пример определения пользовательской окраски.</em></p>
+<h3 id="default-paints">
+
+  Окраски по умолчанию
+</h3>
+<p>Каждая конфигурация транспортного средства имеет собственный файл info.json с именем по схеме <code>info_[config name].json</code>; например, конфигурация «standard» будет иметь файл «info_standard.json». Внутри этого файла, среди прочего, можно задать название окраски по умолчанию для данной конфигурации. Именно она отображается на миниатюре и применяется при спауне, если пользователь не выбрал окраску в селекторе машин. Эта окраска по умолчанию занимает первый слот — верхний левый в селекторе окрасок.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/paint_definition/default_paint.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/paint_definition/default_paint_hu84a9b1aa3f1bb22994d2b6d868dd7a33_310594_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>Выбранная конфигурация транспортного средства с выделенной окраской по умолчанию в первом слоте.</em></p>
+<p>Это задаётся свойством <code>defaultPaintName1</code>. Аналогично, <code>defaultPaintName2</code> и <code>defaultPaintName3</code> используются для установки окрасок по умолчанию для остальных палитр.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"defaultPaintName1"</span><span class="o">:</span> <span class="s2">"Yellow"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"defaultPaintName2"</span><span class="o">:</span> <span class="s2">"Yellow"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"defaultPaintName3"</span><span class="o">:</span> <span class="s2">"Black"</span><span class="p">,</span>
+</span></span></code></pre>
+</div><p><em>Настройка окрасок по умолчанию.</em></p>
+<p>Основной файл <code>info.json</code> транспортного средства также может содержать список окрасок по умолчанию для каждой из цветовых палитр — они применяются, если у выбранной конфигурации вовсе не определены собственные окраски. Поскольку это лишь запасной вариант, иногда задаётся только первая окраска по умолчанию, что означает использование одного и того же цвета для всех трёх палитр.</p>
+<p>Внутренне настройка со свойствами <code>defaultPaintName</code> преобразуется в <a data-doc="vehicle/vehicle_paints/multi_paint_setup" href="/docs/vehicle/vehicle_paints/multi_paint_setup">многоцветную схему окраски</a>
+; подробнее это будет описано на следующих страницах.</p>
+<h3 id="paints-in-user-configurations">
+
+  Окраски в пользовательских конфигурациях
+</h3>
+<p>Пользовательские конфигурации не имеют собственных файлов <code>info.json</code>. Настройки окраски сохраняются в файле конфигурации с расширением <code>.pc</code>. Настройки для всех трёх цветовых палитр сохраняются в том же формате, что и базовые окраски, но без собственных имён.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"paints"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"baseColor"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.86</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.66</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">1.2</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoat"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoatRoughness"</span><span class="o">:</span><span class="mf">0.04</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"metallic"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"roughness"</span><span class="o">:</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"baseColor"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.86</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.66</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">1.2</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoat"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoatRoughness"</span><span class="o">:</span><span class="mf">0.04</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"metallic"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"roughness"</span><span class="o">:</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"baseColor"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.83</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.83</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">0.83</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mf">1.2</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoat"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoatRoughness"</span><span class="o">:</span><span class="mf">0.04</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"metallic"</span><span class="o">:</span><span class="mf">0.3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"roughness"</span><span class="o">:</span><span class="mf">0.6</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p><em>Настройки окрасок в пользовательском файле конфигурации.</em></p>

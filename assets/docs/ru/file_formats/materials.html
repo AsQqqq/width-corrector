@@ -1,0 +1,243 @@
+<p>Этот документ описывает JSON-файлы материалов BeamNG.</p>
+<p>JSON-файлы материалов определяют объекты <code>Material</code>, используемые уровнями, транспортными средствами, общими ресурсами, декалями, дорогами, водой, скайбоксами, пропсами и другим отрисовываемым контентом.</p>
+<p>Концепции создания материалов описаны в разделе <a data-doc="materials" href="/docs/materials">Materials</a>
+. Описание окна World Editor см. в разделе <a href="https://documentation.beamng.com/world_editor/windows/material_editor/" rel="noopener" target="_blank">Material Editor</a>
+.</p>
+<hr/>
+<h2 id="file-names">
+
+  Имена файлов
+</h2>
+<p>Типичные файлы материалов включают:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">main.materials.json
+</span></span><span class="line"><span class="cl">skin.materials.json
+</span></span><span class="line"><span class="cl">*.materials.json
+</span></span></code></pre>
+</div><p>Примеры:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/main.materials.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/art/shapes/buildings/main.materials.json
+</span></span><span class="line"><span class="cl">vehicles/&lt;vehicleName&gt;/main.materials.json
+</span></span><span class="line"><span class="cl">vehicles/&lt;vehicleName&gt;/skin.materials.json
+</span></span><span class="line"><span class="cl">art/shapes/objects/main.materials.json
+</span></span></code></pre>
+</div><p>JSON-файлы материалов загружаются из путей игры, уровня, транспортного средства и модов в зависимости от загружаемого контента.</p>
+<hr/>
+<h2 id="basic-structure">
+
+  Базовая структура
+</h2>
+<p>Файл материала — это JSON-объект. Каждый ключ верхнего уровня определяет один материал.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"m_concrete_wall"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"m_concrete_wall"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"mapTo"</span><span class="p">:</span> <span class="s2">"m_concrete_wall"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"/levels/example/art/textures/concrete_b.color.png"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalMap"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"/levels/example/art/textures/concrete_n.normal.png"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"/levels/example/art/textures/concrete_r.roughness.png"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessFactor"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Ключ верхнего уровня и поле <code>name</code> обычно совпадают.</p>
+<hr/>
+<h2 id="important-fields">
+
+  Важные поля
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Обычно <code>"Material"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя объекта материала. Обычно совпадает с ключом верхнего уровня.</td>
+</tr>
+<tr>
+<td><code>mapTo</code></td>
+<td>string</td>
+<td>Имя слота меша/материала, к которому привязан данный материал.</td>
+</tr>
+<tr>
+<td><code>baseColorMap</code></td>
+<td>array[path]</td>
+<td>Путь к текстуре базового цвета для каждого слоя материала.</td>
+</tr>
+<tr>
+<td><code>normalMap</code></td>
+<td>array[path]</td>
+<td>Путь к карте нормалей для каждого слоя материала.</td>
+</tr>
+<tr>
+<td><code>roughnessMap</code></td>
+<td>array[path]</td>
+<td>Путь к карте шероховатости для каждого слоя материала.</td>
+</tr>
+<tr>
+<td><code>metallicMap</code></td>
+<td>array[path]</td>
+<td>Путь к карте металличности для каждого слоя материала.</td>
+</tr>
+<tr>
+<td><code>baseColorFactor</code></td>
+<td>array/color</td>
+<td>Множитель базового цвета там, где он задан.</td>
+</tr>
+<tr>
+<td><code>roughnessFactor</code></td>
+<td>array[number]</td>
+<td>Скалярный коэффициент шероховатости для каждого слоя.</td>
+</tr>
+<tr>
+<td><code>metallicFactor</code></td>
+<td>array[number]</td>
+<td>Скалярный коэффициент металличности для каждого слоя.</td>
+</tr>
+<tr>
+<td><code>emissiveMap</code></td>
+<td>array[path]</td>
+<td>Путь к эмиссионной текстуре там, где она используется.</td>
+</tr>
+<tr>
+<td><code>alphaRef</code></td>
+<td>number</td>
+<td>Пороговое значение альфа-отсечения там, где оно используется.</td>
+</tr>
+<tr>
+<td><code>translucent</code></td>
+<td>bool</td>
+<td>Включает полупрозрачную отрисовку там, где используется.</td>
+</tr>
+<tr>
+<td><code>useAnisotropic</code></td>
+<td>bool</td>
+<td>Включает анизотропную фильтрацию там, где используется.</td>
+</tr>
+<tr>
+<td><code>annotation</code></td>
+<td>string</td>
+<td>Необязательная аннотация/классификация для отладки.</td>
+</tr>
+</tbody>
+</table>
+<p>Определения материалов могут содержать множество полей, специфичных для рендерера. При разработке инструментов сохраняйте неизвестные поля.</p>
+<div class="bng-notice warning">Не удаляйте поля только потому, что они здесь не перечислены. JSON-файл материала нередко содержит поля рендерера, редактора, совместимости или сгенерированные поля.</div>
+<hr/>
+<h2 id="mapto">
+
+  mapTo
+</h2>
+<p><code>mapTo</code> связывает определение материала с именем слота материала, используемым мешем или процедурной геометрией.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"mapTo"</span><span class="err">:</span> <span class="s2">"road_asphalt"</span>
+</span></span></code></pre>
+</div><p>Для импортированных мешей значение <code>mapTo</code> должно совпадать с именем материала, заданным в исходном файле DAE/DTS.</p>
+<p>Для объектов, ссылающихся на материалы напрямую, например <code>DecalRoad.material</code> или <code>MeshRoad.topMaterial</code>, поле объекта обычно ссылается на имя объекта материала.</p>
+<hr/>
+<h2 id="texture-arrays">
+
+  Массивы текстур
+</h2>
+<p>Многие поля текстур сохраняются в виде массивов, поскольку материалы могут поддерживать несколько слоёв.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"baseColorMap"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"/levels/example/art/textures/concrete_b.color.png"</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Материал с одним слоем по-прежнему обычно использует массив с одним элементом.</p>
+<hr/>
+<h2 id="material-paths">
+
+  Пути к материалам
+</h2>
+<p>Используйте пути, работающие как для обычного игрового контента, так и для запакованных модов.</p>
+<p>Типичные пути:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/levels/&lt;levelName&gt;/art/textures/...
+</span></span><span class="line"><span class="cl">/levels/&lt;levelName&gt;/art/shapes/...
+</span></span><span class="line"><span class="cl">/vehicles/&lt;vehicleName&gt;/...
+</span></span><span class="line"><span class="cl">/art/shapes/objects/...
+</span></span></code></pre>
+</div><p>Соблюдайте единообразие регистра символов.</p>
+<hr/>
+<h2 id="relationship-with-terrain-materials">
+
+  Связь с материалами террейна
+</h2>
+<p>Обычные определения <code>Material</code> отличаются от определений <code>TerrainMaterial</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Тип</th>
+<th>Основное применение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Material</code></td>
+<td>Меши, декали, вода, скайбоксы, дороги, пропсы, транспортные средства и общая отрисовка.</td>
+</tr>
+<tr>
+<td><code>TerrainMaterial</code></td>
+<td>Окраска террейна, слои текстур террейна и привязки groundmodel террейна.</td>
+</tr>
+</tbody>
+</table>
+<p>Данные материалов, специфичные для террейна, описаны в разделе <a data-doc="levels/level_formats/terrain" href="/docs/levels/level_formats/terrain">Terrain files</a>
+.</p>
+<hr/>
+<h2 id="tool-notes">
+
+  Замечания для инструментов
+</h2>
+<p>Для инструментов, генерирующих или редактирующих файлы материалов:</p>
+<ul>
+<li>Сохраняйте неизвестные поля.</li>
+<li>Сохраняйте ключи материалов верхнего уровня и значения <code>name</code>, если только вы намеренно не переименовываете их.</li>
+<li>Обновляйте <code>mapTo</code> только при изменении имён слотов материалов меша.</li>
+<li>Оставляйте поля текстур в виде массивов, если в исходном файле они заданы массивами.</li>
+<li>Проверяйте корректность указанных путей к текстурам.</li>
+<li>Сохраняйте карты нормалей в ориентации, ожидаемой рендерером BeamNG.</li>
+<li>Избегайте генерации дублирующихся имён материалов в загруженных файлах материалов.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Типичные проблемы
+</h2>
+<ul>
+<li>Меш отображает предупреждающий материал, потому что <code>mapTo</code> не совпадает со слотом материала меша.</li>
+<li>Материал не найден, потому что файл материала сохранён вне загружаемого пути.</li>
+<li>Текстура отсутствует из-за неверного пути или потому что она не включена в мод.</li>
+<li>Материал выглядит слишком блестящим из-за неверных значений шероховатости или карты шероховатости.</li>
+<li>Импортированный меш использует имя материала, отличающееся от определения материала в BeamNG.</li>
+</ul>
+<hr/>
+<h2 id="validation-criteria">
+
+  Критерии валидации
+</h2>
+<ul>
+<li>JSON-файл материала загружается без ошибок разбора.</li>
+<li>Имена материалов уникальны в пределах области загружаемого контента.</li>
+<li>Значения <code>mapTo</code> совпадают со слотами материалов источника меша там, где это необходимо.</li>
+<li>Пути к текстурам существуют и используют ожидаемые форматы.</li>
+<li>Ссылающиеся объекты, такие как <code>TSStatic</code>, <code>DecalRoad</code>, <code>MeshRoad</code>, <code>WaterObject</code>, <code>SkyBox</code> или детали транспортного средства, отрисовываются без предупреждающих материалов.</li>
+</ul>

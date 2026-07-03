@@ -1,0 +1,500 @@
+<p>На этой странице описаны локальные данные crawl-маршрутов уровня.</p>
+<p>Данные crawl-маршрутов задают внедорожный геймплей троп через сопутствующие файлы для маршрутов, путей, границ и стартовых позиций. Некоторые crawl-миссии могут также содержать локальные crawl-файлы под <code>gameplay/missions/</code>.</p>
+<h2 id="file-location">
+
+  Расположение файлов
+</h2>
+<p>Данные crawl-маршрутов уровня хранятся в:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/crawls/
+</span></span></code></pre>
+</div><p>Типичные имена файлов:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">&lt;crawlName&gt;.trail.json
+</span></span><span class="line"><span class="cl">&lt;crawlName&gt;.path.json
+</span></span><span class="line"><span class="cl">&lt;crawlName&gt;.boundary.json
+</span></span><span class="line"><span class="cl">&lt;crawlName&gt;.startingPosition.json
+</span></span><span class="line"><span class="cl">presets.json
+</span></span></code></pre>
+</div><p>Система сохранения/загрузки crawl-данных распознаёт файлы по суффиксу. Соблюдайте суффиксы в точности:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">.trail.json
+</span></span><span class="line"><span class="cl">.path.json
+</span></span><span class="line"><span class="cl">.boundary.json
+</span></span><span class="line"><span class="cl">.startingPosition.json
+</span></span></code></pre>
+</div>
+<h2 id="creating-crawl-files-with-editor-tools">
+
+  Создание crawl-файлов с помощью инструментов редактора
+</h2>
+<p>По возможности используйте редактор Crawl Data Editor для создания нового crawl-контента. Он записывает сопутствующие файлы в формате, ожидаемом системой crawl.</p>
+<p>Рекомендуемый рабочий процесс:</p>
+<ol>
+<li>Откройте уровень в World Editor.</li>
+<li>Откройте Crawl Data Editor.</li>
+<li>Создайте или отредактируйте путь, расставив узлы маршрута вдоль предполагаемой тропы.</li>
+<li>Добавьте флажки контрольных точек восстановления там, где игрок должен иметь возможность восстановиться.</li>
+<li>Создайте границу, охватывающую предполагаемый маршрут.</li>
+<li>Создайте стартовую позицию и проверьте положение её иконки.</li>
+<li>Сохраните файлы пути, границы, стартовой позиции и тропы в <code>levels/&lt;levelName&gt;/crawls/</code>.</li>
+<li>Протестируйте crawl с нуля и из контрольной точки восстановления.</li>
+</ol>
+<p>Если вы конвертируете старые данные гонок/путей, сначала воспользуйтесь инструментами конвертации, а затем вручную проверьте созданные файлы.</p>
+<h2 id="writing-crawl-files-manually">
+
+  Ручное написание crawl-файлов
+</h2>
+<p>При ручном создании лучше всего создавать сопутствующие файлы в следующем порядке:</p>
+<ol>
+<li><code>*.path.json</code></li>
+<li><code>*.boundary.json</code></li>
+<li><code>*.startingPosition.json</code></li>
+<li><code>*.trail.json</code></li>
+</ol>
+<p>Файл тропы должен быть последним, поскольку он ссылается на остальные файлы.</p>
+<p>Минимальная структура папки:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/crawls/example.path.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/crawls/example.boundary.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/crawls/example.startingPosition.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/crawls/example.trail.json
+</span></span></code></pre>
+</div><p>По возможности используйте совпадающие базовые имена. Совпадение имён не является строго обязательным, но значительно упрощает создание и отладку.</p>
+<h2 id="file-roles">
+
+  Роли файлов
+</h2>
+<table>
+<thead>
+<tr>
+<th>Файл</th>
+<th>Назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*.trail.json</code></td>
+<td>Высокоуровневый дескриптор тропы. Содержит ссылки на путь, границу, стартовую позицию, превью, правила и дополнительные префабы.</td>
+</tr>
+<tr>
+<td><code>*.path.json</code></td>
+<td>Упорядоченные узлы маршрута, данные контрольных точек, радиусы, повороты и флаги узлов.</td>
+</tr>
+<tr>
+<td><code>*.boundary.json</code></td>
+<td>Данные полигона/объёма игровой области.</td>
+</tr>
+<tr>
+<td><code>*.startingPosition.json</code></td>
+<td>Трансформ спауна/восстановления и позиция иконки.</td>
+</tr>
+<tr>
+<td><code>presets.json</code></td>
+<td>Необязательные пресеты редактора для создания crawl-маршрутов.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="trail-references">
+
+  Ссылки тропы
+</h2>
+<p>Файл тропы связывает сопутствующие файлы вместе с помощью таких полей, как:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pathId"</span><span class="p">:</span> <span class="s2">"/levels/example/crawls/example.path.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"boundaryId"</span><span class="p">:</span> <span class="s2">"/levels/example/crawls/example.boundary.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"startingPositionId"</span><span class="p">:</span> <span class="s2">"/levels/example/crawls/example.startingPosition.json"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Используйте пути относительно корня уровня и синхронизируйте связанные файлы при переименовании crawl-маршрута.</p>
+<p>Файлы тропы являются высокоуровневыми crawl-файлами. Обычно они не содержат полный путь или границу непосредственно в себе — они указывают на сопутствующие файлы. Это позволяет повторно использовать или заменять данные пути, границы или стартовой позиции, однако битые ссылки могут сделать в остальном корректный crawl невидимым или неработоспособным.</p>
+<p>При ручном написании тропы начните только с обязательных ссылок и добавляйте необязательные метаданные позже:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"trail.example.title"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pathId"</span><span class="p">:</span> <span class="s2">"/levels/example/crawls/example.path.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"boundaryId"</span><span class="p">:</span> <span class="s2">"/levels/example/crawls/example.boundary.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"startingPositionId"</span><span class="p">:</span> <span class="s2">"/levels/example/crawls/example.startingPosition.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pathReversed"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Добавляйте превью, миниатюру, правила и префабы после того, как тропа успешно загрузится.</p>
+<h3 id="trailjson-fields">
+<code>*.trail.json</code> fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Обязательное</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Рекомендуется</td>
+<td>Отображаемое имя или ключ перевода.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Необязательное</td>
+<td>Описание или ключ перевода.</td>
+</tr>
+<tr>
+<td><code>pathId</code></td>
+<td>Да</td>
+<td>Путь к <code>*.path.json</code>.</td>
+</tr>
+<tr>
+<td><code>boundaryId</code></td>
+<td>Да</td>
+<td>Путь к <code>*.boundary.json</code>.</td>
+</tr>
+<tr>
+<td><code>startingPositionId</code></td>
+<td>Да</td>
+<td>Путь к <code>*.startingPosition.json</code>.</td>
+</tr>
+<tr>
+<td><code>startingPositionIdReversed</code></td>
+<td>Необязательное</td>
+<td>Стартовая позиция для движения в обратном направлении.</td>
+</tr>
+<tr>
+<td><code>pathReversed</code></td>
+<td>Необязательное</td>
+<td>Должен ли путь читаться в обратном порядке.</td>
+</tr>
+<tr>
+<td><code>thumbnail</code></td>
+<td>Необязательное</td>
+<td>Путь к миниатюре для интерфейса.</td>
+</tr>
+<tr>
+<td><code>preview</code></td>
+<td>Необязательное</td>
+<td>Путь к превью для интерфейса.</td>
+</tr>
+<tr>
+<td><code>rules</code></td>
+<td>Необязательное</td>
+<td>Настройки правил crawl-маршрута.</td>
+</tr>
+<tr>
+<td><code>prefabs</code></td>
+<td>Необязательное</td>
+<td>Ссылки на вспомогательные префабы.</td>
+</tr>
+<tr>
+<td><code>metadata</code></td>
+<td>Необязательное</td>
+<td>Информация о создании/изменении/версии.</td>
+</tr>
+<tr>
+<td><code>isFromMission</code></td>
+<td>Необязательное</td>
+<td>Помечает данные тропы, принадлежащие миссии.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="path-files">
+
+  Файлы пути
+</h2>
+<p>Файлы пути хранят упорядоченные узлы маршрута. Узлы могут включать:</p>
+<ul>
+<li>Отображаемое/отладочное имя.</li>
+<li>Позицию.</li>
+<li>Поворот.</li>
+<li>Радиус.</li>
+<li>Флаги, такие как данные контрольных точек восстановления или боковые отступы.</li>
+</ul>
+<p>Путь должен следовать предполагаемому направлению движения. Если тропа поддерживает движение в обратном направлении, предпочтительнее использовать явные настройки реверса, а не дублировать практически идентичные пути, если только обратный маршрут не требует других контрольных точек.</p>
+<p>При создании путей вручную:</p>
+<ul>
+<li>Сохраняйте порядок узлов от старта до финиша.</li>
+<li>Используйте читаемые имена узлов.</li>
+<li>Используйте увеличенные радиусы для сложных внедорожных участков.</li>
+<li>Добавляйте флаги контрольных точек восстановления там, где неудача была бы особенно неприятной.</li>
+<li>Тестируйте с самыми медленными и крупными транспортными средствами, ожидаемыми для crawl-маршрута.</li>
+</ul>
+<p>Минимальный <code>*.path.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"example_path"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"Example crawl path"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Start"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"rotation"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"flags"</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Checkpoint 1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"rotation"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"flags"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"isRecoveryCheckpoint"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"recovery"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="pathjson-fields">
+<code>*.path.json</code> fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Обязательное</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Рекомендуется</td>
+<td>Внутреннее/отображаемое имя.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Необязательное</td>
+<td>Описание для редактора/отладки.</td>
+</tr>
+<tr>
+<td><code>nodes</code></td>
+<td>Да</td>
+<td>Упорядоченный массив узлов пути.</td>
+</tr>
+<tr>
+<td><code>nodes[].name</code></td>
+<td>Рекомендуется</td>
+<td>Полезно для отладки и конвертации.</td>
+</tr>
+<tr>
+<td><code>nodes[].position</code></td>
+<td>Да</td>
+<td>Мировая позиция в виде <code>[x, y, z]</code>.</td>
+</tr>
+<tr>
+<td><code>nodes[].rotation</code></td>
+<td>Необязательное</td>
+<td>Массив кватерниона.</td>
+</tr>
+<tr>
+<td><code>nodes[].radius</code></td>
+<td>Рекомендуется</td>
+<td>Радиус контрольной точки/маршрута.</td>
+</tr>
+<tr>
+<td><code>nodes[].flags</code></td>
+<td>Необязательное</td>
+<td>Флаги восстановления, отступа, нормали или другие игровые флаги.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="boundary-files">
+
+  Файлы границы
+</h2>
+<p>Файлы границы определяют игровую область crawl-маршрута. Делайте границу достаточно широкой, чтобы прощать обычные ошибки при вождении, но не настолько большой, чтобы игроки могли обойти задуманное испытание.</p>
+<p>Если граница пересекает маршрут, игроки могут неожиданно терпеть неудачу или сбрасываться. Если она слишком велика, crawl может потерять своё игровое определение.</p>
+<p>По возможности создавайте границы в редакторе. Ручное редактирование границ подвержено ошибкам, поскольку порядок и расположение вершин имеют значение.</p>
+<p>Минимальная форма <code>*.boundary.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"example_boundary"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vertices"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">-10</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">-10</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"bot"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"active"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normal"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">-1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">-10</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"top"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"active"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normal"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"customFields"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"names"</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"tags"</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"types"</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"values"</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Формат границы разделяется с сериализацией зон сайтов. По возможности создавайте её через инструменты Sites или Crawl.</p>
+<h2 id="starting-position-files">
+
+  Файлы стартовой позиции
+</h2>
+<p>Файлы стартовой позиции определяют место старта или восстановления игрока. Обычно они включают:</p>
+<ul>
+<li>Позицию трансформа.</li>
+<li>Поворот трансформа.</li>
+<li>Радиус.</li>
+<li>Позицию иконки для отображения в интерфейсе или на карте.</li>
+</ul>
+<p>Размещайте старты на устойчивой, достаточно ровной поверхности и тестируйте их с классами транспортных средств, ожидаемых для crawl-маршрута.</p>
+<p>При ручном написании помните, что <code>iconPosition</code> предназначен для отображения в интерфейсе/на карте и не обязательно совпадает с фактическим трансформом спауна.</p>
+<p>Минимальный <code>*.startingPosition.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Example Start"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"Start for the example crawl"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"transform"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"rotation"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">5</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"iconPosition"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"metadata"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"created"</span><span class="p">:</span> <span class="s2">"2026-06-08"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"modified"</span><span class="p">:</span> <span class="s2">"2026-06-08"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="startingpositionjson-fields">
+<code>*.startingPosition.json</code> fields
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Обязательное</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Рекомендуется</td>
+<td>Отображаемое/отладочное имя.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Необязательное</td>
+<td>Описание.</td>
+</tr>
+<tr>
+<td><code>transform.position</code></td>
+<td>Да</td>
+<td>Фактическая позиция спауна/восстановления.</td>
+</tr>
+<tr>
+<td><code>transform.rotation</code></td>
+<td>Да</td>
+<td>Ориентация в виде кватерниона.</td>
+</tr>
+<tr>
+<td><code>transform.radius</code></td>
+<td>Рекомендуется</td>
+<td>Радиус спауна/восстановления.</td>
+</tr>
+<tr>
+<td><code>iconPosition</code></td>
+<td>Рекомендуется</td>
+<td>Позиция иконки в интерфейсе/на карте.</td>
+</tr>
+<tr>
+<td><code>metadata</code></td>
+<td>Необязательное</td>
+<td>Данные о создании/изменении.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="mission-local-crawl-data">
+
+  Локальные crawl-данные миссии
+</h2>
+<p>Некоторый crawl-геймплей находится в папках современных миссий:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">gameplay/missions/&lt;levelName&gt;/crawl/&lt;missionName&gt;/
+</span></span></code></pre>
+</div><p>Локальные crawl-данные миссии могут использовать те же концепции, что и локальные crawl-данные уровня. Проверяйте папку миссии, прежде чем считать, что все crawl-файлы находятся в <code>levels/&lt;levelName&gt;/crawls/</code>.</p>
+<h2 id="conversion-notes">
+
+  Примечания по конвертации
+</h2>
+<p>Некоторые crawl-файлы конвертируются из старых данных <code>race.race.json</code>. Конвертированные файлы часто содержат описания вроде "Converted from race.race.json". После конвертации считайте созданные файлы пути, границы, тропы и стартовой позиции активными crawl-данными.</p>
+<p>При конвертации вручную проверяйте результат. Имена узлов пути, контрольные точки восстановления, боковые отступы и границы в конвертированных файлах могут быть технически корректными, но всё равно требовать игровой настройки.</p>
+<h2 id="presets">
+
+  Пресеты
+</h2>
+<p><code>presets.json</code> — это данные редактора/инструментария. Он может хранить многократно используемые пресеты для создания crawl-маршрутов и должен храниться вместе с уровнем только в том случае, если эти пресеты будут полезны при дальнейшем редактировании.</p>
+<p>Не используйте пресеты как игровые данные. Активный crawl должен быть представлен файлами тропы, пути, границы и стартовой позиции.</p>
+<h2 id="troubleshooting">
+
+  Устранение неполадок
+</h2>
+<h3 id="trail-does-not-appear">
+
+  Тропа не отображается
+</h3>
+<p>Проверьте:</p>
+<ul>
+<li>Суффикс файла — <code>.trail.json</code>.</li>
+<li>Тропа ссылается на существующие файлы <code>pathId</code>, <code>boundaryId</code> и <code>startingPositionId</code>.</li>
+<li>Указанные пути являются путями относительно корня уровня и содержат правильное имя уровня.</li>
+<li>Функция или миссия, которая должна отображать тропу, включена.</li>
+</ul>
+<h3 id="player-spawns-badly">
+
+  Игрок появляется в неправильном месте
+</h3>
+<p>Проверьте:</p>
+<ul>
+<li>Трансформ стартовой позиции находится на предполагаемой поверхности земли.</li>
+<li>Поворот направлен к первому участку маршрута.</li>
+<li>Радиус подходит для размера транспортного средства.</li>
+<li>Позиция иконки не перепутана с фактическим трансформом спауна.</li>
+</ul>
+<h3 id="crawl-fails-unexpectedly">
+
+  Crawl завершается неудачей неожиданно
+</h3>
+<p>Проверьте:</p>
+<ul>
+<li>Граница охватывает предполагаемую траекторию движения.</li>
+<li>Флаги контрольных точек восстановления расставлены там, где необходимо.</li>
+<li>Радиусы узлов пути достаточно велики для маршрута.</li>
+<li>Локальные файлы миссии не переопределяют и не заменяют локальные данные уровня.</li>
+</ul>
+<h2 id="validation-checklist">
+
+  Контрольный список проверки
+</h2>
+<ul>
+<li><code>*.trail.json</code> ссылается на корректные файлы пути, границы и стартовой позиции.</li>
+<li><code>*.path.json</code> содержит упорядоченные узлы с разумными радиусами и поворотами.</li>
+<li><code>*.boundary.json</code> охватывает предполагаемый маршрут и не пересекает нормальное движение.</li>
+<li><code>*.startingPosition.json</code> указывает на безопасную позицию спауна/восстановления.</li>
+<li>Пути к превью и миниатюре существуют, если они используются.</li>
+<li>Локальные crawl-файлы миссии хранятся вместе с миссией, которой они принадлежат.</li>
+<li>Конвертированные файлы проверены и настроены после конвертации.</li>
+</ul>
+<h2 id="related-pages">
+
+  Связанные страницы
+</h2>
+<ul>
+<li><a data-doc="levels/level_formats/sites" href="/docs/levels/level_formats/sites">Sites (.sites.json)</a>
+</li>
+<li><a data-doc="levels/gameplay_data" href="/docs/levels/gameplay_data">Level Gameplay Data</a>
+</li>
+</ul>

@@ -1,0 +1,1180 @@
+<h2 id="overview">
+
+  Обзор
+</h2>
+<p>JBeam — это формат файла, определяющий физический скелет в движке BeamNG. Название JBeam происходит от того, что он основан на
+    <a class="link-ext" href="http://en.wikipedia.org/wiki/JSON" rel="noopener" target="_blank">JSON</a>
+ (с некоторыми исключениями) для описания конструкций нод/балок.</p>
+<p>Практически всё чувствительно к регистру, и формат совершенно не терпим к синтаксическим ошибкам, поэтому будьте внимательны! Файлы jbeam создаются и редактируются в текстовом редакторе (например, в
+    <a class="link-ext" href="https://code.visualstudio.com/download" rel="noopener" target="_blank">Visual Studio Code</a>
+ или других редакторах с расширенными возможностями).</p>
+<hr/>
+<h2 id="difference-to-json">
+
+  Отличия от JSON
+</h2>
+<p>Мы немного изменили парсер
+    <a class="link-ext" href="http://en.wikipedia.org/wiki/JSON" rel="noopener" target="_blank">JSON</a>
+, чтобы облегчить жизнь авторам транспортных средств:</p>
+<ul>
+<li><strong>Комментарии</strong>: поддерживаются комментарии в стиле C — многострочные и однострочные: <code>//...</code> и <code>/* ... */</code></li>
+<li><strong>Запятые</strong>: все запятые необязательны, однако рекомендуется опускать их только в конце строк.</li>
+</ul>
+<hr/>
+<h2 id="general-structure">
+
+  Общая структура
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"refNodes"</span><span class="p">:[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"ref:"</span><span class="p">,</span> <span class="s2">"back:"</span><span class="p">,</span> <span class="s2">"left:"</span><span class="p">,</span> <span class="s2">"up:"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"f3r"</span><span class="p">,</span> <span class="s2">"f5r"</span><span class="p">,</span> <span class="s2">"f4l"</span><span class="p">,</span> <span class="s2">"f8r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"cameraExternal"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"distance"</span><span class="p">:</span> <span class="mf">6.7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"distanceMin"</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"offset"</span><span class="p">:</span> <span class="p">{</span><span class="nt">"x"</span><span class="p">:</span> <span class="mf">0.43</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span> <span class="mf">0.11</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span> <span class="mf">0.55</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"fov"</span><span class="p">:</span> <span class="mi">77</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="general-concepts">
+
+  Основные концепции
+</h2>
+<p>Данные в файле jbeam можно разделить на два типа форматирования:</p>
+<h3 id="tables">
+
+  Таблицы
+</h3>
+<p>Представьте себе таблицу в электронной таблице: списки всегда имеют строку заголовка, определяющую имена столбцов, после которой следуют данные.
+Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span> <span class="err">/*</span> <span class="err">...</span> <span class="err">*/</span> <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"refNodes"</span><span class="p">:[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"ref:"</span><span class="p">,</span> <span class="s2">"back:"</span><span class="p">,</span> <span class="s2">"left:"</span><span class="p">,</span> <span class="s2">"up:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"f3r"</span><span class="p">,</span> <span class="s2">"f5r"</span><span class="p">,</span> <span class="s2">"f4l"</span><span class="p">,</span> <span class="s2">"f8r"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"f2r"</span><span class="p">,</span> <span class="s2">"f3r"</span><span class="p">,</span> <span class="s2">"f1l"</span><span class="p">,</span> <span class="s2">"f1r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Таким образом, в приведённом примере <code>f3r</code> — это первое значение в своей строке в столбце <code>ref:</code> таблицы <code>refNodes</code>, которая содержится в <code>vehicle</code>. Представьте это следующим образом:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamsyntax/table.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamsyntax/table.png"/>
+</span></a></p>
+<p>Таблицы используются тогда, когда данных одного типа много, что позволяет не повторять ключ снова и снова.</p>
+<p>После разбора формат преобразуется в хранилище ключ–значение, и каждая строка сопоставляется с заголовками столбцов. Приведённый выше пример превращается для движка в следующее:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span> <span class="err">/*</span> <span class="err">...</span> <span class="err">*/</span> <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"refNodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"ref:nodes"</span><span class="p">:</span> <span class="s2">"f3r"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"back:nodes"</span><span class="p">:</span> <span class="s2">"f5r"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"left:nodes"</span><span class="p">:</span> <span class="s2">"f4l"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"up:nodes"</span><span class="p">:</span> <span class="s2">"f8r"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"ref:nodes"</span><span class="p">:</span> <span class="s2">"f2r"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"back:nodes"</span><span class="p">:</span> <span class="s2">"f3r"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"left:nodes"</span><span class="p">:</span> <span class="s2">"f1l"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"up:nodes"</span><span class="p">:</span> <span class="s2">"f1r"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h4 id="section-links">
+
+  Ссылки на секции
+</h4>
+<p>Двоеточие (<code>:</code>) в строке заголовка таблицы задаёт ссылку на другую секцию транспортного средства.
+Формат следующий: <code>valueName:targetSectionName</code>. Если <code>targetSectionName</code> не указан, по умолчанию используется <code>nodes</code>.</p>
+<p>Например, заголовок таблицы в строке 15:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  <span class="nt">"vehicle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">      <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">      <span class="p">[</span><span class="s2">"f3r"</span><span class="p">,</span> <span class="mf">-0.35</span><span class="p">,</span> <span class="mf">-1.56</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">      <span class="p">[</span><span class="s2">"f5r"</span><span class="p">,</span>  <span class="mf">0.00</span><span class="p">,</span> <span class="mf">-1.58</span><span class="p">,</span> <span class="mf">0.24</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">      <span class="p">[</span><span class="s2">"f4l"</span><span class="p">,</span> <span class="mf">-0.37</span><span class="p">,</span> <span class="mf">-0.98</span><span class="p">,</span> <span class="mf">0.44</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">      <span class="p">[</span><span class="s2">"f8r"</span><span class="p">,</span> <span class="mf">-0.37</span><span class="p">,</span> <span class="mf">-0.98</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">      <span class="p">[</span><span class="s2">"f2r"</span><span class="p">,</span>  <span class="mf">0.37</span><span class="p">,</span> <span class="mf">-0.98</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">      <span class="p">[</span><span class="s2">"f3r"</span><span class="p">,</span>  <span class="mf">0.37</span><span class="p">,</span> <span class="mf">-0.98</span><span class="p">,</span> <span class="mf">0.44</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">      <span class="p">[</span><span class="s2">"f1l"</span><span class="p">,</span> <span class="mf">-0.69</span><span class="p">,</span> <span class="mf">-0.62</span><span class="p">,</span> <span class="mf">0.39</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">      <span class="p">[</span><span class="s2">"f1r"</span><span class="p">,</span> <span class="mf">-0.65</span><span class="p">,</span> <span class="mf">-0.64</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">    <span class="nt">"refNodes"</span><span class="p">:[</span>
+</span></span><span class="line hl"><span class="ln">15</span><span class="cl">      <span class="p">[</span><span class="s2">"ref:"</span><span class="p">,</span> <span class="s2">"back:"</span><span class="p">,</span> <span class="s2">"left:"</span><span class="p">,</span> <span class="s2">"up:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">      <span class="p">[</span><span class="s2">"f3r"</span><span class="p">,</span> <span class="s2">"f5r"</span><span class="p">,</span> <span class="s2">"f4l"</span><span class="p">,</span> <span class="s2">"f8r"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">      <span class="p">[</span><span class="s2">"f2r"</span><span class="p">,</span> <span class="s2">"f3r"</span><span class="p">,</span> <span class="s2">"f1l"</span><span class="p">,</span> <span class="s2">"f1r"</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>В приведённом примере при наличии <code>"ref:nodes": "f3r"</code> движок обратится к <code>id = f3r</code> в таблице <code>nodes</code>.</p>
+<h3 id="dictionaries">
+
+  Словари
+</h3>
+<p>Это хранилища данных вида <code>key-value</code>. Они применяются тогда, когда данные достаточно уникальны и не повторяются.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"cameraExternal"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"distance"</span><span class="p">:</span> <span class="mf">6.7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"distanceMin"</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"offset"</span><span class="p">:</span> <span class="p">{</span><span class="nt">"x"</span><span class="p">:</span> <span class="mf">0.43</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span> <span class="mf">0.11</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span> <span class="mf">0.55</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"fov"</span><span class="p">:</span> <span class="mi">77</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Словари не требуют постобработки, однако используются редко.</p>
+<h3 id="out-of-bounds-modifiers">
+
+  Внешние модификаторы (out-of-bounds)
+</h3>
+<p>Движок обрабатывает множество входных переменных, поэтому мы добавили способ изменять определённые значения.</p>
+<h4 id="scope-modifiers">
+
+  Модификаторы области видимости
+</h4>
+<p>Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  <span class="nt">"vehicle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">      <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">      <span class="p">[</span><span class="s2">"f3r"</span><span class="p">,</span> <span class="mf">-0.35</span><span class="p">,</span> <span class="mf">-1.56</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">      <span class="p">[</span><span class="s2">"f5r"</span><span class="p">,</span>  <span class="mf">0.00</span><span class="p">,</span> <span class="mf">-1.58</span><span class="p">,</span> <span class="mf">0.24</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">      <span class="p">[</span><span class="s2">"f4l"</span><span class="p">,</span> <span class="mf">-0.37</span><span class="p">,</span> <span class="mf">-0.98</span><span class="p">,</span> <span class="mf">0.44</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">      <span class="p">[</span><span class="s2">"f8r"</span><span class="p">,</span> <span class="mf">-0.37</span><span class="p">,</span> <span class="mf">-0.98</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">],</span>
+</span></span><span class="line hl"><span class="ln"> 9</span><span class="cl">      <span class="p">{</span><span class="nt">"nodeWeight"</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">      <span class="p">[</span><span class="s2">"f2r"</span><span class="p">,</span>  <span class="mf">0.37</span><span class="p">,</span> <span class="mf">-0.98</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">      <span class="p">[</span><span class="s2">"f3r"</span><span class="p">,</span>  <span class="mf">0.37</span><span class="p">,</span> <span class="mf">-0.98</span><span class="p">,</span> <span class="mf">0.44</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">      <span class="p">[</span><span class="s2">"f1l"</span><span class="p">,</span> <span class="mf">-0.69</span><span class="p">,</span> <span class="mf">-0.62</span><span class="p">,</span> <span class="mf">0.39</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">      <span class="p">[</span><span class="s2">"f1r"</span><span class="p">,</span> <span class="mf">-0.65</span><span class="p">,</span> <span class="mf">-0.64</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Строка 9 в приведённом примере явно не является обычной строкой таблицы. (Любые строки должны быть обёрнуты в <code>[ ]</code>).
+Она добавит пару ключ–значение <code>{"nodeWeight":3.0}</code> ко всем последующим строкам на том же уровне <strong>и ниже</strong> (в той же области видимости).</p>
+<p>Таким образом, нода <code>f2r</code> для движка будет выглядеть следующим образом:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="ln">1</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">  <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"f2r"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  <span class="nt">"posX"</span><span class="p">:</span>  <span class="mf">0.37</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">  <span class="nt">"posY"</span><span class="p">:</span> <span class="mf">-0.98</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">  <span class="nt">"posZ"</span><span class="p">:</span>  <span class="mf">0.22</span><span class="p">,</span>
+</span></span><span class="line hl"><span class="ln">6</span><span class="cl">  <span class="nt">"nodeWeight"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><div class="bng-notice warning">Эта функция очень мощная, но одновременно и опасная: модификаторы области видимости могут «протечь» в другие файлы Jbeam, загружаемые после, что приведёт к непредсказуемым последствиям. Используйте с осторожностью.</div>
+<p>Отменить действие модификаторов области видимости также возможно, установив им пустые значения:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  <span class="nt">"vehicle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">      <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">      <span class="p">[</span><span class="s2">"f3r"</span><span class="p">,</span> <span class="mf">-0.35</span><span class="p">,</span> <span class="mf">-1.56</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">      <span class="p">[</span><span class="s2">"f5r"</span><span class="p">,</span>  <span class="mf">0.00</span><span class="p">,</span> <span class="mf">-1.58</span><span class="p">,</span> <span class="mf">0.24</span><span class="p">],</span>
+</span></span><span class="line hl"><span class="ln"> 7</span><span class="cl">      <span class="p">{</span><span class="nt">"group"</span><span class="p">:</span><span class="s2">"body"</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">      <span class="p">[</span><span class="s2">"f4l"</span><span class="p">,</span> <span class="mf">-0.37</span><span class="p">,</span> <span class="mf">-0.98</span><span class="p">,</span> <span class="mf">0.44</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">      <span class="p">[</span><span class="s2">"f8r"</span><span class="p">,</span> <span class="mf">-0.37</span><span class="p">,</span> <span class="mf">-0.98</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">],</span>
+</span></span><span class="line hl"><span class="ln">10</span><span class="cl">      <span class="p">{</span><span class="nt">"group"</span><span class="p">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">      <span class="p">[</span><span class="s2">"f2r"</span><span class="p">,</span>  <span class="mf">0.37</span><span class="p">,</span> <span class="mf">-0.98</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">      <span class="p">[</span><span class="s2">"f3r"</span><span class="p">,</span>  <span class="mf">0.37</span><span class="p">,</span> <span class="mf">-0.98</span><span class="p">,</span> <span class="mf">0.44</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">      <span class="p">[</span><span class="s2">"f1l"</span><span class="p">,</span> <span class="mf">-0.69</span><span class="p">,</span> <span class="mf">-0.62</span><span class="p">,</span> <span class="mf">0.39</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">      <span class="p">[</span><span class="s2">"f1r"</span><span class="p">,</span> <span class="mf">-0.65</span><span class="p">,</span> <span class="mf">-0.64</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>В приведённом примере модификатор <code>group</code> будет применён только к нодам <code>f4l</code> и <code>f8r</code>.</p>
+<h4 id="table-row-modifiers">
+
+  Модификаторы строки таблицы
+</h4>
+<p>Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="ln">1</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">  <span class="nt">"vehicle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">    <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">      <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line hl"><span class="ln">5</span><span class="cl">      <span class="p">[</span><span class="s2">"f2r"</span><span class="p">,</span>  <span class="mf">0.37</span><span class="p">,</span> <span class="mf">-0.98</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">,</span> <span class="p">{</span><span class="nt">"nodeWeight"</span><span class="p">:</span> <span class="mi">3</span><span class="p">}],</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">      <span class="p">[</span><span class="s2">"f3r"</span><span class="p">,</span>  <span class="mf">0.37</span><span class="p">,</span> <span class="mf">-0.98</span><span class="p">,</span> <span class="mf">0.44</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="ln">9</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Строка 5 в приведённом примере содержит строку со словарём после столбцов. Эти значения применяются только к данной строке и нигде больше не «просачиваются». Нода <code>f2r</code> будет иметь свойство <code>nodeWeight</code>, нода <code>f3r</code> — нет.</p>
+<p>Это предпочтительный способ задания дополнительных модификаторов, поскольку они не проникают в другие части ниже и не затрагивают их.</p>
+<h2 id="anatomy-of-a-vehicle-jbeam">
+
+  Анатомия файла jbeam транспортного средства
+</h2>
+<p>Транспортные средства в BeamNG собираются из деталей; детали содержат так называемые <code>sections</code> (секции), хранящие фактические данные.</p>
+<figure class="">
+<a class="lb" data-lightbox="page" data-title="" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamsyntax/vehicle_anatomy_1.png" rel="noopener" target="_blank">
+<img alt="" class="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamsyntax/vehicle_anatomy_1_hu0fc8f42f5e0821bf3ec283eb03f7b82d_41746_300x300_fit_box_3.png"/>
+</a>
+<figcaption class="figcaption"></figcaption>
+</figure>
+<p>Каждый файл jbeam представляет собой плоский словарь ключ–значение доступных деталей, содержащихся в этом файле. Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="ln">1</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="nt">"autobello_fender_RR"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  <span class="c1">// ...
+</span></span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="c1"></span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="nt">"autobello_fender_RL"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">  <span class="c1">// ...
+</span></span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="c1"></span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Ключ — это имя детали, его значение — её секции. При загрузке движок строит дерево деталей и должен знать, какая деталь является <code>base</code> (базовой) или <code>root</code> (корневой). За это отвечает <code>"slotType":"main"</code>.</p>
+<p>Попробуем рассмотреть простой полный файл jbeam (для удобочитаемости некоторые части сокращены) (<code>barrier.jbeam</code>):</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="nt">"barrier_01l"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  <span class="nt">"information"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    <span class="nt">"name"</span><span class="p">:</span><span class="s2">"Concrete Barrier"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    <span class="nt">"authors"</span><span class="p">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  <span class="nt">"slotType"</span><span class="p">:</span><span class="s2">"main"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  <span class="nt">"refNodes"</span><span class="p">:[</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    <span class="p">[</span><span class="s2">"ref:"</span><span class="p">,</span> <span class="s2">"back:"</span><span class="p">,</span> <span class="s2">"left:"</span><span class="p">,</span> <span class="s2">"up:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="p">[</span><span class="s2">"barrier_11"</span><span class="p">,</span> <span class="s2">"barrier_9"</span><span class="p">,</span> <span class="s2">"barrier_4"</span><span class="p">,</span> <span class="s2">"barrier_15"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  <span class="nt">"cameraExternal"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="nt">"distance"</span><span class="p">:</span><span class="mf">5.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">    <span class="nt">"distanceMin"</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">    <span class="nt">"offset"</span><span class="p">:{</span><span class="nt">"x"</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span><span class="mf">0.4</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span><span class="mf">0.5</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    <span class="nt">"fov"</span><span class="p">:</span><span class="mi">65</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">  <span class="nt">"flexbodies"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">    <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">    <span class="p">{</span><span class="nt">"rotation"</span><span class="p">:{</span><span class="nt">"x"</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span><span class="mi">0</span><span class="p">},</span> <span class="nt">"translation"</span><span class="p">:{</span><span class="nt">"x"</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span><span class="mi">0</span><span class="p">}},</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">    <span class="p">[</span><span class="s2">"barrier_01"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"barrier"</span><span class="p">]],</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl">    <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl">    <span class="p">{</span><span class="nt">"nodeWeight"</span><span class="p">:</span><span class="mf">222.222</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">    <span class="p">{</span><span class="nt">"group"</span><span class="p">:</span><span class="s2">"barrier"</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl">    <span class="p">{</span><span class="nt">"nodeMaterial"</span><span class="p">:</span><span class="s2">"|NM_ASPHALT"</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl">    <span class="p">{</span><span class="nt">"frictionCoef"</span><span class="p">:</span><span class="mf">1.3</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl">    <span class="p">{</span><span class="nt">"collision"</span><span class="p">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl">    <span class="p">{</span><span class="nt">"selfCollision"</span><span class="p">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl">    <span class="p">[</span><span class="s2">"barrier_0"</span><span class="p">,</span> <span class="mf">-1.5</span><span class="p">,</span> <span class="mf">-0.4</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">32</span><span class="cl">    <span class="p">[</span><span class="s2">"barrier_1"</span><span class="p">,</span> <span class="mf">-1.5</span><span class="p">,</span> <span class="mf">-0.16</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl">    <span class="p">[</span><span class="s2">"barrier_2"</span><span class="p">,</span> <span class="mf">-1.5</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl">    <span class="c1">// ...
+</span></span></span><span class="line"><span class="ln">35</span><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"barrier_16"</span><span class="p">,</span> <span class="mf">-1.5</span><span class="p">,</span> <span class="mf">-0.16</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">36</span><span class="cl">    <span class="p">[</span><span class="s2">"barrier_17"</span><span class="p">,</span> <span class="mf">-1.5</span><span class="p">,</span> <span class="mf">0.16</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">37</span><span class="cl">    <span class="p">{</span><span class="nt">"group"</span><span class="p">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">38</span><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="ln">39</span><span class="cl">  <span class="nt">"beams"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="ln">40</span><span class="cl">    <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span> <span class="s2">"id2:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">41</span><span class="cl">    <span class="p">{</span><span class="nt">"beamPrecompression"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="nt">"beamType"</span><span class="p">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="nt">"beamLongBound"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="nt">"beamShortBound"</span><span class="p">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">42</span><span class="cl">    <span class="p">{</span><span class="nt">"beamSpring"</span><span class="p">:</span><span class="mi">10000000</span><span class="p">,</span><span class="nt">"beamDamp"</span><span class="p">:</span><span class="mi">38000</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">43</span><span class="cl">    <span class="p">{</span><span class="nt">"beamDeform"</span><span class="p">:</span><span class="s2">"FLT_MAX"</span><span class="p">,</span><span class="nt">"beamStrength"</span><span class="p">:</span><span class="s2">"FLT_MAX"</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">44</span><span class="cl">    <span class="c1">//main shape
+</span></span></span><span class="line"><span class="ln">45</span><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="s2">"barrier_5"</span><span class="p">,</span><span class="s2">"barrier_15"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">46</span><span class="cl">    <span class="p">[</span><span class="s2">"barrier_2"</span><span class="p">,</span><span class="s2">"barrier_3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">47</span><span class="cl">    <span class="c1">// ...
+</span></span></span><span class="line"><span class="ln">48</span><span class="cl"><span class="c1"></span>  <span class="p">],</span>
+</span></span><span class="line"><span class="ln">49</span><span class="cl">  <span class="nt">"triangles"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="ln">50</span><span class="cl">    <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span><span class="s2">"id2:"</span><span class="p">,</span><span class="s2">"id3:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">51</span><span class="cl">    <span class="p">{</span><span class="nt">"groundModel"</span><span class="p">:</span><span class="s2">"asphalt"</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">52</span><span class="cl">    <span class="p">{</span><span class="nt">"group"</span><span class="p">:</span><span class="s2">"barrier"</span><span class="p">},</span>
+</span></span><span class="line"><span class="ln">53</span><span class="cl">    <span class="p">[</span><span class="s2">"barrier_7"</span><span class="p">,</span><span class="s2">"barrier_6"</span><span class="p">,</span><span class="s2">"barrier_9"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">54</span><span class="cl">    <span class="p">[</span><span class="s2">"barrier_5"</span><span class="p">,</span><span class="s2">"barrier_4"</span><span class="p">,</span><span class="s2">"barrier_6"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">55</span><span class="cl">    <span class="c1">// ...
+</span></span></span><span class="line"><span class="ln">56</span><span class="cl"><span class="c1"></span>  <span class="p">],</span>
+</span></span><span class="line"><span class="ln">57</span><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="ln">58</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Разберём приведённый пример:</p>
+<ul>
+<li><code>barrier_01l</code> — имя детали</li>
+<li><code>"slotType":"main"</code> указывает, что это корневая деталь, которую можно размещать в мире напрямую.</li>
+<li><code>information, refNodes, cameraExternal, flexbodies, nodes, beams, triangles</code> — секции детали, содержащие данные.</li>
+</ul>
+<hr/>
+<h2 id="advanced">
+
+  Продвинутые возможности
+</h2>
+<p>Ниже описаны некоторые расширенные части синтаксиса. Они могут быть полезны опытному моддеру, но могут показаться сложными для новичка.</p>
+<h3 id="functions">
+
+  Функции
+</h3>
+<p>Функции используются для динамического вычисления числовых значений в Jbeam (например, когда число зависит от переменной), а также для конкатенации строковых значений. По сути это автоматически вычисляемые математические и/или логические выражения. Несмотря на ограниченное применение в официальном контенте, они обладают очень широкими возможностями.</p>
+<p>Поскольку файлы Jbeam по сути являются базами данных изолированных (sandboxed) lua-выражений, можно строить практически любые выражения, допустимые в чистом lua. Единственное исключение — в Jbeam нельзя присваивать новые lua-переменные, поэтому результаты вычислений, сделанных в более ранних секциях Jbeam, повторно использовать не получится.</p>
+<p>Чтобы заменить числовое значение функцией, нужно заключить его в двойные кавычки, как строку, и начать выражение с <code>$=</code>. Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span><span class="nt">"nodeWeight"</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span> <span class="c1">//before
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="p">{</span><span class="nt">"nodeWeight"</span><span class="p">:</span> <span class="s2">"$=2+2"</span><span class="p">},</span> <span class="c1">//after
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Конкатенация строки аналогична: двойные кавычки должны охватывать всю функцию целиком, а все подстроки следует заключать в одинарные кавычки:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span><span class="nt">"group"</span><span class="p">:</span> <span class="s2">"my_group"</span><span class="p">},</span> <span class="c1">//before
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="p">{</span><span class="nt">"group"</span><span class="p">:</span> <span class="s2">"$='my_'..'group'"</span><span class="p">},</span> <span class="c1">//after
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Функции тесно связаны с <a data-doc="vehicle/sections/variables" href="/docs/vehicle/sections/variables">переменными</a>
+ и часто используются совместно с ними. Переменная, используемая самостоятельно, должна быть в двойных кавычках, но при использовании внутри функции её собственные кавычки выполняют эту роль.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span><span class="nt">"nodeWeight"</span><span class="p">:</span> <span class="s2">"$weight"</span><span class="p">},</span> <span class="c1">//before
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="p">{</span><span class="nt">"nodeWeight"</span><span class="p">:</span> <span class="s2">"$=$weight*1"</span><span class="p">},</span> <span class="c1">//after
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Функции можно использовать везде в Jbeam, за исключением аргумента 'id' секции <a data-doc="vehicle/sections/rails" data-frag="rails" href="/docs/vehicle/sections/rails#rails">rails</a>
+ — там нужно использовать <a data-doc="vehicle/sections/rails" data-frag="rails2" href="/docs/vehicle/sections/rails#rails2">rails2</a>
+, которая поддерживает это. Rails2 — это по сути rails с другим синтаксисом, поэтому преобразование всегда выполняется без потерь.</p>
+<h4 id="operators">
+
+  Операторы
+</h4>
+<p>Наши функции поддерживают все стандартные операторы, доступные в lua. Все они могут использоваться в выражениях функций.
+</p><div class="bng-table" id="table-1783007350885244391"><div class="bng-table-header"><div>Тип оператора</div><div>Примеры</div><div>Примечания</div></div>
+<div class="bng-table-row"><div>
+<div style="">Тип оператора</div>
+<div style="">Арифметический</div>
+</div><div>
+<div style="">Примеры</div>
+<div style="">+   -   *  /  %  ^</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Оператор - работает как для вычитания, например '$=var1 - var2', так и для отрицания, например '$= -var1'</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Тип оператора</div>
+<div style="">Реляционный</div>
+</div><div>
+<div style="">Примеры</div>
+<div style="">==  ~=  &gt;  &lt;  &gt;=  &lt;=</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Можно использовать для проверки существования переменной, сравнив её с nil</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Тип оператора</div>
+<div style="">Логический</div>
+</div><div>
+<div style="">Примеры</div>
+<div style="">and  or  not</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Чаще всего используется для построения тернарных операторов в случаях, когда нужно выполнить арифметику над одним из операндов, что недопустимо, если он равен nil</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Тип оператора</div>
+<div style="">Конкатенация строк</div>
+</div><div>
+<div style="">Примеры</div>
+<div style="">..</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">При конкатенации числа со строкой оно должно быть заключено в скобки, и всегда следует помнить об округлении или ограничении диапазона</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Тип оператора</div>
+<div style="">Длина строки</div>
+</div><div>
+<div style="">Примеры</div>
+<div style="">#</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">При использовании выражения с переменной оно должно быть заключено в скобки. Не позволяет получить длину таблицы Jbeam</div>
+</div></div></div>
+<p>Любой операнд с любой стороны арифметического, реляционного или логического оператора может быть числом, переменной или одной из встроенных функций. Операнды функции конкатенации строк могут быть строками (в одинарных кавычках) либо числами, переменными или выражениями (в круглых скобках). Операнды функции определения длины строки могут быть только строками и переменными; последние должны быть заключены в скобки.</p>
+<p>Разумеется, можно комбинировать различные операторы, числа, переменные и встроенные функции для создания сложных выражений под ваши нужды:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"slots"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span><span class="nt">"nodeOffset"</span><span class="p">:{</span><span class="nt">"x"</span><span class="p">:</span><span class="s2">"$=case($trackwidth_F == nil, $trackoffset_F+0.26, $trackwidth_F)"</span><span class="p">,</span> <span class="nt">"y"</span><span class="p">:</span><span class="mf">-1.295</span><span class="p">,</span> <span class="nt">"z"</span><span class="p">:</span><span class="mf">0.351</span><span class="p">}}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"pressureWheels"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span><span class="nt">"brakeTorque"</span><span class="p">:</span><span class="s2">"$=$brakebias == nil and $brakestrength*1500 or $brakestrength*5000*(1-$brakebias)"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h4 id="built-in-functions">
+
+  Встроенные функции
+</h4>
+<p>Несколько lua-файлов, входящих в состав игры, предоставляют готовые функции для использования в файлах Jbeam. Импортировать библиотеки или добавлять префиксы не нужно — они доступны сразу. Их можно использовать как самостоятельно, так и в составе собственных пользовательских функций, применяя к числам, переменным или другим функциям. Хотя большинство из них редко встречается в официальном контенте, вы можете свободно применять их в модах.</p>
+<h4 id="clamping-and-rounding-numbers"> Ограничение диапазона и округление чисел </h4>
+<p>Функции, определённые в <code>lua/common/mathlib.lua</code>, используются преимущественно для округления и ограничения диапазона чисел.
+</p><div class="bng-table" id="table-1783007350885492862"><div class="bng-table-header"><div>Название</div><div>Описание</div><div>Пример</div><div>Примечания</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">round(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">округляет x до целого числа</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=round($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">square(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возводит x в квадрат</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=square($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Даёт тот же результат, что и '$=$var^2'</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">clamp(x, y, z)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">ограничивает x значением y (минимум) и z (максимум)</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=clamp($var, 0, 1)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">smoothstep(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">выполняет сигмоидную интерполяцию Smoothstep</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=smoothstep($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Из семейства функций сглаживающей интерполяции и ограничения Smoothstep; широко используется в игровых движках и графике</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">smootherstep(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">выполняет сигмоидную интерполяцию Smootherstep</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=smootherstep($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Из семейства функций сглаживающей интерполяции и ограничения Smoothstep; широко используется в игровых движках и графике</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">smootheststep(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">выполняет сигмоидную интерполяцию Smootheststep</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=smootheststep($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Из семейства функций сглаживающей интерполяции и ограничения Smoothstep; широко используется в игровых движках и графике</div>
+</div></div></div>
+<h4 id="debug-and-compatibility-functions"> Функции отладки и совместимости </h4>
+<p>Функции в <code>lua/common/jbeam/expressionParser.lua</code> используются в целях отладки и обратной совместимости.
+</p><div class="bng-table" id="table-1783007350885758057"><div class="bng-table-header"><div>Название</div><div>Описание</div><div>Пример</div><div>Примечания</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">case(selector, …)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">селектор case, работает двумя способами:<br/>1-й способ: если 1-й параметр — булево значение, при true возвращает 2-й параметр, при false — 3-й параметр<br/>2-й способ: если 1-й параметр — целое число 'n', возвращает параметр с номером 'n'+1 (возвращает последний параметр, если 'n' &gt; числа параметров).</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=case($var == nil, 0.25, $var)<br/>if $var = nil: return 0.25<br/>if $var = 0.5: return $var<br/><br/>$=case($a, 'foo', 'bar', 'baz')<br/>if $a = 1: return 'foo'<br/>if $a = 2: return 'bar'<br/>if $a = 3: return 'baz'</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Обычно используется для обеспечения обратной совместимости с удалёнными переменными, как в примере. Нельзя применять для арифметических операций внутри выражения над переменными, которые могут принимать значение nil</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">print(val, label)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">выводит val в консоль и передаёт его дальше; если указан label, выводит 'label = val', иначе только val</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=print($var, var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Только для отладки, не следует использовать в финальном коде</div>
+</div></div></div>
+<h4 id="table-operations"> Операции с таблицами </h4>
+<p>Операции с таблицами можно использовать совместно с <a data-doc="vehicle/sections/components" href="/docs/vehicle/sections/components">компонентами</a>
+.
+</p><div class="bng-table" id="table-1783007350885941799"><div class="bng-table-header"><div>Название</div><div>Описание</div><div>Пример</div><div>Примечания</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">vec3(x, y, z)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Группирует 3 значения в трёхмерный вектор</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=vec3(0, 1, 2)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">quat(w, x, y, z)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Группирует 4 значения в кватернион</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=quat(0.1, 0.2, 0.3, -0.4)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Кватернионы удобны для задания трёхмерного поворота без возникновения проблемы шарнирного замка (gimbal lock)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">concat(table, separator, [start], [end])</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Конкатенирует таблицу в строку с выбранным разделителем. Можно дополнительно указать начальный и конечный индекс конкатенируемой части таблицы</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=concat($components.a, ',')</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Преобразование таблицы в строку позволяет использовать её значения внутри Jbeam</div>
+</div></div></div>
+<h4 id="built-in-math-library"> Встроенная математическая библиотека </h4>
+<p>Наибольшее количество функций представлено во встроенной математической библиотеке. Это изменённая версия стандартной библиотеки Math для lua; высокоуровневых отличий немного, поэтому для подробных пояснений можно обращаться к официальной документации lua. Они используются так же, как в lua-файлах, за исключением того, что префикс <code>math.</code> не нужен.
+</p><div class="bng-notice warning">Будьте осторожны с этой категорией функций! Всегда убеждайтесь, что ваше выражение делает именно то, что вы хотите, его результат предсказуем и не может принять значение nil. Если выражение завершается с ошибкой, изменяемое им значение будет установлено в значение по умолчанию, что может привести к нестабильности!</div>
+<div class="bng-table" id="table-1783007350886161151"><div class="bng-table-header"><div>Название</div><div>Описание</div><div>Пример</div><div>Примечания</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">abs(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает абсолютное значение x</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=abs($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">acos(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает арккосинус x в радианах</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=acos($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Обратная операция к cos(x)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">asin(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает арксинус x в радианах</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=asin($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Обратная операция к sin(x)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">atan(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает арктангенс x в радианах</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=atan($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Обратная операция к tan(x)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">atan2(x, y)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает арктангенс (y/x) в радианах</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=atan2($var1,$var2)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Использует знаки обоих аргументов для определения квадранта результата</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">ceil(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает наименьшее целое число, не меньшее x</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=ceil($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Поведение корректно для отрицательных значений</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">cos(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает косинус x в радианах</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=cos($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">cosh(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает гиперболический косинус x в радианах</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=cosh($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">deg(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">переводит радианы в градусы</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=deg($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Обратная операция к rad(x)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">exp(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает e (основание натурального логарифма) в степени x</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=deg($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">exp(1) возвращает e</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">floor(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает наибольшее целое число, не превышающее x</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=floor($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Поведение корректно для отрицательных значений</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">fmod(x,y)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает остаток от деления x/y в формате числа с плавающей точкой</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=fmod($var1,$var2)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Даёт тот же результат, что и '$=$var1%$var2'</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">frexp(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает мантиссу и порядок числа x</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=frexp($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">В Jbeam можно использовать только мантиссу — именно она будет присвоена в качестве значения</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">huge</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает значение, превышающее любое числовое значение</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=huge</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Даёт тот же результат, что и 'FLT_MAX'</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">ldexp(x,y)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает x*2^y</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=ldexp($var1,$var2)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Обратная операция к frexp(x)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">log(x,y)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает логарифм x по основанию y</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=log($var1,$var2)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Если y не указан, по умолчанию используется e и функция становится обратной к exp(x)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">log10(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает логарифм x по основанию 10</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=log10($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">max(x, …)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает наибольший из переданных аргументов</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=max($var1, $var2, $var3)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">min(x, …)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает наименьший из переданных аргументов</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=min($var1, $var2, $var3)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">modf(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает целую и дробную части x</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=modf($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">В Jbeam можно использовать только целую часть — именно она будет присвоена в качестве значения</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">pi</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает 3.1415926535898</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=pi</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">pow(x,y)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает x в степени y</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=pow($var1,$var2)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Даёт тот же результат, что и '$=$var1^$var2'</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">rad(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">переводит градусы в радианы</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=rad($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">random(x,y)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Возвращает случайное число с плавающей точкой в диапазоне от x до y; если y не указан — случайное число от 1 до x; если аргументы не указаны — случайное число от 0 до 1; все диапазоны включительно, равномерное распределение; значение изменяется при каждой перезагрузке транспортного средства (по умолчанию ctrl+r)</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=random($var1,$var2)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">ВНИМАНИЕ!!! ИСПОЛЬЗОВАНИЕ СЛУЧАЙНЫХ ЗНАЧЕНИЙ В СИМУЛЯЦИИ МЯГКОГО ТЕЛА МОЖЕТ ПРИВЕСТИ К НЕПРЕДСКАЗУЕМОМУ И НЕВОСПРОИЗВОДИМОМУ ПОВЕДЕНИЮ! ИСПОЛЬЗУЙТЕ НА СВОЙ СТРАХ И РИСК, И НИКОГДА НЕ ПРИМЕНЯЙТЕ РАНДОМИЗАЦИЮ К ПАРАМЕТРАМ, ВЛИЯЮЩИМ НА ФИЗИЧЕСКУЮ СИМУЛЯЦИЮ, — ТОЛЬКО К ТАКИМ ЭЛЕМЕНТАМ, КАК ФЛЕКСБОДИ ИЛИ GLOWMAP!</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">randomseed(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Устанавливает зерно для функции Random; одинаковые зёрна порождают одинаковые последовательности чисел</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=randomseed(1234)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Следует присваивать неиспользуемому вспомогательному модификатору</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">sin(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает синус x в радианах</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=sin($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">sinh(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает гиперболический синус x в радианах</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=sinh($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">sqrt(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает квадратный корень из x</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=sqrt($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style="">Даёт тот же результат, что и '$=$var^0.5'</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">tan(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает тангенс x в радианах</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=tan($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">tanh(x)</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">возвращает гиперболический тангенс x в радианах</div>
+</div><div>
+<div style="">Пример</div>
+<div style="">$=tanh($var)</div>
+</div><div>
+<div style="">Примечания</div>
+<div style=""></div>
+</div></div></div>
+<h3 id="advanced-modifiers">
+
+  Продвинутые модификаторы
+</h3>
+<p>Некоторые расширенные внешние модификаторы, которые могут встречаться в синтаксисе Jbeam. Они используются только в особых случаях.</p>
+<h4 id="scaling-process-modifiers">
+
+  Модификаторы масштабирования
+</h4>
+<p>В основной части Jbeam, рядом с таблицами и словарями, существует особый вид модификаторов. Он используется для масштабирования числовых значений других модификаторов.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  <span class="nt">"vehicle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    <span class="nt">"slots"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">        <span class="p">[</span><span class="s2">"type"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">        <span class="p">[</span><span class="s2">"vehicle_body"</span><span class="p">,</span><span class="s2">"vehicle_body"</span><span class="p">,</span> <span class="s2">"Body"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">        <span class="p">[</span><span class="s2">"paint_design"</span><span class="p">,</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"Paint Design"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    <span class="p">],</span>
+</span></span><span class="line hl"><span class="ln"> 8</span><span class="cl">    <span class="nt">"scaledragCoef"</span><span class="p">:</span><span class="mf">2.15</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    <span class="nt">"controller"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">        <span class="p">[</span><span class="s2">"fileName"</span><span class="p">],</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">        <span class="p">[</span><span class="s2">"vehicleController"</span><span class="p">,</span> <span class="p">{}],</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Модификатор работает следующим образом: он ищет строку <code>scale</code> в ключах внутри структуры Jbeam рядом с таблицами и словарями, а затем умножает все модификаторы с именем, указанным в остатке строки, на заданное значение. Например, приведённый выше модификатор умножит все модификаторы <code>dragCoef</code> на <code>2.15.</code> Он действует глобально на всё транспортное средство, пока не будет загружена деталь, которая его отменяет.</p>
+<p>Чаще всего он применяется для точной настройки общего коэффициента аэродинамического сопротивления транспортного средства, однако с его помощью можно масштабировать и любые другие модификаторы. Имейте в виду, что это затрудняет последующее чтение файла Jbeam, поскольку вы больше не работаете с реальными значениями, поэтому использовать его следует только в особых случаях.</p>
+<h4 id="disable-modifier">
+
+  Модификатор отключения (Disable)
+</h4>
+<p>Модификатор Disable — это специальный модификатор, который заставляет lua пропускать строки и не читать их. Например, следующие строки не будут прочитаны, а строки ниже — будут:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="nt">"disable"</span><span class="p">:</span> <span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"5"</span><span class="p">,</span><span class="s2">"7"</span><span class="p">,</span><span class="s2">"6"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"5"</span><span class="p">,</span><span class="s2">"6"</span><span class="p">,</span><span class="s2">"4"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"0"</span><span class="p">,</span><span class="s2">"5"</span><span class="p">,</span><span class="s2">"4"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"2"</span><span class="p">,</span><span class="s2">"6"</span><span class="p">,</span><span class="s2">"7"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"2"</span><span class="p">,</span><span class="s2">"7"</span><span class="p">,</span><span class="s2">"3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="nt">"disable"</span><span class="p">:</span> <span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Он полезен в сочетании с <a data-doc="vehicle/sections/slots" data-frag="slot-variables" href="/docs/vehicle/sections/slots#slot-variables">переменными слотов (Slot Variables)</a>
+, передающими булево значение. Это позволяет объединить несколько вариантов детали Jbeam с небольшими отличиями, имеющих отдельные slotType, в одну деталь: секции, содержащие изменения, окружаются модификаторами Disable, использующими булевы переменные слотов:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="nt">"disable"</span><span class="p">:</span> <span class="s2">"$variant1"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"5"</span><span class="p">,</span><span class="s2">"7"</span><span class="p">,</span><span class="s2">"6"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"5"</span><span class="p">,</span><span class="s2">"6"</span><span class="p">,</span><span class="s2">"4"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"0"</span><span class="p">,</span><span class="s2">"5"</span><span class="p">,</span><span class="s2">"4"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"2"</span><span class="p">,</span><span class="s2">"6"</span><span class="p">,</span><span class="s2">"7"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"2"</span><span class="p">,</span><span class="s2">"7"</span><span class="p">,</span><span class="s2">"3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="nt">"disable"</span><span class="p">:</span> <span class="s2">"$variant2"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"5b"</span><span class="p">,</span><span class="s2">"7"</span><span class="p">,</span><span class="s2">"6"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"5b"</span><span class="p">,</span><span class="s2">"6"</span><span class="p">,</span><span class="s2">"4"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"0"</span><span class="p">,</span><span class="s2">"5b"</span><span class="p">,</span><span class="s2">"4"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"2b"</span><span class="p">,</span><span class="s2">"6"</span><span class="p">,</span><span class="s2">"7"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"2b"</span><span class="p">,</span><span class="s2">"7"</span><span class="p">,</span><span class="s2">"3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="nt">"disable"</span><span class="p">:</span> <span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div>
+<h4 id="include-modifier">
+
+  Модификатор включения (Include)
+</h4>
+<p>Доступен начиная с версии BeamNG 0.34; модификатор Include заменяет устаревший и не рекомендуемый к использованию модификатор includeCSV. Его назначение — хранить содержимое таблицы Jbeam в CSV-файле, путь к которому задаётся относительно папки игры. Для этого используется синтаксис выражений, аналогичный переменным:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"mainEngine"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"torque"</span><span class="p">:</span> <span class="s2">"$=include('vehicles/common/engines/v8_classic/gavril_291_mainTorqueCurve.csv')"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"idleRPM"</span><span class="p">:</span><span class="mi">700</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">//...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Содержимое CSV-файла:</p>
+
+<pre tabindex="0"><code>"rpm","torque"
+0,0
+500,170
+1000,283
+1500,342
+2000,370
+2500,390
+3000,402
+3500,403
+4000,391
+4500,360
+5000,320
+5500,277
+6000,235
+6500,190
+7000,146
+7500,98
+8000,65
+</code></pre>
+<p>Как игра видит эту секцию:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"mainEngine"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"torque"</span><span class="p">:[</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="s2">"rpm"</span><span class="p">,</span> <span class="s2">"torque"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">0</span><span class="p">,</span>    <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">500</span><span class="p">,</span><span class="mi">170</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">283</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">1500</span><span class="p">,</span><span class="mi">342</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">2000</span><span class="p">,</span><span class="mi">370</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">2500</span><span class="p">,</span><span class="mi">390</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">3000</span><span class="p">,</span><span class="mi">402</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">3500</span><span class="p">,</span><span class="mi">403</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">4000</span><span class="p">,</span><span class="mi">391</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">4500</span><span class="p">,</span><span class="mi">360</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">5000</span><span class="p">,</span><span class="mi">320</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">5500</span><span class="p">,</span><span class="mi">277</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">6000</span><span class="p">,</span><span class="mi">235</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">6500</span><span class="p">,</span><span class="mi">190</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">7000</span><span class="p">,</span><span class="mi">146</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">7500</span><span class="p">,</span><span class="mi">98</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="mi">8000</span><span class="p">,</span><span class="mi">65</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"idleRPM"</span><span class="p">:</span><span class="mi">700</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">//...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Этот модификатор удобен для хранения общих данных Jbeam — в особенности компонентов трансмиссии — совместно используемых разными транспортными средствами. Например, два автомобиля могут использовать один и тот же двигатель, но не могут использовать один базовый файл Jbeam из-за немного различающихся флексбоди, скорректированных под разные зазоры, положения воздухозаборников и т.д.</p>
+<p>Помимо CSV-файлов, поддерживаются также файлы XLSX. Имейте в виду, что парсер XLSX работает медленно и должен использоваться только для прототипирования и отладки — в финальном продукте следует использовать CSV. Пример использования XLSX, <a href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamsyntax/gavril_291_mainTorqueCurve.xlsx" rel="noopener" target="_blank">файл доступен здесь</a>
+:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"mainEngine"</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"torque"</span><span class="p">:</span> <span class="s2">"$=include('vehicles/common/engines/v8_classic/gavril_291_mainTorqueCurve.xlsx')"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"idleRPM"</span><span class="p">:</span><span class="mi">700</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">//...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Если файл XLSX содержит несколько листов, можно указать нужный во втором аргументе модификатора:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="nt">"torque"</span><span class="p">:</span> <span class="s2">"$=include('vehicles/common/engines/v8_classic/gavril_291_mainTorqueCurve.xlsx', 'Sheet1')"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>При указании листа можно дополнительно сузить диапазон до конкретных ячеек с помощью третьего аргумента. Библиотека поддерживает различные виды запросов диапазона:</p>
+<ul>
+<li>Одна ячейка: укажите одну ячейку, например "B2".</li>
+<li>Весь столбец: укажите столбец, например "C".</li>
+<li>Вся строка: укажите строку, например "3".</li>
+<li>Диапазон столбцов: укажите диапазон столбцов, например "B:D".</li>
+<li>Диапазон строк: укажите диапазон строк, например "2:4".</li>
+<li>Диапазон ячеек: укажите прямоугольный диапазон, например "A1:C3".</li>
+<li>Весь лист: не указывайте диапазон, чтобы получить весь лист.</li>
+</ul>
+<p>Пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="nt">"torque"</span><span class="p">:</span> <span class="s2">"$=include('vehicles/common/engines/v8_classic/gavril_291_mainTorqueCurve.xlsx', 'Sheet1', 'A1:C3')"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Эти аргументы доступны только для файлов XLSX и не поддерживаются для CSV.</p>
+<h4 id="namespace-variables">
+
+  Переменные пространства имён
+</h4>
+<p>Переменные пространства имён — это разновидность <a data-doc="vehicle/sections/slots" data-frag="slot-variables" href="/docs/vehicle/sections/slots#slot-variables">переменных слотов (Slot Variables)</a>
+, добавленная в версии <code>0.38</code>. Это 2 специальные переменные с именами <code>$prefix</code> и <code>$suffix</code>.</p>
+<p>В дочерней детали, которой переданы эти переменные, любая строка, начинающаяся с конструкции <code>$.</code>, будет иметь переменную <code>$prefix</code>, добавленную в начало, и <code>$suffix</code> — в конец. Если из родительского слота передана только одна из этих переменных, добавлена будет только она. Если переданы обе — добавятся обе.</p>
+<p>Например, можно передать в дочернюю деталь следующие переменные пространства имён:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"variables"</span><span class="o">:</span><span class="p">{</span><span class="s2">"$prefix"</span><span class="o">:</span><span class="s2">"row1_"</span><span class="p">,</span> <span class="s2">"$suffix"</span><span class="o">:</span><span class="s2">"_part1"</span><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Затем в дочерней детали можно добавить ноду следующим образом:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"$.node1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span></code></pre>
+</div><p>Тогда имя ноды будет прочитано игровым движком как <code>row1_node1_part1</code>.</p>
+<p>Переменные пространства имён существуют для сокращения синтаксиса при активном использовании переменных слотов в различных секциях Jbeam. Запись <code>"$.node1"</code> по существу эквивалентна записи:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"$= ($prefix ~= nil and $prefix or '') .. 'node1' .. ($suffix ~= nil and $suffix or '')"</span>
+</span></span></code></pre>
+</div><p>Это даёт значительную экономию времени и позволяет навести порядок в случаях, когда одну и ту же деталь Jbeam нужно использовать в нескольких слотах — это вынуждает делать имена нод зависящими от переменных слотов и ссылаться на динамические имена во всех секциях, таких как beams и triangles.</p>

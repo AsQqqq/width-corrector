@@ -1,0 +1,528 @@
+<p>В этом документе описываются данные Forest Brush, используемые редактором леса World Editor Forest Editor.</p>
+<p>Forest Brush — это группы правил размещения, существующие только в редакторе и предназначенные для рисования лесных объектов на уровне. Кисть может содержать один или несколько объектов <code>ForestBrushElement</code>. Каждый элемент ссылается на тип <code>ForestItemData</code> и определяет, как именно данный объект должен размещаться случайным образом.</p>
+<p>Forest Brush не хранит непосредственно размещённые экземпляры леса. Это инструменты для создания данных о размещении леса.</p>
+<hr/>
+<h2 id="overview">
+
+  Обзор
+</h2>
+<p>Forest Brush — это контейнер из одного или нескольких элементов кисти.</p>
+<p>Каждый <code>ForestBrushElement</code> управляет:</p>
+<ul>
+<li>Каким типом лесного объекта можно рисовать</li>
+<li>Вероятностью выбора данного элемента</li>
+<li>Диапазоном случайного поворота</li>
+<li>Диапазоном случайного масштаба</li>
+<li>Ограничениями по уклону</li>
+<li>Ограничениями по высоте</li>
+<li>Настройкой погружения/глубины</li>
+</ul>
+<p>Это позволяет одним мазком кисти нарисовать естественно выглядящую смесь деревьев, камней, кустарников, пучков травы и других лесных объектов.</p>
+<p>Примеры применения:</p>
+<ul>
+<li>Кисти смешанного леса</li>
+<li>Кисти случайного рассыпания камней</li>
+<li>Кисти кустарника/травяного подлеска</li>
+<li>Растительность, привязанная к высоте</li>
+<li>Скальные камни, ограниченные по уклону</li>
+<li>Случайная плотность леса и вариации масштаба</li>
+</ul>
+<hr/>
+<h2 id="object-types">
+
+  Типы объектов
+</h2>
+<table>
+<thead>
+<tr>
+<th>Объект</th>
+<th>Назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ForestBrush</code></td>
+<td>Контейнер для одного или нескольких объектов <code>ForestBrushElement</code>.</td>
+</tr>
+<tr>
+<td><code>ForestBrushElement</code></td>
+<td>Определяет настройки размещения для одного типа лесного объекта.</td>
+</tr>
+<tr>
+<td><code>ForestItemData</code></td>
+<td>Тип лесного объекта, на который ссылается элемент кисти.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="forestbrush">
+
+  ForestBrush
+</h2>
+<p><code>ForestBrush</code> — это класс-контейнер для объектов <code>ForestBrushElement</code>.</p>
+<p>Он используется только в редакторе и хранится внутри специальной группы:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">ForestBrushGroup
+</span></span></code></pre>
+</div><p>Если <code>ForestBrushGroup</code> не существует, движок создаёт её автоматически.</p>
+<p><code>ForestBrush</code> принимает только дочерние объекты типа <code>ForestBrushElement</code>. Объекты других типов игнорируются при добавлении в кисть.</p>
+<hr/>
+<h2 id="forestbrushelement">
+
+  ForestBrushElement
+</h2>
+<p><code>ForestBrushElement</code> представляет один возможный тип лесного объекта в кисти.</p>
+<p>Например, кисть «смешанный сосновый лес» может содержать:</p>
+<ul>
+<li>Элемент маленькой сосны</li>
+<li>Элемент средней сосны</li>
+<li>Элемент большой сосны</li>
+<li>Элемент кустарника</li>
+<li>Элемент камня</li>
+</ul>
+<p>Каждый элемент имеет собственные настройки вероятности, масштаба, уклона и высоты.</p>
+<hr/>
+<h2 id="fields">
+
+  Поля
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Значение по умолчанию</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>forestItemData</code></td>
+<td>ForestItemData</td>
+<td><code>null</code></td>
+<td>Тип лесного объекта, который размещает данный элемент.</td>
+</tr>
+<tr>
+<td><code>probability</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Относительная вероятность выбора данного элемента во время рисования.</td>
+</tr>
+<tr>
+<td><code>rotationRange</code></td>
+<td>number</td>
+<td><code>360</code></td>
+<td>Максимальный диапазон случайного поворота в градусах.</td>
+</tr>
+<tr>
+<td><code>scaleMin</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Минимальный случайный масштаб объекта.</td>
+</tr>
+<tr>
+<td><code>scaleMax</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Максимальный случайный масштаб объекта.</td>
+</tr>
+<tr>
+<td><code>scaleExponent</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Показатель степени смещения при выборе случайного масштаба.</td>
+</tr>
+<tr>
+<td><code>sinkMin</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Минимальная вариация величины погружения.</td>
+</tr>
+<tr>
+<td><code>sinkMax</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Максимальная вариация величины погружения.</td>
+</tr>
+<tr>
+<td><code>sinkRadius</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Радиус, используемый для расчёта погружения в terrain, особенно на склонах.</td>
+</tr>
+<tr>
+<td><code>slopeMin</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>Минимальный уклон поверхности в градусах, при котором может быть размещён данный объект.</td>
+</tr>
+<tr>
+<td><code>slopeMax</code></td>
+<td>number</td>
+<td><code>90</code></td>
+<td>Максимальный уклон поверхности в градусах, при котором может быть размещён данный объект.</td>
+</tr>
+<tr>
+<td><code>elevationMin</code></td>
+<td>number</td>
+<td><code>-10000</code></td>
+<td>Минимальная высота в мировых координатах, на которой может быть размещён данный объект.</td>
+</tr>
+<tr>
+<td><code>elevationMax</code></td>
+<td>number</td>
+<td><code>10000</code></td>
+<td>Максимальная высота в мировых координатах, на которой может быть размещён данный объект.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="probability">
+
+  Вероятность
+</h2>
+<p><code>probability</code> управляет тем, как часто элемент выбирается относительно других элементов в той же кисти.</p>
+<p>Само по себе это не абсолютный процент. Вместо этого шанс рассчитывается как вероятность данного элемента, делённая на сумму всех вероятностей в кисти.</p>
+<p>Пример:</p>
+<table>
+<thead>
+<tr>
+<th>Элемент</th>
+<th>Вероятность</th>
+<th>Приблизительный шанс</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Маленькая сосна</td>
+<td><code>3</code></td>
+<td>50%</td>
+</tr>
+<tr>
+<td>Большая сосна</td>
+<td><code>2</code></td>
+<td>33%</td>
+</tr>
+<tr>
+<td>Камень</td>
+<td><code>1</code></td>
+<td>17%</td>
+</tr>
+</tbody>
+</table>
+<p>Суммарная вероятность:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">3 + 2 + 1 = 6
+</span></span></code></pre>
+</div><p>Таким образом:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Pine small = 3 / 6 = 50%
+</span></span><span class="line"><span class="cl">Pine large = 2 / 6 = 33%
+</span></span><span class="line"><span class="cl">Rock       = 1 / 6 = 17%
+</span></span></code></pre>
+</div><p>Используйте более высокую вероятность для распространённых объектов и более низкую для редких акцентных объектов.</p>
+<hr/>
+<h2 id="rotation-range">
+
+  Диапазон поворота
+</h2>
+<p><code>rotationRange</code> управляет случайным поворотом по рысканью (yaw).</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"rotationRange"</span><span class="err">:</span> <span class="mi">360</span>
+</span></span></code></pre>
+</div><p>Это обеспечивает полный случайный поворот и полезно для деревьев, камней, кустарников и большинства природных объектов.</p>
+<p>Меньшие значения ограничивают вариацию поворота:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"rotationRange"</span><span class="err">:</span> <span class="mi">30</span>
+</span></span></code></pre>
+</div><p>Это может быть полезно для объектов, которым требуется более единообразная ориентация.</p>
+<hr/>
+<h2 id="scale-range">
+
+  Диапазон масштаба
+</h2>
+<p><code>scaleMin</code> и <code>scaleMax</code> определяют случайный масштаб объекта.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scaleMin"</span><span class="err">:</span> <span class="mf">0.8</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"scaleMax"</span><span class="err">:</span> <span class="mf">1.3</span>
+</span></span></code></pre>
+</div><p>Это создаёт вариативность, чтобы повторяющиеся ресурсы не выглядели одинаково.</p>
+<p>Типичное применение:</p>
+<table>
+<thead>
+<tr>
+<th>Тип ресурса</th>
+<th>Рекомендуемый диапазон масштаба</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Деревья</td>
+<td><code>0.8 - 1.4</code></td>
+</tr>
+<tr>
+<td>Кустарники</td>
+<td><code>0.7 - 1.5</code></td>
+</tr>
+<tr>
+<td>Камни</td>
+<td><code>0.6 - 1.8</code></td>
+</tr>
+<tr>
+<td>Пучки травы</td>
+<td><code>0.8 - 1.2</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="scale-exponent">
+
+  Показатель масштаба
+</h2>
+<p><code>scaleExponent</code> смещает распределение случайного масштаба между <code>scaleMin</code> и <code>scaleMax</code>.</p>
+<p>Значение по умолчанию:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scaleExponent"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre>
+</div><p>Значение <code>1</code> даёт нормальное линейное распределение.</p>
+<p>Более высокие или более низкие значения могут смещать результат в сторону меньших или больших экземпляров в зависимости от распределения случайных величин, используемого редактором.</p>
+<p>Используйте этот параметр, когда хотите, чтобы большинство объектов располагалось ближе к одному краю диапазона масштабов, а не были равномерно распределены.</p>
+<hr/>
+<h2 id="sink-settings">
+
+  Настройки погружения
+</h2>
+<p>Настройки погружения помогают естественно вписать объекты в terrain.</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sinkMin</code></td>
+<td>Минимальная величина погружения.</td>
+</tr>
+<tr>
+<td><code>sinkMax</code></td>
+<td>Максимальная величина погружения.</td>
+</tr>
+<tr>
+<td><code>sinkRadius</code></td>
+<td>Радиус, используемый для расчёта погружения у основания объекта.</td>
+</tr>
+</tbody>
+</table>
+<p>Это полезно для:</p>
+<ul>
+<li>Деревьев на склонах</li>
+<li>Камней, частично утопленных в terrain</li>
+<li>Кустарников, которые не должны парить в воздухе</li>
+<li>Крупных объектов с неровными основаниями</li>
+</ul>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"sinkMin"</span><span class="err">:</span> <span class="mf">0.05</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"sinkMax"</span><span class="err">:</span> <span class="mf">0.2</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"sinkRadius"</span><span class="err">:</span> <span class="mf">1.5</span>
+</span></span></code></pre>
+</div><p>Это позволяет размещать объект немного ниже поверхности terrain, чтобы избежать видимых зазоров.</p>
+<div class="bng-notice info">Используйте значения погружения осторожно. Слишком большое погружение может скрыть корни, основания или нижнюю геометрию объекта.</div>
+<hr/>
+<h2 id="slope-limits">
+
+  Ограничения по уклону
+</h2>
+<p><code>slopeMin</code> и <code>slopeMax</code> ограничивают размещение на основе уклона поверхности.</p>
+<p>Пример для обычных деревьев:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"slopeMin"</span><span class="err">:</span> <span class="mi">0</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"slopeMax"</span><span class="err">:</span> <span class="mi">35</span>
+</span></span></code></pre>
+</div><p>Пример для скальных камней:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"slopeMin"</span><span class="err">:</span> <span class="mi">25</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"slopeMax"</span><span class="err">:</span> <span class="mi">80</span>
+</span></span></code></pre>
+</div><p>Это помогает контролировать, где появляются объекты:</p>
+<ul>
+<li>Деревья на более ровном terrain</li>
+<li>Камни на крутых склонах</li>
+<li>Трава на пологих холмах</li>
+<li>Отсутствие крупной растительности на скалах</li>
+</ul>
+<hr/>
+<h2 id="elevation-limits">
+
+  Ограничения по высоте
+</h2>
+<p><code>elevationMin</code> и <code>elevationMax</code> ограничивают размещение на основе высоты в мировых координатах.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"elevationMin"</span><span class="err">:</span> <span class="mi">200</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"elevationMax"</span><span class="err">:</span> <span class="mi">800</span>
+</span></span></code></pre>
+</div><p>Это полезно для управления биомами:</p>
+<ul>
+<li>Низинная растительность</li>
+<li>Горные деревья</li>
+<li>Альпийские камни</li>
+<li>Прибрежные растения</li>
+<li>Растительность у снеговой линии</li>
+</ul>
+<hr/>
+<h2 id="example-brush-setup">
+
+  Пример настройки кисти
+</h2>
+<p>Кисть смешанного леса может содержать три элемента:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestBrush"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"mixed_pine_forest"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Примеры элементов:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestBrushElement"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"forestItemData"</span><span class="p">:</span> <span class="s2">"pine_small"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationRange"</span><span class="p">:</span> <span class="mi">360</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scaleMin"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scaleMax"</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"slopeMin"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"slopeMax"</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"elevationMin"</span><span class="p">:</span> <span class="mi">-10000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"elevationMax"</span><span class="p">:</span> <span class="mi">10000</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestBrushElement"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"forestItemData"</span><span class="p">:</span> <span class="s2">"pine_large"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationRange"</span><span class="p">:</span> <span class="mi">360</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scaleMin"</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scaleMax"</span><span class="p">:</span> <span class="mf">1.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"slopeMin"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"slopeMax"</span><span class="p">:</span> <span class="mi">30</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestBrushElement"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"forestItemData"</span><span class="p">:</span> <span class="s2">"rock_medium"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationRange"</span><span class="p">:</span> <span class="mi">360</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scaleMin"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scaleMax"</span><span class="p">:</span> <span class="mf">1.8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sinkMin"</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sinkMax"</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sinkRadius"</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"slopeMin"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"slopeMax"</span><span class="p">:</span> <span class="mi">75</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>В данной кисти:</p>
+<ul>
+<li>Маленькие сосны встречаются часто</li>
+<li>Большие сосны встречаются реже</li>
+<li>Камни появляются время от времени</li>
+<li>Деревья избегают крутых склонов</li>
+<li>Камни могут появляться на более крутом terrain</li>
+</ul>
+<hr/>
+<h2 id="relationship-with-forestitemdata">
+
+  Связь с ForestItemData
+</h2>
+<p><code>forestItemData</code> должен ссылаться на действительное определение лесного объекта.</p>
+<p>Данные лесного объекта обычно определяются в:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/art/forest/managedItemData.json
+</span></span></code></pre>
+</div><p>Пример данных объекта:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pine_small"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestItemData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"internalName"</span><span class="p">:</span> <span class="s2">"pine_small"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"shapeFile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/trees/pine_small.dae"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Ссылка в элементе кисти:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"forestItemData"</span><span class="err">:</span> <span class="s2">"pine_small"</span>
+</span></span></code></pre>
+</div><p>Если указанные данные объекта не существуют, элемент кисти не сможет разместить этот объект.</p>
+<hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>Используйте несколько элементов кисти для естественной вариативности.</li>
+<li>Используйте вероятность для управления соотношением распространённых и редких объектов.</li>
+<li>Используйте диапазоны масштаба для избежания повторяемости.</li>
+<li>Используйте ограничения по уклону, чтобы деревья не появлялись на скалах.</li>
+<li>Используйте ограничения по высоте для управления биомами.</li>
+<li>Используйте небольшие значения погружения для камней и деревьев на склонах.</li>
+<li>Задавайте <code>windScale</code> в <code>ForestItemData</code>, а не в кисти, для управления поведением ветра.</li>
+<li>Держите элементы кисти сфокусированными; создавайте отдельные кисти для разных биомов или групп ресурсов.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="brush-does-not-place-an-item">
+
+  Кисть не размещает объект
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li><code>forestItemData</code> отсутствует или недействителен</li>
+<li>Указанный <code>ForestItemData</code> не существует</li>
+<li>Уклон выходит за пределы <code>slopeMin</code> / <code>slopeMax</code></li>
+<li>Высота выходит за пределы <code>elevationMin</code> / <code>elevationMax</code></li>
+<li>Вероятность слишком низкая по сравнению с другими элементами</li>
+</ul>
+<h3 id="items-float-above-terrain">
+
+  Объекты парят над terrain
+</h3>
+<p>Немного увеличьте значения погружения или проверьте начало координат/точку опоры ресурса.</p>
+<h3 id="items-are-buried-too-deeply">
+
+  Объекты слишком глубоко утоплены
+</h3>
+<p>Уменьшите <code>sinkMin</code>, <code>sinkMax</code> или <code>sinkRadius</code>.</p>
+<h3 id="too-many-repeated-looking-items">
+
+  Слишком много одинаково выглядящих объектов
+</h3>
+<p>Увеличьте вариацию поворота, расширьте диапазон масштаба или добавьте больше элементов кисти.</p>
+<h3 id="items-appear-on-cliffs">
+
+  Объекты появляются на скалах
+</h3>
+<p>Уменьшите <code>slopeMax</code>.</p>
+<h3 id="rocks-do-not-appear-on-slopes">
+
+  Камни не появляются на склонах
+</h3>
+<p>Увеличьте <code>slopeMax</code> или поднимите <code>slopeMin</code> в зависимости от желаемого диапазона размещения.</p>
+<hr/>
+<h2 id="summary">
+
+  Итог
+</h2>
+<p>Forest Brush — это инструменты размещения, существующие только в редакторе и используемые в Forest Editor.</p>
+<p>Кисть содержит один или несколько объектов <code>ForestBrushElement</code>. Каждый элемент ссылается на тип <code>ForestItemData</code> и определяет, как данный объект должен размещаться случайным образом с использованием правил вероятности, поворота, масштаба, погружения, уклона и высоты.</p>
+<p>Они используются для эффективного рисования естественно выглядящих лесов, камней, кустарников и другой повторяющейся растительности на уровне.</p>

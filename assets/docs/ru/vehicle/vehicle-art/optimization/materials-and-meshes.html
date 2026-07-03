@@ -1,0 +1,107 @@
+<h2 id="texture-optimization">
+
+  Оптимизация текстур
+</h2>
+<div class="bng-notice tip"><p><strong>Советы по оптимизации текстур:</strong></p>
+<p><span class="bng-mark caution"><strong>RGB-карты (диффузная, нормальная и др.) потребляют в 2 раза больше памяти</strong></span>, чем одноканальные карты (металличность, шероховатость, прозрачность).<br/>
+Начните оптимизацию именно с них.</p>
+<ul>
+<li>Используйте <strong>одноканальную карту прозрачности</strong> вместо полноцветной текстуры — это экономит память.</li>
+<li>Объём данных <strong>увеличивается в 4 раза</strong> с каждым шагом (например, 2K → 4K). Избегайте 4K, если разница не заметна визуально.</li>
+</ul>
+</div>
+<p>Все файлы текстур для кукера должны быть в формате PNG с правильно выбранным режимом в Photoshop (оттеночные текстуры сохраняются как grayscale PNG, RGB-текстуры — как RGB PNG), а имена файлов должны содержать суффикс перед расширением: <code>.color</code> или <code>.data</code>. Это указывает кукеру и GPU, какой тип текстуры используется.</p>
+<p>Игра автоматически конвертирует текстуры в <code>.dds</code> (для модов рекомендуется поставлять файлы в формате <code>.dds</code>, чтобы компьютеру игрока не приходилось выполнять конвертацию)</p>
+<p>Полное имя файла в таком формате выглядит примерно так: <code>vehiclename_gauges_b.color.png</code></p>
+<ul>
+<li><code>.color</code> — для текстур в 8-битном RGB-формате (например, карты базового цвета или эмиссии)</li>
+<li><code>.data</code> — для 8-битных оттеночных (grayscale) текстур (например, карты металличности или AO)</li>
+<li><code>.normal</code> — специально для карт нормалей; они также должны быть в 8-битном RGB</li>
+</ul>
+<p>Ниже приведены карты, используемые в игре, и их потребление оперативной памяти:</p>
+<div class="line-inner-small"></div>
+<h3 id="3-channel-rgb-map-sizes">
+
+  Размеры 3-канальных RGB-карт
+</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Размер</strong></th>
+<th><strong>Разрешение</strong></th>
+<th><strong>Путь к файлу</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>21 MB</td>
+<td>4096x4096x0</td>
+<td><code>nine_main_b.color.dds</code></td>
+</tr>
+<tr>
+<td>5.3 MB</td>
+<td>2048x2048x0</td>
+<td><code>nine_gauges_b.color.dds</code></td>
+</tr>
+<tr>
+<td>1.3 MB</td>
+<td>1024x1024x0</td>
+<td><code>autobello_interior_b_b.color.dds</code></td>
+</tr>
+<tr>
+<td>341 KB</td>
+<td>512x512x0</td>
+<td><code>sealedbeam_b.color.dds</code></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="1-channel-gray-scale-map-sizes">
+
+  Размеры 1-канальных (оттеночных) карт
+</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Размер</strong></th>
+<th><strong>Разрешение</strong></th>
+<th><strong>Файл</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>11 MB</td>
+<td>4096x4096x0</td>
+<td><code>nine_main_r.data.dds</code></td>
+</tr>
+<tr>
+<td>2.7 MB</td>
+<td>2048x2048x0</td>
+<td><code>nine_main_ao.data.dds</code></td>
+</tr>
+<tr>
+<td>683 KB</td>
+<td>1024x1024x0</td>
+<td><code>DumpTruck_glass_dmg_r.data.dds</code></td>
+</tr>
+<tr>
+<td>171 KB</td>
+<td>512x512x0</td>
+<td><code>nine_badges_m.data.dds</code></td>
+</tr>
+</tbody>
+</table>
+<div class="line-inner-small"></div>
+<h3 id="color-values-for-maps">
+
+  Цветовые значения для карт
+</h3>
+<p><em>(практически не занимают места в памяти)</em></p>
+<p>Это означает, что использовать текстуры из одного сплошного цвета не нужно и нельзя ни в каком сценарии — это лишь бесполезный расход памяти.</p>
+<p>Цветовое значение напрямую соответствует значению данного цвета на текстуре: цвета задаются через RGB-значения, тогда как карты металличности используют шкалу от 0 до 1 (0 — чёрный, 1 — белый).</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="(красный базовый цвет, заданный через значения без текстуры)" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/materials-and-meshes/1.png"/>
+</span><span class="text" style="text-align: center;"><em>(красный базовый цвет, заданный через значения без текстуры)</em></span></div>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="(низкое значение шероховатости, заданное через значение без текстуры)" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/materials-and-meshes/2.png"/>
+</span><span class="text" style="text-align: center;"><em>(низкое значение шероховатости, заданное через значение без текстуры)</em></span></div>

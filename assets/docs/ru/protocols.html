@@ -1,0 +1,176 @@
+<p>Внешнее оборудование и программное обеспечение можно интегрировать с BeamNG.drive и BeamNG.tech, прослушивая UDP-пакеты с нужными данными.</p>
+<p>Доступно несколько UDP-протоколов, и если вы являетесь производителем оборудования или программного обеспечения, вы можете реализовать собственный протокол сравнительно легко (см. раздел «Другие протоколы» ниже).</p>
+<p>Эти протоколы можно включить и настроить в разделе Параметры &gt; Прочее &gt; Протоколы &gt; OutGauge UDP protocol.</p>
+<p>Этот протокол передаёт базовую информацию об автомобиле: скорость, педали, некоторые индикаторы панели приборов и т. д.</p>
+<p>Он использует тот же формат, что и Live For Speed, то есть большинство цифровых дисплеев и стороннего программного обеспечения, работающего с OutGauge в LFS, будет работать и в BeamNG.drive. Не все поля реализованы в настоящее время. UDP-пакет имеет следующий формат:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// Items marked as `N/A` are not implemented.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">xxx</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span>       <span class="n">time</span><span class="p">;</span>            <span class="c1">// time in milliseconds (to check order) // N/A, hardcoded to 0
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">char</span>           <span class="n">car</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>          <span class="c1">// Car name // N/A, fixed value of "beam"
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">unsigned</span> <span class="kt">short</span> <span class="n">flags</span><span class="p">;</span>           <span class="c1">// Info (see OG_x below)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">char</span>           <span class="n">gear</span><span class="p">;</span>            <span class="c1">// Reverse:0, Neutral:1, First:2...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">char</span>           <span class="n">plid</span><span class="p">;</span>            <span class="c1">// Unique ID of viewed player (0 = none) // N/A, hardcoded to 0
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span>          <span class="n">speed</span><span class="p">;</span>           <span class="c1">// M/S
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span>          <span class="n">rpm</span><span class="p">;</span>             <span class="c1">// RPM
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span>          <span class="n">turbo</span><span class="p">;</span>           <span class="c1">// BAR
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span>          <span class="n">engTemp</span><span class="p">;</span>         <span class="c1">// C
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span>          <span class="n">fuel</span><span class="p">;</span>            <span class="c1">// 0 to 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span>          <span class="n">oilPressure</span><span class="p">;</span>     <span class="c1">// BAR // N/A, hardcoded to 0
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span>          <span class="n">oilTemp</span><span class="p">;</span>         <span class="c1">// C
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">unsigned</span>       <span class="n">dashLights</span><span class="p">;</span>      <span class="c1">// Dash lights available (see DL_x below)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">unsigned</span>       <span class="n">showLights</span><span class="p">;</span>      <span class="c1">// Dash lights currently switched on
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span>          <span class="n">throttle</span><span class="p">;</span>        <span class="c1">// 0 to 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span>          <span class="n">brake</span><span class="p">;</span>           <span class="c1">// 0 to 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span>          <span class="n">clutch</span><span class="p">;</span>          <span class="c1">// 0 to 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">char</span>           <span class="n">display1</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>    <span class="c1">// Usually Fuel // N/A, hardcoded to ""
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">char</span>           <span class="n">display2</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>    <span class="c1">// Usually Settings // N/A, hardcoded to ""
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span>            <span class="n">id</span><span class="p">;</span>              <span class="c1">// optional - only if OutGauge ID is specified
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="n">xxx</span><span class="p">;</span>
+</span></span></code></pre>
+</div><div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="c1">-- OG_x - bits for flags</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">OG_SHIFT</span> <span class="o">=</span>     <span class="mi">1</span>  <span class="c1">-- key // N/A</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">OG_CTRL</span>  <span class="o">=</span>     <span class="mi">2</span>  <span class="c1">-- key // N/A</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">OG_TURBO</span> <span class="o">=</span>  <span class="mi">8192</span>  <span class="c1">-- show turbo gauge</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">OG_KM</span>    <span class="o">=</span> <span class="mi">16384</span>  <span class="c1">-- if not set - user prefers MILES</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">OG_BAR</span>   <span class="o">=</span> <span class="mi">32768</span>  <span class="c1">-- if not set - user prefers PSI</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">-- DL_x - bits for dashLights and showLights</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">DL_SHIFT</span>        <span class="o">=</span> <span class="mi">2</span> <span class="o">^</span> <span class="mi">0</span>    <span class="c1">-- shift light</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">DL_FULLBEAM</span>     <span class="o">=</span> <span class="mi">2</span> <span class="o">^</span> <span class="mi">1</span>    <span class="c1">-- full beam</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">DL_HANDBRAKE</span>    <span class="o">=</span> <span class="mi">2</span> <span class="o">^</span> <span class="mi">2</span>    <span class="c1">-- handbrake</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">DL_PITSPEED</span>     <span class="o">=</span> <span class="mi">2</span> <span class="o">^</span> <span class="mi">3</span>    <span class="c1">-- pit speed limiter // N/A</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">DL_TC</span>           <span class="o">=</span> <span class="mi">2</span> <span class="o">^</span> <span class="mi">4</span>    <span class="c1">-- tc active or switched off</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">DL_SIGNAL_L</span>     <span class="o">=</span> <span class="mi">2</span> <span class="o">^</span> <span class="mi">5</span>    <span class="c1">-- left turn signal</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">DL_SIGNAL_R</span>     <span class="o">=</span> <span class="mi">2</span> <span class="o">^</span> <span class="mi">6</span>    <span class="c1">-- right turn signal</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">DL_SIGNAL_ANY</span>   <span class="o">=</span> <span class="mi">2</span> <span class="o">^</span> <span class="mi">7</span>    <span class="c1">-- shared turn signal // N/A</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">DL_OILWARN</span>      <span class="o">=</span> <span class="mi">2</span> <span class="o">^</span> <span class="mi">8</span>    <span class="c1">-- oil pressure warning</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">DL_BATTERY</span>      <span class="o">=</span> <span class="mi">2</span> <span class="o">^</span> <span class="mi">9</span>    <span class="c1">-- battery warning</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">DL_ABS</span>          <span class="o">=</span> <span class="mi">2</span> <span class="o">^</span> <span class="mi">10</span>   <span class="c1">-- abs active or switched off</span>
+</span></span><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">DL_SPARE</span>        <span class="o">=</span> <span class="mi">2</span> <span class="o">^</span> <span class="mi">11</span>   <span class="c1">-- N/A</span>
+</span></span></code></pre>
+</div>
+<h1 class="anchored">
+
+  MotionSim UDP protocol
+</h1>
+<p>Это упрощённый протокол, который можно использовать для управления платформами движения. Передаётся только самая базовая информация — для более сложных применений см. раздел «Другие протоколы» ниже.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">xxx</span>  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">format</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span> <span class="c1">// allows to verify if packet is the expected format, fixed value of "BNG1"
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="kt">float</span> <span class="n">posX</span><span class="p">,</span> <span class="n">posY</span><span class="p">,</span> <span class="n">posZ</span><span class="p">;</span> <span class="c1">// world position of the vehicle
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span> <span class="n">velX</span><span class="p">,</span> <span class="n">velY</span><span class="p">,</span> <span class="n">velZ</span><span class="p">;</span> <span class="c1">// velocity of the vehicle
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span> <span class="n">accX</span><span class="p">,</span> <span class="n">accY</span><span class="p">,</span> <span class="n">accZ</span><span class="p">;</span> <span class="c1">// acceleration of the vehicle, gravity not included
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="kt">float</span> <span class="n">upX</span><span class="p">,</span>  <span class="n">upY</span><span class="p">,</span>  <span class="n">upZ</span><span class="p">;</span>  <span class="c1">// vector components of a vector pointing "up" relative to the vehicle
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="kt">float</span> <span class="n">rollPos</span><span class="p">,</span> <span class="n">pitchPos</span><span class="p">,</span> <span class="n">yawPos</span><span class="p">;</span> <span class="c1">// angle of roll, pitch and yaw of the vehicle
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span> <span class="n">rollVel</span><span class="p">,</span> <span class="n">pitchVel</span><span class="p">,</span> <span class="n">yawVel</span><span class="p">;</span> <span class="c1">// angular velocities of roll, pitch and yaw of the vehicle
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span> <span class="n">rollAcc</span><span class="p">,</span> <span class="n">pitchAcc</span><span class="p">,</span> <span class="n">yawAcc</span><span class="p">;</span> <span class="c1">// angular acceleration of roll, pitch and yaw of the vehicle
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="n">xxx</span><span class="p">;</span>
+</span></span></code></pre>
+</div>
+<h1 class="anchored">
+
+  Другие протоколы
+</h1>
+<h3 id="im-an-end-user-and-want-to-use-other-protocols">
+
+  Я конечный пользователь и хочу использовать другие протоколы
+</h3>
+<p>Пожалуйста, следуйте руководству по эксплуатации вашего оборудования / платформы движения / цифровой панели приборов / и т. д.</p>
+<h3 id="im-a-manufacturer-and-want-to-implement-my-own-protocol">
+
+  Я производитель и хочу реализовать собственный протокол
+</h3>
+<p><strong>Только для программистов и производителей</strong>: если вам нужна помощь в интеграции вашего оборудования или программного обеспечения с BeamNG, вы можете <span style="background-color:white; border:1px solid; border-color:#ff6800; color:#ff6800;padding:0px 10px;font-weight:bold; cursor:pointer;text-align:center;margin:5px;"><a href="mailto:support@beamng.gmbh?subject=[UDP Protocol inquiry]" rel="noopener" target="_blank">связаться с нами по электронной почте</a></span>.</p>
+<p>Если вы программист от производителя оборудования или программного обеспечения, вам может потребоваться доступ к большему объёму информации, чем предлагают протоколы по умолчанию, описанные выше.</p>
+<ul>
+<li>До версии v0.32 приходилось перезаписывать один из официальных основных файлов (например, перезаписывать <code>outgauge.lua</code> или <code>motionSim.lua</code>).</li>
+<li>Начиная с версии v0.32 эта область была переработана, и вы можете размещать собственные дополнительные файлы в <code>lua/vehicle/protocols/</code>.</li>
+</ul>
+<p>Ниже описана новая система протоколов, введённая в версии v0.32:</p>
+<h4 id="picking-a-unique-protocol-name">
+
+  Выбор уникального имени протокола
+</h4>
+<p>Первый шаг — выбрать имя для вашего протокола. Пожалуйста, выберите имя, которое, скорее всего, будет <strong>уникальным</strong> — цель состоит в том, чтобы избежать конфликтов с другими протоколами. Если ваш протокол имеет то же имя, что и другие протоколы, он может быть перезаписан ими.</p>
+<p>Надёжная рекомендация — выбрать имя протокола, включающее <strong>автора</strong> протокола (это может быть компания, организация, физическое лицо и т. д.), а также отличительное <strong>уникальное название</strong> самого протокола.</p>
+<p>Например: "<code>MyCoolCompanyInc_ProtoDashboard</code>".</p>
+<p><strong>Примечание</strong>: программное обеспечение BeamNG <strong>может одновременно запускать любое количество протоколов</strong>.</p>
+<p>Поэтому, если вы создаёте несколько продуктов, каждому из которых нужен свой протокол, это вполне осуществимо: вам просто нужно выбрать разные имена протоколов для каждого, и тогда пользователь не будет перезаписывать файлы одного протокола другим.</p>
+<h4 id="programming-your-protocol">
+
+  Программирование вашего протокола
+</h4>
+<p>В процессе разработки протокола вы можете следовать этим шагам:</p>
+<ul>
+<li>1 Откройте <a href="https://documentation.beamng.com/support/userfolder" rel="noopener" target="_blank"><strong>пользовательскую папку</strong></a>
+.</li>
+<li>2 Внутри пользовательской папки создайте папку <code>USER_FOLDER/mods/unpacked/my_protocol_name/lua/vehicle/protocols/</code> (замените <code>my_protocol_name</code> на <strong>уникальное имя</strong>, выбранное в предыдущем разделе).</li>
+<li>3 Внутри этой папки создайте файл <code>.LUA</code> для вашего пользовательского протокола. Например, <code>USER_FOLDER/mods/unpacked/my_protocol_name/lua/vehicle/protocols/my_protocol_name.lua</code> (замените <code>my_protocol_name</code> на <strong>уникальное имя</strong>, выбранное в предыдущем разделе).
+<ul>
+<li><em>Вы можете использовать один из наших официальных файлов протоколов в качестве справочника — они расположены в <code>PROGRAM_INSTALL_FOLDER/lua/vehicle/protocols/*.lua</code> и распространяются по разрешительной лицензии с открытым исходным кодом bCDDL. Вы можете свободно копировать, изменять и повторно распространять наши протоколы на условиях bCDDL (или любой совместимой лицензии).</em></li>
+</ul>
+</li>
+<li>4 Ваш пользовательский протокол запустится после перезагрузки транспортного средства с помощью <kbd>Ctrl + R</kbd>.
+<ul>
+<li><em>Дальнейшие изменения можно тестировать, сохраняя файл <code>.LUA</code> и снова нажимая <kbd>Ctrl + R</kbd>.</em></li>
+</ul>
+</li>
+<li>5 Когда вы достигнете состояния, которым довольны и которое хотите распространить:
+<ul>
+<li>Убедитесь, что закрыты все редакторы кода, открытые окна проводника и т. д. — чтобы избежать блокировки файлов другими процессами.</li>
+<li>Перейдите в <code>ESC menu</code> &gt; <code>Mods</code> &gt; <code>Mods Manager</code> &gt; my_protocol_name &gt; <code>PACK</code>.</li>
+<li><em>Это сожмёт папку вашего протокола <code>mods/unpacked/my_protocol_name/</code>, преобразовав её в ZIP-файл, расположенный в <code>mods/my_protocol_name.zip</code>.</em></li>
+</ul>
+</li>
+</ul>
+<p>Полученный ZIP-файл можно свободно распространять среди конечных пользователей (см. раздел ниже).</p>
+<p>В дальнейшем, когда вам потребуется начать изменение протокола для добавления новых функций, исправления ошибок и т. д.:</p>
+<ul>
+<li>1 Перейдите в <code>ESC menu</code> &gt; <code>Mods</code> &gt; <code>Mods Manager</code> &gt; my_protocol_name &gt; <code>UNPACK</code>.
+<ul>
+<li><em>Это распакует ZIP-файл <code>mods/my_protocol_name.zip</code> обратно в <code>/mods/unpacked/my_protocol_name/</code></em></li>
+</ul>
+</li>
+<li>2 Теперь вы можете свободно редактировать код Lua, тестировать с помощью <kbd>Ctrl + R</kbd> как обычно и т. д.</li>
+</ul>
+<h4 id="protocol-identification">
+
+  Идентификация протокола
+</h4>
+<p>Поскольку несколько протоколов могут работать одновременно, очень часто используя один и тот же UDP-порт, необходимо убедиться, что ваше оборудование/программное обеспечение игнорирует пакеты других протоколов и использует только пакеты <strong>вашего</strong> собственного протокола.</p>
+<p>Существует несколько способов добиться этого, но один из распространённых — использование своеобразного <strong>уникального маркера</strong>.</p>
+<p><em>Например, протокол MotionSim содержит 4 начальных символа с жёстко заданным значением <code>"BNG1"</code>. Это означает, что любое оборудование/программное обеспечение, совместимое с протоколом MotionSim, может прослушивать все UDP-пакеты и отбрасывать те, у которых первые 4 символа не равны <code>"BNG1"</code>. Например, если они обнаружат <code>"18x7"</code>, то это, вероятно, данные неизвестного протокола с форматом, отличным от того, что могут понять клиенты MotionSim.</em></p>
+<p>Для собственных протоколов вы можете использовать любое предпочтительное решение. Например, можно использовать 10 символов вместо 4. Или 6 символов, за которыми следуют 4 целых числа, соответствующих семантической версии (для проверки совместимости формата пакета и его парсера). Или любое другое пользовательское решение на ваш выбор.</p>
+<p>Единственная цель здесь — убедиться, что ваш код может идентифицировать совместимые с ним UDP-пакеты, не допуская при этом, чтобы ваши UDP-пакеты были приняты за пакеты другого протокола.</p>
+<h4 id="distributing-your-protocol">
+
+  Распространение вашего протокола
+</h4>
+<p>Чтобы упростить работу для конечных пользователей, мы рекомендуем распространять файл непосредственно как файл мода (используя наш специальный формат <code>.ZIP</code>-файла).</p>
+<p>Чтобы узнать, как создать ZIP-файл, см. раздел <code>Programming your protocol</code> выше.</p>
+<p>Вы можете распространять этот ZIP-файл среди конечных пользователей несколькими способами:</p>
+<ul>
+<li><strong>Рекомендуется</strong>:
+    <a class="link-ext" href="https://www.beamng.com/resources/add" rel="noopener" target="_blank">загрузите его в официальный репозиторий модов BeamNG</a>
+. Пользователи смогут легко найти ваш протокол во встроенном меню <code>Mods</code> и установить его одним нажатием. Дополнительная информация
+    <a class="link-ext" href="https://www.beamng.com/threads/uploading-mods-to-the-repository.16555" rel="noopener" target="_blank">здесь</a>
+.</li>
+<li>Альтернатива: вы можете распространять <code>.ZIP</code>-файл самостоятельно (например, через собственный веб-сервер или в комплекте с вашим программным обеспечением и т. д.):
+<ul>
+<li>Если вы хотите автоматизировать установку, ваше программное обеспечение должно найти <a href="https://documentation.beamng.com/support/userfolder" rel="noopener" target="_blank"><strong>пользовательскую папку</strong></a>
+ и скопировать ZIP-файл как есть в <code>USER_FOLDER/mods/</code>. <strong>Не</strong> распаковывайте ZIP-файл — просто скопируйте его в эту папку. Например: <code>USER_FOLDER/mods/my_protocol_name.zip</code>.</li>
+<li>Если вы хотите, чтобы установку выполняли конечные пользователи вручную, включите в руководство по продукту следующую ссылку: <code>https://go.beamng.com/installing-mods-manually</code>. Преимущество ссылки состоит в том, что: а) она гарантированно будет работать в будущем, и б) если мы изменим процедуру установки ZIP в будущем, на этой странице всегда будут актуальные инструкции.</li>
+</ul>
+</li>
+</ul>
+<h5 id="protocol-documentation-feedback">
+
+  Обратная связь по документации протоколов
+</h5>
+<p><strong>Только для программистов и производителей</strong>: если вам нужна помощь в интеграции вашего оборудования или программного обеспечения с BeamNG, вы можете <span style="background-color:white; border:1px solid; border-color:#ff6800; color:#ff6800;padding:0px 10px;font-weight:bold; cursor:pointer;text-align:center;margin:5px;"><a href="mailto:support@beamng.gmbh?subject=[UDP Protocol inquiry]" rel="noopener" target="_blank">связаться с нами по электронной почте</a></span>.</p>

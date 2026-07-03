@@ -1,0 +1,95 @@
+<p>Контроллеры используются для симуляции различных специальных функций транспортного средства с помощью Lua. Они включают такие вещи, как цифровые приборы, режимы движения, световые балки, система стабилизации и т.д.</p>
+<p>Каждому транспортному средству необходим как минимум один основной контроллер; основными вариантами являются <a href="https://documentation.beamng.com/modding/vehicle/vehicle_system/controller/Main/dummy" rel="noopener" target="_blank">"dummy"</a>
+ и <a href="https://documentation.beamng.com/modding/vehicle/vehicle_system/controller/Main/vehicleController" rel="noopener" target="_blank">"vehicleController"</a>
+.</p>
+<p>Стандартные контроллеры можно найти в папке "\lua\vehicle\controller" в директории установки игры.</p>
+<h3 id="required-arguments">
+
+  Обязательные аргументы
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Название контроллера</div>
+</div>
+</div>
+<p>Дополнительные аргументы могут быть обязательными или доступными в зависимости от используемого контроллера. Подробнее см. в документации по конкретному <a data-doc="vehicle/vehicle_system/controller" href="/docs/vehicle/vehicle_system/controller">контроллеру</a>
+.</p>
+<h3 id="simple-example">
+
+  Простой пример
+</h3>
+<p>Определение vehicleController вместе с beamNavigator и его параметрами.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"controller"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fileName"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"vehicleController"</span><span class="p">,</span> <span class="p">{}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"beamNavigator"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"screenMaterialName"</span><span class="o">:</span> <span class="s2">"@etk800_screen"</span><span class="p">,</span> <span class="s2">"htmlFilePath"</span><span class="o">:</span> <span class="s2">"local://local/vehicles/common/ETK_navi_screen.html"</span><span class="p">,</span> <span class="s2">"name"</span><span class="o">:</span><span class="s2">"etk800_navi"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div>
+<h3 id="advanced-example">
+
+  Расширенный пример
+</h3>
+<p>Определение контроллера световой балки с большим количеством параметров.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"controller"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"fileName"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"lightbar"</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"defaultModeIndex"</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"modes"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"config"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">            <span class="p">[</span><span class="s2">"Chase"</span><span class="p">,</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">[</span><span class="s2">"electric"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">,</span> <span class="s2">"duration"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"blue_1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"blue_1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"blue_1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"blue_1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"red_1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"red_1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"red_1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"red_1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"white_1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"white_1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"white_1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"white_1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"white_1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"white_1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="p">],</span>
+</span></span><span class="line"><span class="cl">            <span class="p">[</span><span class="s2">"Left Signal"</span><span class="p">,</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">[</span><span class="s2">"electric"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">,</span> <span class="s2">"duration"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"blue_1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"red_1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"white_1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"blue_1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"red_1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"white_1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="p">],</span>
+</span></span><span class="line"><span class="cl">            <span class="p">[</span><span class="s2">"Right Signal"</span><span class="p">,</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">[</span><span class="s2">"electric"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">,</span> <span class="s2">"duration"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"white_1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"red_1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"blue_1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"white_1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"red_1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">[</span><span class="s2">"blue_1"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}]</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div>

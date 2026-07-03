@@ -1,0 +1,386 @@
+<h3 id="61-purpose">
+
+  6.1 Назначение
+</h3>
+<p>Описывает, как определяются и организуются материалы, включая текстурные входы, обработку отражений и оптимизацию.</p>
+<p>Редактор материалов можно открыть из главного меню: <code>Window &gt; Material Editor</code></p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section6/materialeditor.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Окно редактора материалов" loading="lazy" src="/docassets/img/modding/levels/level_creation/section6/materialeditor_hu26a77363e1b8f3a7f77706d78d6cc621_104651_0x300_resize_q85_bgfff_box.jpeg"/>
+</span><span class="text" style="text-align: left;">Окно редактора материалов</span></a></p>
+<h3 id="62-core-concepts">
+
+  6.2 Основные концепции
+</h3>
+<p>Материалы определяются в JSON (main.materials.json) и ссылаются на PNG-текстуры по относительным путям.</p>
+<p>Имена материалов должны совпадать с записями mapTo в main.materials.json.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section6/materialfile.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="main.materials.json, пример определения материала" loading="lazy" src="/docassets/img/modding/levels/level_creation/section6/materialfile_hu0978f88ee57eddc6783d9bb64c8288ad_102063_0x300_resize_q85_bgfff_box.jpeg"/>
+</span><span class="text" style="text-align: left;">main.materials.json, пример определения материала</span></a></p>
+<p>Отражения управляются и назначаются для каждого материала через выбор <code>Reflection Mode</code> в разделе <code>Advanced - All Layers</code> окна редактора материалов. Доступны 3 основных варианта.</p>
+<ul>
+<li>None: кубическая карта не используется. Установлено по умолчанию и применяется для неметаллических и непрозрачных материалов</li>
+<li>Level: материал использует информацию об отражениях из уровня</li>
+<li>Cubemap: материал использует информацию об отражениях из пользовательской кубической карты (некоторые кубические карты уже доступны в игре)</li>
+</ul>
+<p>Кубическая карта — это GPU-текстура, хранящая шесть квадратных изображений одинакового размера, соответствующих граням куба (±X, ±Y, ±Z). Она сэмплируется трёхмерным вектором направления.</p>
+<p><code>Level</code> — лучший вариант для создания корректных отражений от вашего уровня.</p>
+<p>Кубические карты можно найти готовыми к использованию в интернете или создать самостоятельно.</p>
+<p>Используйте кубические карты, если хотите задать пользовательские отражения для материала.</p>
+<p>Вот пример пользовательской кубической карты, созданной для карты West Coast.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section6/cubemap.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Пользовательская кубическая карта, созданная для карты West Coast" loading="lazy" src="/docassets/img/modding/levels/level_creation/section6/cubemap_huc562dd55bc26ca85519842ea28fd679e_80809_0x300_resize_q85_bgfff_box.jpeg"/>
+</span><span class="text" style="text-align: left;">Пользовательская кубическая карта, созданная для карты West Coast</span></a></p>
+<div class="bng-notice note">Кубические карты используются для объектов водной плоскости (в основном применяются в игре как Ocean) для симуляции отражений уровня на поверхности воды</div>
+<h3 id="63-materials-import">
+
+  6.3 Импорт материалов
+</h3>
+<p>Если вы хотите применить собственные материалы к мешу, следуйте описанному ниже процессу.</p>
+<p>Нельзя напрямую применить материалы к мешу внутри движка. Вместо этого необходимо использовать внешнее программное обеспечение (Blender, 3Ds Max, Maya и т.д.), назначить материалы там и экспортировать меш.</p>
+<p>Есть 2 возможных пути:</p>
+<ol>
+<li>Применить уже имеющийся в игре материал</li>
+<li>Создать собственный материал</li>
+</ol>
+<p><strong>Применение уже имеющегося в игре материала</strong></p>
+<p>Рассмотрим пример с Blender.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section6/blenderexample.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Применение существующего внутриигрового материала в Blender" loading="lazy" src="/docassets/img/modding/levels/level_creation/section6/blenderexample.jpeg"/>
+</span><span class="text" style="text-align: left;">Применение существующего внутриигрового материала в Blender</span></a></p>
+<p><strong>Создание собственного материала</strong></p>
+<p>Сначала необходимо создать новый материал с помощью редактора материалов в World Editor</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/levels/level_creation/section6/bngexample.jpeg" rel="noopener" target="_blank"><span style="text-align: left;">
+<img alt="Создание нового материала в редакторе материалов World Editor" loading="lazy" src="/docassets/img/modding/levels/level_creation/section6/bngexample_hub7d798fd29e88a7d016b75cda33c1123_118174_0x300_resize_q85_bgfff_box.jpeg"/>
+</span><span class="text" style="text-align: left;">Создание нового материала в редакторе материалов World Editor</span></a></p>
+<p>После создания материала(ов) можно добавить текстуры в соответствующие каналы и сохранить материал(ы).</p>
+<p>Теперь всё готово: следуйте шагу 1, чтобы применить новый материал и импортировать его в игру.</p>
+<h3 id="64-requirements-and-conventions">
+
+  6.4 Требования и соглашения
+</h3>
+<p>Все текстурные ассеты — в формате PNG. Пути должны быть относительными к домену уровня или арта.</p>
+<p>Настоятельно рекомендуется использовать последовательное именование материалов для поддержания хорошей организации.
+Напр. <code>m_concrete_old_trim_b_color.png</code></p>
+<p>Для корректной запечки текстур необходимо соблюдать суффиксы типов текстур.</p>
+<p>
+</p><div class="bng-table" id="table-1783007349757936827"><div class="bng-table-header"><div>Слот</div><div>Формат PNG</div><div>Цветовое пространство</div><div>Постфикс</div><div>Формат DDS</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Base Color</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">RGB 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">sRGB</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.color.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC7 sRGB</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Detail Base Color</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">RGB 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">sRGB</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.color.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC7 sRGB</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Color Palette</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">RGB 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC7</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Emissive</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">RGB 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC7</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Metallic</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Detail Metallic</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Roughness</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Detail Roughness</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Opacity</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Detail Opacity</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Ambient Occlusion</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Detail Ambient Occlusion</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Clear Coat</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Height</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">Grayscale 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.data.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC4</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Normal</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">RGB 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.normal.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC5</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Detail Normal</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">RGB 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.normal.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC5</strong></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Слот</div>
+<div style=""><strong>Clear Coat Normal</strong></div>
+</div><div>
+<div style="">Формат PNG</div>
+<div style="">RGB 8-bit</div>
+</div><div>
+<div style="">Цветовое пространство</div>
+<div style="">Linear</div>
+</div><div>
+<div style="">Постфикс</div>
+<div style=""><code>*.normal.png</code></div>
+</div><div>
+<div style="">Формат DDS</div>
+<div style=""><strong>BC5</strong></div>
+</div></div></div>
+<br/>
+<p>Держите количество материалов в разумных пределах в рамках одного вида. Старайтесь повторно использовать материалы между ассетами.</p>
+<h3 id="65-texture-inputs-and-calibration">
+
+  6.5 Текстурные входы и калибровка
+</h3>
+<p>Основные текстурные входы в окне редактора материалов включают карты <code>Base Color, Metallic, Normal, Roughness, Opacity</code> и <code>Ambient Occlusion</code></p>
+<p>Для более детального контроля над материалом предусмотрены карты <code>Base Color Detail</code> и <code>Normal Detail</code></p>
+<p>Другие расширенные каналы карт: <code>Base Color Palette</code> и <code>Emissive</code></p>
+<p>Поддерживайте разумные диапазоны значений цвета и затенения, избегая крайностей.</p>
+<p>Движок BeamNG использует формат карт нормалей OpenGL. При импорте текстур убедитесь, что ориентация карты нормалей соответствует рендереру.</p>
+<h3 id="66-optimization">
+
+  6.6 Оптимизация
+</h3>
+<p>Карты BeamNG используют широкий спектр разрешений текстур в зависимости от применения материала.</p>
+<p>Большинство текстур в игре создано с базовым разрешением 512 пикс./м.</p>
+<p>Используйте размеры текстур, кратные степени двойки (POT), для сохранения корректных пропорций. Допускаются также пропорции 1:2 или 2:1, но всегда кратные степени двойки (напр. 512x512 пикс., 1024x512 пикс., 2048x4096 пикс.)</p>
+<p>По возможности используйте общие материалы для снижения количества draw call-ов.</p>
+<p>Следует контролировать использование текстурной памяти, выбирая подходящие разрешения. Resource checker &gt; Assets Stat помогает оценить затраты памяти на ассеты.</p>
+<h3 id="67-data-locations">
+
+  6.7 Расположение данных
+</h3>
+<ul>
+<li>main.materials.json в домене уровня или арта.</li>
+<li>PNG-текстуры в /art/textures и тематических папках (/art/roads, /art/terrains и т.д.).</li>
+</ul>
+<p><strong>См. также:</strong> <a data-doc="file_formats/materials" href="/docs/file_formats/materials">Формат файла материала</a>
+.</p>
+<h3 id="68-common-issues">
+
+  6.8 Типичные проблемы
+</h3>
+<ul>
+<li>Отсутствующие текстуры из-за ошибок в путях.</li>
+<li>Слишком сильные отражения, выравнивающие затенение.</li>
+<li>Непоследовательное именование материалов, приводящее к несоответствиям mapTo.</li>
+</ul>
+<h3 id="69-validation-criteria">
+
+  6.9 Критерии проверки
+</h3>
+<ul>
+<li>Отсутствие пропущенных или временных материалов в репрезентативных сценах.</li>
+<li>Декали отображаются чисто без мерцания; атласы сокращают переключения материалов.</li>
+<li>Отражения выглядят согласованно с типом поверхности и задуманным окружением.</li>
+</ul>

@@ -1,0 +1,1423 @@
+<p>Этот документ описывает файлы террейна BeamNG и сопутствующие файлы метаданных.</p>
+<p>Данные террейна хранятся преимущественно в бинарном файле <code>.ter</code>. При сохранении террейна движок также записывает сопутствующий файл <code>.terrain.json</code>, описывающий данные террейна и используемые материалы.</p>
+<p>Террейн в уровне представлен объектом сцены <code>TerrainBlock</code>. Объект <code>TerrainBlock</code> ссылается на файл <code>.ter</code> через поле <code>terrainFile</code>.</p>
+<p>На этой странице описаны файлы террейна и данные материалов террейна. Описание объекта сцены, размещающего террейн в уровне, см. в разделе <a data-doc="levels/level_classes/terrainblock" href="/docs/levels/level_classes/terrainblock">TerrainBlock</a>
+.</p>
+<hr/>
+<h2 id="file-roles">
+
+  Роли файлов
+</h2>
+<table>
+<thead>
+<tr>
+<th>Файл</th>
+<th>Назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.ter</code></td>
+<td>Бинарный файл террейна, содержащий данные карты высот, данные карты слоёв и имена материалов террейна.</td>
+</tr>
+<tr>
+<td><code>.terrain.json</code></td>
+<td>Файл метаданных, описывающий файл <code>.ter</code>. Полезен для инструментов и отладки.</td>
+</tr>
+<tr>
+<td><code>.terrainheightmap.png</code></td>
+<td>Необязательная/экспортированная ссылка на изображение карты высот, записываемая при сохранении террейна.</td>
+</tr>
+<tr>
+<td><code>items.level.json</code></td>
+<td>Содержит объект сцены <code>TerrainBlock</code>, ссылающийся на файл <code>.ter</code>.</td>
+</tr>
+<tr>
+<td><code>*.materials.json</code></td>
+<td>Содержит определения <code>TerrainMaterial</code>, на которые ссылается файл <code>.ter</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="typical-file-location">
+
+  Типичное расположение файлов
+</h2>
+<p>Файлы террейна обычно хранятся внутри папки уровня.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example/terrain.ter
+</span></span><span class="line"><span class="cl">levels/example/terrain.terrain.json
+</span></span><span class="line"><span class="cl">levels/example/terrain.terrainheightmap.png
+</span></span></code></pre>
+</div><p>В некоторых старых уровнях или инструментах файлы террейна могут располагаться непосредственно в папке уровня, однако рекомендуется использовать отдельную папку для террейна.</p>
+<p>Сам объект террейна хранится в данных сцены уровня, например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example/main/items.level.json
+</span></span></code></pre>
+</div><hr/>
+<h2 id="terrainblock-object">
+
+  Объект TerrainBlock
+</h2>
+<p>Террейн размещается в уровне с помощью объекта <code>TerrainBlock</code>.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TerrainBlock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"theTerrain"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"terrainFile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/terrain.ter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"squareSize"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxHeight"</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"baseTexSize"</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"lightMapSize"</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"screenError"</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"castShadows"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-1024</span><span class="p">,</span> <span class="mi">-1024</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="important-terrainblock-fields">
+
+  Важные поля TerrainBlock
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>terrainFile</code></td>
+<td>string</td>
+<td>Путь к файлу данных террейна <code>.ter</code>.</td>
+</tr>
+<tr>
+<td><code>minimapImage</code></td>
+<td>string</td>
+<td>Необязательное изображение миникарты для данного блока террейна.</td>
+</tr>
+<tr>
+<td><code>materialTextureSet</code></td>
+<td>string</td>
+<td>Необязательный <code>TerrainMaterialTextureSet</code>, используемый новыми путями рендеринга террейна.</td>
+</tr>
+<tr>
+<td><code>castShadows</code></td>
+<td>bool</td>
+<td>Определяет, отбрасывает ли террейн тени.</td>
+</tr>
+<tr>
+<td><code>squareSize</code></td>
+<td>number</td>
+<td>Расстояние между образцами карты высот в метрах.</td>
+</tr>
+<tr>
+<td><code>maxHeight</code></td>
+<td>number</td>
+<td>Максимальная высота террейна в метрах.</td>
+</tr>
+<tr>
+<td><code>baseTexSize</code></td>
+<td>integer</td>
+<td>Разрешение генерируемой базовой текстуры террейна.</td>
+</tr>
+<tr>
+<td><code>lightMapSize</code></td>
+<td>integer</td>
+<td>Размер текстуры лайтмапа террейна.</td>
+</tr>
+<tr>
+<td><code>screenError</code></td>
+<td>integer</td>
+<td>Настройка LOD/ошибки экрана террейна.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice info">Масштабирование объекта террейна отключено. Для управления размерами террейна используйте <code>squareSize</code> и <code>maxHeight</code> вместо масштаба объекта.</div>
+<hr/>
+<h2 id="terrain-dimensions">
+
+  Размеры террейна
+</h2>
+<p>Файл <code>.ter</code> хранит квадратную сетку:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">size x size
+</span></span></code></pre>
+</div><p>Ширина террейна в мировом пространстве приблизительно равна:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">world size = size x squareSize
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">size = 2048
+</span></span><span class="line"><span class="cl">squareSize = 1
+</span></span><span class="line"><span class="cl">world size = 2048 m x 2048 m
+</span></span></code></pre>
+</div><p>Если <code>squareSize</code> равен <code>2</code>, та же сетка террейна охватывает:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">4096 m x 4096 m
+</span></span></code></pre>
+</div><hr/>
+<h2 id="height-scale">
+
+  Масштаб высоты
+</h2>
+<p>Высоты террейна хранятся как беззнаковые 16-битные значения (<code>u16</code>).</p>
+<p>Объект <code>TerrainBlock</code> преобразует сохранённые значения высоты в метры по формуле:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">heightScale = maxHeight / 65536
+</span></span><span class="line"><span class="cl">heightMeters = storedHeight x heightScale
+</span></span></code></pre>
+</div><p>Пример с:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"maxHeight"</span><span class="err">:</span> <span class="mi">2048</span>
+</span></span></code></pre>
+</div><p>Масштаб высоты равен:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">2048 / 65536 = 0.03125 m
+</span></span></code></pre>
+</div><p>Таким образом, одна единица сохранённой высоты составляет приблизительно <code>0.03125 м</code>.</p>
+<p>Затем к этой высоте добавляется позиция объекта террейна.</p>
+<hr/>
+<h2 id="ter-binary-format">
+
+  Бинарный формат .ter
+</h2>
+<p>Файл <code>.ter</code> — основной бинарный файл данных террейна. Он хранит данные высот террейна, индексы слоёв материалов и список имён материалов террейна.</p>
+<p>Файл читается последовательно от начала до конца.</p>
+<hr/>
+<h2 id="current-saved-layout">
+
+  Текущая структура сохранения
+</h2>
+<p>Текущий путь <code>TerrainFile::save()</code> записывает следующую бинарную структуру:</p>
+<table>
+<thead>
+<tr>
+<th align="right">Шаг</th>
+<th>Поле</th>
+<th>Тип</th>
+<th>Размер</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">1</td>
+<td><code>version</code></td>
+<td><code>u8</code></td>
+<td>1 байт</td>
+<td>Версия файла террейна.</td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td><code>size</code></td>
+<td><code>u32</code></td>
+<td>4 байта</td>
+<td>Ширина/высота квадратной сетки террейна.</td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td><code>heightMap</code></td>
+<td><code>u16[size x size]</code></td>
+<td><code>size x size x 2</code> байта</td>
+<td>Образцы высоты.</td>
+</tr>
+<tr>
+<td align="right">4</td>
+<td><code>layerMap</code></td>
+<td><code>u8[size x size]</code></td>
+<td><code>size x size</code> байт</td>
+<td>Индекс материала террейна для каждого образца.</td>
+</tr>
+<tr>
+<td align="right">5</td>
+<td><code>materialCount</code></td>
+<td><code>u32</code></td>
+<td>4 байта</td>
+<td>Количество имён материалов террейна.</td>
+</tr>
+<tr>
+<td align="right">6</td>
+<td><code>materialNames</code></td>
+<td>string array</td>
+<td>переменный</td>
+<td>Внутренние имена материалов террейна.</td>
+</tr>
+</tbody>
+</table>
+<p>Псевдокод текущего сохранения:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">write</span><span class="p">((</span><span class="n">u8</span><span class="p">)</span><span class="n">FILE_VERSION</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">write</span><span class="p">(</span><span class="n">mSize</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">write</span><span class="p">(</span><span class="n">mHeightMap</span><span class="p">.</span><span class="n">byteSize</span><span class="p">(),</span> <span class="n">mHeightMap</span><span class="p">.</span><span class="n">address</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl"><span class="n">write</span><span class="p">(</span><span class="n">mLayerMap</span><span class="p">.</span><span class="n">byteSize</span><span class="p">(),</span> <span class="n">mLayerMap</span><span class="p">.</span><span class="n">address</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">write</span><span class="p">((</span><span class="n">u32</span><span class="p">)</span><span class="n">mMaterials</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">each</span> <span class="nl">material</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">write</span><span class="p">(</span><span class="n">material</span><span class="p">.</span><span class="n">internalName</span><span class="p">);</span>
+</span></span></code></pre>
+</div><div class="bng-notice info">Текущая реализация предполагает данные в порядке little-endian.</div>
+<hr/>
+<h2 id="reading-strategy">
+
+  Стратегия чтения
+</h2>
+<p>Для чтения текущего файла <code>.ter</code>:</p>
+<ol>
+<li>Прочитать <code>version</code> как <code>u8</code>.</li>
+<li>Проверить, что <code>version &lt;= FILE_VERSION</code>.</li>
+<li>Прочитать <code>size</code> как <code>u32</code>.</li>
+<li>Вычислить <code>sampleCount = size x size</code>.</li>
+<li>Прочитать <code>sampleCount</code> значений <code>u16</code> как карту высот.</li>
+<li>Прочитать <code>sampleCount</code> значений <code>u8</code> как карту слоёв.</li>
+<li>Прочитать <code>materialCount</code> как <code>u32</code>.</li>
+<li>Прочитать <code>materialCount</code> строк.</li>
+<li>Разрешить имена материалов в определения <code>TerrainMaterial</code>.</li>
+<li>Построить сетку/квадродерево террейна для рендеринга и коллизий.</li>
+</ol>
+<p>Упрощённый псевдокод:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">u8</span> <span class="n">version</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">read</span><span class="p">(</span><span class="n">version</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">u32</span> <span class="n">size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">read</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">u32</span> <span class="n">sampleCount</span> <span class="o">=</span> <span class="n">size</span> <span class="o">*</span> <span class="n">size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">u16</span> <span class="n">heightMap</span><span class="p">[</span><span class="n">sampleCount</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">read</span><span class="p">(</span><span class="n">heightMap</span><span class="p">,</span> <span class="n">sampleCount</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">u16</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">u8</span> <span class="n">layerMap</span><span class="p">[</span><span class="n">sampleCount</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">read</span><span class="p">(</span><span class="n">layerMap</span><span class="p">,</span> <span class="n">sampleCount</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">u8</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">u32</span> <span class="n">materialCount</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">read</span><span class="p">(</span><span class="n">materialCount</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="n">in</span> <span class="nl">materialCount</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">string</span> <span class="n">materialName</span> <span class="o">=</span> <span class="n">readString</span><span class="p">();</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="version-handling">
+
+  Обработка версий
+</h2>
+<p>Первый байт — это версия файла террейна.</p>
+<p>При загрузке:</p>
+<ul>
+<li>Если <code>version &gt; FILE_VERSION</code>, загрузка завершается с ошибкой.</li>
+<li>Если <code>version &gt;= 7</code>, используется современный путь загрузки.</li>
+<li>Если <code>version &lt; 7</code>, используется устаревший путь загрузки.</li>
+</ul>
+<p>Для обычных инструментов и нового контента ориентируйтесь на описанную выше текущую структуру сохранения.</p>
+<div class="bng-notice note">Загрузчик содержит пути совместимости для старых версий террейна. Они предназначены главным образом для загрузки старого контента и не должны использоваться как образец для новых файлов.</div>
+<hr/>
+<h2 id="heightmap-encoding">
+
+  Кодирование карты высот
+</h2>
+<p>Карта высот хранится как:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">u16 heightMap[size x size]
+</span></span></code></pre>
+</div><p>Каждый образец — беззнаковое 16-битное целое число.</p>
+<p>Преобразование в метры:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">heightMeters = storedHeight x (maxHeight / 65536)
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">storedHeight = 32768
+</span></span><span class="line"><span class="cl">maxHeight = 2048
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">heightMeters = 32768 x (2048 / 65536)
+</span></span><span class="line"><span class="cl">heightMeters = 1024 m
+</span></span></code></pre>
+</div><hr/>
+<h2 id="layer-map-encoding">
+
+  Кодирование карты слоёв
+</h2>
+<p>Карта слоёв хранится как:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">u8 layerMap[size x size]
+</span></span></code></pre>
+</div><p>Каждое значение — индекс в списке имён материалов террейна.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">0 = first terrain material
+</span></span><span class="line"><span class="cl">1 = second terrain material
+</span></span><span class="line"><span class="cl">2 = third terrain material
+</span></span></code></pre>
+</div><p>Значение <code>255</code> (<code>U8_MAX</code>) является специальным:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">255 = empty terrain / hole
+</span></span></code></pre>
+</div><p>Пустой террейн используется системой террейна для пропуска рендеринга и коллизий в этих областях.</p>
+<hr/>
+<h2 id="material-names">
+
+  Имена материалов
+</h2>
+<p>После карты высот и карты слоёв файл хранит имена материалов террейна:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">u32 materialCount
+</span></span><span class="line"><span class="cl">string materialNames[materialCount]
+</span></span></code></pre>
+</div><p>Эти имена разрешаются при загрузке с помощью:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">TerrainMaterial::findOrCreate(name)
+</span></span></code></pre>
+</div><p>Если допустимые материалы не найдены, террейн переключается на предупреждающий материал.</p>
+<h3 id="material-count-limit">
+
+  Ограничение количества материалов
+</h3>
+<p>Карта слоёв террейна использует индексы <code>u8</code>, причём значение <code>255</code> зарезервировано для пустого террейна. Загрузчик поддерживает до <code>254</code> записей материалов террейна.</p>
+<p>Материалы сверх этого лимита игнорируются.</p>
+<p>В интересах производительности и удобства сопровождения следует держать количество материалов террейна значительно ниже технического предела.</p>
+<hr/>
+<h2 id="file-size-estimate">
+
+  Оценка размера файла
+</h2>
+<p>Для текущего файла террейна, без учёта строк имён материалов:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">1 byte                   version
+</span></span><span class="line"><span class="cl">4 bytes                  size
+</span></span><span class="line"><span class="cl">size x size x 2 bytes    heightMap
+</span></span><span class="line"><span class="cl">size x size x 1 byte     layerMap
+</span></span><span class="line"><span class="cl">4 bytes                  materialCount
+</span></span><span class="line"><span class="cl">variable                 material names
+</span></span></code></pre>
+</div><p>Для <code>2048 x 2048</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">heightMap = 2048 x 2048 x 2 = 8 MiB
+</span></span><span class="line"><span class="cl">layerMap  = 2048 x 2048 x 1 = 4 MiB
+</span></span></code></pre>
+</div><p>Итого данных карты:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">~12 MiB
+</span></span></code></pre>
+</div><p>плюс небольшой заголовок и строки имён материалов.</p>
+<hr/>
+<h2 id="terrainjson-metadata">
+
+  Метаданные .terrain.json
+</h2>
+<p>При сохранении террейна движок записывает сопутствующий файл <code>.terrain.json</code>.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"datafile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/terrain.ter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"heightmapImage"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/terrain.terrainheightmap.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"size"</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"binaryFormat"</span><span class="p">:</span> <span class="s2">"version(char), size(unsigned int), heightMap(heightMapSize * heightMapItemSize), layerMap(layerMapSize * layerMapItemSize), layerTextureMap(layerMapSize * layerMapItemSize), materialNames"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"heightMapSize"</span><span class="p">:</span> <span class="mi">4194304</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"heightMapItemSize"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"layerMapSize"</span><span class="p">:</span> <span class="mi">4194304</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"layerMapItemSize"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materials"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"grass"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"rock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"asphalt"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="metadata-fields">
+
+  Поля метаданных
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>version</code></td>
+<td>number</td>
+<td>Версия файла террейна.</td>
+</tr>
+<tr>
+<td><code>datafile</code></td>
+<td>string</td>
+<td>Путь к бинарному файлу <code>.ter</code>.</td>
+</tr>
+<tr>
+<td><code>heightmapImage</code></td>
+<td>string</td>
+<td>Путь к связанному/экспортированному изображению карты высот.</td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td>number</td>
+<td>Размер сетки террейна.</td>
+</tr>
+<tr>
+<td><code>binaryFormat</code></td>
+<td>string</td>
+<td>Человекочитаемое описание бинарной структуры террейна.</td>
+</tr>
+<tr>
+<td><code>heightMapSize</code></td>
+<td>number</td>
+<td>Количество образцов карты высот.</td>
+</tr>
+<tr>
+<td><code>heightMapItemSize</code></td>
+<td>number</td>
+<td>Размер каждого образца карты высот в байтах.</td>
+</tr>
+<tr>
+<td><code>layerMapSize</code></td>
+<td>number</td>
+<td>Количество образцов карты слоёв.</td>
+</tr>
+<tr>
+<td><code>layerMapItemSize</code></td>
+<td>number</td>
+<td>Размер каждого образца карты слоёв в байтах.</td>
+</tr>
+<tr>
+<td><code>materials</code></td>
+<td>array[string]</td>
+<td>Внутренние имена материалов террейна.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice note">Файл <code>.terrain.json</code> содержит описательные метаданные для инструментов и отладки. Движок загружает фактические данные террейна из файла <code>.ter</code>, на который ссылается объект <code>TerrainBlock</code>.</div>
+<div class="bng-notice warning">Строка <code>binaryFormat</code> может упоминать данные совместимости, используемые в старых версиях террейна. Для вновь сохранённых террейнов используйте текущую структуру сохранения, описанную в этом документе.</div>
+<hr/>
+<h2 id="terrain-materials">
+
+  Материалы террейна
+</h2>
+<p>Файл <code>.ter</code> хранит только <strong>имена</strong> материалов террейна. Сами определения материалов — это отдельные объекты <code>TerrainMaterial</code>, хранящиеся в файле JSON с материалами.</p>
+<p>Материалы террейна существуют в двух версиях: классический путь <strong>v1</strong> и современный PBR-процесс <strong>v1.5</strong>. В разделах ниже описана версия v1.5 — как она включается, как работает и какие поля предоставляет.</p>
+<hr/>
+<h2 id="enabling-v15-terrain-materials">
+
+  Включение материалов террейна v1.5
+</h2>
+<p>Материалы террейна существуют в двух версиях:</p>
+<table>
+<thead>
+<tr>
+<th>Версия</th>
+<th>Когда используется</th>
+<th>Модель текстур</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>v1 (классическая)</strong></td>
+<td><code>TerrainBlock.materialTextureSet</code> не задан.</td>
+<td>Одиночные <code>diffuseMap</code>, <code>normalMap</code>, <code>detailMap</code>, <code>macroMap</code>.</td>
+</tr>
+<tr>
+<td><strong>v1.5 (PBR)</strong></td>
+<td><code>TerrainBlock.materialTextureSet</code> ссылается на <code>TerrainMaterialTextureSet</code>.</td>
+<td><code>baseColor</code>, <code>normal</code>, <code>roughness</code>, <code>ao</code>, <code>height</code>, каждый с текстурами base/macro/detail.</td>
+</tr>
+</tbody>
+</table>
+<p>Весь террейн переключается между версиями на основе настроек <code>TerrainBlock</code>. Флага версии для отдельного материала не существует: назначение <code>materialTextureSet</code> объекту <code>TerrainBlock</code> активирует v1.5 для каждого материала, нанесённого на данный террейн.</p>
+<h3 id="upgrading-from-v1-to-v15">
+
+  Обновление с v1 до v1.5
+</h3>
+<p>В World Editor в разделе <strong>Terrain Material Library</strong> доступно действие <strong>Upgrade Terrain Materials</strong>. Оно:</p>
+<ul>
+<li>Создаёт объект <code>TerrainMaterialTextureSet</code> (сохраняется в <code>art/terrains/main.materials.json</code>).</li>
+<li>Назначает его полю <code>TerrainBlock.materialTextureSet</code>.</li>
+<li>Очищает устаревшие поля v1 (<code>diffuseMap</code>, <code>normalMap</code>, <code>detailMap</code>, <code>macroMap</code>) из существующих материалов террейна.</li>
+</ul>
+<div class="bng-notice warning">Обновление необратимо. Классические текстурные назначения v1 <strong>не</strong> переносятся в слоты v1.5, поэтому каждый материал террейна необходимо переработать с новыми текстурами base/macro/detail после обновления. После этого сохраните уровень, чтобы зафиксировать изменение <code>TerrainBlock</code>.</div>
+<h3 id="terrain-material-file">
+
+  Файл материалов террейна
+</h3>
+<p>Материалы террейна v1.5 и объект <code>TerrainMaterialTextureSet</code> хранятся в:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/art/terrains/main.materials.json
+</span></span></code></pre>
+</div><p>В старых уровнях материалы террейна могут всё ещё храниться в <code>art/terrains/materials.json</code>. Это устаревшая структура; редактор предлагает действие <strong>Upgrade Terrain Material file format</strong>, которое перемещает их в <code>main.materials.json</code>.</p>
+<hr/>
+<h2 id="how-v15-terrain-materials-work">
+
+  Принцип работы материалов террейна v1.5
+</h2>
+<p>Материал террейна v1.5 формируется из <strong>пяти групп текстур</strong>, и каждая группа сэмплируется на <strong>трёх масштабах</strong>, которые объединяются в итоговую поверхность. Понимание этой модели — ключ к созданию качественного террейна.</p>
+<div class="bng-notice tip"><strong>Кратко (для первого материала):</strong> создайте текстуры <code>baseColor</code>, <code>normal</code>, <code>roughness</code>, <code>ao</code> и <code>height</code>, а для каждой из них подготовьте версии <strong>base</strong> (общий вид), <strong>macro</strong> (вариации среднего диапазона) и <strong>detail</strong> (крупный план). Назначьте их в <em>Terrain Material Library</em> World Editor, установите <code>groundmodelName</code> (например, <code>GRASS</code>) и оставьте значения дистанции/силы на типичных значениях по умолчанию, показанных ниже. В подразделах ниже объясняется тонкая настройка.</div>
+<h3 id="the-five-texture-groups">
+
+  Пять групп текстур
+</h3>
+<table>
+<thead>
+<tr>
+<th>Группа</th>
+<th>Что контролирует</th>
+<th>Цветовое пространство</th>
+<th>Как создавать</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Base color</strong></td>
+<td>Альбедо (цвет поверхности).</td>
+<td>sRGB</td>
+<td>Нарисуйте реальный цвет поверхности (зелёная трава, серая скала, …).</td>
+</tr>
+<tr>
+<td><strong>Normal</strong></td>
+<td>Рельеф поверхности / неровности (карта нормалей в касательном пространстве).</td>
+<td>Linear</td>
+<td>Карта нормалей. Хранятся только красный/зелёный каналы; синий восстанавливается шейдером.</td>
+</tr>
+<tr>
+<td><strong>Roughness</strong></td>
+<td>Глянцевость. Тёмный = глянцевый/мокрый, светлый = шероховатый/матовый.</td>
+<td>Linear (оттенки серого)</td>
+<td>Карта шероховатости в оттенках серого.</td>
+</tr>
+<tr>
+<td><strong>Ambient occlusion</strong></td>
+<td>Самозатенение в углублениях при рассеянном освещении.</td>
+<td>Linear (оттенки серого)</td>
+<td>Карта AO в оттенках серого; белый = нет окклюзии.</td>
+</tr>
+<tr>
+<td><strong>Height</strong></td>
+<td>Попиксельная высота, используемая для <strong>смешивания слоёв</strong> (см. ниже).</td>
+<td>Linear (оттенки серого)</td>
+<td>Карта высот в оттенках серого; белый = выступ, чёрный = углубление.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="base-macro-and-detail-scales">
+
+  Масштабы base, macro и detail
+</h3>
+<p>Внутри одной группы текстуры <strong>base</strong>, <strong>macro</strong> и <strong>detail</strong> — это три тайловых слоя с разными масштабами, которые сэмплируются и объединяются попиксельно. Проще всего представить их как низко-, средне- и высокочастотные версии одной и той же поверхности:</p>
+<table>
+<thead>
+<tr>
+<th>Масштаб</th>
+<th>Типичный размер маппинга (<code>*TexSize</code>)</th>
+<th>Повторяемость</th>
+<th>Когда сэмплируется</th>
+<th>Роль</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Base</strong></td>
+<td>Большой — часто на весь террейн (≈ 128–2048 м)</td>
+<td>Низкая (большой тайл, иногда уникальный)</td>
+<td>Всегда, на любом расстоянии.</td>
+<td>Основа. Задаёт общий крупномасштабный вид и фактическое значение группы.</td>
+</tr>
+<tr>
+<td><strong>Macro</strong></td>
+<td>Средний (≈ 30–80 м)</td>
+<td>Средняя</td>
+<td>В пределах <code>macroDistances</code>, не дальше 1000 м.</td>
+<td>Вариации среднего масштаба, разбивающие монотонность base на средней/большой дистанции.</td>
+</tr>
+<tr>
+<td><strong>Detail</strong></td>
+<td>Малый (≈ 2–8 м)</td>
+<td>Высокая (мелкий тайл)</td>
+<td>В пределах <code>detailDistances</code>, не дальше 250 м.</td>
+<td>Мелкие, чёткие детали крупного плана.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Base</strong> — основной слой и единственный, задающий абсолютное значение (остальные его модифицируют). В официальных уровнях base — как правило, <strong>одна большая текстура, замапленная на весь террейн</strong> — зачастую одна и та же гарнитура <code>t_terrain_base_*</code>, общая для всех материалов (например, West Coast USA маппит её на 2048 м для всех материалов). Поскольку один тайл охватывает весь террейн, видимого повторения нет, но вблизи текстура мягкая/низкого разрешения — именно это исправляет слой detail.</p>
+<p><strong>Macro</strong> — второй слой с меньшим размером маппинга (обычно 30–80 м). Его задача — скрыть повторяемость base: крупные, мягкие пятна цвета или яркости, заметные на склоне холма, но не на отдельном тайле. Наиболее полезен на средней и большой дистанции; может затухать с помощью <code>macroDistances</code>.</p>
+<p><strong>Detail</strong> — третий слой с очень малым размером маппинга (обычно 2–8 м), поэтому часто повторяется и остаётся чётким прямо под камерой или транспортным средством (отдельные травинки, камушки, мелкие нормальные неровности). Поскольку высокочастотная тайловость становится одновременно заметной и дорогостоящей на расстоянии, detail затухает по <code>detailDistances</code> и никогда не сэмплируется дальше 250 м.</p>
+<h4 id="what-the-mapping-size-means">
+
+  Что означает размер маппинга
+</h4>
+<p><code>*BaseTexSize</code>, <code>*MacroTexSize</code> и <code>*DetailTexSize</code> — это <strong>мировые расстояния в метрах для одного тайла</strong> текстуры, а не её разрешение в пикселях.</p>
+<ul>
+<li><strong>Бо́льший</strong> размер → крупнее тайл → меньше повторов → широкий вид, мало видимой тайловости, но размытее вблизи.</li>
+<li><strong>Меньший</strong> размер → меньше тайл → больше повторов → чёткость вблизи, но тайловость становится заметной на расстоянии.</li>
+</ul>
+<p>В официальном контенте base обычно равен размеру всего террейна, macro — около <code>30–80 м</code>, а detail — около <code>2–8 м</code>. (Если поле размера не задано, движок использует значения по умолчанию: <code>256</code> / <code>60</code> / <code>2</code> м для base / macro / detail.)</p>
+<h4 id="why-three-scales">
+
+  Зачем три масштаба
+</h4>
+<p>Одна тайловая текстура не может хорошо выглядеть на всех расстояниях: сделать тайл крупным — будет размытой вблизи; сделать мелким — тайловость станет заметной по всему террейну. Разделение поверхности на base + macro + detail позволяет террейну одновременно оставаться чётким там, где камера близко (detail), разнообразным на среднем расстоянии (macro) и свободным от очевидного повторения вдали (base).</p>
+<p>Вкратце, по дистанции:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">far   : base (+ macro)         -&gt; broad, no obvious tiling
+</span></span><span class="line"><span class="cl">mid   : base + macro           -&gt; base broken up by variation
+</span></span><span class="line"><span class="cl">near  : base + macro + detail  -&gt; full crispness
+</span></span></code></pre>
+</div>
+<h4 id="how-to-use-them">
+
+  Как использовать
+</h4>
+<ul>
+<li>Все масштабы обязательны: каждая группа должна иметь назначенные текстуры <strong>base</strong>, <strong>macro</strong> и <strong>detail</strong>. Редактор материалов террейна сообщает о пустом слоте как об ошибке валидации и не сохранит материал, пока у всех пяти групп не будут назначены все три текстуры.</li>
+<li>Создавайте <strong>base color base</strong> как реальный цвет поверхности; создавайте текстуры <strong>macro/detail</strong> вокруг среднего серого, чтобы они добавляли только вариации (см. <a href="#how-the-scales-combine">Как масштабы объединяются</a>
+).</li>
+<li>Чтобы фактически «отключить» слой macro или detail в группе, всё равно назначьте текстуру, но сделайте её нейтральной — плоский средний серый для цвета/данных или плоская нормаль — чтобы она ничего не добавляла.</li>
+<li>Используйте <strong>detail</strong> для добавления чёткости крупного плана и держите его дистанции короткими для повышения производительности.</li>
+<li>Используйте <strong>macro</strong> для устранения видимой тайловости на больших открытых пространствах; мягкие, низкоконтрастные текстуры macro обычно выглядят лучше всего.</li>
+</ul>
+<h3 id="how-the-scales-combine">
+
+  Как масштабы объединяются
+</h3>
+<p>Для цветовых и данных-групп (base color, roughness, AO, height) базовая текстура задаёт значение, а macro/detail добавляются как <strong>знаковые наложения</strong> вокруг среднего серого:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">final = base + (macro  - 0.5) * 2 * macroStrength
+</span></span><span class="line"><span class="cl">             + (detail - 0.5) * 2 * detailStrength
+</span></span></code></pre>
+</div><p>По этой причине <strong>текстуры macro и detail должны создаваться вокруг среднего серого (0.5)</strong>: серый = без изменений, более светлые области осветляют базу, более тёмные — затемняют. Для группы normal нормали base/macro/detail смешиваются, а не суммируются.</p>
+<h3 id="height-based-layer-blending">
+
+  Смешивание слоёв на основе высоты
+</h3>
+<p>Это наиболее важное поведение, которое нужно понять. Когда два материала террейна перекрываются (там, где один нанесён поверх другого), движок <strong>не</strong> просто выполняет их перекрёстное затухание. Он сравнивает текстуру <strong>height</strong> каждого слоя попиксельно и пропускает тот, у которого <strong>высота больше</strong>.</p>
+<p>Это создаёт естественные переходы — например, гравий проступает там, где он находится «выше» песка, вместо мягкого размытого шва.</p>
+<p>Для использования этого: создавайте карту высот так, чтобы части, которые должны проявляться первыми при смешивании (камни, рельефный рисунок, камни), были светлее, а углублённые части (швы в кладке, карманы с песком) — темнее.</p>
+<h3 id="tuning-distance-strength-and-attenuation">
+
+  Настройка дистанции, силы и затухания
+</h3>
+<p>Эти поля управляют затуханием macro и detail с расстоянием камеры — они важны как для внешнего вида, так и для производительности.</p>
+<ul>
+<li><code>macroDistances</code> / <code>detailDistances</code> — <code>[startFadeIn, near, far, endFadeOut]</code> в метрах (по возрастанию). Вклад плавно включается на промежутке <code>startFadeIn → near</code>, остаётся полным между <code>near</code> и <code>far</code>, затем плавно выключается на промежутке <code>far → endFadeOut</code>.</li>
+<li><code>*MacroStrength</code> / <code>*DetailStrength</code> — <code>[near, far]</code> интенсивность наложения (0–1), позволяющая делать слой сильным вблизи и слабее вдали.</li>
+<li><code>macroDistAtten</code> / <code>detailDistAtten</code> — <code>[near, far]</code> (0–1), определяющие, насколько вклад спадает на краях затухания (<code>1</code> = полностью затухает до нуля, <code>0</code> = остаётся).</li>
+</ul>
+<div class="bng-notice warning">Независимо от этих кривых, рендерер <strong>жёстко останавливает</strong> сэмплирование detail дальше <code>250 м</code> и macro дальше <code>1000 м</code>. Установка <code>endFadeOut</code> выше этого значения их не расширит — официальный контент часто оставляет <code>endFadeOut</code> большим (например, <code>3000</code>) и полагается на эти ограничения, управляя реальным затуханием через значение <code>far</code>.</div>
+<p>Типичные значения в официальных уровнях:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Распространённое значение</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>macroDistances</code></td>
+<td><code>[0, 10, 100, 3000]</code></td>
+<td>Macro полностью виден до ~100 м, присутствует до ограничения 1000 м.</td>
+</tr>
+<tr>
+<td><code>detailDistances</code></td>
+<td><code>[0, 0, 30, 60]</code> (или большой <code>endFadeOut</code>)</td>
+<td>Detail полностью виден до ~30 м, исчезает задолго до ограничения 250 м.</td>
+</tr>
+<tr>
+<td><code>*MacroStrength</code></td>
+<td><code>[0.2, 0.4]</code> (цвет), <code>[0.5, 0.6]</code> (нормаль)</td>
+<td>Слабый для цвета, сильнее для нормали.</td>
+</tr>
+<tr>
+<td><code>*DetailStrength</code></td>
+<td><code>[0.3, 0]</code> (цвет), <code>[0.8, 0.15]</code> (нормаль)</td>
+<td>Сильный вблизи, затухает до нуля вдали.</td>
+</tr>
+<tr>
+<td><code>macroDistAtten</code> / <code>detailDistAtten</code></td>
+<td><code>[1, 1]</code></td>
+<td>Плавное включение из нуля и выключение до нуля.</td>
+</tr>
+</tbody>
+</table>
+<p>Практические рекомендации:</p>
+<ul>
+<li>Держите значение <code>far</code> для <strong>detail</strong> коротким (обычно 20–50 м). Он высокочастотный, полезен только вблизи, а его раннее отключение также экономит производительность.</li>
+<li>Используйте <strong>macro</strong> для устранения очевидной тайловости базовой текстуры на средней и большой дистанции.</li>
+<li>Значения силы macro/detail для <code>height</code> обычно оставляют равными <code>0</code> — высота управляет <a href="#height-based-layer-blending">смешиванием слоёв</a>
+, поэтому её модуляция через macro/detail редко нужна.</li>
+</ul>
+<h3 id="slope-projection-and-depth">
+
+  Проекция на склоны и глубина
+</h3>
+<ul>
+<li><code>useSideProjection</code> — проецирует текстуру на вертикальные грани вместо проекции прямо вниз, чтобы скалы и крутые камни не выглядели растянутыми.</li>
+<li><code>parallaxScale</code> — добавляет эффект параллакса/самоперекрытия глубины из данных карты высот/нормалей.</li>
+</ul>
+<div class="bng-notice warning">Параметры <code>useSideProjection</code> и <code>parallaxScale</code> относятся к <strong>классическому пути v1</strong> террейна. Рендерер v1.5 (и редактор материалов v1.5) их не использует, поэтому они не оказывают эффекта на террейн с назначенным <code>materialTextureSet</code>.</div>
+<h3 id="groundmodel-and-annotation">
+
+  Граундмодель и аннотация
+</h3>
+<ul>
+<li><code>groundmodelName</code> — связывает закрашенную область с <strong>граундмоделью</strong>, которая определяет физическую поверхность: трение, частицы шин, звуки заноса, сопротивление качению и т.д. Соотносите с внешним видом (<code>GRASS</code>, <code>ROCK</code>, <code>ASPHALT</code>, …). См. <a data-doc="levels/level_formats/groundmodels" href="/docs/levels/level_formats/groundmodels">Groundmodels</a>
+.</li>
+<li><code>annotation</code> — семантический/отладочный класс (например, <code>GRASS</code>, <code>NATURE</code>), используемый проходом рендеринга аннотаций для инструментов, таких как семантическая сегментация и сенсоры. По умолчанию <code>NATURE</code>.</li>
+</ul>
+<p>Оба поля используются как классическими материалами v1, так и v1.5.</p>
+<hr/>
+<h2 id="terrainmaterial-v15-fields">
+
+  Поля TerrainMaterial v1.5
+</h2>
+<p>Объект <code>TerrainMaterial</code> версии v1.5 определяется <strong>полями текстур для каждой группы</strong> и несколькими <strong>полями уровня материала</strong>. О том, что делает каждое поле и как его использовать, см. в разделе <a href="#how-v15-terrain-materials-work">Принцип работы материалов террейна v1.5</a>
+; данный раздел — краткий справочник по именам и типам.</p>
+<p>Значения хранятся как числа и массивы JSON: одиночные значения — как числа (<code>512</code>, <code>0.3</code>), векторы — как массивы (<code>[0.3, 0]</code>, <code>[0, 10, 100, 3000]</code>).</p>
+<h3 id="texture-group-fields">
+
+  Поля групп текстур
+</h3>
+<p>Каждая из пяти групп — <code>baseColor</code>, <code>normal</code>, <code>roughness</code>, <code>ao</code>, <code>height</code> — предоставляет одинаковые поля. Имя поля формируется из названия группы и масштаба (<code>Base</code>, <code>Macro</code>, <code>Detail</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Шаблон поля</th>
+<th>Тип</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;group&gt;&lt;Scale&gt;Tex</code></td>
+<td>path</td>
+<td>Исходная текстура для данной группы/масштаба, например <code>baseColorBaseTex</code>, <code>normalDetailTex</code>.</td>
+</tr>
+<tr>
+<td><code>&lt;group&gt;&lt;Scale&gt;TexSize</code></td>
+<td>number</td>
+<td>Мировой размер маппинга в метрах (как правило, весь террейн для base, 30–80 для macro, 2–8 для detail).</td>
+</tr>
+<tr>
+<td><code>&lt;group&gt;MacroStrength</code></td>
+<td>number[2] <code>[near, far]</code></td>
+<td>Интенсивность наложения macro, <code>0..1</code>.</td>
+</tr>
+<tr>
+<td><code>&lt;group&gt;DetailStrength</code></td>
+<td>number[2] <code>[near, far]</code></td>
+<td>Интенсивность наложения detail, <code>0..1</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Например, группа <code>baseColor</code> раскрывается в <code>baseColorBaseTex</code>, <code>baseColorMacroTex</code>, <code>baseColorDetailTex</code>, <code>baseColorBaseTexSize</code>, <code>baseColorMacroTexSize</code>, <code>baseColorDetailTexSize</code>, <code>baseColorMacroStrength</code> и <code>baseColorDetailStrength</code>.</p>
+<h3 id="material-level-fields">
+
+  Поля уровня материала
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>internalName</code></td>
+<td>string</td>
+<td>Уникальное имя, на которое ссылается список материалов файла <code>.ter</code>.</td>
+</tr>
+<tr>
+<td><code>macroDistances</code></td>
+<td>number[4] <code>[startFadeIn, near, far, endFadeOut]</code></td>
+<td>Кривая затухания по дистанции (м), общая для всех текстур macro. Сэмплирование останавливается на ограничении 1000 м. Типичное значение: <code>[0, 10, 100, 3000]</code>.</td>
+</tr>
+<tr>
+<td><code>detailDistances</code></td>
+<td>number[4] <code>[startFadeIn, near, far, endFadeOut]</code></td>
+<td>Кривая затухания по дистанции (м), общая для всех текстур detail. Сэмплирование останавливается на ограничении 250 м. Типичное значение: <code>[0, 0, 30, 60]</code>.</td>
+</tr>
+<tr>
+<td><code>macroDistAtten</code></td>
+<td>number[2] <code>[near, far]</code></td>
+<td>Степень затухания macro на краях затухания, <code>0..1</code>. Типичное значение: <code>[1, 1]</code>.</td>
+</tr>
+<tr>
+<td><code>detailDistAtten</code></td>
+<td>number[2] <code>[near, far]</code></td>
+<td>Степень затухания detail на краях затухания, <code>0..1</code>. Типичное значение: <code>[1, 1]</code>.</td>
+</tr>
+<tr>
+<td><code>groundmodelName</code></td>
+<td>string</td>
+<td>Физическая граундмодель (трение, частицы, звуки).</td>
+</tr>
+<tr>
+<td><code>annotation</code></td>
+<td>string</td>
+<td>Семантический/отладочный класс для прохода аннотаций. По умолчанию <code>NATURE</code>.</td>
+</tr>
+<tr>
+<td><code>useSideProjection</code></td>
+<td>bool</td>
+<td>Только для классического v1 — игнорируется рендерером v1.5.</td>
+</tr>
+<tr>
+<td><code>parallaxScale</code></td>
+<td>number</td>
+<td>Только для классического v1 — игнорируется рендерером v1.5.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="example-v15-terrainmaterial">
+
+  Пример TerrainMaterial v1.5
+</h3>
+<p>Определения <code>TerrainMaterial</code> хранятся как JSON-объект с ключами по именам, по одному ключу на материал:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"grass01"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TerrainMaterial"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"internalName"</span><span class="p">:</span> <span class="s2">"grass01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"annotation"</span><span class="p">:</span> <span class="s2">"GRASS"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"groundmodelName"</span><span class="p">:</span> <span class="s2">"GRASS"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorBaseTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_terrain_base_grass_b.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorBaseTexSize"</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorMacroTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_macro_grass_b.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorMacroTexSize"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorMacroStrength"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorDetailTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_grass_b.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorDetailTexSize"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseColorDetailStrength"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalBaseTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_terrain_base_grass_nm.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalBaseTexSize"</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalMacroTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_macro_grass_nm.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalMacroTexSize"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalMacroStrength"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalDetailTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_grass_nm.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalDetailTexSize"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normalDetailStrength"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessBaseTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_terrain_base_grass_r.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessBaseTexSize"</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessMacroTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_macro_grass_r.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessMacroTexSize"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessMacroStrength"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessDetailTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_grass_r.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessDetailTexSize"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"roughnessDetailStrength"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">"aoBaseTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_terrain_base_grass_ao.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aoBaseTexSize"</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aoMacroTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_macro_grass_ao.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aoMacroTexSize"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aoDetailTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_grass_ao.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"aoDetailTexSize"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">"heightBaseTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_terrain_base_grass_h.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"heightBaseTexSize"</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"heightMacroTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_macro_grass_h.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"heightMacroTexSize"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"heightDetailTex"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/t_grass_h.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"heightDetailTexSize"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">"macroDistances"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">3000</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"detailDistances"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"macroDistAtten"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"detailDistAtten"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><div class="bng-notice note"><ul>
+<li>Все пять групп должны иметь назначенные текстуры <strong>base</strong>, <strong>macro</strong> и <strong>detail</strong> — редактор материалов террейна не сохранит материал с пустым слотом текстуры.</li>
+<li>Редактор также записывает автоматически сгенерированный <code>persistentId</code> и использует JSON-ключ вида <code>&lt;name&gt;-&lt;persistentId&gt;</code>; здесь оба опущены для ясности.</li>
+<li>Значения силы <code>height</code> оставлены на значениях по умолчанию, чтобы высота использовалась только для смешивания слоёв.</li>
+</ul>
+</div>
+<hr/>
+<h2 id="terrainmaterialtextureset">
+
+  TerrainMaterialTextureSet
+</h2>
+<p>Объект <code>TerrainMaterialTextureSet</code> определяет ожидаемые размеры текстурных массивов, используемых рендерером материалов террейна v1.5.</p>
+<p>Все материалы террейна, нанесённые на террейн, упаковываются в небольшой набор <strong>общих текстурных массивов GPU</strong> (по одному срезу на материал), а текстурный массив требует, чтобы каждый срез имел одинаковые размеры. Объект <code>TerrainMaterialTextureSet</code> объявляет эти размеры для слотов base, macro и detail. Именно поэтому каждая текстура, назначенная в данный слот, должна точно соответствовать объявленному размеру — несовпадение не позволяет упаковать материал, и он переключается на предупреждающую текстуру.</p>
+<p>Как правило, на уровень приходится один объект <code>TerrainMaterialTextureSet</code> (с именем вида <code>&lt;levelName&gt;TerrainMaterialTextureSet</code>), общий для всех материалов террейна этого уровня.</p>
+<p>Объект <code>TerrainBlock</code> ссылается на него через:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"materialTextureSet"</span><span class="err">:</span> <span class="s2">"myTerrainTextureSet"</span>
+</span></span></code></pre>
+</div><p>Важные поля (размер в пикселях как <code>[width, height]</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Описание</th>
+<th>Типичное значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>baseTexSize</code></td>
+<td>Размер в пикселях для массива базовых текстур.</td>
+<td><code>[512, 512]</code> – <code>[4096, 4096]</code> (выше, когда base — уникальная карта на весь террейн)</td>
+</tr>
+<tr>
+<td><code>macroTexSize</code></td>
+<td>Размер в пикселях для массива текстур macro.</td>
+<td><code>[1024, 1024]</code></td>
+</tr>
+<tr>
+<td><code>detailTexSize</code></td>
+<td>Размер в пикселях для массива текстур detail.</td>
+<td><code>[1024, 1024]</code></td>
+</tr>
+</tbody>
+</table>
+<p>Пример (из официальной структуры уровня):</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"templateTerrainMaterialTextureSet"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TerrainMaterialTextureSet"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"templateTerrainMaterialTextureSet"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"baseTexSize"</span><span class="p">:</span> <span class="p">[</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"macroTexSize"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"detailTexSize"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Рендерер использует эти размеры при упаковке текстур материалов террейна в текстурные массивы GPU.</p>
+<div class="bng-notice warning">Все текстуры, назначенные в один тип слота, должны соответствовать ожидаемому размеру, заданному в <code>TerrainMaterialTextureSet</code>. Например, все базовые текстуры должны соответствовать <code>baseTexSize</code>.</div>
+<hr/>
+<h2 id="terrain-texture-packing">
+
+  Упаковка текстур террейна
+</h2>
+<p>В пути материалов террейна v1.5 исходные текстуры упаковываются в генерируемые кэшированные текстуры и копируются в текстурные массивы террейна.</p>
+<p>Сгенерированные файлы кэша могут храниться по путям вида:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/temp/art/terrainMaterialCache/&lt;hash&gt;.dds
+</span></span></code></pre>
+</div><p>Хэш основан на путях исходных текстур, поэтому одна и та же комбинация текстур может повторно использоваться.</p>
+<p>Рендерер упаковывает данные террейна в две основные группы текстур:</p>
+<h3 id="base-color-group">
+
+  Группа base color
+</h3>
+<p>Эта группа объединяет:</p>
+<ul>
+<li>RGB базового цвета</li>
+<li>Ambient occlusion</li>
+</ul>
+<p>Типичное использование каналов:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">R/G/B = base color
+</span></span><span class="line"><span class="cl">A     = ambient occlusion
+</span></span></code></pre>
+</div>
+<h3 id="normal-data-group">
+
+  Группа normal/data
+</h3>
+<p>Эта группа объединяет:</p>
+<ul>
+<li>Roughness</li>
+<li>Height</li>
+<li>Данные нормали</li>
+</ul>
+<p>Типичное использование каналов:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">R = roughness
+</span></span><span class="line"><span class="cl">G = height
+</span></span><span class="line"><span class="cl">B/A = normal-related data
+</span></span></code></pre>
+</div><div class="bng-notice info">Упакованная текстура генерируется движком автоматически. Авторам следует предоставлять корректные исходные текстуры с совпадающими размерами и правильным использованием цвета/данных.</div>
+<p>Если исходная текстура отсутствует, имеет неверный размер или не содержит ожидаемого канала, упаковка материала террейна может завершиться сбоем или вывести предупреждающий материал.</p>
+<h3 id="source-texture-requirements">
+
+  Требования к исходным текстурам
+</h3>
+<p>При создании текстур террейна v1.5:</p>
+<ul>
+<li>Используйте исходные текстуры в формате <strong>PNG</strong>.</li>
+<li>Размеры текстур в пикселях должны быть <strong>степенью двойки</strong> и точно совпадать с соответствующим размером слота в <code>TerrainMaterialTextureSet</code> (<code>baseTexSize</code>, <code>macroTexSize</code> или <code>detailTexSize</code>).</li>
+<li>Текстуры <strong>base color</strong> должны быть в цветовом пространстве <strong>sRGB</strong>. Текстуры <strong>normal</strong>, <strong>roughness</strong>, <strong>ambient occlusion</strong> и <strong>height</strong> должны быть в <strong>линейном</strong> пространстве.</li>
+</ul>
+<p>Рекомендуемые форматы источников для каждого слота:</p>
+<table>
+<thead>
+<tr>
+<th>Группа слота</th>
+<th>Цветовое пространство</th>
+<th>Рекомендуемый формат источника</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base color</td>
+<td>sRGB</td>
+<td><code>R8G8B8</code> / <code>R8G8B8A8</code></td>
+</tr>
+<tr>
+<td>Normal</td>
+<td>Linear</td>
+<td><code>R8G8B8</code> / <code>R8G8B8A8</code></td>
+</tr>
+<tr>
+<td>Roughness / AO / Height</td>
+<td>Linear</td>
+<td><code>R8</code> (оттенки серого)</td>
+</tr>
+</tbody>
+</table>
+<p>Библиотека материалов террейна в World Editor проверяет эти правила и сообщает о несовпадениях размеров, отсутствующих текстурах и неожиданных форматах.</p>
+<hr/>
+<h2 id="terrain-rendering">
+
+  Рендеринг террейна
+</h2>
+<p>Рендерер террейна делит террейн на ячейки и строит квадродерево.</p>
+<p>Важное значение:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">minimum terrain cell size = 64
+</span></span></code></pre>
+</div><p>Система ячеек используется для:</p>
+<ul>
+<li>Отсечения</li>
+<li>Выбора LOD</li>
+<li>Ограничивающих объёмов</li>
+<li>Отслеживания материалов</li>
+<li>Рендеринга теней</li>
+<li>Рендеринга отражений</li>
+<li>Проходов prepass / G-buffer / аннотации</li>
+</ul>
+<p>Данные ячеек террейна загружаются в GPU-буферы для рендеринга.</p>
+<hr/>
+<h2 id="terrain-lod">
+
+  LOD террейна
+</h2>
+<p>LOD террейна основан на ошибке экрана и расстоянии до ячейки.</p>
+<p>Соответствующие поля/настройки:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>screenError</code></td>
+<td>Настройка ошибки экрана террейна.</td>
+</tr>
+<tr>
+<td><code>$pref::Terrain::lodScale</code></td>
+<td>Глобальный масштаб LOD террейна.</td>
+</tr>
+<tr>
+<td><code>$pref::Terrain::detailScale</code></td>
+<td>Глобальный масштаб дистанции деталей террейна.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="terrain-skirts">
+
+  Юбки террейна
+</h2>
+<p>Ячейки террейна генерируют дополнительную геометрию «юбки» вокруг краёв ячеек.</p>
+<p>Юбки помогают скрыть трещины между ячейками террейна при использовании разных уровней LOD.</p>
+<p>Эта геометрия генерируется автоматически и не хранится в файле <code>.ter</code>.</p>
+<hr/>
+<h2 id="empty-terrain-holes">
+
+  Пустой террейн / отверстия
+</h2>
+<p>Значение индекса слоя <code>255</code> (<code>U8_MAX</code>) отмечает пустой террейн.</p>
+<p>Пустой террейн влияет на:</p>
+<ul>
+<li>Рендеринг</li>
+<li>Коллизии</li>
+<li>Генерацию примитивов ячеек террейна</li>
+<li>Операции SDF/булевого террейна</li>
+</ul>
+<p>Рендерер может пропускать пустые квадраты террейна, генерируя пользовательский буфер примитивов для затронутых ячеек.</p>
+<hr/>
+<h2 id="collision">
+
+  Коллизии
+</h2>
+<p>Коллизии террейна строятся на основе карты высот.</p>
+<p>При изменении высоты террейна:</p>
+<ul>
+<li>Данные сетки обновляются</li>
+<li>Ограничивающие объёмы пересчитываются</li>
+<li>Ячейки рендеринга обновляются</li>
+<li>Пересборка физических коллизий может быть поставлена в очередь</li>
+</ul>
+<p>Коллизии террейна используются:</p>
+<ul>
+<li>Транспортными средствами</li>
+<li>Пропами</li>
+<li>Рейкастами</li>
+<li>Определением земли</li>
+<li>Системами ИИ/навигации</li>
+</ul>
+<hr/>
+<h2 id="importing-terrain">
+
+  Импорт террейна
+</h2>
+<p>Террейн можно импортировать из карты высот и карт непрозрачности/слоёв.</p>
+<p>Требования:</p>
+<ul>
+<li>Карта высот должна быть квадратной</li>
+<li>Разрешение карты высот должно быть степенью двойки</li>
+<li>Размер карты высот должен быть от <code>128</code> до <code>8192</code></li>
+<li>Карты непрозрачности/слоёв должны совпадать по размеру с картой высот</li>
+<li>Количество имён материалов должно совпадать с количеством слоёв непрозрачности</li>
+</ul>
+<hr/>
+<h2 id="heightmap-import">
+
+  Импорт карты высот
+</h2>
+<p>Поддерживаемое поведение при импорте карты высот:</p>
+<ul>
+<li>Карты высот <code>R16</code> читаются непосредственно как 16-битные данные высоты.</li>
+<li>Другие форматы изображений конвертируются из 8-битных значений в полный диапазон <code>u16</code>.</li>
+</ul>
+<p>Конвертация из 8-битного формата:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">storedHeight = pixelValue / 255 x 65535
+</span></span></code></pre>
+</div><hr/>
+<h2 id="opacity-layer-import">
+
+  Импорт слоёв непрозрачности
+</h2>
+<p>Импорт использует слои непрозрачности для построения карты слоёв террейна.</p>
+<p>Каждый слой непрозрачности может поступать из канала текстуры:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">R
+</span></span><span class="line"><span class="cl">G
+</span></span><span class="line"><span class="cl">B
+</span></span><span class="line"><span class="cl">A
+</span></span></code></pre>
+</div><p>Для каждого образца террейна побеждает слой материала с наибольшим значением непрозрачности.</p>
+<p>Псевдокод:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">each</span> <span class="nl">sample</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bestLayer</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bestValue</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">each</span> <span class="n">opacity</span> <span class="nl">layer</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">opacityValue</span> <span class="o">&gt;=</span> <span class="nl">bestValue</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">bestLayer</span> <span class="o">=</span> <span class="n">layer</span>
+</span></span><span class="line"><span class="cl">            <span class="n">bestValue</span> <span class="o">=</span> <span class="n">opacityValue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">layerMap</span><span class="p">[</span><span class="n">sample</span><span class="p">]</span> <span class="o">=</span> <span class="n">bestLayer</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="hole-map-import">
+
+  Импорт карты отверстий
+</h2>
+<p>Необязательная карта отверстий может пометить образцы террейна как пустые.</p>
+<p>Если значение карты отверстий равно <code>0xFF</code>, значение карты слоёв становится:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">255
+</span></span></code></pre>
+</div><p>что означает пустой террейн.</p>
+<hr/>
+<h2 id="y-axis-flipping">
+
+  Переворот по оси Y
+</h2>
+<p>Импорт поддерживает параметр <code>flipYAxis</code>.</p>
+<p>Если он отключён, импортёр переворачивает входные данные по вертикали при копировании в память террейна.</p>
+<p>Используйте этот параметр, если импортированный террейн выглядит перевёрнутым по вертикали.</p>
+<hr/>
+<h2 id="creating-terrain">
+
+  Создание террейна
+</h2>
+<p>При создании нового террейна движок:</p>
+<ol>
+<li>Выбирает уникальное имя файла <code>.ter</code>.</li>
+<li>Создаёт объект <code>TerrainFile</code>.</li>
+<li>Добавляет начальный материал.</li>
+<li>Округляет разрешение террейна до следующей степени двойки.</li>
+<li>Инициализирует карту высот и карту слоёв.</li>
+<li>Сохраняет файл <code>.ter</code>.</li>
+<li>Записывает файл метаданных <code>.terrain.json</code>.</li>
+<li>Создаёт/регистрирует объект <code>TerrainBlock</code>.</li>
+</ol>
+<p>Начальная высота нового террейна устанавливается выше нуля, чтобы у редактора было пространство для выемки грунта.</p>
+<hr/>
+<h2 id="minimal-terrainblock-example">
+
+  Минимальный пример TerrainBlock
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TerrainBlock"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"theTerrain"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"terrainFile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/terrain.ter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"squareSize"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxHeight"</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"baseTexSize"</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"lightMapSize"</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"screenError"</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"castShadows"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-1024</span><span class="p">,</span> <span class="mi">-1024</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="minimal-terrainjson-example">
+
+  Минимальный пример .terrain.json
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"datafile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/terrain.ter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"heightmapImage"</span><span class="p">:</span> <span class="s2">"/levels/example/art/terrains/terrain.terrainheightmap.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"size"</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"binaryFormat"</span><span class="p">:</span> <span class="s2">"version(char), size(unsigned int), heightMap(heightMapSize * heightMapItemSize), layerMap(layerMapSize * layerMapItemSize), materialNames"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"heightMapSize"</span><span class="p">:</span> <span class="mi">1048576</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"heightMapItemSize"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"layerMapSize"</span><span class="p">:</span> <span class="mi">1048576</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"layerMapItemSize"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"materials"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"grass"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"rock"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>Используйте разрешение террейна, кратное степени двойки.</li>
+<li>Используйте размеры террейна от <code>128</code> до <code>8192</code>.</li>
+<li>Используйте <code>squareSize</code> для управления масштабом в мировом пространстве.</li>
+<li>Используйте <code>maxHeight</code> для управления вертикальным диапазоном.</li>
+<li>Не масштабируйте объект <code>TerrainBlock</code>.</li>
+<li>Держите количество материалов террейна управляемым.</li>
+<li>Используйте допустимые внутренние имена <code>TerrainMaterial</code>.</li>
+<li>Держите карты непрозрачности/слоёв того же размера, что и карта высот.</li>
+<li>Используйте значения слоя <code>255</code> только для намеренных отверстий.</li>
+<li>Пересохраняйте старые файлы террейна для их обновления.</li>
+<li>Проверяйте коллизии террейна после значительного редактирования.</li>
+<li>Используйте подготовленные текстуры DDS для классических материалов террейна.</li>
+<li>Держите размеры текстурных наборов материалов террейна единообразными.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="terrain-does-not-load">
+
+  Террейн не загружается
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Недопустимый путь <code>terrainFile</code></li>
+<li>Отсутствует файл <code>.ter</code></li>
+<li>Версия файла террейна новее, чем поддерживает движок</li>
+<li>Повреждённые бинарные данные</li>
+</ul>
+<h3 id="terrain-appears-with-warning-material">
+
+  Террейн отображается с предупреждающим материалом
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Имя материала в <code>.ter</code> не удаётся разрешить</li>
+<li>Отсутствует определение <code>TerrainMaterial</code></li>
+<li>Путь к текстуре материала террейна недопустим</li>
+<li>Не удаётся найти <code>materialTextureSet</code></li>
+</ul>
+<h3 id="terrain-height-is-wrong">
+
+  Высота террейна неверна
+</h3>
+<p>Проверьте:</p>
+<ul>
+<li><code>maxHeight</code></li>
+<li><code>squareSize</code></li>
+<li>Позицию объекта террейна</li>
+<li>Масштаб импорта карты высот</li>
+<li>Настройку переворота по оси Y</li>
+</ul>
+<h3 id="terrain-painting-looks-wrong">
+
+  Закраска террейна выглядит неправильно
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Индекс карты слоёв не совпадает с порядком материалов</li>
+<li>Порядок материалов изменился</li>
+<li>Карты непрозрачности неверны</li>
+<li>Кэш текстур устарел</li>
+<li>Исходные текстуры имеют неверный размер</li>
+</ul>
+<h3 id="terrain-has-holes">
+
+  В террейне есть отверстия
+</h3>
+<p>Значения карты слоёв могут быть равны <code>255</code>, что отмечает террейн как пустой.</p>
+<h3 id="terrain-collision-is-outdated">
+
+  Коллизии террейна устарели
+</h3>
+<p>Пересоберите коллизии террейна или сохраните/перезагрузите уровень после значительного редактирования высот.</p>
+<h3 id="import-fails">
+
+  Импорт завершается с ошибкой
+</h3>
+<p>Проверьте, что:</p>
+<ul>
+<li>Карта высот квадратная</li>
+<li>Разрешение карты высот является степенью двойки</li>
+<li>Размер карты высот находится в диапазоне от <code>128</code> до <code>8192</code></li>
+<li>Карты непрозрачности совпадают по размеру с картой высот</li>
+<li>Количество материалов совпадает с количеством слоёв непрозрачности</li>
+</ul>
+<hr/>
+<h2 id="summary">
+
+  Итог
+</h2>
+<p>Террейн BeamNG использует:</p>
+<ul>
+<li>Бинарный файл <code>.ter</code> для карты высот, карты слоёв и имён материалов</li>
+<li>Файл метаданных <code>.terrain.json</code> для документации/инструментов</li>
+<li>Объект сцены <code>TerrainBlock</code> для размещения террейна в уровне</li>
+<li>Отдельные определения <code>TerrainMaterial</code> для визуальных и физических данных материала</li>
+</ul>
+<p>Файл <code>.ter</code> компактен и быстро загружается, тогда как файл <code>.terrain.json</code> помогает инструментам понять структуру данных террейна.</p>

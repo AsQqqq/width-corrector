@@ -1,0 +1,152 @@
+<p><code>SimGroup</code> — это контейнерный объект, используемый для организации других объектов уровня в дереве сцены и в файлах <code>items.level.json</code>.</p>
+<p>В большинстве уровней используется корневая группа с именем:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">MissionGroup
+</span></span></code></pre>
+</div><p>Вложенные группы широко применяются для хранения пропсов, источников освещения, дорог, объектов ландшафта, маркеров и сгенерированного контента в удобных папках.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Базовый пример
+</h2>
+<p>Простая запись группы в <code>items.level.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SimGroup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"road_props"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"MissionGroup"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Затем объекты могут использовать эту группу в качестве родителя:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TSStatic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"barrier_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"road_props"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/barrier.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="important-fields">
+
+  Важные поля
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Должно быть <code>"SimGroup"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя группы. Другие объекты используют это значение в поле <code>__parent</code>.</td>
+</tr>
+<tr>
+<td><code>__parent</code></td>
+<td>string</td>
+<td>Имя родительской группы. Обычно <code>"MissionGroup"</code> или другая группа.</td>
+</tr>
+<tr>
+<td><code>persistentId</code></td>
+<td>string</td>
+<td>Стабильный идентификатор для редактора/среды выполнения, если присутствует. Как правило, генерируется автоматически.</td>
+</tr>
+<tr>
+<td><code>hidden</code></td>
+<td>bool</td>
+<td>Скрывает группу в поддерживаемых контекстах редактора/среды выполнения. Дочерние объекты при этом могут существовать.</td>
+</tr>
+<tr>
+<td><code>enabled</code></td>
+<td>bool/string</td>
+<td>Состояние активности группы, если применимо.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="relationship-with-parent">
+
+  Связь с <code>__parent</code>
+</h2>
+<p>Файлы объектов уровня обычно хранят иерархию через поле <code>__parent</code>.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"lights_night"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SimGroup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"MissionGroup"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Дочерний объект:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"street_lamp_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SpotLight"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"lights_night"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Группа должна быть загружена раньше дочерних объектов, которые на неё ссылаются, либо инструмент загрузки должен восстанавливать родительские связи самостоятельно.</p>
+<div class="bng-notice warning">Когда внешние инструменты перемещают объекты между файлами, сохраняйте значение <code>__parent</code> или намеренно восстанавливайте ту же иерархию групп.</div>
+<hr/>
+<h2 id="missiongroup">
+
+  MissionGroup
+</h2>
+<p><code>MissionGroup</code> — главная группа уровня, используемая деревом сцены.</p>
+<p>Типичный основной файл объектов содержит:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"MissionGroup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SimGroup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"enabled"</span><span class="p">:</span> <span class="s2">"1"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Большинство объектов уровня являются прямыми или косвенными потомками <code>MissionGroup</code>.</p>
+<hr/>
+<h2 id="tool-notes">
+
+  Примечания для инструментов
+</h2>
+<p>Для инструментов, генерирующих или преобразующих уровни:</p>
+<ul>
+<li>Сохраняйте имена групп, на которые ссылается <code>__parent</code>.</li>
+<li>Сохраняйте значения <code>persistentId</code>, если только не создаётся новая группа.</li>
+<li>Размещайте сгенерированные группы рядом с контентом, которым они управляют.</li>
+<li>Не сводите всю сцену в <code>MissionGroup</code>: крупные уровни используют вложенные группы для удобства редактирования.</li>
+<li>Не удаляйте группу, не переместив или не удалив намеренно все её дочерние объекты.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Типичные проблемы
+</h2>
+<ul>
+<li>Объекты оказываются не в том месте дерева сцены, потому что <code>__parent</code> ссылается на неверную группу.</li>
+<li>Сгенерированные объекты не загружаются в нужную группу, поскольку запись этой группы отсутствует.</li>
+<li>Переименование группы нарушает размещение дочерних объектов, если значения <code>__parent</code> не обновлены.</li>
+</ul>
+<hr/>
+<h2 id="validation-criteria">
+
+  Критерии валидации
+</h2>
+<ul>
+<li><code>MissionGroup</code> существует.</li>
+<li>Каждое сгенерированное значение <code>__parent</code> разрешается в существующую <code>SimGroup</code>.</li>
+<li>Большие наборы объектов организованы в осмысленные группы.</li>
+<li>Имена групп достаточно стабильны для использования инструментами, скриптами и рабочими процессами редактора.</li>
+</ul>
+<p><strong>См. также:</strong> <a data-doc="levels/level_formats/items" href="/docs/levels/level_formats/items">Файлы объектов уровня (<code>items.level.json</code>)</a>
+.</p>

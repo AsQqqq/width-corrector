@@ -1,0 +1,127 @@
+<h2 id="legacy-normal-map-packing">
+
+  Legacy Normal Map Packing
+</h2>
+<p>Старый контент BeamNG и сторонние ресурсы могут использовать различные схемы распределения каналов карты нормалей в зависимости от формата и типа сжатия. Современные рабочие процессы стандартизированы на картах нормалей <strong>BC5 (RG)</strong>, однако устаревшие форматы могут потребовать конвертации для корректной работы.</p>
+<h3 id="channel-packing-formats">
+
+  Channel packing formats
+</h3>
+<p>Различные форматы хранят компоненты X и Y нормали в разных каналах:</p>
+<p>
+</p><div class="bng-table" id="table-1783007350246154033"><div class="bng-table-header"><div>Format</div><div>XY Channels</div><div>Description</div><div>Conversion to Standard (BC5 RG)</div></div>
+<div class="bng-table-row"><div>
+<div style="">Format</div>
+<div style=""><strong>GFXFormatBC5</strong></div>
+</div><div>
+<div style="">XY Channels</div>
+<div style="">R, G</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Современный стандартный формат карты нормалей. Хранит X в красном канале, Y — в зелёном.</div>
+</div><div>
+<div style="">Conversion to Standard (BC5 RG)</div>
+<div style="">Конвертация не требуется</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Format</div>
+<div style=""><strong>GFXFormat3Dc</strong></div>
+</div><div>
+<div style="">XY Channels</div>
+<div style="">G, R</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Устаревший формат с переставленными каналами.</div>
+</div><div>
+<div style="">Conversion to Standard (BC5 RG)</div>
+<div style="">Поменять каналы местами: R = G, G = R</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Format</div>
+<div style=""><strong>GFXFormatDXT5nm</strong></div>
+</div><div>
+<div style="">XY Channels</div>
+<div style="">A, G</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Старая упаковка: X хранится в альфа-канале, Y — в зелёном.</div>
+</div><div>
+<div style="">Conversion to Standard (BC5 RG)</div>
+<div style="">Перепаковать каналы: R = A, G = G</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Format</div>
+<div style=""><strong>PNG/JPG/BMP</strong></div>
+</div><div>
+<div style="">XY Channels</div>
+<div style="">R, G</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Несжатые форматы, как правило, используют стандартное расположение каналов.</div>
+</div><div>
+<div style="">Conversion to Standard (BC5 RG)</div>
+<div style="">Убедитесь, что R = X, G = Y, и сохраните как <code>*.normal.png</code></div>
+</div></div></div>
+<br/>
+<h3 id="modern-standard">
+
+  Modern standard
+</h3>
+<p>Движок ожидает:</p>
+<ul>
+<li><strong>BC5 compression</strong></li>
+<li><strong>X → Red channel</strong></li>
+<li><strong>Y → Green channel</strong></li>
+<li><strong>OpenGL tangent space (Y+)</strong></li>
+</ul>
+<h3 id="converting-legacy-normal-maps">
+
+  Converting legacy normal maps
+</h3>
+<p>При работе со старыми ресурсами может потребоваться перепаковка каналов:</p>
+<ul>
+<li>
+<p><strong>3Dc (G,R)</strong><br/>
+Поменять каналы местами → <strong>R = G, G = R</strong></p>
+</li>
+<li>
+<p><strong>DXT5nm (A,G)</strong><br/>
+Переместить каналы →<br/>
+<strong>R = Alpha</strong>,<br/>
+<strong>G = Green</strong></p>
+</li>
+<li>
+<p><strong>Incorrect Y direction</strong><br/>
+Если освещение выглядит инвертированным, отразите зелёный канал (Y).</p>
+</li>
+</ul>
+<p>После конвертации:</p>
+<ul>
+<li>Сохраните как <code>*.normal.png</code></li>
+<li>Позвольте <a data-doc="materials/texture_cooker" href="/docs/materials/texture_cooker">Texture Cooker</a>
+ конвертировать файл в <strong>BC5</strong></li>
+</ul>
+<h3 id="recommended-workflow">
+
+  Recommended workflow
+</h3>
+<ul>
+<li>Всегда используйте <strong>RGB 8-bit PNG</strong> в качестве исходного формата</li>
+<li>Храните нормали в каналах <strong>R (X)</strong> и <strong>G (Y)</strong></li>
+<li>Держите текстуры в <strong>линейном цветовом пространстве</strong></li>
+<li>Избегайте ручного создания DDS без необходимости</li>
+</ul>
+<h3 id="common-issues">
+
+  Common issues
+</h3>
+<ul>
+<li><strong>Wrong lighting direction</strong> → канал Y инвертирован</li>
+<li><strong>Flat or broken shading</strong> → неверная упаковка каналов</li>
+<li><strong>Artifacts or compression issues</strong> → не используется BC5</li>
+</ul>
+<h3 id="notes">
+
+  Notes
+</h3>
+<div class="bng-notice warning">Не используйте устаревшие форматы, такие как DXT5nm или 3Dc, для нового контента. Всегда старайтесь применять Texture Cooker для корректного рендеринга и оптимального качества.</div>

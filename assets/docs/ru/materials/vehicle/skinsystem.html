@@ -1,0 +1,80 @@
+<p>Система скинов позволяет легко и seamless заменять текстуры транспортного средства прямо в игре.</p>
+<p>Чаще всего она используется для смены различных вариантов окраски кузова или цвета интерьера.</p>
+<p>Она определяется двумя элементами: первый — это деталь jbeam, которая вызывает скин, второй — новый материал, объявленный как скин.</p>
+<p></p><div class="bng-notice note"><p>На этой странице подробно описаны технические аспекты системы скинов, позволяющие применять её, например, для цвета интерьера и других целей.</p>
+<p>Смотрите <a data-doc="materials/vehicle/skinsystem/skintutorial" href="/docs/materials/vehicle/skinsystem/skintutorial">этот учебник</a>
+ если вы просто хотите научиться создавать новый скин для ванильного автомобиля.</p>
+</div>
+<br/>
+<h3 id="jbeam">
+
+  Jbeam
+</h3>
+<p>При определении скина используются параметры slotType и идентификатор скина.</p>
+<p>Обратите внимание: за исключением <code>paint_design</code>, значение slotType скина должно начинаться с <code>skin_</code>, например <code>skin_interior</code> или <code>skin_gauges</code>.</p>
+<div class="bng-notice note">Каждый ванильный автомобиль уже включает слот <code>paint_design</code>. Этот слот следует использовать при создании альтернативных вариантов окраски.</div>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pigeon_skin_birdabduction"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Bird Response Livery"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">1500</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"paint_design"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"globalSkin"</span> <span class="o">:</span> <span class="s2">"birdabduction"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div><p>Значение <code>globalSkin</code> или <code>skinName</code> определяет, какой скин будет использоваться. Оба параметра взаимозаменяемы.</p>
+<h3 id="material">
+
+  Material
+</h3>
+<p>Материал определяется как стандартный материал — как правило, за основу берётся копия базового материала, в которой изменяются части, затрагиваемые скином: обычно это <code>colorPalette</code> и <code>baseColorMap</code>.</p>
+<p>Главное отличие состоит в параметрах <code>name</code> и <code>mapTo</code>. Для скинов они должны быть структурированы в виде <code>materialName.skinType.skinName</code>.</p>
+<p>Material name (имя материала) обозначает имя материала на модели, который будет заменён.</p>
+<p>SkinType соответствует slotType детали jbeam, вызывающей данный скин. Единственное исключение — слот <code>paint_design</code>, который отображается на <code>skin</code>.</p>
+<p>SkinName должно совпадать со значением параметра <code>globalSkin</code> или <code>skinName</code> в jbeam.</p>
+<p>Рассмотрим следующий пример. Заменяемый материал — основной материал pessima. Значение skinType равно <code>skin</code>, то есть используется слот <code>paint_design</code>. Значение skinName — <code>bodycolored</code>.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pessima.skin.bodycolored"</span> <span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span> <span class="p">:</span> <span class="s2">"pessima.skin.bodycolored"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"mapTo"</span> <span class="p">:</span> <span class="s2">"pessima.skin.bodycolored"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span> <span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"persistentId"</span> <span class="p">:</span> <span class="s2">"e2c54f56-d710-4eb0-bc18-1dad8c9a5910"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_b.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_m.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"vehicles/pessima/pessima_n.dds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_r.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"ambientOcclusionMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_ao.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_cc.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"clearCoatRoughnessFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"colorPaletteMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_p.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"colorPaletteMapUseUV"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"instanceDiffuse"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"metallicFactor"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_n.dds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"opacityMap"</span><span class="p">:</span> <span class="s2">"/vehicles/pessima/pessima_main_alt_c.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"useAnisotropic"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"activeLayers"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dynamicCubemap"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"materialTag0"</span><span class="p">:</span> <span class="s2">"beamng"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"materialTag1"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order_simset"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>

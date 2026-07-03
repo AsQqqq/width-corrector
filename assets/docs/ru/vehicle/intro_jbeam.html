@@ -1,0 +1,100 @@
+<p>В отличие от большинства игр, использующих симуляцию физики «твёрдого тела» (RigidBody), BeamNG является симулятором физики «мягкого тела» (SoftBody). Коротко говоря, это означает, что физические объекты (например, автомобили) способны деформироваться. Это достигается посредством структур «нода и балка» (Node and Beam). Можно представить эти структуры как скелеты или как магнитные конструкторы, популярные в начале 2000-х годов.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/NodeDiagram.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/NodeDiagram_hu4e0af2fb630b8d10750989a2ab5dfc83_456621_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Используя приведённое выше изображение в качестве примера, эти структуры состоят из…</p>
+<h4 id="nodes-the-chrome-balls">
+
+  Ноды (хромированные шары)
+</h4>
+
+<pre><code>Nodes can be thought of as particles, each node has mass, and can move freely in space.
+</code></pre>
+
+<h4 id="beams-the-blue-sticks">
+
+  Балки (синие палочки)
+</h4>
+
+<pre><code>Beams hold nodes together in a structure. Beams have no mass, and always have a node at each end. They behave as springs (more on that later).
+They are allowed to rotate freely around nodes, and only serve to keep two nodes at a set distance from each other.
+ No other forces (such as twisting) are transmitted through them, and they cannot be bent.
+</code></pre>
+
+<p>При построении структуры нода-балка важно помнить, что коробка без диагональных распорок будет заваливаться, поскольку балки могут поворачиваться вокруг нод. Добавление диагональных распорок между рёбрами превратит коробку в жёсткую конструкцию.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/800px-Crossbraces.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/800px-Crossbraces_hu8f0bae173d1c9cb2be21c637cebdc9d2_58384_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>При достаточном количестве нод и балок можно создавать сложные конструкции, например автомобили, где структуры нода-балка имитируют шасси, подвеску, колёса и многие другие компоненты.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/800px-CarIllustration.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/800px-CarIllustration.png"/>
+</span></a></p>
+<h3 id="basic-properties-of-node-beam-structures">
+
+  Основные свойства структур нода-балка
+</h3>
+<h4 id="beamspring">
+
+  BeamSpring
+</h4>
+<p>Значение BeamSpring определяет, насколько «жёсткой» является пружина, и представляет собой величину силы, необходимой для сжатия пружины на заданную величину.</p>
+<p>Высокие значения используются для обычно жёстких конструкций, таких как шасси, тогда как меньшие значения применяются для менее жёстких конструкций и материалов — пружин или резины.</p>
+<p>Жёсткость пружины не следует путать с деформацией. Балка с низким значением жёсткости пружины легко сжимается, однако это упругая деформация: после сжатия балка возвращается к исходной длине. Балка же с низким значением деформации сжимается и уже не возвращается назад.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/SpringStiffness.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/SpringStiffness.gif"/>
+</span></a>
+Слева: мягкая пружина | Справа: жёсткая пружина</p>
+<h4 id="beamdamp">
+
+  BeamDamp
+</h4>
+<p>Демпфирование — это сопротивление движению.</p>
+<p>В безвоздушном пространстве без трения пружина без демпфирования будет колебаться бесконечно. Чтобы избежать этого, необходимо обеспечить некоторое демпфирование, которое будет противодействовать движению с силой, обратно пропорциональной скорости.</p>
+<p>Основной эффект демпфирования заключается в предотвращении колебаний, хотя демпфирование также влияет на поглощение части энергии деформации, снижая силу отдачи.</p>
+<p>В реальной жизни большинство объектов, включая пружины, обладают хотя бы небольшим собственным демпфированием.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/Damping.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/Damping.gif"/>
+</span></a>
+Слева: без демпфирования | Справа: с демпфированием</p>
+<h4 id="typical-values-for-spring-and-damp">
+
+  Типичные значения Spring и Damp
+</h4>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">40000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="c1">//Suspension springs
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">4500</span><span class="p">},</span> <span class="c1">//Suspension dampers
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">8000000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">125</span><span class="p">},</span> <span class="c1">//Structural vehicle components, such as suspension arms
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">14001000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">250</span><span class="p">},</span> <span class="c1">//Steering rack, it needs to be super stiff to keep wheels pointing in the right direction
+</span></span></span></code></pre>
+</div>
+<h4 id="beam-deform">
+
+  Beam Deform
+</h4>
+<p>Beam Deform задаёт величину силы, необходимой для постоянной деформации балки. После деформации балка больше не возвращается к исходной форме. Это является ключевым аспектом создания транспортных средств с реалистичной деформацией.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/Deformation.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/Deformation.gif"/>
+</span></a>
+Слева: низкое значение деформации (5000) | Справа: практически бесконечное значение деформации</p>
+<h4 id="beam-strength">
+
+  Beam Strength
+</h4>
+<p>Beam Strength задаёт величину силы, необходимой для разрыва балки. Разорванная балка ведёт себя так, словно она переломлена пополам: она больше не соединяет две ноды. Это полезно для реализации отрыва деталей от транспортного средства. Например, бампер можно сделать отваливающимся от автомобиля, задав низкую прочность балок, соединяющих его с шасси.</p>
+<p>Как показано на следующем изображении, разрыв балок также приводит к разрушению видимого меша.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/Strength.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/Strength.gif"/>
+</span></a>
+Слева: низкая прочность | Справа: высокая прочность</p>
+<h4 id="node-weight">
+
+  Node Weight
+</h4>
+<p>Вес ноды позволяет регулировать массу каждой отдельной точки транспортного средства.</p>
+<p>Однако если общая жёсткость всех связанных балок слишком велика, конструкция начнёт вибрировать и может даже «взорваться». Чтобы предотвратить эту вибрацию, необходимо либо увеличить массу ноды, либо снизить жёсткость балок. Ситуацию дополнительно усложняет то, что балки также начнут вибрировать и «взрываться», если значение beamDamp слишком велико.</p>
+<p>Слева: низкий вес ноды (6 кг) | Справа: правильный вес ноды (7 кг)</p>
+<p>На этом изображении показано влияние веса ноды на транспортное средство: значения веса для 4 нод, соединяющих красные балки, были изменены.</p>
+<p>Как видно, транспортное средство справа полностью стабильно благодаря правильно подобранным весам нод, тогда как транспортное средство слева сильно вибрирует.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/BadVibrations.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/BadVibrations.gif"/>
+</span></a></p>

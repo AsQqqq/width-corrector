@@ -1,0 +1,124 @@
+<p>Это руководство шаг за шагом объясняет, как обновить мод для использования новой системы окраски.</p>
+<div class="bng-notice warning">Пожалуйста, обратите особое внимание на синтаксис, в частности на использование скобок!</div>
+<h3 id="library-paints">
+
+  Library paints
+</h3>
+<p>Если ваш мод использует дубликаты определённых цветов окраски из ванильных автомобилей, рекомендуем проверить, есть ли эти краски в стандартной <a data-doc="vehicle/vehicle_paints/paint_library" href="/docs/vehicle/vehicle_paints/paint_library">библиотеке красок</a>
+, и заменить свои записи ссылками на краски из библиотеки. Это гарантирует, что при обновлении ванильной краски в будущем (из-за изменений графики или синтаксиса) изменение автоматически перенесётся в мод.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"paints"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Night Blue"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"baseColor"</span><span class="o">:</span> <span class="p">[</span><span class="mf">0.04</span><span class="p">,</span>  <span class="mf">0.06</span><span class="p">,</span>  <span class="mf">0.16</span><span class="p">,</span>  <span class="mf">1.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoat"</span><span class="o">:</span> <span class="mf">0.8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoatRoughness"</span><span class="o">:</span> <span class="mf">0.07</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"metallic"</span><span class="o">:</span> <span class="mf">0.8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"roughness"</span><span class="o">:</span> <span class="mf">0.5</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">(...)</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div><p><em>До</em></p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"libraryPaints"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Night Blue"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">(...)</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p><em>После</em></p>
+<h3 id="paint-classes">
+
+  Paint classes
+</h3>
+<p>Чтобы сократить количество доступных для выбора красок в меню выбора транспортного средства, некоторые краски, которые не были бы доступны с завода, можно перенести в класс Custom.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"paints"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Night Blue"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"baseColor"</span><span class="o">:</span> <span class="p">[</span><span class="mf">0.04</span><span class="p">,</span>  <span class="mf">0.06</span><span class="p">,</span>  <span class="mf">0.16</span><span class="p">,</span>  <span class="mf">1.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoat"</span><span class="o">:</span> <span class="mf">0.8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoatRoughness"</span><span class="o">:</span> <span class="mf">0.07</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"metallic"</span><span class="o">:</span> <span class="mf">0.8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"roughness"</span><span class="o">:</span> <span class="mf">0.5</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">(...)</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div><p><em>До</em></p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"paints"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"Night Blue"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line hl"><span class="cl">    <span class="s2">"class"</span><span class="o">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"baseColor"</span><span class="o">:</span> <span class="p">[</span><span class="mf">0.04</span><span class="p">,</span>  <span class="mf">0.06</span><span class="p">,</span>  <span class="mf">0.16</span><span class="p">,</span>  <span class="mf">1.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoat"</span><span class="o">:</span> <span class="mf">0.8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"clearcoatRoughness"</span><span class="o">:</span> <span class="mf">0.07</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"metallic"</span><span class="o">:</span> <span class="mf">0.8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"roughness"</span><span class="o">:</span> <span class="mf">0.5</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">(...)</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div><p><em>После</em></p>
+<p>Тот же подход можно применить к некоторым <a data-doc="vehicle/vehicle_paints/paint_library" href="/docs/vehicle/vehicle_paints/paint_library">краскам из библиотеки</a>
+.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"libraryPaints"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"matte_black"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">(...)</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p><em>До</em></p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"libraryPaints"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span> <span class="s2">"id"</span><span class="o">:</span> <span class="s2">"matte_black"</span><span class="p">,</span>    <span class="s2">"class"</span><span class="o">:</span> <span class="s2">"custom"</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">(...)</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p><em>После</em></p>
+<h3 id="multi-paint-setups">
+
+  Multi-paint setups
+</h3>
+<p>В файлах конфигурации info.json, когда одновременно используется несколько цветов окраски (например, при двухцветных ливреях), следует заменить вхождения <code>defaultPaintName1</code>, <code>defaultPaintName2</code> и <code>defaultPaintName3</code> на <a data-doc="vehicle/vehicle_paints/multi_paint_setup" href="/docs/vehicle/vehicle_paints/multi_paint_setup">наборы мульти-окраски</a>
+. Это позволит корректно выбирать наборы окраски с подходящими цветовыми комбинациями.</p>
+<p>Для заводских конфигураций добавьте наборы мульти-окраски с их красками в главный файл info.json транспортного средства:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"multiPaintSetups"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"Cream Two-Tone"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"class"</span><span class="o">:</span> <span class="s2">"factory"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint1"</span><span class="o">:</span> <span class="s2">"cream"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint2"</span><span class="o">:</span> <span class="s2">"light_brown"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint3"</span><span class="o">:</span> <span class="s2">"cream"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">(...)</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p>И сошлитесь на них в файлах info.json конфигураций:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"defaultPaintName1"</span><span class="o">:</span> <span class="s2">"cream"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"defaultPaintName2"</span><span class="o">:</span> <span class="s2">"light_brown"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"defaultPaintName3"</span><span class="o">:</span> <span class="s2">"cream"</span>
+</span></span></code></pre>
+</div><p><em>До</em></p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"defaultMultiPaintSetup"</span><span class="o">:</span><span class="s2">"Cream Two-Tone"</span>
+</span></span></code></pre>
+</div><p><em>После</em></p>
+<p>Для пользовательских конфигураций лучше объявлять набор мульти-окраски непосредственно внутри файла info.json данной конфигурации. Это позволит использовать его только в этой конкретной конфигурации.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"defaultPaintName1"</span><span class="o">:</span> <span class="s2">"matte_dune"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"defaultPaintName2"</span><span class="o">:</span> <span class="s2">"army_green"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"defaultPaintName3"</span><span class="o">:</span> <span class="s2">"matte_black"</span>
+</span></span></code></pre>
+</div><p><em>До</em></p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"defaultMultiPaintSetup"</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"Two-Tone Adventure"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"class"</span><span class="o">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"paint1"</span><span class="o">:</span> <span class="s2">"matte_dune"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"paint2"</span><span class="o">:</span> <span class="s2">"army_green"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"paint3"</span><span class="o">:</span> <span class="s2">"matte_black"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p><em>После</em></p>

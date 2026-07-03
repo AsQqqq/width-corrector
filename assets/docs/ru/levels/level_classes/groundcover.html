@@ -1,0 +1,1113 @@
+<p><code>GroundCover</code> процедурно покрывает ландшафт множеством мелких элементов растительности и деталей: трава, цветы, сорняки, тростник, камни, кустарники и другой низкозатратный декор среды.</p>
+<p>Объект <code>GroundCover</code> не размещает каждый элемент как отдельный объект сцены. Вместо этого он генерирует и отрисовывает ячейки вокруг камеры во время выполнения.</p>
+<p>Элементы наземного покрытия могут отрисовываться как:</p>
+<ul>
+<li><strong>Биллборды</strong> с использованием общего материала/атласа текстур растительности.</li>
+<li><strong>Инстансные TS-формы</strong> с использованием записей <code>shapeFilename</code>.</li>
+</ul>
+<p><code>GroundCover</code> привязан к ландшафту. Он размещает элементы на поверхностях <code>TerrainBlock</code> и может фильтровать размещение по слою материала ландшафта, высоте и уклону.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Базовый пример
+</h2>
+<p>Простой объект наземного покрытия из травы и цветов:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"GroundCover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"grass_groundcover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"grass_atlas"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dissolveRadius"</span><span class="p">:</span> <span class="mi">65</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElements"</span><span class="p">:</span> <span class="mi">12000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"zOffset"</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"seed"</span><span class="p">:</span> <span class="mi">12345</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"billboardUVs"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMin"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMax"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxSlope"</span><span class="p">:</span> <span class="p">[</span><span class="mi">35</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"minElevation"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-99999</span><span class="p">,</span> <span class="mi">-99999</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElevation"</span><span class="p">:</span> <span class="p">[</span><span class="mi">99999</span><span class="p">,</span> <span class="mi">99999</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"minClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpRadius"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"windDirection"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windGustLength"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windGustFrequency"</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windGustStrength"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windTurbulenceFrequency"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windTurbulenceStrength"</span><span class="p">:</span> <span class="mf">0.05</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="how-groundcover-works">
+
+  Как работает GroundCover
+</h2>
+<p><code>GroundCover</code> поддерживает квадратную сетку ячеек вокруг камеры.</p>
+<p>Для каждой активной ячейки он:</p>
+<ol>
+<li>Выбирает случайные точки размещения.</li>
+<li>Считывает высоту и нормаль ландшафта.</li>
+<li>Проверяет фильтры слоёв материала ландшафта.</li>
+<li>Проверяет ограничения по высоте и уклону.</li>
+<li>Выбирает тип элемента по вероятностям для каждого типа.</li>
+<li>Применяет случайный масштаб, поворот, кластеризацию, коэффициент ветра и цвет лайтмапа.</li>
+<li>Формирует буферы биллбордов и/или данные инстансов форм.</li>
+<li>Отрисовывает только видимые ячейки.</li>
+</ol>
+<p>При движении камеры ячейки сдвигаются и переиспользуются. Новые ячейки генерируются на краях сетки.</p>
+<hr/>
+<h2 id="important-fields">
+
+  Основные поля
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Должно быть <code>"GroundCover"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя объекта сцены.</td>
+</tr>
+<tr>
+<td><code>material</code></td>
+<td>string</td>
+<td>Материал, используемый для биллбордного наземного покрытия.</td>
+</tr>
+<tr>
+<td><code>radius</code></td>
+<td>number</td>
+<td>Внешний радиус генерации/отрисовки от камеры.</td>
+</tr>
+<tr>
+<td><code>dissolveRadius</code></td>
+<td>number</td>
+<td>Расстояние, на котором начинается затухание биллбордов. Должно быть меньше или равно <code>radius</code>.</td>
+</tr>
+<tr>
+<td><code>reflectScale</code></td>
+<td>number</td>
+<td>Масштабирует радиус отсечения при рендере отражений. Используйте <code>0</code> для исключения из отражений.</td>
+</tr>
+<tr>
+<td><code>gridSize</code></td>
+<td>integer</td>
+<td>Количество ячеек наземного покрытия по каждой оси.</td>
+</tr>
+<tr>
+<td><code>zOffset</code></td>
+<td>number</td>
+<td>Вертикальное смещение, добавляемое к размещаемым элементам.</td>
+</tr>
+<tr>
+<td><code>seed</code></td>
+<td>integer</td>
+<td>Случайное зерно для детерминированного размещения.</td>
+</tr>
+<tr>
+<td><code>maxElements</code></td>
+<td>integer</td>
+<td>Приблизительное максимальное количество генерируемых элементов во всей активной сетке.</td>
+</tr>
+<tr>
+<td><code>maxBillboardTiltAngle</code></td>
+<td>number</td>
+<td>Максимальный угол наклона биллбордов в сторону камеры.</td>
+</tr>
+<tr>
+<td><code>shapeCullRadius</code></td>
+<td>number</td>
+<td>Расстояние, на котором элементы на основе форм отсекаются.</td>
+</tr>
+<tr>
+<td><code>shapesCastShadows</code></td>
+<td>bool</td>
+<td>Отрисовываются ли элементы TS-форм в проходах теней.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="per-type-fields">
+
+  Поля для каждого типа
+</h2>
+<p>Наземное покрытие поддерживает несколько типов покрытия. Каждый тип имеет собственные UV-координаты биллборда, форму, вероятность, диапазон размеров, фильтры слоёв и настройки размещения.</p>
+<p>В JSON эти поля обычно представлены в виде массивов. Индекс <code>0</code> описывает тип 0, индекс <code>1</code> — тип 1 и т. д.</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>billboardUVs</code></td>
+<td>array</td>
+<td>UV-прямоугольник в атласе материала наземного покрытия для каждого типа биллборда.</td>
+</tr>
+<tr>
+<td><code>useWorldRandomYaw</code></td>
+<td>array[bool]</td>
+<td>Использует случайный рыскание в мировом пространстве для ориентации биллборда там, где это поддерживается.</td>
+</tr>
+<tr>
+<td><code>shapeFilename</code></td>
+<td>array[string]</td>
+<td>Необязательный файл формы для данного типа. Если задан, тип отрисовывается как инстансные формы вместо биллбордов.</td>
+</tr>
+<tr>
+<td><code>layer</code></td>
+<td>array[string]</td>
+<td>Внутреннее имя материала ландшафта, которым ограничивается размещение. Пустое значение означает любой слой ландшафта.</td>
+</tr>
+<tr>
+<td><code>invertLayer</code></td>
+<td>array[bool]</td>
+<td>Обрабатывает <code>layer</code> как маску исключения вместо маски включения.</td>
+</tr>
+<tr>
+<td><code>probability</code></td>
+<td>array[number]</td>
+<td>Относительная вероятность каждого типа. Значения нормализуются внутри движка.</td>
+</tr>
+<tr>
+<td><code>sizeMin</code></td>
+<td>array[number]</td>
+<td>Минимальный случайный размер/масштаб.</td>
+</tr>
+<tr>
+<td><code>sizeMax</code></td>
+<td>array[number]</td>
+<td>Максимальный случайный размер/масштаб.</td>
+</tr>
+<tr>
+<td><code>sizeExponent</code></td>
+<td>array[number]</td>
+<td>Показатель смещения для случайного выбора размера.</td>
+</tr>
+<tr>
+<td><code>windScale</code></td>
+<td>array[number]</td>
+<td>Множитель смещения от ветра для каждого типа.</td>
+</tr>
+<tr>
+<td><code>maxSlope</code></td>
+<td>array[number]</td>
+<td>Максимальный уклон ландшафта в градусах. <code>0</code> отключает ограничение по уклону.</td>
+</tr>
+<tr>
+<td><code>minElevation</code></td>
+<td>array[number]</td>
+<td>Минимальная высота в мировом пространстве для размещения.</td>
+</tr>
+<tr>
+<td><code>maxElevation</code></td>
+<td>array[number]</td>
+<td>Максимальная высота в мировом пространстве для размещения.</td>
+</tr>
+<tr>
+<td><code>minClumpCount</code></td>
+<td>array[integer]</td>
+<td>Минимальное количество элементов в кластере.</td>
+</tr>
+<tr>
+<td><code>maxClumpCount</code></td>
+<td>array[integer]</td>
+<td>Максимальное количество элементов в кластере.</td>
+</tr>
+<tr>
+<td><code>clumpExponent</code></td>
+<td>array[number]</td>
+<td>Показатель смещения для размера/количества кластера.</td>
+</tr>
+<tr>
+<td><code>clumpRadius</code></td>
+<td>array[number]</td>
+<td>Максимальный радиус кластера.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="billboard-types">
+
+  Типы биллбордов
+</h2>
+<p>Биллбордное наземное покрытие использует поле <code>material</code> и <code>billboardUVs</code>.</p>
+<p>Пример с двумя типами биллбордов в одном атласе текстур:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"GroundCover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"meadow_grass"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"meadow_grass_atlas"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dissolveRadius"</span><span class="p">:</span> <span class="mi">75</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElements"</span><span class="p">:</span> <span class="mi">16000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"billboardUVs"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMin"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMax"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Каждая запись <code>billboardUVs</code> — это прямоугольник в атласе текстур материала:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[u, v, width, height]
+</span></span></code></pre>
+</div><p>Движок использует размеры диффузной текстуры материала для вычисления соотношения сторон биллборда по UV-прямоугольнику.</p>
+<hr/>
+<h2 id="shape-types">
+
+  Типы форм
+</h2>
+<p>Если для типа задан <code>shapeFilename</code>, этот тип отрисовывается как инстансная геометрия TS-формы вместо биллборда.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"GroundCover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"rocks_and_grass"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"grass_atlas"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dissolveRadius"</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElements"</span><span class="p">:</span> <span class="mi">8000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeCullRadius"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapesCastShadows"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"billboardUVs"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeFilename"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">""</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"/levels/example/art/shapes/rocks/small_rock.dae"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMin"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMax"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Здесь:</p>
+<ul>
+<li>Тип <code>0</code> — биллбордная трава.</li>
+<li>Тип <code>1</code> — инстансная форма камня.</li>
+</ul>
+<div class="bng-notice info">Наземное покрытие на основе форм обходится дороже, чем биллбордное. Используйте его умеренно — для камней, кустарников, небольших растений или декоративных объектов.</div>
+<hr/>
+<h2 id="material-requirements">
+
+  Требования к материалу
+</h2>
+<p>Рендер биллбордов <code>GroundCover</code> использует внутри движка функцию материала растительности.</p>
+<p>Материал биллборда, как правило, должен быть создан как материал растительности/прозрачности со следующими характеристиками:</p>
+<ul>
+<li>Атлас диффузной/альбедо-текстуры</li>
+<li>Альфа-канал или прозрачность для вырезанной растительности</li>
+<li>Качественные мипмапы</li>
+<li>Правильная разметка атласа текстур для <code>billboardUVs</code></li>
+<li>Необязательные карты нормалей/шероховатости там, где это поддерживается настройкой материала</li>
+</ul>
+<p>Если материал не найден, <code>GroundCover</code> переключается на предупреждающий материал.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"material"</span><span class="err">:</span> <span class="s2">"grass_atlas"</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="terrain-layer-filtering">
+
+  Фильтрация по слою ландшафта
+</h2>
+<p>Используйте <code>layer</code> для ограничения типа материалом ландшафта.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"layer"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"grass"</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"probability"</span><span class="err">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Это размещает тип только на участках ландшафта с материалом <code>grass</code>.</p>
+<p>Используйте <code>invertLayer</code> для исключения материала ландшафта:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"layer"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"rock"</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"invertLayer"</span><span class="err">:</span> <span class="p">[</span><span class="kc">true</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Это размещает тип везде, кроме участков с материалом ландшафта <code>rock</code>.</p>
+<div class="bng-notice warning">Значение <code>layer</code> должно соответствовать внутреннему имени материала ландшафта, а не обязательно отображаемой метке материала.</div>
+<hr/>
+<h2 id="elevation-filtering">
+
+  Фильтрация по высоте
+</h2>
+<p>Используйте <code>minElevation</code> и <code>maxElevation</code> для ограничения размещения по высоте в мировом пространстве.</p>
+<p>Пример: размещать альпийскую траву только выше 500 метров:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"minElevation"</span><span class="err">:</span> <span class="p">[</span><span class="mi">500</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"maxElevation"</span><span class="err">:</span> <span class="p">[</span><span class="mi">99999</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Пример: размещать пляжную траву только ниже 8 метров:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"minElevation"</span><span class="err">:</span> <span class="p">[</span><span class="mi">-99999</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"maxElevation"</span><span class="err">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="slope-filtering">
+
+  Фильтрация по уклону
+</h2>
+<p>Используйте <code>maxSlope</code> для ограничения размещения более пологими участками ландшафта.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"maxSlope"</span><span class="err">:</span> <span class="p">[</span><span class="mi">35</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Это разрешает размещение только там, где уклон ландшафта составляет не более примерно 35 градусов.</p>
+<p>Значение <code>0</code> отключает фильтрацию по уклону:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"maxSlope"</span><span class="err">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="size-settings">
+
+  Настройки размера
+</h2>
+<p>Для каждого типа можно задать случайный размер:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"sizeMin"</span><span class="err">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"sizeMax"</span><span class="err">:</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"sizeExponent"</span><span class="err">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">]</span>
+</span></span></code></pre>
+</div><table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sizeMin</code></td>
+<td>Наименьший возможный размер.</td>
+</tr>
+<tr>
+<td><code>sizeMax</code></td>
+<td>Наибольший возможный размер.</td>
+</tr>
+<tr>
+<td><code>sizeExponent</code></td>
+<td>Смещение между минимальным и максимальным значением.</td>
+</tr>
+</tbody>
+</table>
+<p>Чем выше значение <code>sizeExponent</code>, тем больше размещений смещается к меньшему концу диапазона.</p>
+<hr/>
+<h2 id="probability">
+
+  Вероятность
+</h2>
+<p><code>probability</code> управляет относительным распределением типов.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"probability"</span><span class="err">:</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Значения нормализуются внутри движка, поэтому они эквивалентны по соотношению следующим:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"probability"</span><span class="err">:</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Типы без действительных UV/соотношения сторон биллборда и без действительного <code>shapeFilename</code> игнорируются.</p>
+<hr/>
+<h2 id="clumping">
+
+  Кластеризация
+</h2>
+<p>Кластеризация определяет, появляются ли элементы равномерно рассеянными или сгруппированными в пятна.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"minClumpCount"</span><span class="err">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"maxClumpCount"</span><span class="err">:</span> <span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"clumpExponent"</span><span class="err">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"clumpRadius"</span><span class="err">:</span> <span class="p">[</span><span class="mf">2.5</span><span class="p">]</span>
+</span></span></code></pre>
+</div><table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>minClumpCount</code></td>
+<td>Минимальное количество элементов в кластере.</td>
+</tr>
+<tr>
+<td><code>maxClumpCount</code></td>
+<td>Максимальное количество элементов в кластере.</td>
+</tr>
+<tr>
+<td><code>clumpExponent</code></td>
+<td>Смещение для распределения количества элементов в кластере.</td>
+</tr>
+<tr>
+<td><code>clumpRadius</code></td>
+<td>Радиус вокруг центра кластера, в котором могут появляться элементы.</td>
+</tr>
+</tbody>
+</table>
+<p>Используйте кластеризацию для:</p>
+<ul>
+<li>Пучков травы</li>
+<li>Цветов, растущих пятнами</li>
+<li>Тростника у воды</li>
+<li>Групп камней</li>
+<li>Зарослей кустарников</li>
+</ul>
+<p>Используйте меньшее количество элементов в кластере и больший радиус для более равномерного распределения.</p>
+<hr/>
+<p>Биллборды наземного покрытия поддерживают анимацию ветра.</p>
+<h2 id="wind-fields">
+
+  Поля ветра
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>windDirection</code></td>
+<td>array[2]</td>
+<td>Двумерное направление ветра.</td>
+</tr>
+<tr>
+<td><code>windGustLength</code></td>
+<td>number</td>
+<td>Расстояние в метрах между пиками порывов.</td>
+</tr>
+<tr>
+<td><code>windGustFrequency</code></td>
+<td>number</td>
+<td>Частота пиков порывов в секунду.</td>
+</tr>
+<tr>
+<td><code>windGustStrength</code></td>
+<td>number</td>
+<td>Максимальное смещение от порыва в метрах.</td>
+</tr>
+<tr>
+<td><code>windTurbulenceFrequency</code></td>
+<td>number</td>
+<td>Частота/интенсивность турбулентности.</td>
+</tr>
+<tr>
+<td><code>windTurbulenceStrength</code></td>
+<td>number</td>
+<td>Максимальное смещение от турбулентности в метрах.</td>
+</tr>
+</tbody>
+</table>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"windDirection"</span><span class="err">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"windGustLength"</span><span class="err">:</span> <span class="mi">25</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"windGustFrequency"</span><span class="err">:</span> <span class="mf">0.12</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"windGustStrength"</span><span class="err">:</span> <span class="mf">0.25</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"windTurbulenceFrequency"</span><span class="err">:</span> <span class="mf">1.2</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"windTurbulenceStrength"</span><span class="err">:</span> <span class="mf">0.05</span>
+</span></span></code></pre>
+</div><p>Поле <code>windScale</code> для каждого типа умножает эффект ветра:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"windScale"</span><span class="err">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Используйте <code>0</code> для объектов, которые не должны качаться, например камней.</p>
+<hr/>
+<h1 class="anchored">
+
+  Сетка, радиус и плотность
+</h1>
+<h2 id="radius">
+
+  radius
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"radius"</span><span class="err">:</span> <span class="mi">80</span>
+</span></span></code></pre>
+</div><p><code>radius</code> — это внешняя область вокруг камеры, в которой генерируется и отрисовывается наземное покрытие.</p>
+<p>Бо́льшие значения показывают растительность дальше, но требуют больше ячеек и элементов.</p>
+<hr/>
+<h2 id="dissolveradius">
+
+  dissolveRadius
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"dissolveRadius"</span><span class="err">:</span> <span class="mi">65</span>
+</span></span></code></pre>
+</div><p><code>dissolveRadius</code> управляет тем, где биллборды начинают исчезать.</p>
+<p>Диапазон затухания приблизительно:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">dissolveRadius -&gt; radius
+</span></span></code></pre>
+</div><p>Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"radius"</span><span class="err">:</span> <span class="mi">80</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"dissolveRadius"</span><span class="err">:</span> <span class="mi">65</span>
+</span></span></code></pre>
+</div><p>означает, что элементы полностью видны примерно до 65 метров и исчезают к 80 метрам.</p>
+<hr/>
+<h2 id="gridsize">
+
+  gridSize
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gridSize"</span><span class="err">:</span> <span class="mi">7</span>
+</span></span></code></pre>
+</div><p><code>gridSize</code> — это количество ячеек по каждой оси.</p>
+<p>Общее количество активных ячеек:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">gridSize * gridSize
+</span></span></code></pre>
+</div><p>Примеры:</p>
+<table>
+<thead>
+<tr>
+<th align="right"><code>gridSize</code></th>
+<th align="right">Ячеек</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right"><code>5</code></td>
+<td align="right">25</td>
+</tr>
+<tr>
+<td align="right"><code>7</code></td>
+<td align="right">49</td>
+</tr>
+<tr>
+<td align="right"><code>9</code></td>
+<td align="right">81</td>
+</tr>
+</tbody>
+</table>
+<p>Увеличение <code>gridSize</code> создаёт меньшие ячейки и может снизить ограничения на количество биллбордов в ячейке, однако потребует управления большим числом ячеек.</p>
+<hr/>
+<h2 id="maxelements">
+
+  maxElements
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"maxElements"</span><span class="err">:</span> <span class="mi">12000</span>
+</span></span></code></pre>
+</div><p><code>maxElements</code> — приблизительное максимальное количество элементов, распределённых по активной сетке.</p>
+<p>Приблизительное количество размещений в ячейке:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">maxElements / (gridSize * gridSize)
+</span></span></code></pre>
+</div><p>с учётом глобального масштабирования плотности.</p>
+<div class="bng-notice warning">Если в ячейке слишком много биллбордов, движок может выдать предупреждение о превышении количества элементов. Уменьшите <code>maxElements</code> или увеличьте <code>gridSize</code>.</div>
+<hr/>
+<h2 id="global-density-scale">
+
+  Глобальный масштаб плотности
+</h2>
+<p>На плотность наземного покрытия также влияет глобальная переменная настроек:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">$pref::GroundCover::densityScale
+</span></span></code></pre>
+</div><p>Она масштабирует плотность размещения глобально.</p>
+<p>Движок также предоставляет статистику во время выполнения:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">$GroundCover::renderedCells
+</span></span><span class="line"><span class="cl">$GroundCover::renderedBillboards
+</span></span><span class="line"><span class="cl">$GroundCover::renderedBatches
+</span></span><span class="line"><span class="cl">$GroundCover::renderedShapes
+</span></span></code></pre>
+</div><p>Это полезно для отладки и настройки производительности.</p>
+<hr/>
+<h1 class="anchored">
+
+  Отражения и тени
+</h1>
+<h2 id="reflectscale">
+
+  reflectScale
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"reflectScale"</span><span class="err">:</span> <span class="mf">0.5</span>
+</span></span></code></pre>
+</div><p><code>reflectScale</code> масштабирует радиус рендера/отсечения при рендере проходов отражений, как правило для отражений на воде.</p>
+<p>Используйте меньшие значения для снижения стоимости отражений.</p>
+<p>Установите <code>0</code>, чтобы исключить наземное покрытие из отражений:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"reflectScale"</span><span class="err">:</span> <span class="mi">0</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="shapescastshadows">
+
+  shapesCastShadows
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"shapesCastShadows"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Управляет тем, отрисовывается ли наземное покрытие на основе форм во время проходов теней.</p>
+<p>Биллборды не передаются в проходы теней по этому пути кода.</p>
+<p>В целях производительности оставьте этот параметр отключённым, если только формы недостаточно важны для отбрасывания видимых теней.</p>
+<hr/>
+<h1 class="anchored">
+
+  Поля отладки
+</h1>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lockFrustum</code></td>
+<td>bool</td>
+<td>Замораживает усечённую пирамиду отсечения/генерации для отладки.</td>
+</tr>
+<tr>
+<td><code>renderCells</code></td>
+<td>bool</td>
+<td>Отображает отладочные рамки для активных ячеек рендера.</td>
+</tr>
+<tr>
+<td><code>noBillboards</code></td>
+<td>bool</td>
+<td>Отключает рендер биллбордов.</td>
+</tr>
+<tr>
+<td><code>noShapes</code></td>
+<td>bool</td>
+<td>Отключает рендер форм.</td>
+</tr>
+</tbody>
+</table>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"renderCells"</span><span class="err">:</span> <span class="kc">true</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"noShapes"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Используйте эти поля для проверки ячеек размещения и отдельного анализа стоимости биллбордов и форм.</p>
+<hr/>
+<h1 class="anchored">
+
+  Зависимость от ландшафта
+</h1>
+<p><code>GroundCover</code> требует наличия ландшафта.</p>
+<p>Он запрашивает активные объекты <code>TerrainBlock</code> и считывает:</p>
+<ul>
+<li>Высоту ландшафта</li>
+<li>Нормаль ландшафта</li>
+<li>Слой материала ландшафта</li>
+<li>Цвет лайтмапа ландшафта</li>
+<li>Данные текстуры/высоты слоя ландшафта для новых путей размещения</li>
+</ul>
+<p>При отсутствии ландшафта ячейки наземного покрытия не могут генерироваться.</p>
+<div class="bng-notice warning"><code>GroundCover</code> предназначен для поверхностей ландшафта. Он не проецируется на произвольные статичные меши, такие как <code>DecalRoad</code> с <code>overObjects</code>.</div>
+<hr/>
+<h1 class="anchored">
+
+  Обновления ландшафта
+</h1>
+<p><code>GroundCover</code> прослушивает обновления ландшафта.</p>
+<p>При изменении ландшафта:</p>
+<table>
+<thead>
+<tr>
+<th>Обновление ландшафта</th>
+<th>Поведение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Обновление лайтмапа</td>
+<td>Освобождает/перегенерирует все ячейки.</td>
+</tr>
+<tr>
+<td>Обновление карты высот</td>
+<td>Освобождает ячейки, перекрывающие изменённую область.</td>
+</tr>
+<tr>
+<td>Обновление слоя</td>
+<td>Освобождает ячейки, перекрывающие изменённую область.</td>
+</tr>
+<tr>
+<td>Маркер пустой/обновления</td>
+<td>Освобождает ячейки, перекрывающие изменённую область там, где это поддерживается.</td>
+</tr>
+</tbody>
+</table>
+<p>Это позволяет наземному покрытию перегенерироваться после скульптинга ландшафта, покраски или изменения освещения.</p>
+<hr/>
+<h1 class="anchored">
+
+  Полные примеры
+</h1>
+<h2 id="grass-on-one-terrain-layer">
+
+  Трава на одном слое ландшафта
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"GroundCover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"grass_only_groundcover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"grass_atlas"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">75</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dissolveRadius"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElements"</span><span class="p">:</span> <span class="mi">14000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"zOffset"</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"seed"</span><span class="p">:</span> <span class="mi">1001</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"billboardUVs"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"layer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"grass"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMin"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.45</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMax"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.15</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.6</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxSlope"</span><span class="p">:</span> <span class="p">[</span><span class="mi">35</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"minClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">9</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpRadius"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"windDirection"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windGustLength"</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windGustFrequency"</span><span class="p">:</span> <span class="mf">0.12</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windGustStrength"</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windTurbulenceFrequency"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windTurbulenceStrength"</span><span class="p">:</span> <span class="mf">0.04</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="mixed-grass-and-flowers">
+
+  Смешанная трава и цветы
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"GroundCover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"meadow_groundcover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"meadow_foliage_atlas"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dissolveRadius"</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElements"</span><span class="p">:</span> <span class="mi">18000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"zOffset"</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"seed"</span><span class="p">:</span> <span class="mi">4321</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"billboardUVs"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"layer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"grass"</span><span class="p">,</span> <span class="s2">"grass"</span><span class="p">,</span> <span class="s2">"grass"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMin"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMax"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxSlope"</span><span class="p">:</span> <span class="p">[</span><span class="mi">35</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"minClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpRadius"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="reeds-near-low-elevation">
+
+  Тростник на малой высоте
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"GroundCover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"shore_reeds"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"reed_atlas"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dissolveRadius"</span><span class="p">:</span> <span class="mi">48</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElements"</span><span class="p">:</span> <span class="mi">6000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"zOffset"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"seed"</span><span class="p">:</span> <span class="mi">777</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"billboardUVs"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"layer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"mud"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMin"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMax"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxSlope"</span><span class="p">:</span> <span class="p">[</span><span class="mi">15</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"minElevation"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElevation"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"minClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">20</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpRadius"</span><span class="p">:</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="rocks-as-shape-ground-cover">
+
+  Камни как наземное покрытие на основе форм
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"GroundCover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"small_rocks_groundcover"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"groundcover_dummy_atlas"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dissolveRadius"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gridSize"</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxElements"</span><span class="p">:</span> <span class="mi">3000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeCullRadius"</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapesCastShadows"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"seed"</span><span class="p">:</span> <span class="mi">2468</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeFilename"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"/levels/example/art/shapes/rocks/small_rock_a.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"/levels/example/art/shapes/rocks/small_rock_b.dae"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"layer"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rock"</span><span class="p">,</span> <span class="s2">"rock"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMin"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeMax"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.4</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sizeExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.8</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windScale"</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxSlope"</span><span class="p">:</span> <span class="p">[</span><span class="mi">45</span><span class="p">,</span> <span class="mi">45</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"minClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"maxClumpCount"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpExponent"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"clumpRadius"</span><span class="p">:</span> <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h1 class="anchored">
+
+  Рекомендации по производительности
+</h1>
+<p>Наземное покрытие может отрисовывать большое количество элементов, поэтому настройка имеет значение.</p>
+<h2 id="main-cost-drivers">
+
+  Основные факторы стоимости
+</h2>
+<table>
+<thead>
+<tr>
+<th>Настройка</th>
+<th>Влияние на производительность</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>maxElements</code></td>
+<td>Бо́льшие значения генерируют/отрисовывают больше инстансов.</td>
+</tr>
+<tr>
+<td><code>radius</code></td>
+<td>Бо́льший радиус увеличивает количество видимых ячеек и элементов.</td>
+</tr>
+<tr>
+<td><code>gridSize</code></td>
+<td>Больше ячеек для управления; меньшие пакеты на ячейку.</td>
+</tr>
+<tr>
+<td>Типы форм</td>
+<td>Дороже биллбордов.</td>
+</tr>
+<tr>
+<td><code>shapeCullRadius</code></td>
+<td>Бо́льшее значение отрисовывает формы дальше.</td>
+</tr>
+<tr>
+<td><code>shapesCastShadows</code></td>
+<td>Тени форм добавляют затраты на проходы теней.</td>
+</tr>
+<tr>
+<td>Рендер отражений</td>
+<td>Управляется параметром <code>reflectScale</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="recommended-tuning">
+
+  Рекомендации по настройке
+</h2>
+<ul>
+<li>Предпочитайте биллборды для травы и небольших растений.</li>
+<li>Используйте формы только для редких объектов, таких как камни или кустарники.</li>
+<li>Держите <code>radius</code> умеренным; используйте <code>dissolveRadius</code> для скрытия внезапного появления.</li>
+<li>Увеличивайте <code>gridSize</code> при появлении предупреждений о превышении количества элементов в ячейке.</li>
+<li>Уменьшайте <code>maxElements</code> на менее мощных картах или в плотных сценах.</li>
+<li>Устанавливайте <code>reflectScale</code> в <code>0</code> или малое значение, если отражённая растительность не важна.</li>
+<li>Отключайте <code>shapesCastShadows</code>, если тени форм визуально не обязательны.</li>
+<li>Используйте фильтры <code>layer</code> ландшафта, чтобы не тратить размещения на неподходящие зоны.</li>
+<li>Используйте <code>maxSlope</code> и ограничения по высоте для сокращения нежелательных размещений.</li>
+</ul>
+<hr/>
+<h1 class="anchored">
+
+  Частые проблемы
+</h1>
+<h2 id="groundcover-does-not-appear">
+
+  GroundCover не отображается
+</h2>
+<p>Возможные причины:</p>
+<ul>
+<li>Отсутствует <code>TerrainBlock</code>.</li>
+<li><code>maxElements</code> равно <code>0</code>.</li>
+<li>Все значения <code>probability</code> равны <code>0</code>.</li>
+<li>Нет действительных <code>billboardUVs</code> и нет действительного <code>shapeFilename</code>.</li>
+<li>Материал отсутствует или недействителен.</li>
+<li><code>layer</code> не соответствует внутреннему имени материала ландшафта.</li>
+<li><code>minElevation</code> / <code>maxElevation</code> исключает ландшафт.</li>
+<li><code>maxSlope</code> слишком ограничительный.</li>
+<li>Глобальный масштаб плотности равен <code>0</code>.</li>
+</ul>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">$pref::GroundCover::densityScale
+</span></span></code></pre>
+</div><hr/>
+<h2 id="foliage-appears-on-the-wrong-terrain-material">
+
+  Растительность появляется на неправильном материале ландшафта
+</h2>
+<p>Проверьте, что <code>layer</code> использует внутреннее имя материала ландшафта.</p>
+<p>Также проверьте <code>invertLayer</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"invertLayer"</span><span class="err">:</span> <span class="p">[</span><span class="kc">false</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Если <code>invertLayer</code> равно <code>true</code>, выбранный слой исключается вместо включения.</p>
+<hr/>
+<h2 id="foliage-floats-or-clips-into-terrain">
+
+  Растительность парит над ландшафтом или уходит в него
+</h2>
+<p>Скорректируйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"zOffset"</span><span class="err">:</span> <span class="mf">0.02</span>
+</span></span></code></pre>
+</div><p>Используйте малые значения. Слишком большое смещение заставляет траву парить.</p>
+<hr/>
+<h2 id="too-many-elements-warning">
+
+  Предупреждение о слишком большом количестве элементов
+</h2>
+<p>Количество биллбордов в ячейке слишком велико.</p>
+<p>Исправьте, уменьшив:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"maxElements"</span><span class="err">:</span> <span class="mi">8000</span>
+</span></span></code></pre>
+</div><p>или увеличив:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gridSize"</span><span class="err">:</span> <span class="mi">9</span>
+</span></span></code></pre>
+</div><p>Увеличение <code>gridSize</code> распределяет тот же общий бюджет элементов по большему числу ячеек.</p>
+<hr/>
+<h2 id="ground-cover-pops-in-or-fades-too-close">
+
+  Наземное покрытие внезапно появляется или исчезает слишком близко
+</h2>
+<p>Увеличьте радиус рендера и диапазон затухания:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"radius"</span><span class="err">:</span> <span class="mi">100</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"dissolveRadius"</span><span class="err">:</span> <span class="mi">80</span>
+</span></span></code></pre>
+</div><p>Учтите, что бо́льшие радиусы требуют больше ресурсов.</p>
+<hr/>
+<h2 id="shape-ground-cover-is-expensive">
+
+  Наземное покрытие на основе форм слишком затратно
+</h2>
+<p>Попробуйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"shapeCullRadius"</span><span class="err">:</span> <span class="mi">35</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"shapesCastShadows"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre>
+</div><p>Также снизьте <code>probability</code> типа формы или разбейте крупные/детализированные формы на более простые ресурсы.</p>
+<hr/>
+<h2 id="grass-appears-on-steep-cliffs">
+
+  Трава появляется на крутых склонах
+</h2>
+<p>Задайте <code>maxSlope</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"maxSlope"</span><span class="err">:</span> <span class="p">[</span><span class="mi">30</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Значение <code>0</code> отключает фильтрацию по уклону, поэтому используйте положительный угол для ограничения размещения.</p>
+<hr/>
+<h2 id="wind-is-too-strong">
+
+  Ветер слишком сильный
+</h2>
+<p>Снизьте глобальные поля ветра:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"windGustStrength"</span><span class="err">:</span> <span class="mf">0.1</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"windTurbulenceStrength"</span><span class="err">:</span> <span class="mf">0.02</span>
+</span></span></code></pre>
+</div><p>или снизьте ветер для отдельного типа:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"windScale"</span><span class="err">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">]</span>
+</span></span></code></pre>
+</div><hr/>
+<h1 class="anchored">
+
+  Итоги
+</h1>
+<p><code>GroundCover</code> — основной объект рассеивания растительности и деталей на ландшафте.</p>
+<p>Он процедурно генерирует локальные относительно камеры ячейки из биллбордных и/или инстансных элементов форм. Размещение можно контролировать по слою ландшафта, вероятности, диапазону размеров, кластеризации, высоте, уклону и случайному зерну. Поддерживается анимация ветра для биллбордов, масштабирование плотности во время выполнения, масштабирование отражений и отладочная визуализация.</p>
+<p>Используйте его для плотных деталей ландшафта — травы и цветов, а типы форм применяйте умеренно — для небольших камней, кустарников и другого редкого декора.</p>

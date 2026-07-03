@@ -1,0 +1,318 @@
+<p>Треугольники, также известные как coltris, — это поверхности, заполняющие пространство между нодами. Они необходимы для обеспечения столкновений между транспортными средствами, а также используются для определения аэродинамических свойств объектов.</p>
+<p>Треугольники задаются 3 нодами, выбранными в порядке против часовой стрелки.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/triangles/Coltri_example.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/triangles/Coltri_example_hu6f259982fbff5480e2c15369bdc6378c_16381_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="collisions">
+
+  Столкновения
+</h4>
+<p>Основная функция треугольников — обеспечение столкновений между jbeam-объектами (автомобилями и пропсами). Следует отметить, что coltris сталкиваются только с нодами. Они не сталкиваются с другими coltris или со статичными объектами мира.</p>
+<p>Треугольники имеют стороны, показанные зелёным и фиолетовым в отладочном режиме просмотра треугольников — соответственно лицевая и тыльная. Хотя обе стороны обладают свойствами столкновений и аэродинамики, предпочтительно, чтобы лицевая сторона треугольника была обращена наружу, так как она менее склонна к прохождению объектов сквозь неё при очень сильных ударах. Вы можете перевернуть треугольник, поменяв местами любые 2 из его нод.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/triangles/trisides.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/triangles/trisides_huaf69d2207f9fc768feda5a724541504f_696429_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="aero">
+
+  Аэродинамика
+</h4>
+<p>Аэросистема в BeamNG работает путём вычисления сопротивления воздуха для всех треугольников исключительно на основе скорости воздушного потока, площади поверхности и аэродинамических свойств треугольников. Силы сопротивления и подъёмная сила затем прикладываются к смежным нодам. Треугольники не влияют друг на друга, то есть треугольник в задней части вашего транспортного средства по-прежнему будет создавать полное сопротивление воздуху.</p>
+<p>По этой причине вам может потребоваться точная настройка коэффициента аэродинамического сопротивления различных компонентов в зависимости от того, насколько они открыты воздушному потоку. Это также позволяет добавлять поверхности для имитации граунд-эффекта или тонко настраивать распределение подъёмной силы на вашем транспортном средстве.</p>
+<p>Система имитирует подъёмную силу на основе угла атаки треугольника относительно воздушного потока: треугольник, наклонённый вверх, создаёт подъёмную силу, а наклонённый вниз — прижимную. Больший угол создаёт большую подъёмную силу, пока вы не превысите угол срыва, после которого подъёмная сила начинает уменьшаться с увеличением угла.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/triangles/DragLiftSchematic.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/triangles/DragLiftSchematic_hu3222ee6fd08c4fba85b9a7c181c4ec7b_50311_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="pressure-simulation">
+
+  Симуляция давления
+</h4>
+<p>Замкнутый объём также может использоваться для симуляции давления. Это применяется для обеспечения плавучести объектов, а также для шин и надувных объектов, например матраса.</p>
+<p>При использовании системы симуляции давления убедитесь, что замкнутый объём имеет правильную форму без отсутствующих или вогнутых поверхностей, чтобы избежать паразитных сил.</p>
+<h3 id="required-arguments">
+
+  Обязательные аргументы
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"triangles"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span><span class="s2">"id2:"</span><span class="p">,</span><span class="s2">"id3:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Идентификатор первой ноды, задающей треугольник</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Идентификатор второй ноды, задающей треугольник</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Идентификатор третьей ноды, задающей треугольник</div>
+</div>
+</div>
+<h3 id="optional-arguments">
+
+  Необязательные аргументы
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">100<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Коэффициент аэродинамического сопротивления треугольника в процентах от плоской пластины того же размера.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Типичные значения для большинства открытых панелей кузова составляют около 10.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Коэффициент поверхностного сопротивления треугольника в процентах от плоской пластины того же размера.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Дополнительный коэффициент сопротивления, определённый вдоль поверхности треугольника, а не поперёк неё. Используется для имитации лопастеобразных протекторов грязевых шин. В остальных случаях обычно не применяется.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">dragCoef<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Коэффициент подъёмной силы треугольника в процентах от плоской пластины того же размера.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Для спойлеров обычно используются значения от 80 до 120.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.58<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Угол атаки в радианах, при котором треугольник начнёт срываться и создавать меньшую подъёмную силу.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">NORMALTYPE<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField"></div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Доступные типы треугольников:</p>
+<p>"NORMALTYPE" : Используется в большинстве случаев</p>
+<p>"NONCOLLIDABLE" : Не имеет столкновений, только антиклип. Используется для поддержания работы системы антиклипа с нодами, у которых есть столкновения, но нет треугольников, например у подвески и выхлопной системы.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Определяет группу треугольников как объём давления. Используется для симуляции плавучести и давления.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Задаёт давление в группе давления (pressureGroup) в PSI</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Задаёт давление в группе давления (pressureGroup) в Паскалях</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string/table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Используется для обеспечения разрушения треугольников при срабатывании балок из той же группы разрушения.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>В норме треугольник разрушается, когда ломается одна из балок, образующих его стороны. BreakGroups позволяют расширить это поведение на другие балки, находящиеся снаружи треугольника. Это полезно для разрушения треугольников между двумя крупными частями транспортного средства, такими как кузов и рама.</p>
+<p>Когда аргумент является строкой, треугольник принадлежит к единственной указанной breakGroup. Это обычный случай.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span><span class="s2">"b"</span><span class="p">,</span><span class="s2">"c"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">"group_1"</span><span class="p">}],</span>
+</span></span></code></pre>
+</div><p>Когда аргумент является таблицей, треугольник принадлежит ко всем указанным breakGroups. Это означает, что он автоматически разрушается при поломке любой балки в любой из этих breakGroups. На практике это используется крайне редко и не поддерживается отладочными режимами визуализации балок.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span><span class="s2">"b"</span><span class="p">,</span><span class="s2">"c"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="p">[</span><span class="s2">"group_1"</span><span class="p">,</span><span class="s2">"group_2"</span><span class="p">]}],</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Отключает ошибки, когда одна из нод треугольника отсутствует.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Используется в случаях, когда одна из нод, образующих треугольник, расположена в опциональном компоненте.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">asphalt<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Модель поверхности треугольника. Определяет поведение трения.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Начиная с версии <code>0.38.5.0</code> доступны следующие физические материалы:<br/><code>METAL</code>, <code>PLASTIC</code>, <code>RUBBER</code>, <code>GLASS</code>, <code>WOOD</code>, <code>FOLIAGE</code>, <code>CLOTH</code>, <code>WATER</code>, <code>ASPHALT</code>, <code>ASPHALT_WET</code>, <code>SLIPPERY</code>, <code>ROCK</code>, <code>DIRT_DUSTY</code>, <code>DIRT</code>, <code>SAND</code>, <code>SANDY_ROAD</code>, <code>MUD</code>, <code>GRAVEL</code>, <code>GRASS</code>, <code>ICE</code>, <code>SNOW</code>, <code>FIRESMALL</code>, <code>FIREMEDIUM</code>, <code>FIRELARGE</code>, <code>SMOKESMALLBLACK</code>, <code>SMOKEMEDIUMBLACK</code>, <code>STEAM</code>, <code>RUMBLE_STRIP</code>, <code>COBBLESTONE</code>, <code>FOLIAGE_THIN</code>, <code>SPIKE_STRIP</code></p>
+<p>Треугольники используют названия groundModel в нижнем регистре. <a data-doc="materials/physics_materials" href="/docs/materials/physics_materials">Параметры описаны здесь.</a>
+</p>
+<p>Модель поверхности spike_strip является особой: если нода шины транспортного средства касается этой модели поверхности, шина будет спущена.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Смещает одну из сторон системы обнаружения столкновений.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Допустимые значения: "in" и "out"; если аргумент не задан, смещение отсутствует. На стороне со смещением треугольники столкновений будут физически «толще», чем с другой стороны, а столкновение обнаруживается раньше. Более толстое столкновение означает меньше шансов прохождения сквозь объект при высокоскоростных ударах, более тонкое — что конструкции при спауне могут располагаться ближе друг к другу.</p>
+<p>Это полезно для очень маленьких объектов, которые, как правило, сталкиваются с вещами только с одной стороны.</p>
+</div>
+</div>
+</div>
+<h3 id="simple-example">
+
+  Простой пример
+</h3>
+<p>Треугольник между нодами a, b и c</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"triangles"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span><span class="s2">"id2:"</span><span class="p">,</span><span class="s2">"id3:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p>Треугольник между нодами a, b и c с коэффициентом аэродинамического сопротивления 45.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"triangles"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span><span class="s2">"id2:"</span><span class="p">,</span><span class="s2">"id3:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"dragCoef"</span><span class="o">:</span><span class="mi">45</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div>
+<h3 id="advanced-example">
+
+  Расширенный пример
+</h3>
+<p>Типичная настройка спойлера с заданным коэффициентом подъёмной силы и углом срыва.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl">    <span class="s2">"triangles"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span><span class="s2">"id2:"</span><span class="p">,</span><span class="s2">"id3:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"dragCoef"</span><span class="o">:</span><span class="mi">35</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"groundModel"</span><span class="o">:</span><span class="s2">"plastic"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"wing3ll"</span><span class="p">,</span><span class="s2">"wing2ll"</span><span class="p">,</span><span class="s2">"wing1l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"liftCoef"</span><span class="o">:</span><span class="mi">90</span><span class="p">,</span> <span class="s2">"stallAngle"</span><span class="o">:</span><span class="mf">0.55</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"wing2ll"</span><span class="p">,</span><span class="s2">"wing2l"</span><span class="p">,</span><span class="s2">"wing1l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"liftCoef"</span><span class="o">:</span><span class="mi">90</span><span class="p">,</span> <span class="s2">"stallAngle"</span><span class="o">:</span><span class="mf">0.55</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"wing1l"</span><span class="p">,</span><span class="s2">"wing2l"</span><span class="p">,</span><span class="s2">"wing2"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"liftCoef"</span><span class="o">:</span><span class="mi">90</span><span class="p">,</span> <span class="s2">"stallAngle"</span><span class="o">:</span><span class="mf">0.55</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"wing1l"</span><span class="p">,</span><span class="s2">"wing2"</span><span class="p">,</span><span class="s2">"wing1"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"liftCoef"</span><span class="o">:</span><span class="mi">90</span><span class="p">,</span> <span class="s2">"stallAngle"</span><span class="o">:</span><span class="mf">0.55</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span></code></pre>
+</div>

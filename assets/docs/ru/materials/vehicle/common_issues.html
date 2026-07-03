@@ -1,0 +1,66 @@
+<p>Проблемы с материалами на транспортных средствах обычно проявляются в виде оранжевого сообщения NO MATERIAL или NO TEXTURE, появляющегося на вашем автомобиле.</p>
+<p>При любой проблеме с материалами ваш первый шаг — проверить консоль (<kbd>`</kbd> по умолчанию) на наличие сообщений об ошибках.</p>
+<p>Сообщения об ошибках отображаются красным цветом в консоли, а предупреждения — жёлтым.</p>
+<h3 id="no-material">
+
+  No Material
+</h3>
+<p>Ошибки отсутствия материала отображаются как оранжевый материал NO MATERIAL на транспортном средстве. Имейте в виду, что это может быть не очень заметно в зависимости от вашей UV-развёртки, однако проблемы NO MATERIAL имеют конкретный оттенок оранжевого.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/common_issues/NoMaterial.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/common_issues/NoMaterial_huae3caf1cad63866ebbe7a1b9658d626e_650218_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Эти ошибки возникают из-за того, что материал, назначенный данным поверхностям, не может быть найден в определении материалов.</p>
+<p>Если вы проверите консоль, вы должны увидеть ошибку подобного вида:</p>
+<blockquote>
+<p>[NO-TEXTURE] Unable to find material mapping to: <em>material</em> in unknown</p>
+</blockquote>
+<p>Эта проблема может иметь несколько возможных причин:</p>
+<ul>
+<li>Материал не определён в файле materials.json, или в параметре "mapTo" есть опечатка.</li>
+<li>В вашем файле materials.json есть синтаксическая ошибка.</li>
+<li>Имеются конфликтующие файлы материалов — часто с автоматически сгенерированным файлом материалов в папке транспортного средства, или когда у вас есть второй файл main.materials.json для стандартного автомобиля.</li>
+</ul>
+<p>Если материал отсутствует или содержит опечатку, вам просто нужно исправить это.</p>
+<p>Что касается синтаксических ошибок, самый простой способ их устранить — скопировать содержимое файла materials.json в инструмент проверки JSON, например
+    <a class="link-ext" href="https://jsonchecker.com/" rel="noopener" target="_blank">этот</a>
+ , и исправить возникающие проблемы.</p>
+<p>Если ни одна из этих причин не является источником проблемы, возможно, у вашего транспортного средства есть 2 перекрывающихся файла материалов, причём основной файл не содержит всех необходимых материалов.</p>
+<p>Первая возможная причина — наличие временного файла материалов в папке транспортного средства. Этот файл мог быть создан при попытке загрузить транспортное средство, у которого не было файла материалов, или при сохранении изменений в редакторе материалов. Удаление этого файла должно решить вашу проблему.</p>
+<p>Другая возможность, характерная для модов уже существующих транспортных средств, — вы перезаписываете файл материалов оригинального автомобиля. Чтобы исправить это, следует переместить все файлы вашего мода в подпапку.</p>
+<h3 id="no-texture">
+
+  No texture
+</h3>
+<p>Ошибка отсутствия текстуры может проявляться в различных формах. Наиболее очевидная — когда диффузная текстура отображается жёлтым материалом "NO TEXTURE". Как и в случае с проблемами материалов, вы можете не увидеть текст в зависимости от UV-развёртки, но это конкретный оттенок жёлтого.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/common_issues/NoTexture.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/common_issues/NoTexture_hu8867b88b98f42d82d0a882b5a45e01f3_581456_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Также проблема может проявиться в виде карты нормалей "NO TEXTURE", оранжевых отражений или белых текстур там, где они должны быть цветными.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/materials/vehicle/common_issues/NoTextureNormal.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/materials/vehicle/common_issues/NoTextureNormal_hu7963843fa60c9b0934955e77555b87ea_614584_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>В консоли вы должны увидеть сообщение, указывающее конкретный файл, который не удаётся загрузить, а также материал, в котором он используется. Вот пример:</p>
+<blockquote>
+<p>Failed to load 'diffuse' map '/vehicles/pigeon/pigeon_main_c.color.png' for state 0 of material 'pigeon_main'</p>
+</blockquote>
+<p>Существует несколько возможных причин, однако наиболее распространённые — отсутствующий файл текстуры или разрешение, не являющееся степенью двойки.</p>
+<h4 id="missing-file">
+
+  Missing file
+</h4>
+<p>Наиболее частая причина проблем с загрузкой текстур — невозможность игры найти файл.</p>
+<p>В консоли это появится в виде сообщения, похожего на следующее:</p>
+<blockquote>
+<p>Missing source texture /vehicles/pigeon/pigeon_main_c.color.png</p>
+</blockquote>
+<p>Это может означать либо то, что файл не существует в указанной папке, либо что в пути к файлу есть опечатка.</p>
+<h4 id="resolution-isnt-a-power-of-2">
+
+  Resolution isn't a power of 2
+</h4>
+<p>Эта проблема появится в консоли как:</p>
+<blockquote>
+<p>Error on texture[<em>texture path</em>] : Unable to load compressed texture with non pow2 size</p>
+</blockquote>
+<p>Это означает, что ширина и/или высота вашей текстуры имеют размер, не поддерживаемый игрой.</p>
+<p>Ширина и высота каждой текстуры должны быть степенью двойки. Это включает такие числа, как 256, 512, 1024, 2048 и т.д.</p>

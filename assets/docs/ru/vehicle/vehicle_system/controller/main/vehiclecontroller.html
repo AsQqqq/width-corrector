@@ -1,0 +1,880 @@
+<div class="bng-notice warning">Этот раздел находится в разработке! Некоторые ссылки могут вести на страницы, которые ещё не готовы, и не будут работать.</div>
+<h3 id="summary">
+
+  Краткое описание
+</h3>
+<p>Контроллер транспортного средства является главным контроллером для любого приводного транспортного средства в beamNG. Он управляет органами управления силовой передачей и взаимодействует с различными контроллерами логики переключения передач для различных типов трансмиссий.</p>
+<p>Либо этот контроллер, либо контроллер-заглушка должен быть вызван на любом транспортном средстве или реквизите для его правильной работы.</p>
+<p>Он является основным источником данных <a data-doc="vehicle/vehicle_system/electrics" href="/docs/vehicle/vehicle_system/electrics">electrics</a>
+ о двигателе и информации о трансмиссии.</p>
+<hr/>
+<h3 id="file-info">
+
+  Информация о файле
+</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Имя файла</strong></td>
+<td><em>vehicleController.lua</em></td>
+</tr>
+<tr>
+<td><strong>Путь</strong></td>
+<td><em>/lua/vehicle/controller/vehicleController.lua</em></td>
+</tr>
+<tr>
+<td><strong>Тип</strong></td>
+<td><em>Main</em></td>
+</tr>
+<tr>
+<td><strong>Тип использования</strong></td>
+<td><em>Single</em></td>
+</tr>
+<tr>
+<td><strong>defaultOrder</strong></td>
+<td><em>500</em></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="jbeam-properties">
+
+  Свойства JBeam
+</h3>
+<p>Эти свойства специфичны непосредственно для контроллера транспортного средства.</p>
+<p>Каждый вспомогательный контроллер логики переключения передач также будет иметь свои собственные специфические свойства в зависимости от типа коробки передач.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">RPM<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">2000<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Задаёт обороты, при которых контроллер будет понижать передачу при нагрузке на акселератор менее 100%.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Применяется только к автоматическим коробкам передач и аркадному режиму.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">RPM<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">3500<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Задаёт обороты, при которых контроллер будет понижать передачу при нагрузке на акселератор 100%.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Применяется только к автоматическим коробкам передач и аркадному режиму.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">RPM<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">2500<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Задаёт обороты, при которых контроллер будет повышать передачу при нагрузке на акселератор менее 100%.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Применяется только к автоматическим коробкам передач и аркадному режиму.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">RPM<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">5000<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Задаёт обороты, при которых контроллер будет повышать передачу при нагрузке на акселератор 100%.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Применяется только к автоматическим коробкам передач и аркадному режиму.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Переопределяет highShiftUpRPM и highShiftDownRPM значениями, рассчитанными на основе кривой крутящего момента двигателя и передаточных чисел.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Применяется только к автоматическим коробкам передач и аркадному режиму.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.3<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Сдвигает автоматически рассчитанные точки понижения передачи для уменьшения «охоты» за передачей</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Используется для расчёта оптимальной точки переключения.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">2<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Скорость реакции контроллера на уменьшение нажатия на акселератор.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Применяется только к автоматическим коробкам передач и аркадному режиму.</p>
+<p>Более высокое значение означает, что контроллер будет быстрее повышать передачу при сбросе газа.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">5<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Скорость реакции контроллера на увеличение нажатия на акселератор.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Применяется только к автоматическим коробкам передач и аркадному режиму.</p>
+<p>Более высокое значение означает, что контроллер будет быстрее понижать передачу при добавлении газа</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.5<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Скорость реакции контроллера на увеличение агрессивности.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Применяется только к автоматическим коробкам передач и аркадному режиму.</p>
+<p>Более высокое значение означает, что контроллер будет быстрее понижать передачу при добавлении газа.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.15<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Скорость реакции контроллера на уменьшение уровня агрессивности.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Применяется только к автоматическим коробкам передач и аркадному режиму.</p>
+<p>Более высокое значение означает, что контроллер будет быстрее повышать передачу при сбросе газа</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">true<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Активирует интеллектуальный расчёт агрессивности на основе скорости транспортного средства, а также входных сигналов акселератора и тормоза.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Отключите для симуляции механических или устаревших электронных коробок передач.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">2.25<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">При использовании интеллектуального расчёта агрессивности коэффициент агрессивности будет удерживаться в течение заданного времени (с) после отпускания акселератора, прежде чем начнёт снижаться.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">-1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Ограничитель скорости. (метры/секунда)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Не активен, если значение меньше 0.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">-1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Ограничитель скорости на задней передаче. (метры/секунда)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Не активен, если значение меньше 0.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">20000<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Максимальная суммарная скорость скольжения колёс, допустимая до блокировки повышения передачи.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Применяется только к автоматическим коробкам передач и аркадному режиму.</p>
+<p>Помогает предотвратить немедленное повышение передачи при пробуксовке колёс.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">30000<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Максимальная суммарная скорость скольжения колёс, допустимая до блокировки понижения передачи.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Применяется только к автоматическим коробкам передач и аркадному режиму.</p>
+<p>Помогает предотвратить немедленное понижение передачи при блокировке ведущих колёс во время торможения.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">10<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Управляет логикой блокировки переключения, предотвращающей повышение передачи при чрезмерной пробуксовке колёс</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">20<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Управляет логикой блокировки переключения, предотвращающей повышение передачи при чрезмерной пробуксовке колёс</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">gearboxType<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Переопределение для изменения используемого контроллера логики переключения передач.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">В основном используется с электромоторами, поскольку они не используются с коробкой передач.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.2<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Минимальное время (с) для завершения переключения с одной передачи на другую, не включая время работы сцепления.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Применяется к механическим коробкам передач при использовании кнопок shiftUp/shiftDown, а также при переключении с коробкой DCT, когда выбранная передача не была предварительно выбрана.</p>
+<p>Не применяется к механическим коробкам передач при использовании H-образного рычага переключения.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.5<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Минимальное время (с) между двумя последовательными переключениями передач.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Применяется только к автоматическим коробкам передач и аркадному режиму.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.5<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Минимальное время (с) для переключения с передачи в нейтраль или из нейтрали на передачу.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Применяется только к автоматическим коробкам передач и аркадному режиму.</div>
+</div>
+</div>
+<hr/>
+<h3 id="public-functions">
+
+  Публичные функции
+</h3>
+<div class="bng-table" id="table-1783007355211809372"><div class="bng-table-header"><div>Название функции</div><div>Параметры</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название функции</div>
+<div style="">shiftUp</div>
+</div><div>
+<div style="">Параметры</div>
+<div style=""></div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Переключает трансмиссию на одну передачу вверх.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название функции</div>
+<div style="">shiftDown</div>
+</div><div>
+<div style="">Параметры</div>
+<div style=""></div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Переключает трансмиссию на одну передачу вниз.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название функции</div>
+<div style="">shiftToGearIndex</div>
+</div><div>
+<div style="">Параметры</div>
+<div style="">index</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Переключает трансмиссию на выбранную передачу.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название функции</div>
+<div style="">cycleGearboxModes</div>
+</div><div>
+<div style="">Параметры</div>
+<div style=""></div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Переключает между аркадным и реалистичным режимами переключения передач.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название функции</div>
+<div style="">setGearboxMode</div>
+</div><div>
+<div style="">Параметры</div>
+<div style="">behavior</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Устанавливает режим коробки передач в заданное значение.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название функции</div>
+<div style="">smartParkingBrake</div>
+</div><div>
+<div style="">Параметры</div>
+<div style="">ivalue, filter</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Применяет стояночный тормоз и удерживает его включённым, если водитель действительно паркует автомобиль.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название функции</div>
+<div style="">setStarter</div>
+</div><div>
+<div style="">Параметры</div>
+<div style="">enabled</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Активирует стартер двигателя.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название функции</div>
+<div style="">setEngineIgnition</div>
+</div><div>
+<div style="">Параметры</div>
+<div style="">enabled</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Активирует зажигание двигателя.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название функции</div>
+<div style="">setFreeze</div>
+</div><div>
+<div style="">Параметры</div>
+<div style="">setFreeze</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Включает блокировку трансмиссии.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название функции</div>
+<div style="">sendTorqueData</div>
+</div><div>
+<div style="">Параметры</div>
+<div style=""></div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Отправляет данные о крутящем моменте и мощности в интерфейс пользователя.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название функции</div>
+<div style="">vehicleActivated</div>
+</div><div>
+<div style="">Параметры</div>
+<div style=""></div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Вызывается при переключении на активное транспортное средство, выполняет код, обновляющий интерфейс пользователя.</div>
+</div></div></div>
+<hr/>
+<h3 id="public-properties">
+
+  Публичные свойства
+</h3>
+<div class="bng-table" id="table-1783007355212275302"><div class="bng-table-header"><div>Название</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">throttle</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Сигнал акселератора</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">brake</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Сигнал тормоза</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">clutchRatio</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Сигнал сцепления</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">engineInfo</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Массив, содержащий большое количество информации о двигателе для использования элементами графического интерфейса</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">fireEngineTemperature</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Передаёт температуру устройства силовой передачи, подобного двигателю, в симуляцию возгорания</div>
+</div></div></div>
+<hr/>
+<h3 id="electrics">
+
+  Electrics
+</h3>
+<h4 id="inputs">
+
+  Входные сигналы
+</h4>
+<div class="bng-table" id="table-1783007355212454398"><div class="bng-table-header"><div>Название</div><div>Единицы/Значения</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">brake</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Процент нажатия тормоза.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">brakelights</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Процент нажатия тормоза.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">clutch</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Процент нажатия сцепления.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">clutchRatio</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Процент нажатия сцепления.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">ignition</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">boolean</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Показывает, включено ли в данный момент зажигание. Остаётся включённым при заглохшем двигателе.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">throttle</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Процент открытия дросселя. Подвержен влиянию таких факторов, как согласование оборотов и отсечка дросселя в логике переключения трансмиссии.</div>
+</div></div></div>
+<hr/>
+<h4 id="engine-information">
+
+  Информация о двигателе
+</h4>
+<div class="bng-table" id="table-1783007355212728886"><div class="bng-table-header"><div>Название</div><div>Единицы/Значения</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">checkengine</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">boolean</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Показывает, что двигатель отключён и не может быть запущен из-за неисправности.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">engineLoad</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Процент нагрузки двигателя, основанный на текущем крутящем моменте по сравнению с максимальным крутящим моментом, который двигатель может развить.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">engineThrottle</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Эффективный уровень дросселирования. Будет равен 0, если двигатель отключён.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">engineRunning</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">boolean</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Показывает, работает ли двигатель в данный момент.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">oiltemp</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">Celsius</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Температура моторного масла (используется как основная температура двигателя на автомобилях с воздушным охлаждением).</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">radiatorFanSpin</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">0 to 360</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Функция вращения вентилятора радиатора, активируемая при включении вентилятора радиатора. Используется для реквизита.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">rpm</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">RPM</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Частота вращения двигателя.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">running</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">boolean</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Показывает, включено ли в данный момент зажигание. Остаётся включённым при заглохшем двигателе.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">watertemp</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">Celsius</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Температура охлаждающей жидкости радиатора (используется как основная температура двигателя на автомобилях с жидкостным охлаждением).</div>
+</div></div></div>
+<hr/>
+<h4 id="fuel-information">
+
+  Информация о топливе
+</h4>
+<div class="bng-table" id="table-1783007355213131848"><div class="bng-table-header"><div>Название</div><div>Единицы/Значения</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">fuel</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Процент оставшегося топлива в баке.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">fuelCapacity</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">Liters</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Ёмкость топливного бака.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">fuelVolume</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">Liters</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Объём топлива, оставшегося в баке</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">lowfuel</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">boolean</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Показывает, что в баке осталось менее 10% топлива.</div>
+</div></div></div>
+<hr/>
+<h4 id="transmission-information">
+
+  Информация о трансмиссии
+</h4>
+<div class="bng-table" id="table-1783007355213342709"><div class="bng-table-header"><div>Название</div><div>Единицы/Значения</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">gear</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">string</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Текущая выбранная передача. Совпадает с индексом передачи для механических коробок, другие типы будут возвращать положение рычага переключения (PRDN) и добавлять префикс S/M перед номером передачи в ручных режимах.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">gear_A</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Показывает текущее положение рычага переключения на автоматических коробках передач и коробках DCT.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">gearIndex</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">numbers</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Индекс текущей выбранной передачи. Задние передачи — отрицательные, нейтраль — 0</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">isShifting</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">boolean</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Показывает, находится ли коробка передач в процессе переключения</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Название</div>
+<div style="">smoothShiftLogicAV</div>
+</div><div>
+<div style="">Единицы/Значения</div>
+<div style="">numbers</div>
+</div><div>
+<div style="">Описание</div>
+<div style="">Сглаженное угловое ускорение, используемое логикой переключения для определения аркадного переключения заднего хода и автоматического торможения (среди прочего), открытое для использования ИИ</div>
+</div></div></div>
+<hr/>
+<h3 id="example-usage">
+
+  Пример использования
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl">    <span class="s2">"controller"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"fileName"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"vehicleController"</span><span class="p">,</span> <span class="p">{}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="s2">"vehicleController"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"calculateOptimalLoadShiftPoints"</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"transmissionGearChangeDelay"</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"gearboxDecisionSmoothingUp"</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"gearboxDecisionSmoothingDown"</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"aggressionSmoothingUp"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"aggressionSmoothingDown"</span><span class="o">:</span><span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"aggressionHoldOffThrottleDelay"</span><span class="o">:</span><span class="mf">1.75</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"lowShiftDownRPM"</span><span class="o">:</span><span class="mi">1000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"lowShiftUpRPM"</span><span class="o">:</span><span class="mi">1800</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span></code></pre>
+</div><p>Свойства vehicleController транспортного средства обычно распределены между различными компонентами двигателя и трансмиссии.</p>
+<p>Компоненты, снижающие крутящий момент на низких оборотах, могут повышать значения clutchLaunch, тогда как компоненты, увеличивающие максимальные обороты двигателя, повышают значения highShiftRPM.</p>

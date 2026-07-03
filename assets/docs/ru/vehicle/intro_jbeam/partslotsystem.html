@@ -1,0 +1,140 @@
+<p>Одной из возможностей, которая делает модификации автомобилей в BeamNG реальностью, является система компонентов и слотов.</p>
+<p>Если вы когда-либо пользовались селектором деталей, вы знаете, что там существует множество компонентов — зачастую с несколькими вариантами — разбитых по уровням, причём доступность тех или иных вариантов детали зависит от того, что было выбрано на предыдущем уровне.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/partslotsystem/PartSelector.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/partslotsystem/PartSelector_hu421d6b47c3f312141e14f1e2cca9fc80_78262_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="how-slots-and-components-are-defined">
+
+  Как определяются слоты и компоненты
+</h3>
+<p>Всё, что вы видите в селекторе деталей, определяется в jbeam-файле каждого компонента. Вот небольшой пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"autobello_suspension_F"</span><span class="o">:</span> <span class="p">{</span>             <span class="c1">//Internal name of the component
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>             <span class="c1">//Name in the part selectior
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Trailing Link Front Suspension"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">400</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span><span class="o">:</span><span class="s2">"autobello_suspension_F"</span><span class="p">,</span><span class="c1">//Slot Type
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="s2">"slots"</span><span class="o">:</span><span class="p">[</span>                           <span class="c1">//Slots
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">[</span><span class="s2">"type"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"autobello_brake_F"</span><span class="p">,</span><span class="s2">"autobello_brake_F"</span><span class="p">,</span> <span class="s2">"Front Brakes"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"wheel_F_4"</span><span class="p">,</span><span class="s2">"steelwheel_11b_13x5_F"</span><span class="p">,</span> <span class="s2">"Front Wheels"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"autobello_spring_F"</span><span class="p">,</span><span class="s2">"autobello_spring_F"</span><span class="p">,</span> <span class="s2">"Front Springs"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"autobello_steering"</span><span class="p">,</span><span class="s2">"autobello_steering"</span><span class="p">,</span> <span class="s2">"Steering"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div><p>Каждая деталь имеет внутреннее имя, задаваемое самой первой строкой её jbeam-файла. Это имя используется игрой для обращения к данной детали, однако пользователю оно не отображается. Важно, чтобы это имя было уникальным — иначе возможны конфликты, при которых одни детали перезаписывают другие.</p>
+<p>Раздел информации содержит основные сведения о компоненте, включая имя, которое будет отображаться в селекторе деталей.</p>
+<p>Каждая деталь также имеет <a data-doc="vehicle/sections/slots" href="/docs/vehicle/sections/slots">slotType</a>
+, определяющий, в какое место транспортного средства она устанавливается.</p>
+<p>Тип слота позволяет иметь несколько деталей с одним и тем же типом слота, выступающих в качестве альтернатив: все детали с одинаковым «типом слота» отображаются в селекторе деталей как различные варианты одной и той же детали.</p>
+<p>Уникальный тип слота — <code>main</code> — обозначает базовый компонент транспортного средства. Он идентифицирует компонент как «корневую» деталь и загружается игрой первым. В каждом автомобиле может быть только одна деталь с таким типом слота.</p>
+<p>Раздел slots определяет, какие компоненты являются «дочерними» по отношению к данному компоненту, на основе их slotType. Если продолжить пример с передней подвеской, здесь можно встретить такие элементы, как передние тормоза, колёса, амортизаторы, рулевое управление и т. д.</p>
+<p>Конечным результатом является дерево выбора деталей, в котором деталь «main» находится на вершине, а ниже располагаются несколько уровней «дочерних» компонентов.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/partslotsystem/PartTree.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/partslotsystem/PartTree_hu83f29821e3497becaa8f5816b9599984_114488_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="how-configurations-work">
+
+  Как работают конфигурации
+</h3>
+<p>Наверняка вы замечали, что в игре у каждого автомобиля есть готовые конфигурации: несколько комплектаций, внедорожные и гоночные версии и т. д.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/partslotsystem/Variants.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/partslotsystem/Variants_hu4b8e3818b2bded46a59376bd871dd18e_674701_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Принцип их работы довольно прост и основан на так называемых «файлах конфигурации». Ниже — небольшой пример того, что можно найти, открыв файл конфигурации.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"parts"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"coupe_enginemounts"</span><span class="o">:</span><span class="s2">"coupe_enginemounts_heavy"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"coupe_oilpan_I4"</span><span class="o">:</span><span class="s2">"coupe_oilpan_I4_race"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"coupe_engine_ecu"</span><span class="o">:</span><span class="s2">"coupe_engine_ecu_race"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"coupe_engine_internals"</span><span class="o">:</span><span class="s2">"coupe_engine_internals_stage2"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"coupe_taillight_L"</span><span class="o">:</span><span class="s2">"coupe_taillight_L"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"paint_design"</span><span class="o">:</span><span class="s2">"coupe_skin_nomi"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"vars"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"$trackoffset_R"</span><span class="o">:</span><span class="mf">0.02</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"$trackoffset_F"</span><span class="o">:</span><span class="mf">0.025</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"$lsdpreload_R"</span><span class="o">:</span><span class="mi">125</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div><p>Файлы конфигурации представляют собой json-таблицу, содержащую список различных слотов и компонент, который должен использоваться в каждом слоте. Если слот отсутствует в файле конфигурации, будет использован компонент по умолчанию.</p>
+<p>Файлы конфигурации также определяют значения, которые будут использоваться для различных <a data-doc="vehicle/sections/variables" href="/docs/vehicle/sections/variables">переменных</a>
+.</p>
+<p>Помимо файлов конфигурации, нередко встречается и info-файл, описывающий различные сведения, которые отображаются для данного варианта в селекторе автомобилей, а также содержащий миниатюру.</p>
+<h3 id="advanced-example-using-the-same-jbeam-component-for-multiple-parts">
+
+  Продвинутый пример: использование одного Jbeam-компонента для нескольких деталей
+</h3>
+<p>Грамотно применив некоторые продвинутые механизмы Jbeam — такие как <a data-doc="vehicle/sections/slots" data-frag="optional-arguments" href="/docs/vehicle/sections/slots#optional-arguments">переменные слотов</a>
+ и <a data-doc="vehicle/intro_jbeam/jbeamsyntax" data-frag="functions" href="/docs/vehicle/intro_jbeam/jbeamsyntax#functions">функции</a>
+ — можно создать 2 различных Jbeam-компонента, определённых одним и тем же кодом, и выбрать их одновременно. Для этого в родительских слотах необходима строковая переменная слота, например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"slots"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"type"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">,</span> <span class="s2">"description"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"reusable_part_slot1"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"Slot 1"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"nodeMove"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="s2">"variables"</span><span class="o">:</span><span class="p">{</span><span class="s2">"$prefix"</span><span class="o">:</span><span class="s2">"a"</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"reusable_part_slot2"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"Slot 2"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"nodeMove"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mi">2</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="s2">"variables"</span><span class="o">:</span><span class="p">{</span><span class="s2">"$prefix"</span><span class="o">:</span><span class="s2">"b"</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p>Затем в самой переиспользуемой детали slotType должен быть таблицей, соответствующей обоим представленным типам, а каждая уникальная строка детали — например, имя группы и имя ноды — должна конкатенироваться с переменной-строкой, например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"reusable_part"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Reusable Part"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="p">[</span><span class="s2">"reusable_part_slot1"</span><span class="p">,</span> <span class="s2">"reusable_part_slot2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"nodes"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"posX"</span><span class="p">,</span> <span class="s2">"posY"</span><span class="p">,</span> <span class="s2">"posZ"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"collision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">"$=$prefix..'_group'"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'1'"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'2'"</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'3'"</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'4'"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'5'"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"group"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"beams"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span> <span class="s2">"id2:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">461000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">140</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">40000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="mi">100000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'1'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'2'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'1'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'3'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'1'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'4'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'2'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'3'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'2'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'4'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'3'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'4'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'1'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'2'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'3'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'4'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"triangles"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"id1:"</span><span class="p">,</span><span class="s2">"id2:"</span><span class="p">,</span><span class="s2">"id3:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'1'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'2'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'3'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'3'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'4'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'1'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'1'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'2'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'2'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'3'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'3'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'4'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"$=$prefix..'4'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'5'"</span><span class="p">,</span> <span class="s2">"$=$prefix..'1'"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div><p>Также можно определить дополнительные булевы переменные слотов и использовать их совместно с <a data-doc="vehicle/intro_jbeam/jbeamsyntax" data-frag="disable-modifier" href="/docs/vehicle/intro_jbeam/jbeamsyntax#disable-modifier">модификатором отключения</a>
+ для переключения различных строк Jbeam-файла в зависимости от slotType.</p>

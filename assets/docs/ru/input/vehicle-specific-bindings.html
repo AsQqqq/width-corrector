@@ -1,0 +1,298 @@
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/input/vehicle-specific-bindings/Canon-specific_bindings.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/input/vehicle-specific-bindings/Canon-specific_bindings_hu9fd106178415635e1fd4a635e9bef8aa_704313_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>В качестве рабочего примера удобно использовать официальный транспорт <code>cannon</code>.</em></p>
+<h3 id="overview">
+
+  Обзор
+</h3>
+<p></p><div class="bng-notice note">Рекомендуем сначала прочитать <a data-doc="input/introduction" href="/docs/input/introduction">Введение в систему ввода</a>
+.</div>
+<br/>
+<p>Начиная с версии 0.5, BeamNG.drive поддерживает транспортно-специфические <a data-doc="input/introduction" data-frag="binding" href="/docs/input/introduction#binding">привязки</a>
+. Это специальные привязки, действующие только для определённого транспортного средства. Например, привязка для подъёма стрелы крана или привязка для выстрела шаром из пушки.</p>
+<p>Транспортно-специфические привязки могут быть настроены конечными пользователями в меню <code>Controls</code> → <code>Bindings</code>, как и любая другая привязка (без редактирования каких-либо файлов).</p>
+<h3 id="defining-vehicle-specific-actions">
+
+  Определение транспортно-специфических действий
+</h3>
+<p>Иными словами, файл может называться <code>input_actions.json</code>, но может также иметь суффикс, например: <code>input_actions_my_custom_suffix.json</code></p>
+<h4 id="action-file-format">
+
+  Формат файла действий
+</h4>
+<p>Указанные имена действий ("action_name_a" и т. д.) должны быть уникальны в пределах текущего транспортного средства. Если другой транспорт использует точно такое же имя действия, они не будут конфликтовать друг с другом, поскольку принадлежат разным транспортным средствам.</p>
+<p>Ниже перечислены возможные аргументы действия:</p>
+<div class="bng-table" id="input"><div class="bng-table-header"><div>Имя</div><div>Обязательный</div><div>Тип</div><div>Значение по умолчанию</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="">title</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Да</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">н/д</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Очень краткое название действия, отображается в различных игровых меню</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="">desc</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Да</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">н/д</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Полное описание, может отображаться как подсказка (tooltip); должно содержать около одного предложения.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="">order</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Да</div>
+</div><div>
+<div>Тип</div>
+<div style="">number</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">н/д</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Определяет порядок отображения действий в меню пользовательского интерфейса: 1 — первое, большие значения (2, 3…) — последующие.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="">isBasic</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Нет</div>
+</div><div>
+<div>Тип</div>
+<div style="">boolean</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">true</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Определяет, отображается ли элемент по умолчанию в меню Controls &gt; Binding (true) или пользователю необходимо включить опцию "List advanced bindings too" (false)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="">isCentered</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Нет</div>
+</div><div>
+<div>Тип</div>
+<div style="">boolean</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">false</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Если false, действие будет выдавать значения в диапазоне от 0 до 1 (например, для педали тормоза или ручного тормоза). Если true, генерируемые значения будут в диапазоне от -1 до +1 (например, для руля или изменения высоты камеры вверх и вниз).</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="">onChange</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Нет *</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style=""></div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Исходный код, который будет выполняться при изменении значения ввода (при нажатии или отпускании клавиши, а также при каждом небольшом перемещении оси).</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="">onDown</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Нет *</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style=""></div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Исходный код, который будет выполняться при нажатии кнопки или клавиши**.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="">onUp</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Нет *</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style=""></div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Исходный код, который будет выполняться при отпускании кнопки или клавиши**.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Имя</div>
+<div style="">ctx</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Нет</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">"vlua"</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;"><p>Среда выполнения кода, определённого выше:</p>
+<ul>
+<li>"vlua" — активный транспортный Lua (по умолчанию для транспортно-специфических действий)</li>
+<li>"tlua" — игровой движок Lua</li>
+<li>"bvlua" — все контексты транспортного Lua</li>
+<li>"elua" — асинхронный игровой движок Lua / устаревшие особые случаи</li>
+</ul>
+<p>Устаревшие контексты: "ui", "ts" и "slua".</p>
+</div>
+</div></div></div>
+<p><strong>Примечания:</strong></p>
+<p>* Код <code>onUp</code> и <code>onDown</code> не может быть вызван осями — только кнопками и клавишами клавиатуры. По возможности рекомендуется использовать <code>onChange</code>.</p>
+<p>** Необходимо определить хотя бы одно из этих полей. Подробнее об этом будет сказано далее — пока не беспокойтесь о выборе.</p>
+<p>Чтобы добавить новое действие, вставьте новую строку следующим образом:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="nt">"shoot"</span><span class="p">:</span> <span class="p">{</span><span class="nt">"order"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="nt">"onChange"</span><span class="p">:</span><span class="s2">"electrics.values.shoot = VALUE"</span><span class="p">,</span> <span class="nt">"title"</span><span class="p">:</span><span class="s2">"Shoot ball"</span><span class="p">,</span> <span class="nt">"desc"</span><span class="p">:</span><span class="s2">"Shoots the cannon ball. Cannon will need to be reset to fire again"</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="modding-vehicle-specific-actions">
+
+  Моддинг транспортно-специфических действий
+</h3>
+<p>Если вы изменяете существующий транспорт, который уже содержит транспортно-специфические <a data-doc="input/introduction" data-frag="action" href="/docs/input/introduction#action">действия</a>
+, то начиная с версии 0.7.0.0 вы можете добавлять дополнительные действия (вместо простой замены файла <code>vehicles/my_vehicle/input_actions.json</code>).</p>
+<p>Для этого создайте новые файлы с именами <code>input_actions*.json</code> в той же директории. Например: <code>input_actions_my_mod.json</code>.</p>
+<p>Все json-файлы, соответствующие этому шаблону имени, будут прочитаны, что позволяет добавлять любые необходимые новые действия в произвольном количестве файлов.</p>
+<h3 id="defining-some-default-bindings">
+
+  Определение привязок по умолчанию
+</h3>
+<p>Теперь, когда у нас есть транспортно-специфический файл input_actions.json, вы можете создавать новые <a data-doc="input/introduction" data-frag="binding" href="/docs/input/introduction#binding">привязки</a>
+ через стандартное меню <code>Controls</code> → <code>Bindings</code>. Это создаст файлы inputmap в директории <code>settings/inputmaps/your_vehicle_name/</code>.</p>
+<p>Когда вы будете довольны набором привязок по умолчанию, переименуйте файлы с <code>*.diff</code> в <code>*.json</code> и перенесите их в <code>vehicle/your_vehicle_name/inputmaps/</code>.</p>
+<p>Начиная с BeamNG.drive v0.25, у вас также есть возможность добавить произвольный суффикс к имени файла, чтобы избежать конфликтов с файлами inputmap, поставляемыми игрой. Например, если вы добавляете привязки для пикапа, рекомендуется выбрать уникальный суффикс, чтобы не конфликтовать с inputmap других модов или значениями по умолчанию. Например, вместо <code>vehicles/pickup/inputmaps/keyboard.json</code> следует использовать <code>vehicles/pickup/inputmaps/keyboard_MyCoolMod.json</code>. Суффикс может быть любым — главное, чтобы он был достаточно уникальным и не совпадал с уже используемыми другими модами.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/input/vehicle-specific-bindings/Default_bindings.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/input/vehicle-specific-bindings/Default_bindings.png"/>
+</span></a></p>
+<p>Транспортно-специфические привязки автоматически появятся в правом верхнем углу окна после загрузки уровня. Таким образом, пользователи смогут легко узнать, как использовать транспортно-специфические привязки вашего мода.</p>
+<div class="bng-notice note">После первого выпуска мода, например во второй версии, вы можете добавить новые действия и дополнительные привязки по умолчанию. BeamNG.drive обеспечит доступность этих новых привязок по умолчанию для всех пользователей, даже если они ранее настраивали привязки самостоятельно.</div>
+<div class="bng-notice warning"><p><strong>Важно</strong>: если вы не предоставите файлы привязок по умолчанию, пользователь не сможет воспользоваться транспортно-специфическим функционалом, пока самостоятельно не создаст необходимые привязки.</p>
+<p>Пожалуйста, всегда предоставляйте привязки по умолчанию — пользователи будут вам благодарны. Ну или, по крайней мере, они не будут так сильно запутаны в том, как использовать ваш мод.</p>
+</div>
+<h3 id="making-the-vehicle-actually-do-stuff">
+
+  Реализация функциональности транспортного средства
+</h3>
+<p>До сих пор мы определили некоторые привязки по умолчанию и добавили строки в файл input_actions.json транспортного средства, однако все аргументы <code>onChange</code>/<code>onUp</code>/<code>onDown</code> пусты — исправим это сейчас.</p>
+<p>Полное описание формата кода действий, контекстов, заполнителей, таких как <code>VALUE</code> и <code>FILTERTYPE</code>, а также карт действий см. в разделе <a data-doc="input/actions" data-frag="writing-action-code" href="/docs/input/actions#writing-action-code">Написание кода действий</a>
+.</p>
+<p>Для кликабельных элементов управления транспортным средством с использованием <code>*.interaction.json</code> см. <a data-doc="input/interaction-maps" href="/docs/input/interaction-maps">Карты взаимодействия</a>
+.</p>
+<h4 id="simple-case">
+
+  Простой случай
+</h4>
+<p>Простейший случай — использование тастера (thruster) или гидро (hydro). Эти элементы легко реагируют на значения, передаваемые через электрическую шину транспортного средства, поэтому мы просто напишем код LUA, записывающий данные в эту шину.</p>
+<p>Рассмотрим на примере: если у вас в input_actions.json есть следующее:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="s2">"onChange"</span><span class="p">:</span><span class="s2">"electrics.values.shoot = VALUE"</span>
+</span></span></code></pre>
+</div><p>Тогда вы можете заставить гидро или тастер реагировать на это следующим образом:</p>
+<ul>
+<li>Внутри секции Hydros файла .jbeam:</li>
+</ul>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="s2">"inputSource"</span><span class="p">:</span><span class="s2">"shoot"</span>
+</span></span></code></pre>
+</div><ul>
+<li>Или внутри секции Thrusters файла .jbeam:</li>
+</ul>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="s2">"control"</span><span class="p">:</span><span class="s2">"shoot"</span>
+</span></span></code></pre>
+</div><p>Смотрите транспортное средство <code>cannon</code> в качестве рабочего примера использования тастера.</p>
+<h4 id="advanced-case">
+
+  Продвинутый случай
+</h4>
+<p>Вы можете получить полный контроль над происходящим, если готовы писать собственный код LUA.</p>
+<h5 id="action-lua-code">
+
+  Код LUA действий
+</h5>
+<p>Весь код lua в <code>onChange</code>/<code>onUp</code>/<code>onDown</code> может содержать специальные символы, которые автоматически заменяются системой привязок. Их можно использовать в любом порядке и любое количество раз. Это:</p>
+<ul>
+<li><code>VALUE</code>: заменяется на <code>1</code> в onDown, <code>0</code> в onUp, значения с плавающей точкой от <code>0</code> до <code>1</code> в onChange при isCentered равном false, и значения с плавающей точкой от <code>-1</code> до <code>1</code> в onChange при isCentered равном true.</li>
+<li><code>FILTERTYPE</code>: соответствует параметру «Filter» в редакторе привязок и заменяется на <code>0</code> для фильтра Key, <code>1</code> для фильтра Pad и <code>2</code> для фильтра Direct.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/input/vehicle-specific-bindings/Filter_type.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/input/vehicle-specific-bindings/Filter_type.png"/>
+</span></a></li>
+<li><code>PLAYER</code>: если вы используете аргумент действия <code>ctx</code>, отличный от стандартного <code>"vlua"</code> (например <code>"ts"</code>), это может быть полезно для направления действий на транспортное средство определённого игрока в режиме <code>multiseat</code>. Если привязка была вызвана первым игроком, значение заменяется на <code>0</code>, вторым игроком — на <code>1</code>, третьим — на <code>2</code> и т. д.</li>
+</ul>
+<p>Базовый пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="s2">"onChange"</span><span class="p">:</span><span class="s2">"input.event('throttle', VALUE, FILTERTYPE)"</span>
+</span></span></code></pre>
+</div><p>Продвинутый вымышленный пример, лишённый практического смысла (он предназначен исключительно для демонстрации теоретических возможностей):</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="s2">"onChange"</span><span class="p">:</span><span class="s2">"hydros.my_function(false, true, 1337, 'sample string',  VALUE,  -1 * VALUE / 5,  math.max(1, FILTERTYPE),  FILTERTYPE == 0)"</span>
+</span></span></code></pre>
+</div>
+<h5 id="custom-lua-files">
+
+  Пользовательские файлы LUA
+</h5>
+<p>Если ваши потребности достаточно сложны, вы можете включить пользовательские файлы <code>.lua</code> в мод вашего транспортного средства.</p>
+<p>Эти файлы могут содержать функции, которые будут вызываться игровым движком в качестве обратных вызовов:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="n">M.onInit</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">M.onReset</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">M.updateGFX</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+</span></span></code></pre>
+</div><p>Они также могут экспортировать любые функции, которые вы хотите использовать в пользовательском коде input_actions.json. Например, файл с именем <code>vehicles/my_vehicle/lua/custom_lua_file.lua</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="n">M.enableWindshieldWipers</span><span class="p">(</span><span class="n">booleanValue</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">M.setTurboLimit</span><span class="p">(</span><span class="n">psi</span><span class="p">)</span>
+</span></span></code></pre>
+</div><p>Код действия затем может вызывать эти экспортированные функции, например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="n">onChange</span><span class="p">:</span> <span class="s2">"custom_lua_file.setTurboLimit(30 * VALUE)"</span>
+</span></span></code></pre>
+</div>
+<h3 id="working-example">
+
+  Рабочий пример
+</h3>
+<p>Включение рабочего примера потребовало бы прикрепления различных файлов, которые со временем могут устареть. Лучше воспользоваться уже существующим транспортным средством <code>cannon</code>, которое поставляется в комплекте с BeamNG.drive, тестируется с каждым релизом и достаточно простое, поэтому служит отличной отправной точкой.</p>
+<p>Вы найдёте это транспортное средство в <code>SteamApps\common\BeamNG.drive\content\vehicles\cannon.zip</code>; распакуйте его во временную директорию и ознакомьтесь с различными файлами и директориями, упомянутыми в этом руководстве.</p>

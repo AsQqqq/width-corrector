@@ -1,0 +1,141 @@
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/programming/lua_console.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/programming/lua_console.png"/>
+</span></a></p>
+<p>Вы можете запустить <code>Bin64/console.x64.exe</code> в качестве удобной небольшой (интерактивной) lua-консоли.</p>
+
+<pre tabindex="0"><code>console.x64.exe cmd &lt;lua string to execute&gt;
+console.x64.exe &lt;lua file to execute&gt;
+</code></pre>
+<p>Например, для выполнения lua-строки:</p>
+
+<pre tabindex="0"><code>console.x64.exe cmd "print(1+1)"
+</code></pre>
+<p>Например, для выполнения lua-файла:</p>
+
+<pre tabindex="0"><code>console.x64.exe test.lua
+</code></pre>
+<p>Для интерактивной оболочки запустите без аргументов:</p>
+
+<pre tabindex="0"><code>console.x64.exe
+</code></pre>
+<p>Ниже приведена краткая документация по её весьма простому API</p>
+<h1 class="anchored">
+
+  BeamNG console Lua API Documentation
+</h1>
+<h2 id="classes">
+
+  Классы
+</h2>
+<h3 id="highperftimer">
+
+  HighPerfTimer
+</h3>
+<p>Высокопроизводительный таймер для точных измерений времени.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">timer</span> <span class="o">=</span> <span class="n">HighPerfTimer</span><span class="p">()</span>
+</span></span></code></pre>
+</div>
+<h4 id="methods">
+
+  Методы
+</h4>
+<ul>
+<li><code>reset()</code> - Сбрасывает таймер в ноль</li>
+<li><code>elapsed()</code> - Возвращает прошедшее время в секундах с момента создания или последнего сброса</li>
+<li><code>stopAndReset()</code> - Возвращает прошедшее время и сбрасывает таймер</li>
+<li><code>stop()</code> - Псевдоним для elapsed() (устарело)</li>
+</ul>
+<h3 id="beamengine">
+
+  BeamEngine
+</h3>
+<p>Основной интерфейс движка.</p>
+<h4 id="methods-1">
+
+  Методы
+</h4>
+<ul>
+<li><code>update(dtReal, dtSim)</code> - Обновляет симуляцию движка</li>
+<li><code>spawnObject2(...)</code> - Создаёт объект в симуляции</li>
+<li><code>deleteAllObjects()</code> - Удаляет все объекты из симуляции</li>
+<li><code>setDynamicCollisionEnabled(enabled)</code> - Включает/отключает динамическое столкновение</li>
+<li><code>instabilityDetected()</code> - Проверяет, была ли обнаружена нестабильность в симуляции</li>
+</ul>
+<h3 id="beamobject">
+
+  BeamObject
+</h3>
+<p>Представляет физический объект в симуляции.</p>
+<h4 id="methods-2">
+
+  Методы
+</h4>
+<ul>
+<li><code>getNodeCount()</code> - Возвращает количество нод в объекте</li>
+<li><code>getBeamCount()</code> - Возвращает количество балок в объекте</li>
+</ul>
+<h3 id="vfs">
+
+  VFS
+</h3>
+<p>Интерфейс виртуальной файловой системы.</p>
+<p>Доступ к VFS осуществляется через глобальную переменную <code>FS</code></p>
+<h4 id="methods-3">
+
+  Методы
+</h4>
+<ul>
+<li><code>fileSize(filename)</code> - Возвращает размер файла в байтах</li>
+<li><code>fileExists(filename)</code> - Проверяет, существует ли файл</li>
+<li><code>directoryExists(directory)</code> - Проверяет, существует ли директория</li>
+<li><code>getFileRealPath(virtualPath)</code> - Получает реальный путь файловой системы из виртуального пути</li>
+<li><code>getGamePath()</code> - Получает корневой путь игры</li>
+<li><code>openFile(filename, mode)</code> - Открывает файл</li>
+<li><code>copyFile(src, dst)</code> - Копирует файл</li>
+<li><code>directoryCreate(name, recursive)</code> - Создаёт директорию</li>
+<li><code>findFiles(path, pattern, recursiveLevels, multiMatch, includeDirs)</code> - Находит файлы, соответствующие шаблону</li>
+<li><code>hashFile(filename)</code> - Получает хеш файла</li>
+<li><code>hashFileSHA1(filename)</code> - Получает SHA1-хеш файла</li>
+<li><code>stat(filename)</code> - Получает статистику файла</li>
+<li><code>removeFile(filename)</code> - Удаляет файл</li>
+<li><code>renameFile(oldName, newName)</code> - Переименовывает файл</li>
+<li><code>mount(source, target, priority)</code> - Монтирует директорию или архив</li>
+<li><code>mountList(mountList)</code> - Монтирует несколько путей</li>
+<li><code>unmount(path)</code> - Размонтирует путь</li>
+<li><code>isMounted(path)</code> - Проверяет, смонтирован ли путь</li>
+</ul>
+<h2 id="global-functions">
+
+  Глобальные функции
+</h2>
+<ul>
+<li><code>initBeamEngine(steps)</code> - Инициализирует движок BeamNG</li>
+<li><code>destroyBeamEngine()</code> - Завершает работу движка BeamNG</li>
+<li><code>reloadLua()</code> - Перезагружает среду Lua</li>
+<li><code>log(level, origin, msg)</code> - Записывает сообщение в лог
+<ul>
+<li><code>level</code>: Уровень лога (I=Info, W=Warning, E=Error, D=Debug)</li>
+<li><code>origin</code>: Источник лога</li>
+<li><code>msg</code>: Сообщение для записи</li>
+</ul>
+</li>
+<li><code>updateLuaCore()</code> - Обновляет основную систему Lua</li>
+<li><code>profilerPushEvent(name)</code> - Начинает профилирование события</li>
+<li><code>profilerPopEvent()</code> - Завершает профилирование текущего события</li>
+<li><code>setPowerPlanMaxPerformance()</code> - Устанавливает план электропитания системы на максимальную производительность</li>
+<li><code>restorePowerPlan()</code> - Восстанавливает исходный план электропитания</li>
+</ul>
+<h2 id="global-variables">
+
+  Глобальные переменные
+</h2>
+<ul>
+<li><code>hw</code> - Таблица с информацией об аппаратном обеспечении
+<ul>
+<li><code>hw.bits</code> - Архитектура CPU (32 или 64 бит)</li>
+</ul>
+</li>
+<li><code>args</code> - Аргументы командной строки</li>
+<li><code>beamng_platform</code> - Текущая платформа ("windows", "linux" и т.д.)</li>
+</ul>

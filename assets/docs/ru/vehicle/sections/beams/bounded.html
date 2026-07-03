@@ -1,0 +1,381 @@
+<p>Ограниченные балки (bounded beams) — это балки, способные изменять жёсткость и демпфирование в зависимости от растяжения и скорости. Они используются прежде всего для амортизаторов и ограничителей подвески, поскольку позволяют реализовывать многоступенчатые амортизаторы и отбойники.</p>
+<p>Использование ограниченных балок следует ограничивать, так как их расширенные свойства сопряжены со снижением производительности. Во многих случаях вместо них можно использовать предварительно сжатые <a data-doc="vehicle/sections/beams/support" href="/docs/vehicle/sections/beams/support">опорные балки</a>
+.</p>
+<p>Между одной и той же парой нод можно использовать несколько ограниченных балок для симуляции различных компонентов подвески. В отличие от обычных балок, консоль в этом случае не сообщит об ошибке.</p>
+<h3 id="bound-properties">
+
+  Свойства ограничения
+</h3>
+<p>Эффект ограничения изменяет стандартные значения жёсткости и демпфирования, переключаясь на второй набор этих параметров при растяжении или сжатии балки сверх определённой величины. Этот эффект широко применяется для симуляции отбойников и ремней-ограничителей подвески, а также для ограничения диапазона движения отдельных объектов.</p>
+<p>Свойства постепенно переходят от начальных параметров балки к параметрам ограничения при достижении предельных значений. Длина этого перехода задаётся параметром "boundZone".</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/beams/bounded/graphBounds.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/beams/bounded/graphBounds_huea2153e850fe7914130563d95a75dc07_70693_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="advanced-damping-properties">
+
+  Расширенные свойства демпфирования
+</h3>
+<p>Демпфирование можно разделить на сжатие и отбой (bound и rebound), а также на медленное и быстрое. При использовании отдельного значения демпфирования отбоя обычное значение демпфирования применяется только при сжатии балки, а демпфирование отбоя — при её расширении. Это часто используется как для тонкой настройки поведения при переносе массы, так и для управления поглощением неровностей и скоростью возврата подвески.</p>
+<p>Быстрое демпфирование также разделено на сжатие и отбой и представляет значение демпфирования, используемое при расширении или сжатии балки со скоростью выше порога, определяемого настройкой разделения по скорости. У дорожных и трековых автомобилей это значение, как правило, ниже медленного демпфирования, чтобы подвеска оставалась эффективно более мягкой при сильных ударах — например, о поребрики и ямы — при этом сохраняя контроль переноса массы с помощью медленного демпфирования. У внедорожников быстрое демпфирование при сжатии зачастую значительно ближе к медленному, чтобы лучше поглощать крупные удары без пробоев.</p>
+<p>В стандартных автомобилях игры также часто применяются демпфирующие балки на рулевом управлении и других элементах подвески для предотвращения колебаний, особенно в ситуациях потери сцепления (пробуксовка и блокировка колёс). Эти балки настраиваются с нулевым или очень малым медленным демпфированием и быстрым демпфированием для подавления колебаний.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/beams/bounded/dampGraph.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/beams/bounded/dampGraph_hua838c487f4faa68ccf67dacd5554dcaa_52212_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Результирующие силы будут всегда продолжать расти с увеличением скорости, однако форма кривых результирующей силы демпфирования будет отличаться для прогрессивных (красная) и дегрессивных (синяя) значений.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/beams/bounded/digressiveProgressiveDamping.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/beams/bounded/digressiveProgressiveDamping_hub2e506b8e7b1fac3afe16a535256b9b2_77069_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<div class="bng-notice note">Между свойствами расширения пружины и демпфирования существует различие в том, когда именно они применяются. Растяжение или сжатие с точки зрения пружин и ограничителей — это позиционный параметр: длиннее или короче балка своей начальной длины при спавне. В демпфировании damp или dampRebound связаны со скоростью в направлении сжатия или расширения — то есть с тем, активно ли балка расширяется или укорачивается.</div>
+<h3 id="required-arguments">
+
+  Обязательные аргументы
+</h3>
+<p>См. <a data-doc="vehicle/sections/beams" href="/docs/vehicle/sections/beams">страницу балок</a>
+.</p>
+<h3 id="optional-arguments">
+
+  Необязательные аргументы
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Насколько балка может растянуться до начала применения свойств ограничения.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Значение 0.0 означает, что свойства ограничения начинают применяться сразу при растяжении балки.</p>
+<p>Значение 0.5 означает, что балка может растянуться до 150% своей начальной длины до начала применения свойств ограничения.</p>
+<p>Значение 1.0 означает, что балка может растянуться до 200% своей начальной длины до начала применения свойств ограничения.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Функция, определяющая изменение beamLongBound в зависимости от нагрузки cargoGroup в режиме доставки карьеры</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamLongBoundFunction"</span><span class="o">:</span><span class="s2">"=0.1*(1-$load/1000)"</span><span class="p">,</span><span class="s2">"cargoGroup"</span><span class="o">:</span><span class="s2">"RoofbarTank1"</span><span class="p">},</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Насколько балка может сжаться до начала применения свойств ограничения.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Значение 0.0 означает, что свойства ограничения начинают применяться сразу при сжатии балки.</p>
+<p>Значение 0.5 означает, что балка может сжаться до 50% своей начальной длины до начала применения свойств ограничения.</p>
+<p>Значение 1.0 означает, что балка может сжаться на всю свою длину до начала применения свойств ограничения.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Функция, определяющая изменение beamShortBound в зависимости от нагрузки cargoGroup в режиме доставки карьеры</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamShortBoundFunction"</span><span class="o">:</span><span class="s2">"=0.3*(1-$load/1000)"</span><span class="p">,</span><span class="s2">"cargoGroup"</span><span class="o">:</span><span class="s2">"RoofbarTank1"</span><span class="p">},</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Деформация (в метрах) после достижения предела ограничения до полного применения свойств ограничения</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Имейте в виду, что значение по умолчанию составляет 1 метр, что даёт очень постепенный переход к свойствам ограничения. Для многих применений это значение может оказаться слишком большим.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Насколько балка должна растянуться (в метрах) до начала применения свойств ограничения</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Значение 0.5 означает, что балка должна растянуться на 0.5 метра до начала применения свойств ограничения.</p>
+<p>Использование этого свойства переопределяет beamLongBound.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Насколько балка должна сжаться (в метрах) до начала применения свойств ограничения</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Значение 0.5 означает, что балка должна сжаться на 0.5 метра до начала применения свойств ограничения.</p>
+<p>Использование этого свойства переопределяет beamShortBound.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Жёсткость пружины, начинающей применяться при достижении балкой longBound или shortBound (Н/м)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Функция, определяющая изменение beamLimitSpring в зависимости от нагрузки cargoGroup в режиме доставки карьеры</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamLimitSpringFunction"</span><span class="o">:</span><span class="s2">"=100*$load*($load/1000)+80000"</span><span class="p">,</span><span class="s2">"cargoGroup"</span><span class="o">:</span><span class="s2">"RoofbarTank1"</span><span class="p">},</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Демпфирование, начинающее применяться при достижении балкой longBound или shortBound</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Функция, определяющая изменение beamLimitDamp в зависимости от нагрузки cargoGroup в режиме доставки карьеры</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamLimitDampFunction"</span><span class="o">:</span><span class="s2">"=0.3*$load*($load/1000)+100"</span><span class="p">,</span><span class="s2">"cargoGroup"</span><span class="o">:</span><span class="s2">"RoofbarTank1"</span><span class="p">},</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">beamLimitDamp<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Демпфирование, начинающее применяться при достижении балкой longBound или shortBound (Н/м/с), но только при расширении балки</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Если задано это значение, то beamLimitDamp применяется только при сжатии балки.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">beamDamp<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Значение демпфирования, применяемое только при расширении балки (Н/м/с)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Если задано это значение, то beamDamp применяется только при сжатии балки.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">beamDamp<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Значение демпфирования балки при скорости сжатия или расширения &gt; beamDampVelocitySplit (Н/м/с).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">beamDampRebound<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Значение демпфирования отбоя балки при скорости расширения &gt; beamDampVelocitySplit (Н/м/с).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Скорость (м/с) сжатия/расширения, выше которой вступают в действие beamDampFast и beamDampReboundFast (м/с).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Скорость (м/с) сжатия/расширения, выше которой вступает в действие beamDampReboundFast (м/с).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Переопределяет beamDampVelocitySplit для отбоя.</div>
+</div>
+</div>
+<p>Ограниченные балки также поддерживают те же необязательные аргументы, что и <a data-doc="vehicle/sections/beams" data-frag="optional-arguments" href="/docs/vehicle/sections/beams#optional-arguments">стандартные балки</a>
+.</p>
+<h3 id="simple-examples">
+
+  Простые примеры
+</h3>
+<p>Набор простых амортизаторов автомобиля.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">//front dampers
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|BOUNDED"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mf">1.0</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">12000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="mi">140000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamLimitSpring"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamLimitDamp"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">850</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fh1r"</span><span class="p">,</span><span class="s2">"fs1r"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"beamDampRebound"</span><span class="o">:</span><span class="mi">1700</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fh1l"</span><span class="p">,</span><span class="s2">"fs1l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"beamDampRebound"</span><span class="o">:</span><span class="mi">1700</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">}],</span>
+</span></span></code></pre>
+</div><p>Демпфирующие балки рулевого управления, используемые для подавления колебаний руля.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">//steering damper
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|BOUNDED"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">15120</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="mi">37800</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamLimitSpring"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamLimitDamp"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">100</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fh3r"</span><span class="p">,</span><span class="s2">"fx1r"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"beamDampVelocitySplit"</span><span class="o">:</span><span class="mf">0.1</span><span class="p">,</span><span class="s2">"beamDampFast"</span><span class="o">:</span><span class="mi">1000</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">1000</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fh3l"</span><span class="p">,</span><span class="s2">"fx1l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"beamDampVelocitySplit"</span><span class="o">:</span><span class="mf">0.1</span><span class="p">,</span><span class="s2">"beamDampFast"</span><span class="o">:</span><span class="mi">1000</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">1000</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fh5r"</span><span class="p">,</span><span class="s2">"fx2r"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"beamDampVelocitySplit"</span><span class="o">:</span><span class="mf">0.1</span><span class="p">,</span><span class="s2">"beamDampFast"</span><span class="o">:</span><span class="mi">1000</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">1000</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fh5l"</span><span class="p">,</span><span class="s2">"fx2l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"beamDampVelocitySplit"</span><span class="o">:</span><span class="mf">0.1</span><span class="p">,</span><span class="s2">"beamDampFast"</span><span class="o">:</span><span class="mi">1000</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">1000</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span></code></pre>
+</div>
+<h3 id="advanced-example">
+
+  Расширенный пример
+</h3>
+<p>Набор раллийных амортизаторов: две пары балок с разными порогами скорости — одна для сжатия, другая для отбоя — а также мягкий гидравлический отбойник.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">//dampers
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|BOUNDED"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">3700</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamLimitSpring"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamLimitDamp"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//bump
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">[</span><span class="s2">"fh1r"</span><span class="p">,</span><span class="s2">"fs1r"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"name"</span><span class="o">:</span><span class="s2">"shock_FR"</span><span class="p">,</span> <span class="s2">"beamDampRebound"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamDampVelocitySplit"</span><span class="o">:</span><span class="mf">0.35</span><span class="p">,</span><span class="s2">"beamDampFast"</span><span class="o">:</span><span class="mi">2500</span><span class="p">,</span><span class="s2">"beamDampReboundFast"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fh1l"</span><span class="p">,</span><span class="s2">"fs1l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"name"</span><span class="o">:</span><span class="s2">"shock_FL"</span><span class="p">,</span> <span class="s2">"beamDampRebound"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamDampVelocitySplit"</span><span class="o">:</span><span class="mf">0.35</span><span class="p">,</span><span class="s2">"beamDampFast"</span><span class="o">:</span><span class="mi">2500</span><span class="p">,</span><span class="s2">"beamDampReboundFast"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//rebound
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fh1r"</span><span class="p">,</span><span class="s2">"fs1r"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"beamDampRebound"</span><span class="o">:</span><span class="mi">6700</span><span class="p">,</span><span class="s2">"beamDampVelocitySplit"</span><span class="o">:</span><span class="mf">0.25</span><span class="p">,</span><span class="s2">"beamDampFast"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamDampReboundFast"</span><span class="o">:</span><span class="mi">3400</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fh1l"</span><span class="p">,</span><span class="s2">"fs1l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"beamDampRebound"</span><span class="o">:</span><span class="mi">6700</span><span class="p">,</span><span class="s2">"beamDampVelocitySplit"</span><span class="o">:</span><span class="mf">0.25</span><span class="p">,</span><span class="s2">"beamDampFast"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamDampReboundFast"</span><span class="o">:</span><span class="mi">3400</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//hydraulic bump stop
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamLimitSpring"</span><span class="o">:</span><span class="mi">15000</span><span class="p">,</span><span class="s2">"beamLimitDamp"</span><span class="o">:</span><span class="mi">15000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fh1r"</span><span class="p">,</span><span class="s2">"fs1r"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"longBoundRange"</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span><span class="s2">"shortBoundRange"</span><span class="o">:</span><span class="mf">0.03</span><span class="p">,</span><span class="s2">"boundZone"</span><span class="o">:</span><span class="mf">0.01</span><span class="p">,</span><span class="s2">"beamLimitDampRebound"</span><span class="o">:</span><span class="mi">1000</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">250</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fh1l"</span><span class="p">,</span><span class="s2">"fs1l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"longBoundRange"</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span><span class="s2">"shortBoundRange"</span><span class="o">:</span><span class="mf">0.03</span><span class="p">,</span><span class="s2">"boundZone"</span><span class="o">:</span><span class="mf">0.01</span><span class="p">,</span><span class="s2">"beamLimitDampRebound"</span><span class="o">:</span><span class="mi">1000</span><span class="p">,</span><span class="s2">"dampCutoffHz"</span><span class="o">:</span><span class="mi">250</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span></code></pre>
+</div>

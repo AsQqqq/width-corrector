@@ -1,0 +1,239 @@
+<p><code>This feature is supported as of BeamNG.tech and .drive version 0.5.0 to latest.</code></p>
+<p>Симуляция огня — это опциональная функция нод, позволяющая некоторым нодам загораться.</p>
+<p>Чтобы включить симуляцию огня для ноды, ей необходимо задать температуру вспышки, соответствующую температуре самовоспламенения.</p>
+<p>Ноды могут передавать тепло соседним нодам через теплопроводность, если она включена, или через излучение, когда нода горит.</p>
+<p>Ноды колёс также связаны с этой системой: огонь нагревает их, что приводит к перегреву тормозов и потенциально к взрыву шин.</p>
+<h3 id="node-arguments">
+
+  Аргументы нод
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Температура (°C), при которой нода загорается.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">В документации это часто называется температурой самовоспламенения.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">tEnv<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Начальная температура (°C) ноды.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Использование значения "thermals" в качестве baseTemp привяжет температуру ноды к температуре двигателя.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">flashPoint<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Температура (°C), при которой нода начинает дымиться.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Скорость, с которой нода сжигает своё топливо.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Фактическая скорость горения также зависит от количества оставшейся энергии и текущей температуры ноды.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Максимальное расстояние (в метрах), на которое нода передаёт тепло другим нодам через теплопроводность.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Количество энергии от столкновений, передаваемой в нагрев ноды.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Количество энергии в ноде (Дж).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Удельная теплоёмкость ноды в Дж/кг/°C.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Вместе с массой ноды этот параметр влияет на скорость её нагрева.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Процент испарения, выше которого нода считается испарившейся.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>«Испарившаяся» нода будет иметь более низкую температуру вспышки и значительно более высокую скорость горения до тех пор, пока снова не конденсируется.</p>
+<p>Испарение происходит при разрушении балки-контейнера ноды.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Идентифицирует ноду как часть контейнера.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Это приведёт к тому, что ноды внутри контейнера будут «испаряться» на определённую величину.</div>
+</div>
+</div>
+<h3 id="beam-arguments">
+
+  Аргументы балок
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Идентифицирует балку как часть контейнера.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Разрушение балки вызовет разрыв контейнера, что позволит нодам внутри него «испариться».</p>
+<p>Также будут созданы частицы вытекающего топлива, а пользователь получит уведомление через интерфейс о том, что топливный бак транспортного средства повреждён.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Отключает сообщение интерфейса о разрыве топливного бака.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>При использовании совместно со свойством containerBeam интерфейс не будет оповещён о разрыве топливного бака.</p>
+<p>Можно использовать для канистр и подобных объектов, когда нужны частицы вытекающего топлива при разрушении вне топливного бака транспортного средства.</p>
+</div>
+</div>
+</div>
+<h3 id="simple-example">
+
+  Простой пример
+</h3>
+<p>Секция нод ковра салона транспортного средства, способных загораться</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"chemEnergy"</span><span class="o">:</span><span class="mi">1000</span><span class="p">,</span><span class="s2">"burnRate"</span><span class="o">:</span><span class="mf">0.52</span><span class="p">,</span><span class="s2">"flashPoint"</span><span class="o">:</span><span class="mi">300</span><span class="p">,</span><span class="s2">"specHeat"</span><span class="o">:</span><span class="mf">0.8</span><span class="p">,</span><span class="s2">"smokePoint"</span><span class="o">:</span><span class="mi">150</span><span class="p">,</span><span class="s2">"selfIgnitionCoef"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"f1r"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.316</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.08</span><span class="p">,</span> <span class="mf">0.233</span><span class="p">,</span> <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span><span class="mf">7.0</span><span class="p">,</span> <span class="s2">"group"</span><span class="o">:</span><span class="p">[</span><span class="s2">"bastion_body"</span><span class="p">,</span><span class="s2">"bastion_floor"</span><span class="p">]}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"f1l"</span><span class="p">,</span>  <span class="mf">0.316</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.08</span><span class="p">,</span> <span class="mf">0.233</span><span class="p">,</span> <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span><span class="mf">7.0</span><span class="p">,</span> <span class="s2">"group"</span><span class="o">:</span><span class="p">[</span><span class="s2">"bastion_body"</span><span class="p">,</span><span class="s2">"bastion_floor"</span><span class="p">]}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"chemEnergy"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"burnRate"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"flashPoint"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"specHeat"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"smokePoint"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"selfIgnitionCoef"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span></code></pre>
+</div>
+<h3 id="advanced-example">
+
+  Расширенный пример
+</h3>
+<p>Ноды топливного бака транспортного средства с различными свойствами огня</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"chemEnergy"</span><span class="o">:</span><span class="mi">50</span><span class="p">,</span><span class="s2">"burnRate"</span><span class="o">:</span><span class="mf">1.2</span><span class="p">,</span><span class="s2">"flashPoint"</span><span class="o">:</span><span class="mi">220</span><span class="p">,</span><span class="s2">"vaporPoint"</span><span class="o">:</span><span class="mi">97</span><span class="p">,</span><span class="s2">"specHeat"</span><span class="o">:</span><span class="mf">0.03</span><span class="p">,</span><span class="s2">"selfIgnitionCoef"</span><span class="o">:</span><span class="mf">0.03</span><span class="p">,</span><span class="s2">"smokePoint"</span><span class="o">:</span><span class="mi">220</span><span class="p">,</span><span class="s2">"containerBeam"</span><span class="o">:</span><span class="s2">"fuelTank"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ft1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.06</span><span class="p">,</span> <span class="mf">0.34</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ft1l"</span><span class="p">,</span> <span class="mf">0.34</span><span class="p">,</span> <span class="mf">1.06</span><span class="p">,</span> <span class="mf">0.34</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ft1r"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.34</span><span class="p">,</span> <span class="mf">1.06</span><span class="p">,</span> <span class="mf">0.34</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"selfIgnitionCoef"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ft2"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.32</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ft2l"</span><span class="p">,</span> <span class="mf">0.39</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.32</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ft2r"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.39</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.32</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ft3"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.33</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ft3l"</span><span class="p">,</span> <span class="mf">0.37</span><span class="p">,</span> <span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.33</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ft3r"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.37</span><span class="p">,</span> <span class="mf">0.93</span><span class="p">,</span> <span class="mf">0.33</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"chemEnergy"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"burnRate"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"flashPoint"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"vaporPoint"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"specHeat"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"selfIgnitionCoef"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"smokePoint"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"containerBeam"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span></code></pre>
+</div><p>Балка, активирующая разрыв топливного бака</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"f4l"</span><span class="p">,</span><span class="s2">"f4r"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"name"</span><span class="o">:</span><span class="s2">"fuelTank"</span><span class="p">,</span><span class="s2">"containerBeam"</span><span class="o">:</span> <span class="s2">"fuelTank"</span><span class="p">}],</span>
+</span></span></code></pre>
+</div>

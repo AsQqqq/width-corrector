@@ -1,0 +1,423 @@
+<p>Звук двигателя формируется из нескольких частей, которые смешиваются в реальном времени. Два основных непрерывных слоя — это звук двигателя и звук выхлопа. Остальные звуки, такие как стартер, выключение, дожигание (afterfire), турбина, нагнетатель, трансмиссия, ветер, шины и столкновения, смешиваются вокруг этих основных слоёв.</p>
+<p>Эта страница посвящена значениям JBeam <code>SoundConfig</code>, используемым в конфигах звука двигателя и выхлопа, а также практическому процессу их балансировки.</p>
+<h3 id="engine-and-exhaust-layers">
+
+  Слои двигателя и выхлопа
+</h3>
+<p>Большинство транспортных средств с двигателями внутреннего сгорания используют два звуковых конфига:</p>
+<ul>
+<li><code>soundConfig</code> — слой со стороны двигателя. Он представляет механический звук, звук впуска и звук, исходящий из моторного отсека.</li>
+<li><code>soundConfigExhaust</code> — слой со стороны выхлопа. Он представляет звук, исходящий из выхлопного патрубка.</li>
+</ul>
+<p>Эти два слоя, как правило, не следует рассматривать как копии друг друга. Слой двигателя зачастую тише и детальнее, тогда как слой выхлопа обычно несёт основную громкость и характер внешнего звука. Звук в салоне зависит от обоих слоёв и фильтрации кабины транспортного средства.</p>
+<p>Простая настройка выглядит так:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"mainEngine"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"soundConfig"</span><span class="o">:</span> <span class="s2">"soundConfig"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"soundConfigExhaust"</span><span class="o">:</span> <span class="s2">"soundConfigExhaust"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="s2">"soundConfig"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"sampleName"</span><span class="o">:</span> <span class="s2">"i4p_01600cc_motorsport_02_engine"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"intakeMuffling"</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"mainGain"</span><span class="o">:</span> <span class="o">-</span><span class="mi">9</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"onLoadGain"</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"offLoadGain"</span><span class="o">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"maxLoadMix"</span><span class="o">:</span> <span class="mf">0.67</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"minLoadMix"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"fundamentalFrequencyCylinderCount"</span><span class="o">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"eqFundamentalGain"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="s2">"soundConfigExhaust"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"sampleName"</span><span class="o">:</span> <span class="s2">"i4p_01600cc_motorsport_02_exhaust"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"mainGain"</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"onLoadGain"</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"offLoadGain"</span><span class="o">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"maxLoadMix"</span><span class="o">:</span> <span class="mf">0.67</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"minLoadMix"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"fundamentalFrequencyCylinderCount"</span><span class="o">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"eqFundamentalGain"</span><span class="o">:</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div><p>Точные значения сильно зависят от выбранных сэмплов, кузова транспортного средства, компоновки выхлопной системы и желаемого характера звука.</p>
+<h3 id="starting-point">
+
+  Отправная точка
+</h3>
+<p>Начните с базового транспортного средства, близкого по числу цилиндров, рабочему объёму, типу наддува и характеру к тому, что вы хотите получить. Скопируйте оба звуковых конфига — для двигателя и для выхлопа — затем изменяйте по одной группе параметров за раз, проверяя результат в игре.</p>
+<p>Перед тонкой настройкой постарайтесь подобрать следующие характеристики:</p>
+<ul>
+<li>Компоновка и количество цилиндров.</li>
+<li>Тип звука: бензиновый, дизельный или электромотор.</li>
+<li>Характер: атмосферный, турбированный или с механическим нагнетателем.</li>
+<li>Приблизительный рабочий объём и диапазон оборотов.</li>
+<li>Роль транспортного средства: дорожный автомобиль, гоночный, грузовик, спецтехника или другое.</li>
+</ul>
+<p>Если исходный сэмпл сильно отличается от цели, EQ и изменения усиления не исправят ситуацию. Сначала подберите наиболее близкий сэмпл, а затем выполняйте тонкую настройку.</p>
+<p>Инструмент <strong>Engine Audio Debug</strong> в World Editor, расположенный на вкладке Audio, удобен для настройки в реальном времени. Он позволяет корректировать значения двигателя и выхлопа на лету и копировать полученную конфигурацию JBeam обратно в файл транспортного средства.</p>
+<h3 id="basic-workflow">
+
+  Базовый процесс настройки
+</h3>
+<p>При первичной настройке изменяйте параметры в следующем порядке:</p>
+<ol>
+<li>Сначала установите <code>sampleName</code> и <code>fundamentalFrequencyCylinderCount</code>. Если они не соответствуют нужному типу двигателя, последующие изменения EQ и усиления не исправят базовую высоту тона и характер звука.</li>
+<li>Сбалансируйте <code>mainGain</code> между конфигами двигателя и выхлопа. Слой выхлопа обычно несёт основную внешнюю громкость, а слой двигателя добавляет механические детали и звук впуска.</li>
+<li>Настройте отклик на нажатие педали газа с помощью <code>onLoadGain</code>, <code>offLoadGain</code>, <code>maxLoadMix</code> и <code>minLoadMix</code>. Используйте эти параметры, чтобы управлять степенью изменения звука между движением накатом, частичной и полной нагрузкой.</li>
+<li>Откорректируйте заглушение перед тонким EQ. Используйте <code>intakeMuffling</code> для конфига двигателя и <code>exhaustAudioMufflingBaseCoef</code> для конфига выхлопа. Детали выхлопной системы могут дополнительно изменять заглушение и усиление с помощью модификаторов узлов выхлопа.</li>
+<li>Используйте EQ для коррекции тембра. <code>eqFundamentalGain</code> изменяет акцент на основном тоне двигателя, параметры низкого/высокого EQ формируют общий характер, а полочные параметры обрезают крайние частоты.</li>
+<li>Проверьте результат с внешней, капотной и внутренней камер. На баланс звука в салоне также влияет раздел <code>sounds</code> транспортного средства, особенно <code>cabinFilterCoef</code>.</li>
+</ol>
+<p>При сведении оставляйте запас по уровню. Звук, который производит впечатление в одиночку, может оказаться слишком громким, когда одновременно играют звуки стартера, дожигания, турбины, нагнетателя, трансмиссии, шин, ветра и столкновений.</p>
+<h3 id="sample-and-pitch">
+
+  Сэмпл и высота тона
+</h3>
+<p><code>sampleName</code> задаёт набор блендовых сэмплов, используемых для звука. Конфиги двигателя и выхлопа обычно используют совпадающие семейства сэмплов: один сэмпл для слоя двигателя и один для слоя выхлопа.</p>
+<p><code>sampleFolder</code> можно использовать, если мод хранит сэмплы вне папки сэмплов по умолчанию. При обычной настройке звука транспортного средства оставьте это поле пустым, если только сэмплы намеренно не хранятся в пользовательском расположении.</p>
+<p><code>fundamentalFrequencyCylinderCount</code> сообщает звуковой системе, как вычислять основную частоту двигателя из оборотов в минуту. Установите это значение равным реальному числу цилиндров источника звука. Неверное значение может привести к тому, что звук будет казаться неправильно настроенным по высоте или акцентировать не тот порядок двигателя.</p>
+<p>Используйте <code>eqFundamentalGain</code> после того, как число цилиндров и сэмпл подобраны правильно. Положительные значения делают основной тон двигателя более выраженным. Отрицательные значения снижают его и могут сделать звук менее гулким или монотонным.</p>
+<h3 id="mixing-sample-sets">
+
+  Смешивание наборов сэмплов
+</h3>
+<p>Сэмплы двигателя и выхлопа обычно создаются парами. Смешивание слоя двигателя из одного семейства сэмплов со слоем выхлопа из другого может работать, но требует тщательной проверки, так как слои могут иметь разную эталонную высоту тона, отклик на нагрузку, тембр или характер записи.</p>
+<p>Используйте смешанные наборы сэмплов только тогда, когда каждый слой вносит что-то полезное. Например, один сэмпл двигателя может иметь лучшую механическую детализацию, тогда как другой сэмпл выхлопа лучше соответствует характеру выхлопного патрубка конкретного транспортного средства. Избегайте смешивания сэмплов только ради большей громкости или агрессивности; для этого лучше подходят усиление, заглушение и EQ.</p>
+<p>При смешивании сэмплов перед детальной настройкой проверьте следующие моменты:</p>
+<ul>
+<li>Устанавливайте <code>fundamentalFrequencyCylinderCount</code> в соответствии с источником звука, используемым каждым слоем. Не используйте число цилиндров транспортного средства, чтобы скрыть сэмпл с неправильным порядком двигателя.</li>
+<li>Подбирайте сэмплы двигателя и выхлопа близкие по диапазону оборотов и характеру. Плавный слой стандартного двигателя может казаться оторванным от резкого слоя гоночного выхлопа.</li>
+<li>Балансируйте <code>onLoadGain</code>, <code>offLoadGain</code>, <code>maxLoadMix</code> и <code>minLoadMix</code> на обоих слоях, чтобы переходы при нажатии/отпускании педали газа происходили синхронно.</li>
+<li>Используйте <code>mainGain</code> для установки общего баланса между двигателем и выхлопом, а затем применяйте заглушение и EQ, чтобы два слоя гармонично сочетались.</li>
+<li>Прислушивайтесь к фазовым артефактам, пустому тембру или резким изменениям окраски звука при медленном подъёме оборотов. Это признаки того, что два набора сэмплов не смешиваются естественно.</li>
+</ul>
+<p>Если два сэмпла не гармонируют после базовой настройки усиления, загрузочного микса, заглушения и EQ, выберите более близкую пару. Согласованная пара сэмплов, как правило, звучит лучше, чем интересное сочетание, работающее только в одном диапазоне оборотов или с одной точки обзора.</p>
+<h3 id="gain-and-load-mix">
+
+  Усиление и загрузочный микс
+</h3>
+<p>Используйте <code>mainGain</code> для установки базовой громкости каждого слоя. Параметр измеряется в дБ, поэтому небольшие изменения имеют значение. Не пытайтесь решить все проблемы через <code>mainGain</code>: когда грубый баланс выставлен, используйте загрузочный микс, заглушение и EQ для более тонких корректировок.</p>
+<p>Используйте усиления двух слоёв совместно:</p>
+<ul>
+<li>Увеличьте <code>mainGain</code> двигателя, если транспортному средству нужно больше механического присутствия или звука впуска.</li>
+<li>Увеличьте <code>mainGain</code> выхлопа, если транспортному средству нужно больше внешнего присутствия звука патрубка.</li>
+<li>Уменьшите оба, если двигатель заглушает звуки шин, ветра, трансмиссии или окружающей среды.</li>
+<li>Оставьте достаточно запаса для звуков дожигания, стартера, принудительного наддува и столкновений.</li>
+</ul>
+<p><code>onLoadGain</code> и <code>offLoadGain</code> управляют относительным уровнем нагруженных и ненагруженных частей сэмпла. Они полезны для придания большей агрессивности при нажатии на газ или уменьшения громкости при сбросе газа.</p>
+<p><code>maxLoadMix</code> и <code>minLoadMix</code> управляют смешением между звуком без нагрузки и со звуком под нагрузкой. Более высокий <code>maxLoadMix</code> придаёт больше характера нагруженного режима при полном нажатии на газ. Более высокий <code>minLoadMix</code> сохраняет больше тона нагруженного режима даже при снятой нагрузке, что может быть полезно для некоторых гоночных или тяжёлых транспортных средств, однако при чрезмерных значениях движение накатом будет звучать неестественно.</p>
+<h3 id="forced-induction-balance">
+
+  Баланс принудительного наддува
+</h3>
+<p>Звуки турбонагнетателя и механического нагнетателя должны вписываться вокруг слоёв двигателя и выхлопа, а не использоваться для маскировки проблем в них. Сначала настройте базовые слои двигателя и выхлопа при умеренном уровне звуков наддува, а затем выдвигайте характер принудительного наддува на первый план.</p>
+<p>Для турбированных двигателей:</p>
+<ul>
+<li>Звук впуска и турбины должен быть достаточно чётким, чтобы слышать нарастание давления наддува под нагрузкой.</li>
+<li>Не делайте выхлоп настолько ярким, чтобы он маскировал звуки раскрутки турбины и перепускного клапана.</li>
+<li>Проверяйте быстрый сброс газа, переключения передач и переходы наддува на малых оборотах.</li>
+<li>Следите за тем, чтобы звуки вестгейта или клапана сброса давления не выбивались далеко вперёд из общего микса, если только транспортное средство не является намеренно экстремальным.</li>
+</ul>
+<p>Для двигателей с механическим нагнетателем:</p>
+<ul>
+<li>Свист должен следовать за оборотами и нагрузкой двигателя, не перекрывая звук сгорания.</li>
+<li>Если свист резкий, уменьшите высокочастотное содержимое, прежде чем снижать весь уровень звука двигателя.</li>
+<li>Внимательно проверяйте вид из салона, поскольку свист нагнетателя может начать раздражать раньше, чем начнёт казаться слишком громким снаружи.</li>
+</ul>
+<p>Для высокомощных конфигураций сохраняйте чёткое разграничение слоёв двигателя, выхлопа, впуска и принудительного наддува. Если просто сделать все слои громче, результат зачастую будет звучать плоско и шумно, а не мощно.</p>
+<h3 id="muffled-and-open-sounds">
+
+  Заглушённые и открытые звуки
+</h3>
+<p>Заглушение, как правило, следует настраивать до детального EQ. Если звук слишком резкий, слишком открытый или слишком далёкий, заглушение часто является правильным инструментом для коррекции.</p>
+<p><code>intakeMuffling</code> применяется к слою со стороны двигателя. Меньшие значения делают звук впуска и слой двигателя более открытым. Большие значения делают его более приглушённым.</p>
+<p><code>exhaustAudioMufflingBaseCoef</code> применяется к слою со стороны выхлопа. Он устанавливает базовое заглушение до того, как детали выхлопной системы и узлы выхлопа вносят собственные изменения.</p>
+<p>Детали выхлопной системы также могут настраивать поведение конечного патрубка с помощью модификаторов нод:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ex6"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.607</span><span class="p">,</span> <span class="mf">0.243</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireAudioCoef"</span><span class="o">:</span> <span class="mf">0.13</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireVisualCoef"</span><span class="o">:</span> <span class="mf">0.13</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireVolumeCoef"</span><span class="o">:</span> <span class="mf">0.24</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireMufflingCoef"</span><span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioMufflingCoef"</span><span class="o">:</span> <span class="mf">0.02</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioGainChange"</span><span class="o">:</span> <span class="o">-</span><span class="mf">6.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span></code></pre>
+</div><p>Полезные поля узла выхлопа включают:</p>
+<ul>
+<li><code>exhaustAudioMufflingCoef</code> — изменяет степень заглушения выхлопного патрубка.</li>
+<li><code>exhaustAudioGainChange</code> — изменяет громкость выхлопного патрубка.</li>
+<li><code>afterFireAudioCoef</code> — изменяет количество звука дожигания, производимого в этом патрубке.</li>
+<li><code>afterFireVolumeCoef</code> — изменяет громкость дожигания.</li>
+<li><code>afterFireMufflingCoef</code> — изменяет степень заглушения звуков дожигания.</li>
+<li><code>afterFireVisualCoef</code> — изменяет видимые эффекты дожигания.</li>
+</ul>
+<p>В выхлопном тракте также необходимо обозначить балки, несущие поток выхлопных газов, с помощью <code>isExhaust</code>. Это позволяет повреждениям и маршрутизации выхлопа влиять на то, откуда исходят звук выхлопа и эффекты.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ex1"</span><span class="p">,</span> <span class="s2">"ex2"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"isExhaust"</span><span class="o">:</span> <span class="s2">"mainEngine"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ex2"</span><span class="p">,</span> <span class="s2">"ex3"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"isExhaust"</span><span class="o">:</span> <span class="s2">"mainEngine"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ex3"</span><span class="p">,</span> <span class="s2">"ex4"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"isExhaust"</span><span class="o">:</span> <span class="s2">"mainEngine"</span><span class="p">}],</span>
+</span></span></code></pre>
+</div>
+<h3 id="exhaust-routing-and-damage">
+
+  Маршрутизация выхлопа и повреждения
+</h3>
+<p>Продвинутый звук выхлопа зависит от физического маршрута выхлопного тракта, а не только от звукового конфига. Выхлопной тракт, как правило, представляет собой цепочку балок, помеченных <code>isExhaust</code>, заканчивающуюся одним или несколькими узлами патрубка с модификаторами звука и дожигания.</p>
+<p>Используйте эту настройку, если хотите, чтобы повреждения выхлопной системы или замена деталей влияли на звук:</p>
+<ul>
+<li>Отмечайте балки выхлопного тракта, несущие поток, с помощью <code>isExhaust</code>.</li>
+<li>Размещайте модификаторы звука патрубка на конечном узле патрубка или узлах патрубков.</li>
+<li>Держите структурные усиливающие балки отдельно от выхлопного тракта, если только они действительно не должны нести поток выхлопных газов.</li>
+<li>Используйте <code>optional</code> балки для дополнительной визуальной поддержки или альтернативной геометрии патрубка, не создавая случайно второй выхлопной тракт.</li>
+</ul>
+<p>При разрыве выхлопного тракта игра может перемещать звук и эффекты в точку фактического разрыва, а не всегда использовать конечный патрубок. Именно поэтому выхлопной тракт должен следовать реальному маршруту от соединения со стороны двигателя до патрубка. Если декоративная балка помечена как элемент выхлопного тракта, поведение при повреждении и точка звукоизлучения могут стать непредсказуемыми.</p>
+<p>Двойные или многовыходные выхлопные системы могут использовать более одного узла патрубка. Сохраняйте одинаковые аудиозначения для всех патрубков, если только они намеренно не представляют разные глушители или длины труб. Если двойной выхлоп звучит слишком громко, уменьшите уровень каждого патрубка, а не оставляйте оба со значениями для одиночного патрубка.</p>
+<h3 id="exhaust-variants">
+
+  Варианты выхлопных систем
+</h3>
+<p>Для продвинутых транспортных средств стандартная, спортивная, тюнингованная и гоночная выхлопные системы должны быть отдельными вариантами деталей, а не одним сильно отредактированным базовым конфигом. Каждый вариант может изменять:</p>
+<ul>
+<li>Усиление патрубка с помощью <code>exhaustAudioGainChange</code>.</li>
+<li>Заглушение патрубка с помощью <code>exhaustAudioMufflingCoef</code>.</li>
+<li>Количество, громкость, заглушение дожигания и интенсивность визуального эффекта.</li>
+<li>Смещения EQ выхлопа, если транспортное средство использует настройки выхлопа, управляемые компонентами.</li>
+<li>Количество и расположение патрубков.</li>
+</ul>
+<p>Распространённый подход — использовать то же семейство сэмплов для двигателя и выхлопа, делая варианты выхлопной системы последовательно менее ограничивающими. Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">// Stock outlet: quiet, controlled, low afterfire.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">[</span><span class="s2">"ex6"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.607</span><span class="p">,</span> <span class="mf">0.243</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireAudioCoef"</span><span class="o">:</span> <span class="mf">0.13</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireVisualCoef"</span><span class="o">:</span> <span class="mf">0.13</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireVolumeCoef"</span><span class="o">:</span> <span class="mf">0.24</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireMufflingCoef"</span><span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioMufflingCoef"</span><span class="o">:</span> <span class="mf">0.02</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioGainChange"</span><span class="o">:</span> <span class="o">-</span><span class="mf">6.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Sport outlet: louder, more open, more afterfire.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">[</span><span class="s2">"ex6"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.607</span><span class="p">,</span> <span class="mf">0.243</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireAudioCoef"</span><span class="o">:</span> <span class="mf">0.43</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireVisualCoef"</span><span class="o">:</span> <span class="mf">0.03</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireVolumeCoef"</span><span class="o">:</span> <span class="mf">0.55</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireMufflingCoef"</span><span class="o">:</span> <span class="mf">0.26</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioMufflingCoef"</span><span class="o">:</span> <span class="mf">0.24</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioGainChange"</span><span class="o">:</span> <span class="o">-</span><span class="mf">5.7</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span></code></pre>
+</div><p>Не делайте каждую улучшенную выхлопную систему громче во всех частотных диапазонах. Спортивный выхлоп может потребовать больше среднечастотного диапазона и меньше высокочастотной резкости. Гоночный выхлоп может требовать меньшего заглушения, но при этом всё равно нуждаться в уменьшении <code>mainGain</code> или усиления патрубка, чтобы не заглушить звуки шин и ветра.</p>
+<h3 id="component-driven-variants">
+
+  Варианты, управляемые компонентами
+</h3>
+<p>Некоторые транспортные средства используют одни и те же детали выхлопной системы для нескольких двигателей. В таком случае двигатель может определять значения компонентов, а деталь выхлопа может считывать эти значения для каждого варианта. Это позволяет двигателям I3, I4, I5, дизельному и гоночному использовать одну и ту же деталь выхлопа, при этом получая соответствующее заглушение, EQ и поведение дожигания.</p>
+<p>Данные со стороны двигателя могут быть сгруппированы по варианту выхлопной системы:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"components"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"soundConfigExhaustComponents"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"base"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeAfterFireAudioCoef"</span><span class="o">:</span> <span class="mf">0.15</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeAfterFireVolumeCoef"</span><span class="o">:</span> <span class="mf">0.24</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeExhaustAudioMufflingCoef"</span><span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeExhaustAudioGainChange"</span><span class="o">:</span> <span class="o">-</span><span class="mf">6.5</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"sport"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeAfterFireAudioCoef"</span><span class="o">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeAfterFireVolumeCoef"</span><span class="o">:</span> <span class="mf">0.55</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeExhaustAudioMufflingCoef"</span><span class="o">:</span> <span class="mf">0.25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">"nodeExhaustAudioGainChange"</span><span class="o">:</span> <span class="o">-</span><span class="mf">5.7</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div><p>Деталь выхлопа затем может считывать эти значения с запасными вариантами:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ex6"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.607</span><span class="p">,</span> <span class="mf">0.243</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireAudioCoef"</span><span class="o">:</span> <span class="s2">"$=$components.soundConfigExhaustComponents.sport.nodeAfterFireAudioCoef or 0.43"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"afterFireVolumeCoef"</span><span class="o">:</span> <span class="s2">"$=$components.soundConfigExhaustComponents.sport.nodeAfterFireVolumeCoef or 0.55"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioMufflingCoef"</span><span class="o">:</span> <span class="s2">"$=$components.soundConfigExhaustComponents.sport.nodeExhaustAudioMufflingCoef or 0.24"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"exhaustAudioGainChange"</span><span class="o">:</span> <span class="s2">"$=$components.soundConfigExhaustComponents.sport.nodeExhaustAudioGainChange or -5.7"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}],</span>
+</span></span></code></pre>
+</div><p>Используйте этот подход, когда транспортное средство имеет много вариантов двигателей, использующих одни и те же слоты выхлопной системы. Это делает деталь выхлопа многоразовой, позволяя каждому семейству двигателей определять разумные значения по умолчанию.</p>
+<h3 id="eq-and-tone-shaping">
+
+  EQ и формирование тембра
+</h3>
+<p>Используйте EQ после того, как выбор сэмпла, усиление, загрузочный микс и заглушение приближены к нужному результату. EQ лучше всего подходит для коррекции тембра, а не для изменения базового характера двигателя.</p>
+<p>Фундаментальный EQ управляет акцентом на основном тоне двигателя:</p>
+<ul>
+<li>Увеличьте <code>eqFundamentalGain</code>, если звуку не хватает чёткости порядков двигателя.</li>
+<li>Уменьшите его, если звук гудит, бубнит или ощущается слишком синтетическим.</li>
+</ul>
+<p>Низкий EQ управляет телесностью и весом звука:</p>
+<ul>
+<li><code>eqLowFreq</code> устанавливает центральную частоту.</li>
+<li><code>eqLowGain</code> поднимает или срезает этот диапазон.</li>
+<li><code>eqLowWidth</code> управляет шириной затрагиваемого диапазона.</li>
+</ul>
+<p>Высокий EQ управляет резкостью и яркостью звука:</p>
+<ul>
+<li><code>eqHighFreq</code> устанавливает центральную частоту.</li>
+<li><code>eqHighGain</code> поднимает или срезает этот диапазон.</li>
+<li><code>eqHighWidth</code> управляет шириной затрагиваемого диапазона.</li>
+</ul>
+<p>Полочные фильтры полезны для широкой коррекции:</p>
+<ul>
+<li>Используйте низкий полочный фильтр для уменьшения избыточного гула или добавления веса.</li>
+<li>Используйте высокий полочный фильтр для уменьшения резкости или добавления яркости.</li>
+</ul>
+<p>Вносите изменения EQ небольшими шагами. Большие подъёмы могут сделать звук утомительным, вызвать искажения или заглушить другие звуки транспортного средства.</p>
+<h3 id="smoothing">
+
+  Сглаживание
+</h3>
+<p>Обороты двигателя и нагрузка могут меняться быстро, особенно при переключениях передач, сбросе газа, контакте с ограничителем оборотов и пробуксовке колёс. Значения сглаживания управляют тем, насколько быстро звук следует за этими изменениями.</p>
+<p><code>rpmSmootherInRate</code> и <code>rpmSmootherOutRate</code> влияют на то, насколько быстро изменения оборотов отражаются в звуке.</p>
+<p><code>loadSmootherInRate</code> и <code>loadSmootherOutRate</code> влияют на то, насколько быстро изменения нагрузки отражаются в звуке.</p>
+<p>Если звук дрожит или мерцает при быстрых изменениях положения педали газа, увеличьте сглаживание. Если звук кажется запаздывающим или оторванным от двигателя, уменьшите сглаживание. Настраивайте это после того, как основной микс близок к нужному результату, поскольку проблемы с усилением и загрузочным миксом могут выглядеть как проблемы со сглаживанием.</p>
+<h3 id="starters-and-shutoff-sounds">
+
+  Звуки стартера и выключения
+</h3>
+<p>События стартера и выключения отделены от непрерывных петель двигателя и выхлопа. Они должны соответствовать общему характеру транспортного средства и не должны резко меняться по уровню в момент запуска или остановки петли.</p>
+<p>Общие поля включают:</p>
+<ul>
+<li><code>starterSample</code> — звук стартера со стороны двигателя.</li>
+<li><code>starterSampleExhaust</code> — звук стартера со стороны выхлопа.</li>
+<li><code>starterVolume</code> и <code>starterVolumeExhaust</code> — громкость стартера.</li>
+<li><code>shutOffSampleEngine</code> и <code>shutOffSampleExhaust</code> — звуки выключения.</li>
+<li><code>shutOffVolumeEngine</code> и <code>shutOffVolumeExhaust</code> — громкость выключения.</li>
+</ul>
+<p>При настройке многократно запускайте и останавливайте двигатель с разных точек обзора камеры. Переход от стартера к холостому ходу должен ощущаться непрерывным, а выключение не должно быть намного громче работающего двигателя, если это не является намеренным.</p>
+<h3 id="afterfire-tuning">
+
+  Настройка дожигания
+</h3>
+<p>Дожигание имеет две стороны: насколько интенсивно двигатель производит дожигание и как это дожигание излучается выхлопным патрубком.</p>
+<p>Настройки дожигания на уровне двигателя управляют тем, когда и с какой интенсивностью генерируется дожигание. Они включают пути событий для мгновенных, длительных и переключаемых звуков дожигания, а также коэффициенты и пороги для каждого типа. Используйте эти значения, чтобы определить, должен ли двигатель производить редкие хлопки, длительное потрескивание на перегазовке или агрессивные хлопки при переключении.</p>
+<p>Настройки дожигания на уровне патрубка управляют поведением сгенерированного дожигания в конкретном выхлопном патрубке:</p>
+<ul>
+<li><code>afterFireAudioCoef</code> — изменяет количество сгенерированного звука дожигания, достигающего этого патрубка.</li>
+<li><code>afterFireVolumeCoef</code> — изменяет громкость дожигания в этом патрубке.</li>
+<li><code>afterFireMufflingCoef</code> — изменяет степень фильтрации или заглушения звука дожигания.</li>
+<li><code>afterFireVisualCoef</code> — изменяет видимые вспышки отдельно от звука.</li>
+</ul>
+<p>Это разделение важно для вариантов. Стандартная выхлопная система может использовать ту же генерацию дожигания двигателем, что и спортивная, но с меньшей громкостью патрубка и большим заглушением. Гоночная выхлопная система может пропускать больше того же сгенерированного дожигания, не изменяя сам двигатель.</p>
+<p>Настраивайте дожигание после того, как основной баланс петли двигателя и выхлопа близок к нужному. В противном случае легко сделать дожигание слишком громким просто потому, что непрерывный слой выхлопа недостаточно громкий.</p>
+<p>Используйте следующие проверки:</p>
+<ul>
+<li>Сбросьте газ с высоких оборотов и прислушайтесь к длительному потрескиванию на перегазовке.</li>
+<li>Переключайтесь под высокой нагрузкой и прислушивайтесь к дожиганию при переключении.</li>
+<li>Газуйте на нейтрали и проверяйте отдельные хлопки.</li>
+<li>Сравнивайте близкий внешний, далёкий внешний и внутренний виды.</li>
+<li>Убедитесь, что видимые вспышки не предполагают намного более громкий или тихий звук, чем тот, что слышен.</li>
+</ul>
+<h3 id="interior-checks">
+
+  Проверка звука в салоне
+</h3>
+<p>Звук в салоне — это не только конфиг звука двигателя. На него также влияют раздел <code>sounds</code> транспортного средства и кузовные детали, усиливающие фильтрацию кабины.</p>
+<p><code>cabinFilterCoef</code> управляет тем, насколько сильно интерьер транспортного средства фильтрует внешний звук. Кузов может определять базовое значение, а двери, панели крыши, окна или другие детали, закрывающие кабину, могут добавлять к нему.</p>
+<p>Проверьте следующие виды перед тем, как считать сведение завершённым:</p>
+<ul>
+<li>Внешняя орбитальная камера вблизи передней части транспортного средства.</li>
+<li>Внешняя орбитальная камера вблизи выхлопного патрубка.</li>
+<li>Камера на капоте.</li>
+<li>Камера водителя или из кабины.</li>
+<li>Далёкая внешняя камера при разгоне и проезде мимо.</li>
+</ul>
+<p>Если звук хорошо звучит снаружи, но слишком громкий внутри, отрегулируйте фильтрацию кабины, прежде чем делать весь двигатель тише. Если звук хорошо звучит внутри, но слабый снаружи, отрегулируйте баланс внешнего слоя, прежде чем поднимать всё подряд.</p>
+<h3 id="common-problems">
+
+  Типичные проблемы
+</h3>
+<p>Если двигатель звучит как неправильное число цилиндров, сначала проверьте <code>sampleName</code> и <code>fundamentalFrequencyCylinderCount</code>.</p>
+<p>Если двигатель громкий, но без характера отклика на педаль газа, настройте <code>onLoadGain</code>, <code>offLoadGain</code>, <code>maxLoadMix</code> и <code>minLoadMix</code>.</p>
+<p>Если движение накатом слишком громкое, уменьшите <code>offLoadGain</code> или снизьте <code>minLoadMix</code>.</p>
+<p>Если полное нажатие газа недостаточно агрессивно, увеличьте <code>onLoadGain</code>, увеличьте <code>maxLoadMix</code> или сместите баланс в сторону слоя выхлопа.</p>
+<p>Если выхлоп болезненно резкий, увеличьте заглушение или уменьшите высокий EQ, прежде чем снижать весь уровень выхлопа.</p>
+<p>Если звук бубнит или монотонно гудит на постоянных оборотах, уменьшите <code>eqFundamentalGain</code>, уменьшите низкий EQ или срежьте низкий полочный фильтр.</p>
+<p>Если дожигание слишком громкое по сравнению с двигателем, уменьшите коэффициенты громкости дожигания на узле двигателя или выхлопного патрубка, вместо того чтобы снижать основной слой выхлопа.</p>
+<p>Если звук в салоне ощущается нереалистичным, проверьте <code>cabinFilterCoef</code> и протестируйте с установленными всеми соответствующими панелями кузова.</p>
+<h3 id="debug-workflow">
+
+  Процесс отладки
+</h3>
+<p>При настройке продвинутого звука двигателя используйте повторяющийся тестовый цикл. Случайное изменение значений затрудняет понимание того, является ли проблема следствием выбора сэмпла, усиления, загрузочного микса, заглушения, EQ или маршрутизации.</p>
+<p>Начните с неподвижного транспортного средства:</p>
+<ol>
+<li>Запустите двигатель и прислушайтесь к переходу от стартера к холостому ходу.</li>
+<li>Выдержите холостой ход с внешней и внутренней камер.</li>
+<li>Медленно поднимайте обороты лёгким нажатием на газ.</li>
+<li>Резко нажмите и отпустите педаль газа.</li>
+<li>Кратко коснитесь ограничителя оборотов, если транспортное средство предполагает это при нормальном использовании.</li>
+<li>Заглушите двигатель и прислушайтесь к переходу при выключении.</li>
+</ol>
+<p>Затем протестируйте под нагрузкой:</p>
+<ol>
+<li>Плавно разгоняйтесь с малых оборотов.</li>
+<li>Разгоняйтесь на полном газу через несколько передач.</li>
+<li>Держите постоянный крейсерский режим на малой, средней и высокой скорости.</li>
+<li>Сбросьте газ с высоких оборотов.</li>
+<li>Тормозите с пониженной передачей.</li>
+<li>Проедьте мимо неподвижной камеры или прислушайтесь с далёкой внешней камеры.</li>
+</ol>
+<p>На каждом прогоне фиксируйте по одной проблеме за раз. Например, "слишком много высокочастотного выхлопа при сбросе газа" исправить проще, чем "звучит плохо". Вносите одно небольшое изменение, затем повторяйте тот же тест.</p>
+<p>При использовании <strong>Engine Audio Debug</strong> копируйте значения обратно в JBeam только после полного тестового прогона. Настройка в реальном времени полезна, но легко перенастроить значение для одного угла камеры или одного диапазона оборотов.</p>
+<h3 id="setup-patterns">
+
+  Шаблоны настройки
+</h3>
+<p>Это отправные точки, а не строгие правила.</p>
+<p>Для стандартного дорожного автомобиля:</p>
+<ul>
+<li>Держите <code>mainGain</code> выхлопа умеренным, а <code>exhaustAudioGainChange</code> патрубка уменьшенным.</li>
+<li>Используйте достаточное заглушение, чтобы избежать резкого высокочастотного выхлопа.</li>
+<li>Держите дожигание на низком уровне или отключите его, если реальный тип транспортного средства этого не требует.</li>
+<li>Используйте фильтрацию кабины, чтобы звук в салоне был тише, чем при внешних видах.</li>
+</ul>
+<p>Для спортивного выхлопа:</p>
+<ul>
+<li>Добавьте внешнее присутствие с помощью усиления патрубка и умеренных изменений заглушения.</li>
+<li>Сохраняйте слышимость слоя двигателя, чтобы звук не превращался только в шум патрубка.</li>
+<li>При необходимости добавьте немного звука дожигания, но держите видимые вспышки сдержанными для обычных уличных деталей.</li>
+<li>Проверяйте монотонный гул при крейсерском движении по шоссе.</li>
+</ul>
+<p>Для гоночного выхлопа:</p>
+<ul>
+<li>Уменьшайте заглушение и усиливайте нагрузочный характер, но сохраняйте запас в миксе.</li>
+<li>Используйте более интенсивное дожигание только если оно соответствует двигателю и типу топлива.</li>
+<li>Проверяйте звук на далёкой внешней камере, поскольку гоночные выхлопы могут звучать резко на расстоянии от транспортного средства.</li>
+<li>Не полагайтесь только на <code>mainGain</code>; формируйте тембр с помощью заглушения и EQ.</li>
+</ul>
+<p>Для дизельного грузовика:</p>
+<ul>
+<li>Сохраняйте низкочастотную телесность, но избегайте чрезмерного монотонного гула на основном тоне.</li>
+<li>Делайте изменения нагрузки очевидными, особенно на малых и средних оборотах.</li>
+<li>Контролируйте высокочастотный выхлоп, если только транспортное средство не использует очень открытую выхлопную систему.</li>
+<li>Балансируйте звуки турбины так, чтобы раскрутка была слышна под нагрузкой, но не громче самого двигателя.</li>
+</ul>
+<p>Для тихого транспортного средства с акцентом на комфорт в салоне:</p>
+<ul>
+<li>Сначала настройте внешний звук, затем уменьшайте резкость в салоне с помощью фильтрации кабины.</li>
+<li>Избегайте снижения уровней двигателя и выхлопа настолько, что внешние камеры начнут звучать слабо.</li>
+<li>Проверяйте баланс ветра и шин на скорости.</li>
+<li>Делайте звуки стартера и выключения тише внутри, чем снаружи.</li>
+</ul>
+<h3 id="final-pass">
+
+  Финальная проверка
+</h3>
+<p>Проведите финальную проверку с полной конфигурацией транспортного средства, а не только с изолированно установленным двигателем. Звук двигателя должен органично вписываться в звуковую картину всего транспортного средства:</p>
+<ul>
+<li>Шины должны оставаться слышимыми при прохождении поворотов и торможении.</li>
+<li>Ветер должен становиться заметным на высокой скорости.</li>
+<li>Звуки трансмиссии и дифференциала не должны исчезать.</li>
+<li>События стартера, выключения и дожигания не должны клипировать или выбиваться из микса.</li>
+<li>Повреждённые или отсутствующие детали выхлопной системы должны изменять звук правдоподобным образом.</li>
+</ul>
+<p>Хороший звук двигателя — результат множества небольших изменений. Настраивайте по одной группе значений за раз, тестируйте с нескольких камер и сохраняйте достаточный запас в миксе для остальных звуков транспортного средства.</p>

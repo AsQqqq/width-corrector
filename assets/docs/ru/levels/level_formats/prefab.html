@@ -1,0 +1,533 @@
+<p>В этом документе описаны файлы префабов BeamNG и способ их загрузки движком.</p>
+<p>Префабы — это повторно используемые группы объектов сцены. Они позволяют хранить несколько объектов в отдельном файле и размещать их в уровне как единый объект.</p>
+<p>На этой странице описаны форматы файлов префабов. Описание объекта сцены, размещающего и загружающего префаб в уровне, см. в <a data-doc="levels/level_classes/prefab" href="/docs/levels/level_classes/prefab">Prefab</a>
+.</p>
+<p>BeamNG поддерживает два формата префабов:</p>
+<ul>
+<li>Устаревший формат TorqueScript <code>.prefab</code></li>
+<li>Современный JSON-формат <code>.prefab.json</code></li>
+</ul>
+<hr/>
+<h2 id="overview">
+
+  Обзор
+</h2>
+<p>Префаб представлен в уровне объектом <code>Prefab</code>. Объект <code>Prefab</code> указывает на внешний файл через поле <code>filename</code>. При загрузке префаб читает этот файл и создаёт дочернюю группу <code>SimGroup</code>, содержащую хранящиеся внутри объекты.</p>
+<p>Типичные варианты использования:</p>
+<ul>
+<li>Повторно используемые здания</li>
+<li>Группы придорожных объектов</li>
+<li>Повторяющиеся элементы декораций</li>
+<li>Объекты миссий</li>
+<li>Группы статичных мешей</li>
+<li>Точки спауна</li>
+<li>Сцены для демонстрации транспортных средств</li>
+</ul>
+<p>Пример объекта уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Prefab"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"gas_station_prefab"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"filename"</span><span class="p">:</span> <span class="s2">"/levels/example/prefabs/gas_station.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"loadMode"</span><span class="p">:</span> <span class="s2">"Automatic"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="file-roles">
+
+  Роли файлов
+</h2>
+<table>
+<thead>
+<tr>
+<th>Файл</th>
+<th>Назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*.prefab.json</code></td>
+<td>Современный JSON-файл префаба.</td>
+</tr>
+<tr>
+<td><code>*.prefab</code></td>
+<td>Устаревший файл префаба в формате TorqueScript.</td>
+</tr>
+<tr>
+<td>Объект <code>Prefab</code></td>
+<td>Объект сцены, ссылающийся на файл префаба и загружающий его.</td>
+</tr>
+<tr>
+<td>Корневая группа <code>SimGroup</code></td>
+<td>Обязательная группа, создаваемая файлом префаба. Содержит все дочерние объекты префаба.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="prefab-object-fields">
+
+  Поля объекта Prefab
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>filename</code></td>
+<td>string</td>
+<td>Путь к файлу префаба. Может указывать на <code>.json</code> или устаревший формат <code>.prefab</code>.</td>
+</tr>
+<tr>
+<td><code>loadMode</code></td>
+<td>enum</td>
+<td>Управляет тем, когда загружается префаб.</td>
+</tr>
+<tr>
+<td><code>useGlobalTranslation</code></td>
+<td>bool</td>
+<td>Изменяет способ применения трансформаций дочерних объектов. Используется преимущественно для совместимости и особых случаев.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="loadmode">
+
+  loadMode
+</h3>
+<p>Поддерживаемые значения:</p>
+<table>
+<thead>
+<tr>
+<th>Значение</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Automatic</code></td>
+<td>Префаб загружается автоматически при добавлении объекта <code>Prefab</code>.</td>
+</tr>
+<tr>
+<td><code>Manual</code></td>
+<td>Префаб не загружается до явного запроса загрузки.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="modern-json-prefabs">
+
+  Современные JSON-префабы
+</h2>
+<p>Современные JSON-префабы загружаются, если <code>filename</code> содержит <code>.json</code>.</p>
+<p>JSON-префаб должен создавать корневую группу <code>SimGroup</code>. Движок ожидает, что один из объектов в файле является <code>SimGroup</code>, и эта группа становится дочерней группой префаба.</p>
+<h3 id="minimal-json-prefab">
+
+  Минимальный JSON-префаб
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SimGroup"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"example_prefab_group"</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"TSStatic"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"example_prop"</span><span class="p">,</span><span class="nt">"shapeName"</span><span class="p">:</span><span class="s2">"/levels/example/art/shapes/prop.dae"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]}</span>
+</span></span></code></pre>
+</div><div class="bng-notice warning">JSON-префаб должен создавать корневую группу <code>SimGroup</code>. Если <code>SimGroup</code> не создана, загрузка префаба завершится ошибкой.</div>
+<hr/>
+<h2 id="json-prefab-layout">
+
+  Структура JSON-префаба
+</h2>
+<p>JSON-префабы, как правило, хранятся в виде построчных JSON-данных объектов, аналогично файлам объектов основного уровня (<code>main</code>). Каждый объект сериализуется как JSON-объект.</p>
+<p>Типичный префаб содержит:</p>
+<ol>
+<li>Корневую группу <code>SimGroup</code></li>
+<li>Один или несколько объектов сцены</li>
+<li>Опциональные вложенные группы</li>
+<li>Опциональные транспортные средства или другие поддерживаемые объекты</li>
+</ol>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SimGroup"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"garage_prefab_group"</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"TSStatic"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"garage_building"</span><span class="p">,</span><span class="nt">"shapeName"</span><span class="p">:</span><span class="s2">"/levels/example/art/shapes/garage.dae"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"PointLight"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"garage_light"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"intensity"</span><span class="p">:</span><span class="mi">800</span><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="root-simgroup">
+
+  Корневая SimGroup
+</h2>
+<p>Корневая группа <code>SimGroup</code> служит контейнером для всех объектов префаба.</p>
+<p>При загрузке префаба:</p>
+<ul>
+<li>Движок находит <code>SimGroup</code></li>
+<li>При необходимости удаляет её из некорректного родителя</li>
+<li>Назначает её дочерней группой префаба</li>
+<li>Применяет трансформацию префаба ко всем дочерним объектам <code>SceneObject</code></li>
+<li>Отслеживает дочерние объекты как принадлежащие данному префабу</li>
+</ul>
+<p>Для JSON-префабов корневая группа может быть автоматически переименована в соответствии с именем префаба.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SimGroup"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"garage_group"</span><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="noautoreload">
+
+  noAutoReload
+</h2>
+<p>Корневая группа <code>SimGroup</code> может содержать поле <code>noAutoReload</code>.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SimGroup"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"garage_group"</span><span class="p">,</span><span class="nt">"noAutoReload"</span><span class="p">:</span><span class="kc">true</span><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Если значение <code>noAutoReload</code> равно true, файл префаба не отслеживается для автоматической перезагрузки.</p>
+<p>Это может быть полезно при работе с генерируемыми или специальными префабами, которые не должны автоматически перезагружаться при изменении файла.</p>
+<hr/>
+<h2 id="child-transforms">
+
+  Трансформации дочерних объектов
+</h2>
+<p>Дочерние объекты префаба хранятся с трансформациями относительно префаба.</p>
+<p>При перемещении, повороте или масштабировании префаба дочерние объекты обновляются.</p>
+<p>Поведение по умолчанию:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">child final transform = prefab transform x stored child transform
+</span></span><span class="line"><span class="cl">child final scale = stored child scale x prefab scale
+</span></span></code></pre>
+</div><p>Это позволяет перемещать весь префаб как единый объект.</p>
+<hr/>
+<h2 id="useglobaltranslation">
+
+  useGlobalTranslation
+</h2>
+<p>Опция <code>useGlobalTranslation</code> изменяет способ применения трансформаций дочерних объектов.</p>
+<p>При включении префаб может использовать поле данных <code>groupPosition</code> из дочерней группы и применять трансформации дочерних объектов более глобально, а не строго относительно трансформации префаба.</p>
+<p>Это преимущественно опция совместимости для особых случаев. В большинстве префабов её следует оставлять отключённой.</p>
+<hr/>
+<h2 id="automatic-file-reload">
+
+  Автоматическая перезагрузка файла
+</h2>
+<p>После загрузки префаба движок может отслеживать изменения файла префаба. При изменении файла префаб перезагружается:</p>
+<ol>
+<li>Существующие дочерние объекты удаляются</li>
+<li>Файл префаба загружается повторно</li>
+<li>Создаются новые дочерние объекты</li>
+<li>Трансформации применяются заново</li>
+</ol>
+<p>Это удобно при редактировании файлов префабов во внешних редакторах.</p>
+<p>Поле <code>noAutoReload</code> в корневой группе <code>SimGroup</code> отключает это поведение.</p>
+<hr/>
+<h2 id="recursive-prefab-protection">
+
+  Защита от рекурсивной загрузки префабов
+</h2>
+<p>Движок предотвращает бесконечную рекурсию при загрузке префабов.</p>
+<p>Например, следующее является недопустимым:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Prefab A loads Prefab B
+</span></span><span class="line"><span class="cl">Prefab B loads Prefab A
+</span></span></code></pre>
+</div><p>Если файл префаба уже находится в стеке активной загрузки префабов, загрузка прекращается и в лог записывается ошибка.</p>
+<div class="bng-notice warning">Избегайте циклических ссылок между префабами. Префаб не должен прямо или косвенно загружать сам себя.</div>
+<hr/>
+<h2 id="legacy-prefab-files">
+
+  Устаревшие файлы .prefab
+</h2>
+<p>Устаревшие файлы <code>.prefab</code> основаны на TorqueScript.</p>
+<p>Они загружаются путём выполнения файла:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-ts" data-lang="ts"><span class="line"><span class="cl"><span class="nx">exec</span><span class="p">(</span><span class="s2">"path/to/file.prefab"</span><span class="p">);</span>
+</span></span></code></pre>
+</div><p>Файл должен создать группу <code>SimGroup</code> и присвоить её переменной <code>$ThisPrefab</code>.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-ts" data-lang="ts"><span class="line"><span class="cl"><span class="nx">$ThisPrefab</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SimGroup</span><span class="p">(</span><span class="nx">GaragePrefabGroup</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">new</span> <span class="nx">TSStatic</span><span class="p">(</span><span class="nx">garage_building</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">shapeName</span> <span class="o">=</span> <span class="s2">"/levels/example/art/shapes/garage.dae"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">position</span> <span class="o">=</span> <span class="s2">"0 0 0"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">rotationMatrix</span> <span class="o">=</span> <span class="s2">"1 0 0 0 1 0 0 0 1"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">scale</span> <span class="o">=</span> <span class="s2">"1 1 1"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">   <span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre>
+</div><p>Если переменная <code>$ThisPrefab</code> не задана или не указывает на допустимую группу <code>SimGroup</code>, загрузка префаба завершается ошибкой.</p>
+<div class="bng-notice info">Устаревшие файлы <code>.prefab</code> по-прежнему поддерживаются, однако для нового контента рекомендуется использовать JSON-префабы там, где это возможно.</div>
+<hr/>
+<h2 id="json-prefabs-and-vehicles">
+
+  JSON-префабы и транспортные средства
+</h2>
+<p>При загрузке JSON-префабов движок выполняет специальную обработку объектов <code>BeamNGVehicle</code>.</p>
+<p>Если объект транспортного средства задаёт поле <code>jBeam</code>/<code>jbeam</code>, но не задаёт <code>partConfig</code>, движок пытается загрузить файл <code>info.json</code> транспортного средства и использовать конфигурацию деталей по умолчанию.</p>
+<p>Также могут быть заполнены отсутствующие данные о цвете по умолчанию:</p>
+<ul>
+<li><code>color</code></li>
+<li><code>metallicPaintData</code></li>
+</ul>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"BeamNGVehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"display_vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"jBeam"</span><span class="p">:</span> <span class="s2">"vivace"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Если у транспортного средства есть допустимая конфигурация по умолчанию, отсутствующие поля могут быть заполнены автоматически в процессе загрузки.</p>
+<hr/>
+<h2 id="valid-and-invalid-prefab-children">
+
+  Допустимые и недопустимые дочерние объекты префаба
+</h2>
+<p>Не все объекты допустимы внутри префабов.</p>
+<p>Допустимыми объектами, как правило, являются обычные объекты сцены, статичные формы, источники света, группы и аналогичный размещаемый контент.</p>
+<h3 id="invalid-or-discouraged-objects">
+
+  Недопустимые или нежелательные объекты
+</h3>
+<p>Движок отклоняет или выдаёт предупреждение для нескольких типов объектов:</p>
+<table>
+<thead>
+<tr>
+<th>Тип объекта</th>
+<th>Причина</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MissionGroup</code></td>
+<td>Префабы не должны содержать основную группу миссии.</td>
+</tr>
+<tr>
+<td><code>LevelInfo</code></td>
+<td>Глобальный объект уровня; недопустим внутри префаба.</td>
+</tr>
+<tr>
+<td><code>TimeOfDay</code></td>
+<td>Глобальный объект уровня; недопустим внутри префаба.</td>
+</tr>
+<tr>
+<td><code>TerrainBlock</code></td>
+<td>Рельеф является глобальным для уровня и не должен находиться внутри префаба.</td>
+</tr>
+<tr>
+<td><code>Player</code></td>
+<td>Объекты игрока недопустимы в качестве дочерних элементов префаба.</td>
+</tr>
+<tr>
+<td>Объекты <code>SceneObject</code> с глобальными границами</td>
+<td>Глобальные объекты недопустимы в качестве дочерних элементов префаба.</td>
+</tr>
+</tbody>
+</table>
+<p>Объект <code>SimPath</code> явно разрешён.</p>
+<div class="bng-notice warning">Префабы должны содержать локальные, повторно используемые объекты. Не храните в префабе глобальные объекты уровня, такие как рельеф, время суток или информацию об уровне.</div>
+<hr/>
+<h2 id="exploding-a-prefab">
+
+  Разворачивание префаба
+</h2>
+<p>Префаб можно «развернуть» или распаковать в обычные объекты сцены.</p>
+<p>При разворачивании:</p>
+<ul>
+<li>Дочерняя группа перемещается в иерархию миссии/групп</li>
+<li>Трансформации дочерних объектов применяются</li>
+<li>Объекты более не управляются префабом</li>
+<li>В результирующую группу добавляются метаданные</li>
+</ul>
+<p>Результирующая группа может получить следующие поля:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>unpacked_prefab</code></td>
+<td>Помечает группу как распакованную из префаба.</td>
+</tr>
+<tr>
+<td><code>prefab_filename</code></td>
+<td>Путь к исходному файлу префаба.</td>
+</tr>
+<tr>
+<td><code>prefab_name</code></td>
+<td>Исходное имя объекта префаба.</td>
+</tr>
+<tr>
+<td><code>prefab_loadmode</code></td>
+<td>Исходный режим загрузки.</td>
+</tr>
+<tr>
+<td><code>prefab_position</code></td>
+<td>Исходная позиция префаба.</td>
+</tr>
+</tbody>
+</table>
+<p>Это позволяет инструментам определить, что группа была получена из префаба.</p>
+<hr/>
+<h2 id="converting-to-prefabv2">
+
+  Конвертация в PrefabV2
+</h2>
+<p>Движок поддерживает конвертацию старых префабов в новое представление префабов (<code>PrefabV2</code>).</p>
+<p>Процесс конвертации в общих чертах:</p>
+<ol>
+<li>Загружает/разворачивает старый префаб</li>
+<li>Собирает идентификаторы объектов</li>
+<li>Упаковывает их в <code>PrefabV2</code></li>
+<li>Сохраняет результат обратно в файл префаба</li>
+</ol>
+<p>Обычно это выполняется инструментами и рабочими процессами редактора.</p>
+<hr/>
+<h2 id="saving-prefabs">
+
+  Сохранение префабов
+</h2>
+<p>При сохранении устаревшего префаба его дочерняя группа <code>SimGroup</code> записывается в целевой файл.</p>
+<p>При сохранении в устаревшем формате обычно используется префикс вида:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-ts" data-lang="ts"><span class="line"><span class="cl"><span class="nx">$ThisPrefab</span> <span class="o">=</span>
+</span></span></code></pre>
+</div><p>Это гарантирует, что при загрузке файла <code>.prefab</code> созданная корневая группа будет восстановлена.</p>
+<p>Для работы с JSON используйте инструменты редактора, которые сериализуют объекты в ожидаемом формате JSON.</p>
+<hr/>
+<h2 id="loading-process">
+
+  Процесс загрузки
+</h2>
+<p>При добавлении объекта <code>Prefab</code> в сцену:</p>
+<ol>
+<li>Создаётся объект префаба.</li>
+<li>Если значение <code>loadMode</code> равно <code>Automatic</code>, вызывается метод <code>load()</code>.</li>
+<li>Движок проверяет поле <code>filename</code>.</li>
+<li>Если имя файла содержит <code>.json</code>, используется загрузка JSON-префаба.</li>
+<li>В противном случае используется загрузка устаревшего TorqueScript-префаба.</li>
+<li>Находится корневая группа <code>SimGroup</code>.</li>
+<li>Дочерние объекты регистрируются и связываются с префабом.</li>
+<li>Трансформации дочерних объектов обновляются относительно префаба.</li>
+<li>Границы префаба обновляются на основе границ дочерних объектов.</li>
+<li>Включается отслеживание изменений файла (если не отключено).</li>
+</ol>
+<hr/>
+<h2 id="minimal-examples">
+
+  Минимальные примеры
+</h2>
+<h3 id="json-prefab-object-in-level">
+
+  Объект JSON-префаба в уровне
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Prefab"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"garage_prefab"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"filename"</span><span class="p">:</span> <span class="s2">"/levels/example/prefabs/garage.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"loadMode"</span><span class="p">:</span> <span class="s2">"Automatic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="json-prefab-file">
+
+  Файл JSON-префаба
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SimGroup"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"garage_group"</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"TSStatic"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"garage_building"</span><span class="p">,</span><span class="nt">"shapeName"</span><span class="p">:</span><span class="s2">"/levels/example/art/shapes/garage.dae"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]}</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"PointLight"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"garage_light"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"scale"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"intensity"</span><span class="p">:</span><span class="mi">800</span><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="legacy-prefab">
+
+  Устаревший <code>.prefab</code>
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-ts" data-lang="ts"><span class="line"><span class="cl"><span class="nx">$ThisPrefab</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SimGroup</span><span class="p">(</span><span class="nx">GaragePrefabGroup</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">new</span> <span class="nx">TSStatic</span><span class="p">(</span><span class="nx">garage_building</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">shapeName</span> <span class="o">=</span> <span class="s2">"/levels/example/art/shapes/garage.dae"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">position</span> <span class="o">=</span> <span class="s2">"0 0 0"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">rotationMatrix</span> <span class="o">=</span> <span class="s2">"1 0 0 0 1 0 0 0 1"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">scale</span> <span class="o">=</span> <span class="s2">"1 1 1"</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">   <span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>Для нового контента используйте JSON-префабы.</li>
+<li>Всегда включайте корневую группу <code>SimGroup</code>.</li>
+<li>Избегайте циклических ссылок между префабами.</li>
+<li>Делайте префабы самодостаточными и повторно используемыми.</li>
+<li>Не включайте глобальные объекты уровня, такие как <code>TerrainBlock</code>, <code>LevelInfo</code> или <code>TimeOfDay</code>.</li>
+<li>Используйте относительные трансформации дочерних объектов, чтобы префаб можно было легко перемещать.</li>
+<li>Используйте режим загрузки <code>Automatic</code> для обычного контента уровня.</li>
+<li>Используйте режим <code>Manual</code> только когда загрузкой управляет инструмент или скрипт.</li>
+<li>Избегайте размещения в префабах очень крупных или глобальных систем.</li>
+<li>Используйте понятные имена для файлов префабов и корневых групп.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Частые проблемы
+</h2>
+<h3 id="prefab-does-not-load">
+
+  Префаб не загружается
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Недопустимое значение поля <code>filename</code></li>
+<li>Файл не существует</li>
+<li>Ошибка разбора JSON</li>
+<li>Отсутствует корневая группа <code>SimGroup</code></li>
+<li>В устаревшем файле <code>.prefab</code> не задана переменная <code>$ThisPrefab</code></li>
+</ul>
+<h3 id="prefab-loads-recursively">
+
+  Префаб загружается рекурсивно
+</h3>
+<p>Префаб прямо или косвенно ссылается на себя. Удалите циклическую ссылку.</p>
+<h3 id="child-objects-are-in-the-wrong-position">
+
+  Дочерние объекты находятся в неверной позиции
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Неверная трансформация префаба</li>
+<li>Неверная трансформация дочернего объекта</li>
+<li>Непредвиденное значение <code>useGlobalTranslation</code></li>
+<li>Неверное значение поля данных <code>groupPosition</code></li>
+</ul>
+<h3 id="prefab-reloads-unexpectedly">
+
+  Префаб перезагружается неожиданно
+</h3>
+<p>Файл отслеживается на предмет изменений. Используйте поле <code>noAutoReload</code> в корневой группе <code>SimGroup</code>, если автоматическую перезагрузку необходимо отключить.</p>
+<h3 id="object-cannot-be-added-to-prefab">
+
+  Объект не может быть добавлен в префаб
+</h3>
+<p>Объект может быть недопустимым для префабов, например <code>TerrainBlock</code>, <code>LevelInfo</code>, <code>TimeOfDay</code>, <code>Player</code> или объект с глобальными границами.</p>
+<hr/>
+<h2 id="summary">
+
+  Итог
+</h2>
+<p>Префабы — это повторно используемые группы объектов, хранящиеся за пределами основного файла уровня.</p>
+<p>Современные JSON-префабы содержат корневую группу <code>SimGroup</code> и один или несколько дочерних объектов. Объект сцены <code>Prefab</code> загружает файл, управляет трансформациями дочерних объектов, обновляет их при перемещении и может выполнять перезагрузку при изменении файла.</p>
+<p>Устаревшие файлы <code>.prefab</code> по-прежнему поддерживаются, однако для нового контента рекомендуется использовать JSON-префабы там, где это возможно.</p>

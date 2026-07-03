@@ -1,0 +1,693 @@
+<p><code>TSStatic</code> — основной класс объектов для размещения отдельных статических мешей в уровнях BeamNG. Он широко используется для зданий, знаков, мостов и других вручную расставленных элементов окружения.</p>
+<p>Для очень большого количества повторяющихся статических объектов — деревьев, камней, кустов, мелкой растительности, реквизита, отбойников — система <strong>Forest</strong> обычно эффективнее. Элементы Forest являются предпочтительным лёгким решением для повторяющихся ассетов, тогда как <code>TSStatic</code> лучше подходит для индивидуально размещённых объектов.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Базовый пример
+</h2>
+<p>Простая запись <code>TSStatic</code> в <code>items.level.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TSStatic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"garage_building"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/garage.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"collisionType"</span><span class="p">:</span> <span class="s2">"Collision Mesh"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"decalType"</span><span class="p">:</span> <span class="s2">"Collision Mesh"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isRenderEnabled"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="important-fields">
+
+  Важные поля
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Должно быть <code>"TSStatic"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя объекта сцены. Должно быть уникальным в пределах уровня.</td>
+</tr>
+<tr>
+<td><code>shapeName</code></td>
+<td>string</td>
+<td>Путь к файлу модели, используемой данным объектом.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Мировая позиция.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Вращение объекта в виде матрицы 3x3.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Масштаб объекта.</td>
+</tr>
+<tr>
+<td><code>collisionType</code></td>
+<td>enum/string</td>
+<td>Данные меша, используемые для физики и запросов коллизий.</td>
+</tr>
+<tr>
+<td><code>decalType</code></td>
+<td>enum/string</td>
+<td>Данные меша для проецирования и отсечения декалей.</td>
+</tr>
+<tr>
+<td><code>dynamic</code></td>
+<td>bool</td>
+<td>Отключает некоторые оптимизации рендеринга статических объектов.</td>
+</tr>
+<tr>
+<td><code>playAmbient</code></td>
+<td>bool</td>
+<td>Воспроизводит анимационную последовательность с именем <code>ambient</code>, если она есть.</td>
+</tr>
+<tr>
+<td><code>meshCulling</code></td>
+<td>bool</td>
+<td>Включает пофрагментное отсечение для больших сложных форм.</td>
+</tr>
+<tr>
+<td><code>originSort</code></td>
+<td>bool</td>
+<td>Сортирует полупрозрачный рендеринг по началу координат объекта вместо границ.</td>
+</tr>
+<tr>
+<td><code>useInstanceRenderData</code></td>
+<td>bool</td>
+<td>Включает данные рендеринга на уровне экземпляра, например цвета экземпляров.</td>
+</tr>
+<tr>
+<td><code>instanceColor</code></td>
+<td>color</td>
+<td>Множитель базового цвета для отдельного экземпляра.</td>
+</tr>
+<tr>
+<td><code>instanceColor1</code></td>
+<td>color</td>
+<td>Первый цвет палитры для материалов с цветовой палитрой экземпляров.</td>
+</tr>
+<tr>
+<td><code>instanceColor2</code></td>
+<td>color</td>
+<td>Второй цвет палитры для материалов с цветовой палитрой экземпляров.</td>
+</tr>
+<tr>
+<td><code>skin</code></td>
+<td>string</td>
+<td>Необязательное переназначение целей материала / имя скина.</td>
+</tr>
+<tr>
+<td><code>prebuildCollisionData</code></td>
+<td>bool</td>
+<td>Предварительно строит данные коллизий при загрузке.</td>
+</tr>
+<tr>
+<td><code>renderNormals</code></td>
+<td>number</td>
+<td>Масштаб отладочного отображения нормалей.</td>
+</tr>
+<tr>
+<td><code>forceDetail</code></td>
+<td>integer</td>
+<td>Принудительно задаёт конкретный уровень детализации/LOD формы. <code>-1</code> означает автоматический выбор.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="shape-file">
+
+  Файл формы
+</h2>
+<p>Самое важное поле:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"shapeName"</span><span class="err">:</span> <span class="s2">"/levels/example/art/shapes/garage.dae"</span>
+</span></span></code></pre>
+</div><p>Оно указывает на модель, используемую объектом.</p>
+<p>Поддерживаемые пути к формам обычно указывают на:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">.dae
+</span></span><span class="line"><span class="cl">.cdae
+</span></span><span class="line"><span class="cl">.dts
+</span></span></code></pre>
+</div><p>Движок может использовать кешированные данные форм внутри, например <code>.cdae</code>, но файлы уровней обычно ссылаются на исходный/импортированный путь к форме.</p>
+<div class="bng-notice info">Если форму не удаётся загрузить, движок может заменить её на форму с ошибкой/без меша и записать ошибку в лог.</div>
+<hr/>
+<h2 id="transform-fields">
+
+  Поля трансформации
+</h2>
+<p>Большинство объектов <code>TSStatic</code> используют стандартные поля трансформации.</p>
+<h3 id="position">
+
+  position
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"position"</span><span class="err">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Мировая позиция в метрах.</p>
+<h3 id="rotationmatrix">
+
+  rotationMatrix
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"rotationMatrix"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Матрица вращения 3x3.</p>
+<h3 id="scale">
+
+  scale
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Масштаб объекта.</p>
+<div class="bng-notice warning">Масштабирование влияет на рендеринг и коллизии. Большой неравномерный масштаб может затруднить проверку корректности коллизий и внешнего вида.</div>
+<hr/>
+<h2 id="collision-type">
+
+  Тип коллизии
+</h2>
+<p><code>collisionType</code> определяет, какие данные меша используются для физических коллизий и рейкастов.</p>
+<p>Поддерживаемые значения:</p>
+<table>
+<thead>
+<tr>
+<th>Значение</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>None</code></td>
+<td>Коллизия отсутствует.</td>
+</tr>
+<tr>
+<td><code>Bounds</code></td>
+<td>Использует ограничивающий параллелепипед объекта. Ограниченная поддержка.</td>
+</tr>
+<tr>
+<td><code>Collision Mesh</code></td>
+<td>Использует выделенные меши коллизий из формы. Рекомендуется.</td>
+</tr>
+<tr>
+<td><code>Visible Mesh</code></td>
+<td>Использует полигоны визуального меша для коллизий. Ресурсоёмко.</td>
+</tr>
+<tr>
+<td><code>Visible Mesh Final</code></td>
+<td>Намеренно использует полигоны визуального меша. Применяйте только при необходимости.</td>
+</tr>
+</tbody>
+</table>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"collisionType"</span><span class="err">:</span> <span class="s2">"Collision Mesh"</span>
+</span></span></code></pre>
+</div><p>Рекомендуемое значение по умолчанию:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"collisionType"</span><span class="err">:</span> <span class="s2">"Collision Mesh"</span>
+</span></span></code></pre>
+</div><p>Используйте <code>None</code> для чисто декоративных объектов, которые не должны участвовать в коллизиях:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"collisionType"</span><span class="err">:</span> <span class="s2">"None"</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="collision-meshes">
+
+  Меши коллизий
+</h2>
+<p>Для наилучшей производительности модели должны включать выделенную геометрию коллизий.</p>
+<p>Выделенный меш коллизий должен быть значительно проще, чем видимый меш.</p>
+<p>Хорошие меши коллизий:</p>
+<ul>
+<li>Низкополигональные</li>
+<li>Достаточно простые для физики</li>
+<li>Достаточно точные для геймплея</li>
+<li>Без излишней детализации</li>
+<li>Логически разделённые, если объект сложный</li>
+</ul>
+<p>Избегайте использования коллизий на основе видимого меша, если это не необходимо.</p>
+<div class="bng-notice warning">Коллизия по видимому мешу может быть ресурсоёмкой. Если это намеренно, используйте <code>Visible Mesh Final</code>; в противном случае предпочтительны полноценные меши коллизий.</div>
+<hr/>
+<h2 id="decal-type">
+
+  Тип декали
+</h2>
+<p><code>decalType</code> определяет, по каким данным меша декали обрезаются/проецируются.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"decalType"</span><span class="err">:</span> <span class="s2">"Collision Mesh"</span>
+</span></span></code></pre>
+</div><p>Допустимые значения те же, что и для <code>collisionType</code>.</p>
+<p>Для объектов, на которые должны проецироваться декали, используйте тип меша, соответствующий поверхности.</p>
+<p>Для объектов, которые не должны получать декали:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"decalType"</span><span class="err">:</span> <span class="s2">"None"</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="static-rendering-optimization">
+
+  Оптимизация рендеринга статических объектов
+</h2>
+<p>По умолчанию объекты <code>TSStatic</code> без анимации могут отрисовываться через менеджер статических форм. Это позволяет движку группировать и оптимизировать повторяющиеся статические формы.</p>
+<p>Это важно для производительности, особенно когда уровень содержит большое количество расставленных мешей.</p>
+<p>Объект может использовать рендеринг через статический менеджер при выполнении условий:</p>
+<ul>
+<li><code>dynamic</code> имеет значение false</li>
+<li>Анимация <code>ambient</code> не активна</li>
+<li>Форма может рассматриваться как статическая</li>
+</ul>
+<p>Если объект динамический или анимированный, он использует собственный <code>TSShapeInstance</code>.</p>
+<hr/>
+<h2 id="dynamic">
+
+  dynamic
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"dynamic"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p><code>dynamic</code> отключает некоторые оптимизации рендеринга статических объектов.</p>
+<p>Используйте это только при необходимости — например, для объектов, которым требуется динамическое поведение на уровне объекта или которые не могут управляться как статический экземпляр.</p>
+<p>Для обычного реквизита и зданий уровня оставьте значение false или опустите это поле.</p>
+<hr/>
+<h2 id="ambient-animation">
+
+  Фоновая анимация
+</h2>
+<p><code>TSStatic</code> может автоматически воспроизводить анимационную последовательность с именем:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">ambient
+</span></span></code></pre>
+</div><p>если форма содержит её и включён параметр <code>playAmbient</code>.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"playAmbient"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Это удобно для простых повторяющихся анимаций, например:</p>
+<ul>
+<li>Вентиляторы</li>
+<li>Вращающиеся знаки</li>
+<li>Мелкие механические элементы</li>
+<li>Анимированные элементы заднего фона</li>
+</ul>
+<p>Если существует фоновая анимация, объект становится обрабатываемым и не будет использовать наиболее оптимизированный статический путь.</p>
+<hr/>
+<h2 id="meshculling">
+
+  meshCulling
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"meshCulling"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p><code>meshCulling</code> включает более детальное попрефрагментное отсечение внутри объекта.</p>
+<p>Это устаревшая функция, которая работает только при включённом <code>dynamic</code>; использовать её не рекомендуется, так как она создаёт проблемы с производительностью.</p>
+<hr/>
+<h2 id="originsort">
+
+  originSort
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"originSort"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p><code>originSort</code> изменяет поведение сортировки полупрозрачных объектов: вместо границ используется начало координат объекта.</p>
+<p>Это может помочь с некоторыми прозрачными объектами, однако может также вызывать артефакты сортировки, если начало координат расположено неудачно.</p>
+<p>Используйте только при необходимости для полупрозрачных материалов.</p>
+<hr/>
+<h2 id="instance-render-data">
+
+  Данные рендеринга экземпляра
+</h2>
+<p><code>useInstanceRenderData</code> включает свойства рендеринга на уровне отдельного экземпляра.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"useInstanceRenderData"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Используется материалами, поддерживающими цвет экземпляра или данные палитры.</p>
+<p>Важные поля:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"instanceColor"</span><span class="err">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"instanceColor1"</span><span class="err">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"instanceColor2"</span><span class="err">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Они могут управлять такими свойствами материала, как:</p>
+<ul>
+<li>Базовый цвет экземпляра</li>
+<li>Прозрачность экземпляра</li>
+<li>Свечение экземпляра</li>
+<li>Цветовые палитры</li>
+</ul>
+<p>Материал должен быть создан с поддержкой этих функций.</p>
+<hr/>
+<h2 id="example-instance-colored-prop">
+
+  Пример: реквизит с цветом экземпляра
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TSStatic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"colored_barrier"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/barrier.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"useInstanceRenderData"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"instanceColor"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"collisionType"</span><span class="p">:</span> <span class="s2">"Collision Mesh"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="skin">
+
+  Skin
+</h2>
+<p>Поле <code>skin</code> переназначает целевые материалы на форме.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"skin"</span><span class="err">:</span> <span class="s2">"blue"</span>
+</span></span></code></pre>
+</div><p>Базовое поведение:</p>
+<ul>
+<li>Цели материалов, начинающиеся со старого имени скина, переименовываются.</li>
+<li>Старое имя скина по умолчанию обычно равно <code>base</code>.</li>
+<li>Новая цель должна указывать на существующий материал.</li>
+</ul>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">base_body → blue_body
+</span></span></code></pre>
+</div><p>Расширенный синтаксис:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"skin"</span><span class="err">:</span> <span class="s2">"base=blue;glass=darkglass"</span>
+</span></span></code></pre>
+</div><p>Это заменяет несколько префиксов целей материалов.</p>
+<div class="bng-notice info">Скиннинг изменяет имена целей материалов. Геометрия мешей при этом не изменяется.</div>
+<hr/>
+<h2 id="materials">
+
+  Материалы
+</h2>
+<p>Цели материалов <code>TSStatic</code> берутся из списка материалов формы. Эти цели сопоставляются с определениями BeamNG <code>Material</code> через <code>mapTo</code>.</p>
+<p>Например, если в модели есть цель материала:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">garage_wall
+</span></span></code></pre>
+</div><p>то определение материала должно использовать:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"mapTo"</span><span class="err">:</span> <span class="s2">"garage_wall"</span>
+</span></span></code></pre>
+</div><p>Используйте редактор материалов или инструменты для проверки целей материалов.</p>
+<p>Полезные методы времени выполнения для инструментов:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">getTargetCount()
+</span></span><span class="line"><span class="cl">getTargetName(index)
+</span></span></code></pre>
+</div><hr/>
+<h2 id="lod-and-detail-levels">
+
+  LOD и уровни детализации
+</h2>
+<p><code>TSStatic</code> использует уровни детализации формы для LOD.</p>
+<p>Движок выбирает уровень детализации на основе расчётного <strong>размера объекта в пространстве экрана</strong>. Проще говоря, он определяет, насколько крупным объект выглядит на экране, и выбирает подходящий LOD.</p>
+<p>На это влияет несколько факторов:</p>
+<ul>
+<li><strong>Расстояние до камеры</strong> — дальние объекты выглядят меньше, поэтому используются более низкие уровни детализации.</li>
+<li><strong>FOV камеры</strong> — угол обзора камеры влияет на то, насколько крупными или мелкими объекты выглядят на экране.</li>
+<li><strong>Размер формы</strong> — крупные объекты дольше остаются визуально большими, поэтому они сохраняют более высокие уровни детализации на больших расстояниях.</li>
+<li><strong>Масштаб объекта</strong> — увеличенные объекты ведут себя как более крупные и позже переключаются на более низкие LOD.</li>
+<li><strong>Размер вьюпорта / проекция</strong> — разрешение экрана и проекция камеры влияют на то, сколько пикселей занимает объект.</li>
+<li><strong>Глобальная настройка детализации</strong> — <code>$pref::TS::detailAdjust</code> масштабирует вычисленный размер в пикселях, позволяя повышать или понижать смещение LOD.</li>
+</ul>
+<p>Результатом является вычисленное значение <code>pixelSize</code>. Оно сравнивается с уровнями детализации, хранящимися в форме. Большее значение <code>pixelSize</code> означает, что объект выглядит крупнее на экране и должен использовать меш с более высокой детализацией; меньшее значение <code>pixelSize</code> означает, что объект выглядит мельче и может использовать меш с более низкой детализацией.</p>
+<p>Например, маленький реквизит и большое здание на одном расстоянии не обязательно будут использовать один и тот же LOD. У здания больший радиус ограничивающего объёма, оно занимает больше пространства на экране и может сохранять более высокий уровень детализации на большем расстоянии.</p>
+<p>Соответствующие настройки:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">$pref::TS::detailAdjust
+</span></span><span class="line"><span class="cl">$pref::TS::skipRenderDLs
+</span></span></code></pre>
+</div>
+<h3 id="forcedetail">
+
+  forceDetail
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"forceDetail"</span><span class="err">:</span> <span class="mi">-1</span>
+</span></span></code></pre>
+</div><p><code>-1</code> означает автоматический выбор детализации.</p>
+<p>Неотрицательное значение принудительно задаёт конкретный уровень детализации:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"forceDetail"</span><span class="err">:</span> <span class="mi">0</span>
+</span></span></code></pre>
+</div><p>Используйте это только для отладки или особых случаев. Для обычного контента позвольте движку выбирать LOD автоматически.</p>
+<hr/>
+<h2 id="billboard-details">
+
+  Уровни детализации с Billboard
+</h2>
+<p>Формы могут содержать уровни детализации в виде billboard/imposter. Движок может использовать их для рендеринга удалённых объектов, если форма настроена соответствующим образом.</p>
+<p>Это определяется данными формы и не настраивается непосредственно в <code>TSStatic</code>.</p>
+<hr/>
+<h2 id="debug-fields">
+
+  Отладочные поля
+</h2>
+<h3 id="rendernormals">
+
+  renderNormals
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"renderNormals"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre>
+</div><p>Если значение больше нуля, отображает отладочные нормали для текущего уровня детализации.</p>
+<p>Полезно для проверки:</p>
+<ul>
+<li>Сломанных нормалей</li>
+<li>Некорректного затенения</li>
+<li>Зеркальной/неправильной геометрии</li>
+<li>Проблем при экспорте</li>
+</ul>
+<h3 id="forcedetail-1">
+
+  forceDetail
+</h3>
+<p>Принудительно задаёт уровень детализации; полезно для проверки LOD.</p>
+<hr/>
+<h2 id="raycasts-and-selection">
+
+  Рейкасты и выделение
+</h2>
+<p><code>TSStatic</code> поддерживает рейкасты и генерацию списков полигонов.</p>
+<p>В зависимости от контекста может использоваться:</p>
+<ul>
+<li>Ограничивающий параллелепипед</li>
+<li>Меши коллизий</li>
+<li>Видимые меши</li>
+<li>Текущий уровень детализации рендеринга</li>
+<li>Детали линии видимости (LOS)</li>
+</ul>
+<p>Это влияет на:</p>
+<ul>
+<li>Выделение в редакторе</li>
+<li>Физические запросы</li>
+<li>Проецирование декалей</li>
+<li>Рейкасты в геймплее</li>
+<li>Коллизии</li>
+</ul>
+<hr/>
+<h2 id="resource-reloading">
+
+  Перезагрузка ресурсов
+</h2>
+<p><code>TSStatic</code> отслеживает изменения файла формы.</p>
+<p>Если referenced файл формы изменяется, объект может пересоздать свою форму и обновить данные коллизий и материалов.</p>
+<p>Это удобно при итеративной работе над артом уровня.</p>
+<hr/>
+<h2 id="full-example">
+
+  Полный пример
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"TSStatic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"warehouse_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"shapeName"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/buildings/warehouse_01.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">250</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">-1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"collisionType"</span><span class="p">:</span> <span class="s2">"Collision Mesh"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"decalType"</span><span class="p">:</span> <span class="s2">"Collision Mesh"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dynamic"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"playAmbient"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"meshCulling"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"originSort"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"useInstanceRenderData"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"isRenderEnabled"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"canSaveDynamicFields"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="when-to-use-tsstatic-vs-forest">
+
+  Когда использовать TSStatic, а когда Forest
+</h2>
+<p>Используйте <code>TSStatic</code> для индивидуально размещённых объектов:</p>
+<ul>
+<li>Здания</li>
+<li>Мосты</li>
+<li>Барьеры</li>
+<li>Крупный реквизит</li>
+<li>Уникальные объекты</li>
+<li>Объекты, требующие точного размещения</li>
+<li>Объекты с индивидуальными настройками коллизий или материалов</li>
+</ul>
+<p>Используйте систему Forest для большого количества повторяющихся объектов:</p>
+<ul>
+<li>Деревья</li>
+<li>Камни</li>
+<li>Кусты</li>
+<li>Пучки травы</li>
+<li>Рассыпанный реквизит</li>
+<li>Повторяющиеся ассеты</li>
+</ul>
+<p>Элементы Forest, как правило, более легковесны при большом количестве объектов.</p>
+<hr/>
+<h2 id="best-practices">
+
+  Лучшие практики
+</h2>
+<ul>
+<li>Используйте <code>TSStatic</code> для вручную размещённых статических мешей уровня.</li>
+<li>Используйте элементы Forest для большого количества повторяющихся природных или рассыпанных ассетов.</li>
+<li>По возможности используйте выделенные меши коллизий.</li>
+<li>Избегайте коллизий по видимому мешу, если это не абсолютно необходимо.</li>
+<li>Используйте <code>collisionType: None</code> для декоративных объектов без коллизий.</li>
+<li>Размещайте начало координат объекта разумно, особенно для прозрачных объектов и сортировки.</li>
+<li>Оставляйте <code>dynamic</code> отключённым, если это не требуется.</li>
+<li>Позвольте движку выбирать LOD автоматически; избегайте <code>forceDetail</code>, кроме отладки.</li>
+<li>Используйте данные рендеринга экземпляра только тогда, когда этого требует материал.</li>
+<li>Сохраняйте стабильные имена целей материалов и сопоставляйте их через <code>mapTo</code>.</li>
+<li>Используйте ассеты <code>.dae</code>/<code>.cdae</code> с правильными LOD и геометрией коллизий.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="object-does-not-appear">
+
+  Объект не отображается
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Неверный <code>shapeName</code></li>
+<li>Отсутствует файл формы</li>
+<li>Форма не загружается</li>
+<li>Объект скрыт</li>
+<li>Настройки LOD/детализации скрывают его</li>
+<li>Критические ошибки материалов делают объект невидимым</li>
+</ul>
+<h3 id="object-has-warning-material">
+
+  Объект отображается с предупреждающим материалом
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Отсутствует определение материала</li>
+<li>Несоответствие <code>mapTo</code></li>
+<li>Файл материала не загружен</li>
+<li>Текстура отсутствует</li>
+</ul>
+<h3 id="object-has-no-collision">
+
+  Объект не имеет коллизий
+</h3>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"collisionType"</span><span class="err">:</span> <span class="s2">"Collision Mesh"</span>
+</span></span></code></pre>
+</div><p>Также убедитесь, что форма действительно содержит данные меша или деталей коллизий.</p>
+<h3 id="object-collision-is-too-expensive">
+
+  Коллизия объекта слишком ресурсоёмка
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Используется коллизия по видимому мешу</li>
+<li>Меш коллизий слишком детализирован</li>
+<li>Объект очень крупный или сложный</li>
+<li>Слишком много объектов <code>TSStatic</code> с коллизиями</li>
+</ul>
+<h3 id="decals-do-not-project-correctly">
+
+  Декали проецируются некорректно
+</h3>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"decalType"</span><span class="err">:</span> <span class="s2">"Collision Mesh"</span>
+</span></span></code></pre>
+</div><p>или используйте тип меша, лучше подходящий для отсечения декалей.</p>
+<h3 id="ambient-animation-does-not-play">
+
+  Фоновая анимация не воспроизводится
+</h3>
+<p>Убедитесь, что:</p>
+<ul>
+<li><code>playAmbient</code> имеет значение true</li>
+<li>Форма содержит анимационную последовательность с именем <code>ambient</code></li>
+<li>Объект не скрыт</li>
+</ul>
+<h3 id="instance-color-does-nothing">
+
+  Цвет экземпляра не работает
+</h3>
+<p>Убедитесь, что:</p>
+<ul>
+<li><code>useInstanceRenderData</code> имеет значение true</li>
+<li>Материал использует функции цвета экземпляра</li>
+<li>Материал создан с умножением базового цвета/свечения/прозрачности на цвет экземпляра</li>
+</ul>
+<h3 id="transparent-sorting-looks-wrong">
+
+  Сортировка прозрачных объектов выглядит неправильно
+</h3>
+<p>Попробуйте <code>originSort</code>, а также проверьте:</p>
+<ul>
+<li>Начало координат объекта</li>
+<li>Режим смешивания материала</li>
+<li>Разбивку геометрии</li>
+<li>Порядок отрисовки</li>
+</ul>
+<hr/>
+<h2 id="summary">
+
+  Итог
+</h2>
+<p><code>TSStatic</code> — основной класс объектов для индивидуально размещённых статических 3D-мешей в уровнях.</p>
+<p>Для большого количества повторяющихся природных или рассыпанных ассетов используйте систему Forest. Геометрия уровней BeamNG обычно должна размещаться либо как объекты <code>TSStatic</code>, либо как элементы Forest.</p>
+<p><code>TSStatic</code> напрямую ссылается на файл формы и поддерживает рендеринг, коллизии, декали, LOD, переназначение материалов, опциональную фоновую анимацию и данные рендеринга на уровне экземпляра.</p>
+<p><strong>См. также:</strong> <a data-doc="file_formats/materials" href="/docs/file_formats/materials">Формат файла материалов</a>
+, <a data-doc="levels/level_classes/prefab" href="/docs/levels/level_classes/prefab">Prefab</a>
+, <a data-doc="levels/level_classes/forest" href="/docs/levels/level_classes/forest">Forest</a>
+.</p>

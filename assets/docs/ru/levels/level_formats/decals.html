@@ -1,0 +1,645 @@
+<p>Этот документ описывает современные файлы данных декалей BeamNG, используемые уровнями:</p>
+<ul>
+<li><code>art/decals/managedDecalData.json</code> - определения типов декалей</li>
+<li><code>*.decals.json</code> - размещённые экземпляры декалей, обычно <code>main.decals.json</code></li>
+</ul>
+<p>Эти файлы работают совместно. <code>managedDecalData.json</code> определяет <strong>какие типы декалей существуют</strong>, а файлы <code>.decals.json</code> определяют <strong>где декали размещены</strong> на уровне.</p>
+<hr/>
+<h2 id="overview">
+
+  Обзор
+</h2>
+<p>Декали — это проецируемые детали поверхности, используемые для таких объектов, как:</p>
+<ul>
+<li>Дорожная разметка</li>
+<li>Грязь и пятна</li>
+<li>Трещины</li>
+<li>Следы шин</li>
+<li>Пулевые отверстия</li>
+<li>Знаки и надписи</li>
+<li>Повреждения поверхности</li>
+<li>Нанесённая разметка</li>
+</ul>
+<p>Тип декали определяет материал, размер по умолчанию, настройки кадра атласа, поведение затухания и параметры проекции. Экземпляр декали хранит позицию, нормаль, касательную, размер, приоритет отрисовки и выбранный кадр текстуры.</p>
+<p>Типичная структура:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example_level/
+</span></span><span class="line"><span class="cl">├── art/
+</span></span><span class="line"><span class="cl">│   └── decals/
+</span></span><span class="line"><span class="cl">│       └── managedDecalData.json
+</span></span><span class="line"><span class="cl">└── main.decals.json
+</span></span></code></pre>
+</div><hr/>
+<h2 id="file-roles">
+
+  Роли файлов
+</h2>
+<table>
+<thead>
+<tr>
+<th>Файл</th>
+<th>Назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>art/decals/managedDecalData.json</code></td>
+<td>Определяет переиспользуемые типы декалей.</td>
+</tr>
+<tr>
+<td><code>*.decals.json</code></td>
+<td>Хранит размещённые экземпляры декалей.</td>
+</tr>
+<tr>
+<td><code>.decals</code></td>
+<td>Устаревший бинарный формат декалей. Deprecated.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice info">Современные файлы экземпляров декалей хранятся в формате JSON. Устаревшие бинарные файлы декалей начинаются с идентификатора <code>TDDF</code> и должны быть пересохранены в современный формат.</div>
+<hr/>
+<h2 id="manageddecaldatajson">
+
+  managedDecalData.json
+</h2>
+<p><code>managedDecalData.json</code> определяет блоки данных декалей. Каждая запись описывает один тип декали.</p>
+<h3 id="example">
+
+  Пример
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"road_crack_large"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"DecalData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"DECAL_road_crack_large"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"size"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"randomize"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"texRows"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"texCols"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"frame"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"renderPriority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"clippingAngle"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fadeStartPixelSize"</span><span class="p">:</span> <span class="mi">-1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fadeEndPixelSize"</span><span class="p">:</span> <span class="mi">200</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Ключ верхнего уровня — это имя блока данных декали. Именно оно используется файлами экземпляров <code>.decals.json</code>.</p>
+<hr/>
+<h2 id="manageddecaldatajson-fields">
+
+  Поля managedDecalData.json
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Должно быть <code>"DecalData"</code>.</td>
+</tr>
+<tr>
+<td><code>material</code></td>
+<td>string</td>
+<td>Материал, используемый декалью. Должен ссылаться на существующий материал.</td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td>number</td>
+<td>Ширина и высота декали по умолчанию в метрах до масштабирования экземпляра.</td>
+</tr>
+<tr>
+<td><code>renderPriority</code></td>
+<td>integer</td>
+<td>Порядок отрисовки при перекрытии декалей. Более высокий или низкий приоритет влияет на то, какая декаль отображается поверх, в зависимости от сортировки.</td>
+</tr>
+<tr>
+<td><code>clippingAngle</code></td>
+<td>number</td>
+<td>Угол в градусах для отсечения геометрии, обращённой в сторону от направления проекции декали.</td>
+</tr>
+<tr>
+<td><code>fadeStartPixelSize</code></td>
+<td>number</td>
+<td>Размер в пикселях, при котором данный тип декали начинает исчезать. Отрицательные значения отключают затухание по LOD.</td>
+</tr>
+<tr>
+<td><code>fadeEndPixelSize</code></td>
+<td>number</td>
+<td>Размер в пикселях, при котором данный тип декали полностью исчезает.</td>
+</tr>
+<tr>
+<td><code>frame</code></td>
+<td>integer</td>
+<td>Индекс кадра текстуры по умолчанию, используемый из атласа декалей.</td>
+</tr>
+<tr>
+<td><code>randomize</code></td>
+<td>bool</td>
+<td>Если true, каждый экземпляр декали случайным образом выбирает кадр из атласа.</td>
+</tr>
+<tr>
+<td><code>texRows</code></td>
+<td>integer</td>
+<td>Значение сетки атласа. См. примечание ниже.</td>
+</tr>
+<tr>
+<td><code>texCols</code></td>
+<td>integer</td>
+<td>Значение сетки атласа. См. примечание ниже.</td>
+</tr>
+<tr>
+<td><code>textureCoordCount</code></td>
+<td>integer</td>
+<td>Количество доступных кадров текстуры. Обычно вычисляется из <code>texRows</code> и <code>texCols</code>.</td>
+</tr>
+<tr>
+<td><code>textureCoords</code></td>
+<td>RectF array</td>
+<td>Ручные UV-прямоугольники для нерегулярных раскладок атласа.</td>
+</tr>
+<tr>
+<td><code>annotation</code></td>
+<td>string</td>
+<td>Необязательная аннотация/отладочная классификация.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="texture-atlas-frames">
+
+  Кадры текстурного атласа
+</h2>
+<p>Материал декали может использовать текстурный атлас, содержащий несколько вариантов декалей.</p>
+<p>Например, одна текстура может содержать четыре варианта трещин в сетке 2×2. Система декалей может затем выбирать один кадр для каждой декали.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"randomize"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"texRows"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"texCols"</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Если <code>randomize</code> включён, каждая размещённая декаль может использовать случайный кадр атласа.</p>
+<p>Если <code>randomize</code> отключён, поле <code>frame</code> выбирает кадр.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"frame"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"randomize"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="manual-texture-coordinates">
+
+  Ручные текстурные координаты
+</h3>
+<p>Для нерегулярных раскладок атласа используйте <code>textureCoords</code>.</p>
+<p>Каждый прямоугольник задаётся как:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">x y width height
+</span></span></code></pre>
+</div><p>или:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"textureCoords"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Используйте ручные координаты только тогда, когда кадры расположены не в регулярной сетке.</p>
+<div class="bng-notice note">Атласы декалей поддерживают до 16 текстурных кадров.</div>
+<hr/>
+<h2 id="decalsjson-instance-files">
+
+  Файлы экземпляров .decals.json
+</h2>
+<p>Файлы <code>.decals.json</code> хранят размещённые экземпляры декалей.</p>
+<p>Общий файл:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/main.decals.json
+</span></span></code></pre>
+</div>
+<h3 id="basic-structure">
+
+  Базовая структура
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"header"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"DecalData File"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"version"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"comments"</span><span class="p">:</span> <span class="s2">"// Instances format: rectIdx, size, renderPriority, position.x, position.y, position.z, normal.x, normal.y, normal.z, tangent.x, tangent.y, tangent.z, uid"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"instances"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"road_crack_large"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">12345</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Объект <code>instances</code> сгруппирован по имени блока данных декали. Каждый ключ должен соответствовать записи <code>DecalData</code> из <code>managedDecalData.json</code>.</p>
+<hr/>
+<h2 id="instance-array-format">
+
+  Формат массива экземпляров
+</h2>
+<p>В версии <code>2.0</code> каждый экземпляр декали хранится как массив из 13 значений:</p>
+<table>
+<thead>
+<tr>
+<th align="right">Индекс</th>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">0</td>
+<td><code>rectIdx</code></td>
+<td>integer</td>
+<td>Индекс кадра текстурного атласа.</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td><code>size</code></td>
+<td>number</td>
+<td>Итоговый размер декали в метрах.</td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td><code>renderPriority</code></td>
+<td>integer</td>
+<td>Приоритет отрисовки для данного экземпляра.</td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td><code>position.x</code></td>
+<td>number</td>
+<td>Координата X в мировом пространстве.</td>
+</tr>
+<tr>
+<td align="right">4</td>
+<td><code>position.y</code></td>
+<td>number</td>
+<td>Координата Y в мировом пространстве.</td>
+</tr>
+<tr>
+<td align="right">5</td>
+<td><code>position.z</code></td>
+<td>number</td>
+<td>Координата Z в мировом пространстве.</td>
+</tr>
+<tr>
+<td align="right">6</td>
+<td><code>normal.x</code></td>
+<td>number</td>
+<td>X нормали проекции.</td>
+</tr>
+<tr>
+<td align="right">7</td>
+<td><code>normal.y</code></td>
+<td>number</td>
+<td>Y нормали проекции.</td>
+</tr>
+<tr>
+<td align="right">8</td>
+<td><code>normal.z</code></td>
+<td>number</td>
+<td>Z нормали проекции.</td>
+</tr>
+<tr>
+<td align="right">9</td>
+<td><code>tangent.x</code></td>
+<td>number</td>
+<td>X касательной, управляет вращением/ориентацией декали.</td>
+</tr>
+<tr>
+<td align="right">10</td>
+<td><code>tangent.y</code></td>
+<td>number</td>
+<td>Y касательной.</td>
+</tr>
+<tr>
+<td align="right">11</td>
+<td><code>tangent.z</code></td>
+<td>number</td>
+<td>Z касательной.</td>
+</tr>
+<tr>
+<td align="right">12</td>
+<td><code>uid</code></td>
+<td>unsigned integer</td>
+<td>Уникальный идентификатор экземпляра декали.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="example-instance">
+
+  Пример экземпляра
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">12345</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Это означает:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Frame:          0
+</span></span><span class="line"><span class="cl">Size:           5 m
+</span></span><span class="line"><span class="cl">Priority:       10
+</span></span><span class="line"><span class="cl">Position:       [100, 200, 0.1]
+</span></span><span class="line"><span class="cl">Normal:         [0, 0, 1]
+</span></span><span class="line"><span class="cl">Tangent:        [1, 0, 0]
+</span></span><span class="line"><span class="cl">UID:            12345
+</span></span></code></pre>
+</div><hr/>
+<h2 id="header">
+
+  Заголовок
+</h2>
+<p>Современные файлы <code>.decals.json</code> содержат заголовок:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"header"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"DecalData File"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"comments"</span><span class="p">:</span> <span class="s2">"// Instances format: rectIdx, size, renderPriority, position.x, position.y, position.z, normal.x, normal.y, normal.z, tangent.x, tangent.y, tangent.z, uid"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Человекочитаемый идентификатор файла.</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>Версия файла декалей. Версия <code>2.0</code> включает UID экземпляров.</td>
+</tr>
+<tr>
+<td><code>comments</code></td>
+<td>Необязательное описание структуры массива экземпляров.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice warning">Старые файлы декалей JSON без UID следует пересохранить в редакторе. Современный формат включает значение <code>uid</code> для каждого экземпляра декали.</div>
+<hr/>
+<h2 id="decal-materials">
+
+  Материалы декалей
+</h2>
+<p>Поле <code>material</code> в <code>managedDecalData.json</code> должно указывать на действительный материал.</p>
+<p>Пример материала декали:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"DECAL_road_crack_large"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"DECAL_road_crack_large"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"mapTo"</span><span class="p">:</span> <span class="s2">"unmapped_mat"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"Stages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"baseColorMap"</span><span class="p">:</span> <span class="s2">"/levels/example/art/decals/road_crack_b.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"normalMap"</span><span class="p">:</span> <span class="s2">"/levels/example/art/decals/road_crack_nm.normal.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"opacityMap"</span><span class="p">:</span> <span class="s2">"/levels/example/art/decals/road_crack_o.data.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"roughnessMap"</span><span class="p">:</span> <span class="s2">"/levels/example/art/decals/road_crack_r.data.png"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucent"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"translucentZWrite"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"version"</span><span class="p">:</span> <span class="mf">1.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Материалы декалей обычно используют:</p>
+<ul>
+<li>Базовый цвет</li>
+<li>Прозрачность</li>
+<li>Нормаль</li>
+<li>Шероховатость</li>
+<li>Ambient occlusion, при необходимости</li>
+</ul>
+<div class="bng-notice info">Отрисовка декалей использует специальный путь материала декали и поддерживает затухание декалей. Лаковое покрытие для декалей не используется.</div>
+<hr/>
+<h2 id="projection-orientation">
+
+  Ориентация проекции
+</h2>
+<p>Каждая размещённая декаль хранит:</p>
+<ul>
+<li><code>position</code></li>
+<li><code>normal</code></li>
+<li><code>tangent</code></li>
+</ul>
+<p><code>normal</code> определяет направление проекции. <code>tangent</code> определяет вращение/ориентацию на поверхности.</p>
+<p>Для декали на плоской горизонтальной поверхности:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">normal  = [0, 0, 1]
+</span></span><span class="line"><span class="cl">tangent = [1, 0, 0]
+</span></span></code></pre>
+</div><p>Если декаль выглядит повёрнутой неправильно, проверьте вектор касательной.</p>
+<hr/>
+<h2 id="render-priority">
+
+  Приоритет отрисовки
+</h2>
+<p><code>renderPriority</code> управляет порядком отрисовки при перекрытии декалей.</p>
+<p>Это полезно в таких случаях, как:</p>
+<ul>
+<li>Дорожная разметка поверх асфальта</li>
+<li>Грязь поверх дорожной разметки</li>
+<li>Трещины поверх нанесённых линий</li>
+<li>Многослойные декали повреждений</li>
+</ul>
+<p>Последовательная расстановка приоритетов помогает избежать мерцания или неправильного перекрытия.</p>
+<hr/>
+<h2 id="fading">
+
+  Затухание
+</h2>
+<p>Типы декалей могут затухать в зависимости от размера на экране:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"fadeStartPixelSize"</span><span class="err">:</span> <span class="mi">100</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"fadeEndPixelSize"</span><span class="err">:</span> <span class="mi">20</span>
+</span></span></code></pre>
+</div><p>Типичное поведение:</p>
+<ul>
+<li>Выше <code>fadeStartPixelSize</code>: полностью видима</li>
+<li>Между начальным и конечным значением: затухает</li>
+<li>Ниже <code>fadeEndPixelSize</code>: скрыта</li>
+</ul>
+<p>Используйте отрицательное значение <code>fadeStartPixelSize</code>, чтобы отключить затухание по LOD:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"fadeStartPixelSize"</span><span class="err">:</span> <span class="mi">-1</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="clipping-angle">
+
+  Угол отсечения
+</h2>
+<p><code>clippingAngle</code> управляет тем, насколько окружающая геометрия может принимать проецируемую декаль.</p>
+<p>Меньшие значения ограничивают декаль поверхностями, более точно направленными в сторону проекции. Большие значения позволяют проекцию на более крутые углы.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"clippingAngle"</span><span class="err">:</span> <span class="mi">60</span>
+</span></span></code></pre>
+</div><p>Используйте это, чтобы избежать оборачивания декалей слишком далеко вокруг углов или проекции на нежелательные поверхности.</p>
+<hr/>
+<h2 id="loading-process">
+
+  Процесс загрузки
+</h2>
+<p>При загрузке уровня система декалей примерно следует такому процессу:</p>
+<ol>
+<li>Загрузка определений типов декалей из <code>managedDecalData.json</code>.</li>
+<li>Загрузка материалов, на которые ссылается каждый тип декали.</li>
+<li>Загрузка файлов экземпляров <code>.decals.json</code>.</li>
+<li>Для каждой группы экземпляров:
+<ul>
+<li>Поиск соответствующего <code>DecalData</code> по имени.</li>
+<li>Считывание каждого массива экземпляров.</li>
+<li>Создание экземпляра декали с позицией, нормалью, касательной, размером, кадром и UID.</li>
+</ul>
+</li>
+<li>Добавление декалей в пространственные контейнеры декалей для отрисовки и редактирования.</li>
+</ol>
+<p>Если тип декали отсутствует, движок может создать временный блок данных декали <code>_missing</code>, используя <code>WarningMaterial</code>.</p>
+<hr/>
+<h2 id="legacy-binary-decals-files">
+
+  Устаревшие бинарные файлы .decals
+</h2>
+<p>Старые файлы декалей использовали бинарный формат, начинающийся с:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">TDDF
+</span></span></code></pre>
+</div><p>Эти файлы устарели.</p>
+<p>При загрузке движок пытается конвертировать их внутренне и помечает данные декалей как изменённые, чтобы их можно было пересохранить в современный формат JSON.</p>
+<div class="bng-notice warning">Если уровень всё ещё использует старые бинарные файлы <code>.decals</code>, пересохраните уровень и удалите старый файл после проверки нового вывода <code>.decals.json</code>.</div>
+<hr/>
+<h2 id="minimal-example">
+
+  Минимальный пример
+</h2>
+<h3 id="art-decals-manageddecaldatajson">
+<code>art/decals/managedDecalData.json</code>
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"road_crack_large"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"DecalData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"DECAL_road_crack_large"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"size"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"randomize"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"texRows"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"texCols"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"renderPriority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"clippingAngle"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fadeStartPixelSize"</span><span class="p">:</span> <span class="mi">-1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fadeEndPixelSize"</span><span class="p">:</span> <span class="mi">200</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="maindecalsjson">
+<code>main.decals.json</code>
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"header"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"DecalData File"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"version"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"comments"</span><span class="p">:</span> <span class="s2">"// Instances format: rectIdx, size, renderPriority, position.x, position.y, position.z, normal.x, normal.y, normal.z, tangent.x, tangent.y, tangent.z, uid"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"instances"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"road_crack_large"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">12345</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">110.0</span><span class="p">,</span> <span class="mf">205.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.707</span><span class="p">,</span> <span class="mf">0.707</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">12346</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>Используйте <code>managedDecalData.json</code> для определений декалей.</li>
+<li>Используйте <code>.decals.json</code> для сохранённых экземпляров декалей.</li>
+<li>Сохраняйте имена материалов декалей уникальными и действительными.</li>
+<li>Используйте атласы для вариантов декалей вместо множества отдельных материалов.</li>
+<li>Держите количество кадров атласа не более 16.</li>
+<li>Используйте карты прозрачности для управления формой декали.</li>
+<li>Используйте подходящие значения <code>clippingAngle</code>, чтобы избежать артефактов проекции.</li>
+<li>Последовательно используйте приоритеты отрисовки для перекрывающихся декалей.</li>
+<li>Пересохраняйте старые файлы декалей для перевода их в формат JSON.</li>
+<li>Используйте обработанные текстуры DDS для материалов декалей.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Частые проблемы
+</h2>
+<h3 id="decals-appear-as-warning-material">
+
+  Декали отображаются как предупреждающий материал
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Отсутствует материал декали</li>
+<li>Недопустимое поле <code>material</code> в <code>managedDecalData.json</code></li>
+<li>Не удалось загрузить материал</li>
+</ul>
+<h3 id="decals-do-not-appear">
+
+  Декали не отображаются
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Отсутствует блок данных декали</li>
+<li>Имя группы экземпляров не соответствует ни одному типу декали</li>
+<li>Карта прозрачности чёрная</li>
+<li>Декаль отсечена углом поверхности</li>
+<li>Настройки затухания скрывают декаль</li>
+<li>Недопустимый массив экземпляров</li>
+</ul>
+<h3 id="decal-appears-rotated-incorrectly">
+
+  Декаль отображается с неправильным поворотом
+</h3>
+<p>Проверьте вектор касательной в данных экземпляра.</p>
+<h3 id="decal-projects-onto-unwanted-surfaces">
+
+  Декаль проецируется на нежелательные поверхности
+</h3>
+<p>Уменьшите <code>clippingAngle</code>.</p>
+<h3 id="atlas-frame-is-wrong">
+
+  Неправильный кадр атласа
+</h3>
+<p>Проверьте <code>rectIdx</code>, <code>frame</code>, <code>randomize</code>, <code>texRows</code>, <code>texCols</code> и <code>textureCoords</code>.</p>
+<h3 id="editor-asks-to-resave-decals">
+
+  Редактор предлагает пересохранить декали
+</h3>
+<p>Файл может быть в более старом формате без UID. Пересохраните уровень для обновления.</p>
+<hr/>
+<h2 id="summary">
+
+  Итог
+</h2>
+<p>Данные декалей BeamNG используют два основных файла:</p>
+<ul>
+<li><code>managedDecalData.json</code> определяет типы декалей и материалы.</li>
+<li><code>.decals.json</code> хранит размещённые экземпляры декалей.</li>
+</ul>
+<p>Современный формат экземпляров — JSON, сгруппированный по типу декали, где каждая декаль хранится в виде компактного числового массива, содержащего кадр, размер, приоритет, векторы трансформации и UID.</p>

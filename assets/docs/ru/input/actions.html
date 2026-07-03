@@ -1,0 +1,745 @@
+<h3 id="overview">
+
+  Обзор
+</h3>
+<p><strong>Действие (Action)</strong> — это каждая из внутриигровых операций, которые могут выполняться после того, как игрок воздействовал на <a data-doc="input/introduction" data-frag="control" href="/docs/input/introduction#control">Элемент управления</a>
+.</p>
+<p>Например: поворот влево, смена камеры, открытие/закрытие меню.</p>
+<p>Действия определяются в одном или нескольких .json-файлах.</p>
+<p>Через моды можно добавлять новые дополнительные действия. Помните лишь, что если вы не предоставите вместе с ними привязки, пользователям вашего мода придётся вручную настраивать контроллеры.</p>
+<p>Существует два основных вида действий: <a href="#regular-actions">Обычные действия</a>
+ и <a href="#vehicle-specific-actions">Действия, специфичные для транспортного средства</a>
+:</p>
+<h3 id="regular-actions">
+
+  Обычные действия
+</h3>
+<p>Обычные действия — это те, которые могут выполняться независимо от того, какое транспортное средство используется в данный момент.</p>
+<p>Они могут быть доступны даже в главном меню — до входа на уровень или создания какого-либо транспортного средства.</p>
+<p>BeamNG.drive поставляется с большим количеством предопределённых <strong>обычных действий</strong>. Они определены в:</p>
+
+<pre tabindex="0"><code>lua/ge/extensions/core/input/actions/*.json
+</code></pre>
+<p>Моды могут включать дополнительные обычные действия. Для этого необходимо предоставить один или несколько дополнительных json-файлов, следуя соглашению об именовании:</p>
+
+<pre tabindex="0"><code>lua/ge/extensions/core/input/actions/*.json
+</code></pre>
+<p>Например:</p>
+
+<pre tabindex="0"><code>lua/ge/extensions/core/input/actions/explosions_mod.json
+lua/ge/extensions/core/input/actions/advanced_menus.json
+</code></pre>
+<p>Все действия, определённые там, будут доступны конечным пользователям в меню <code>Options</code> → <code>Controls</code>, в общем списке со стандартными действиями BeamNG.drive.</p>
+<div class="bng-notice note">Хотя технически возможно заменить стандартный файл <code>input_actions.json</code> на изменённый, это означает, что автору мода придётся постоянно обновлять свой файл при каждом обновлении BeamNG.drive, добавляющем новые, изменяющем или удаляющем существующие действия. Поэтому делать это настоятельно не рекомендуется.</div>
+<br/>
+<h3 id="vehicle-specific-actions">
+
+  Действия, специфичные для транспортного средства
+</h3>
+<p>Действия, специфичные для транспортного средства, — это те, которые можно активировать только при управлении конкретным транспортным средством. При переключении на транспортное средство другого типа они будут заменены действиями нового транспортного средства.</p>
+<p>Некоторые официальные транспортные средства BeamNG.drive поставляются с несколькими предопределёнными действиями, специфичными для них. Например, Small Cannon предоставляет возможность открыть огонь с помощью контроллера. Эти специфичные действия определены в:</p>
+
+<pre tabindex="0"><code>vehicles/vehicle_directory_name/input_actions.json
+</code></pre>
+<p>Аналогично <a href="#regular-actions">Обычным действиям</a>
+, моды также могут включать дополнительные действия, специфичные для транспортного средства. Файлы мода должны соответствовать следующему соглашению об именовании:</p>
+
+<pre tabindex="0"><code>vehicles/vehicle_directory_name/input_actions*.json
+</code></pre>
+<p>Например:</p>
+
+<pre tabindex="0"><code>vehicles/hatch/input_actions_hydraulic_suspension.json
+vehicles/pickup/input_actions_winch_cable.json
+</code></pre>
+<p>Все эти действия, как правило, можно найти в категории «Vehicle-specific» меню <code>Options</code> → <code>Controls</code>.</p>
+<div class="bng-notice note">Также необходимо использовать уникальные имена файлов для действий, специфичных для транспортного средства, чтобы убедиться, что ваши действия не будут перезаписаны другими модами, использующими те же имена файлов.</div>
+<br/>
+<h3 id="action-files-format">
+
+  Формат файлов действий
+</h3>
+<p>Файлы действий в основном соответствуют
+    <a class="link-ext" href="https://en.wikipedia.org/wiki/JSON" rel="noopener" target="_blank">формату json</a>
+. Они должны начинаться с <code>{</code> и заканчиваться <code>}</code>. Вот пример того, как должна выглядеть общая структура:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"an_action"</span>     <span class="o">:</span> <span class="p">{</span><span class="s2">"order"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>  <span class="s2">"title"</span><span class="o">:</span><span class="s2">"Do Something"</span><span class="p">,</span> <span class="p">...},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"another_action"</span><span class="o">:</span> <span class="p">{</span><span class="s2">"order"</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span>  <span class="s2">"title"</span><span class="o">:</span><span class="s2">"Do Something Else"</span><span class="p">,</span> <span class="p">...},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"third_action"</span>  <span class="o">:</span> <span class="p">{</span><span class="s2">"order"</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">"title"</span><span class="o">:</span><span class="s2">"Do More Things"</span><span class="p">,</span> <span class="p">...},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Каждая строка состоит из двух частей:</p>
+<ul>
+<li>Первая строка на каждой позиции — это имя действия. Например, <code>"an_action"</code>.</li>
+<li>Остальная часть строки содержит параметры действия. Например, <code>"order"</code>, <code>"title"</code>, <code>"ctx"</code> и другие.</li>
+</ul>
+<p>Подробная информация о них приведена ниже:</p>
+<h4 id="action-names">
+
+  Имена действий
+</h4>
+<p><strong>Имена действий должны быть уникальными, иначе они могут быть перезаписаны другими модами, использующими те же имена действий. В частности:</strong></p>
+<ul>
+<li>Имена <a href="#regular-actions">обычных действий</a>
+ должны отличаться от всех остальных имён обычных действий.</li>
+<li>Имена <a href="#vehicle-specific-actions">действий, специфичных для транспортного средства</a>
+, должны быть уникальными в рамках текущего транспортного средства.</li>
+</ul>
+<p>Самый простой способ гарантировать уникальность имён действий — использовать уникальный префикс. Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"extra-menus-mod_an_action"</span>     <span class="o">:</span> <span class="p">{</span> <span class="p">...</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"extra-menus-mod_another_action"</span><span class="o">:</span> <span class="p">{</span> <span class="p">...</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"extra-menus-mod_third_action"</span>  <span class="o">:</span> <span class="p">{</span> <span class="p">...</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h4 id="action-parameters">
+
+  Параметры действий
+</h4>
+<p>Параметры действия определяют, что именно оно делает и как отображается в меню. Ниже приведена таблица со всеми подробностями:</p>
+<div class="bng-notice note"><a href="#vehicle-specific-actions">Действия, специфичные для транспортного средства</a>
+, имеют ряд особенностей, которые также описаны ниже</div>
+<br/>
+<div class="bng-table" id="input"><div class="bng-table-header"><div>Название</div><div>Обязательный</div><div>Тип</div><div>Значение по умолчанию</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div>Название</div>
+<div style="">title</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Да</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">n/a</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Очень короткое название действия, которое будет отображаться в различных внутриигровых меню</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Название</div>
+<div style="">desc</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Да</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">n/a</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Полное описание, может отображаться в виде всплывающей подсказки; должно занимать примерно одно предложение.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Название</div>
+<div style="">isBasic</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Нет</div>
+</div><div>
+<div>Тип</div>
+<div style="">boolean</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">true</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Отображается ли действие по умолчанию в меню Controls &gt; Binding (true) или пользователю нужно включить «List advanced bindings too» (false)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Название</div>
+<div style="">cat (regular actions)</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Да</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">n/a</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">См. <a href="#action-categories">Категории действий</a></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Название</div>
+<div style="">cat (vehicle-specific actions)</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Нет</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">"vehicle_specific"</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">См. <a href="#action-categories">Категории действий</a></div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Название</div>
+<div style="">order</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Да</div>
+</div><div>
+<div>Тип</div>
+<div style="">number</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">n/a</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Влияет на порядок отображения действий в различных меню интерфейса: 1 — первое, большие значения (2, 3…) — последующие.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Название</div>
+<div style="">isCentered</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Нет</div>
+</div><div>
+<div>Тип</div>
+<div style="">boolean</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">false</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Если false, действие будет возвращать значения в диапазоне от 0 до 1 (например, для педали тормоза или ручного тормоза). Если true, генерируемые значения будут в диапазоне от -1 до +1 (например, для руля или изменения высоты камеры вверх/вниз).</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Название</div>
+<div style="">actionMap (regular actions)</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Нет</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">"Normal"</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;"><p>Определяет, в какую <a data-doc="input/introduction" data-frag="action-map" href="/docs/input/introduction#action-map">карту действий (Action Map)</a>
+ будет помещено действие. Общие карты действий включают:</p>
+<ul>
+<li>"Global" — работает даже когда фокус на интерфейсе; используйте осторожно</li>
+<li>"Menu" — назначается автоматически, когда <code>cat</code> равен <code>menu</code></li>
+<li>"Normal" — карта по умолчанию для обычных игровых привязок</li>
+<li>"VehicleCommon" — назначается автоматически, когда <code>ctx</code> равен <code>vlua</code></li>
+<li>"VehicleSpecific" — назначается автоматически для файлов действий, специфичных для транспортного средства</li>
+</ul>
+<p>Можно указывать произвольные имена, и соответствующая карта действий будет создана автоматически.</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Название</div>
+<div style="">actionMap (vehicle-specific actions)</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Нет</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">"VehicleSpecific"</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">Определяет, в какую <a data-doc="input/introduction" data-frag="action-map" href="/docs/input/introduction#action-map">карту действий (Action Map)</a>
+ будет помещено действие. Для большинства действий, специфичных для транспортного средства, следует использовать значение по умолчанию.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Название</div>
+<div style="">ctx (regular actions)</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Нет</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">"tlua"</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;"><p>Определяет, где будет выполняться код в полях <code>onChange</code>, <code>onUp</code>, <code>onDown</code> или <code>onRelative</code>:</p>
+<ul>
+<li>"tlua" — Lua игрового движка (по умолчанию для обычных действий)</li>
+<li>"vlua" — Lua активного транспортного средства</li>
+<li>"bvlua" — Lua-контексты всех транспортных средств</li>
+<li>"elua" — асинхронный Lua игрового движка / устаревшие особые случаи</li>
+</ul>
+<p>Устаревшие контексты: "ui", "ts" и "slua".</p>
+</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Название</div>
+<div style="">ctx (vehicle-specific actions)</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Нет</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">"vlua"</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;">См. описание выше</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Название</div>
+<div style=""><ul>
+<li>onChange</li>
+<li>onDown</li>
+<li>onUp</li>
+<li>onRelative</li>
+</ul>
+</div>
+</div><div>
+<div>Обязательный</div>
+<div style="">Да</div>
+</div><div>
+<div>Тип</div>
+<div style="">string</div>
+</div><div>
+<div>Значение по умолчанию</div>
+<div style="">n/a</div>
+</div><div>
+<div>Описание</div>
+<div style="text-align: left;"><p>Указывает, какой исходный код будет выполнен при срабатывании действия. Контекст выполнения кода определяется параметром ctx текущего действия.</p>
+<p>Должно быть определено хотя бы одно из них. Они срабатывают следующим образом:</p>
+<ul>
+<li>onChange: выполняется при изменении положения контроллера. Поддерживает: клавиши/кнопки и оси</li>
+<li>onDown: выполняется при нажатии клавиши/кнопки. Поддерживает: клавиши/кнопки</li>
+<li>onUp: выполняется при отпускании клавиши/кнопки. Поддерживает: клавиши/кнопки</li>
+<li>onRelative: выполняется при удержании правой кнопки мыши и перемещении мыши (не используйте, если не уверены в том, что делаете)</li>
+</ul>
+</div>
+</div></div></div>
+<h3 id="writing-action-code">
+
+  Написание кода действия
+</h3>
+<p>Поля <code>onChange</code>, <code>onDown</code>, <code>onUp</code> и <code>onRelative</code> содержат короткие фрагменты кода.</p>
+<p>Это не отдельный язык сценариев. Это строки, содержащие код Lua, в которых система ввода перед выполнением кода заменяет несколько специальных слов-заполнителей.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"my_mod_toggle"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"cat"</span><span class="p">:</span> <span class="s2">"vehicle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"ctx"</span><span class="p">:</span> <span class="s2">"vlua"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"onDown"</span><span class="p">:</span> <span class="s2">"controller.getControllerSafe('myController').toggle()"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"My Mod Toggle"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"Toggles a feature from my mod"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Определение действия выполняет две задачи:</p>
+<ol>
+<li>Описывает, как действие отображается в меню Controls.</li>
+<li>Предоставляет код, который выполняется, когда привязка активирует действие.</li>
+</ol>
+<hr/>
+<h2 id="action-event-fields">
+
+  Поля событий действия
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Когда выполняется</th>
+<th>Типичное применение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>onChange</code></td>
+<td>При каждом изменении значения ввода. Работает с клавишами/кнопками и осями.</td>
+<td>Аналоговые элементы управления, удерживаемые кнопки, значения, которые должны следовать за вводом.</td>
+</tr>
+<tr>
+<td><code>onDown</code></td>
+<td>При нажатии клавиши/кнопки.</td>
+<td>Переключатели, одноразовые команды, смена режима.</td>
+</tr>
+<tr>
+<td><code>onUp</code></td>
+<td>При отпускании клавиши/кнопки.</td>
+<td>Снятие удерживаемого состояния, кратковременные элементы управления.</td>
+</tr>
+<tr>
+<td><code>onRelative</code></td>
+<td>Для относительного ввода, например движения мыши, там где это поддерживается.</td>
+<td>Управление камерой/мышью.</td>
+</tr>
+</tbody>
+</table>
+<p>Должно присутствовать хотя бы одно из этих полей.</p>
+<p>Используйте <code>onChange</code> для осей и аналоговых элементов управления. Используйте <code>onDown</code> для простых переключателей кнопок.</p>
+<div class="bng-notice warning">Не полагайтесь на <code>onDown</code> или <code>onUp</code> для элементов управления, работающих только через оси. Оси должны использовать <code>onChange</code>.</div>
+<hr/>
+<h2 id="placeholder-values">
+
+  Значения-заполнители
+</h2>
+<p>Перед выполнением кода действия система ввода заменяет специальные слова-заполнители.</p>
+<p>Общие заполнители:</p>
+<table>
+<thead>
+<tr>
+<th>Заполнитель</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VALUE</code></td>
+<td>Текущее значение ввода. Обычно <code>1</code> при нажатии, <code>0</code> при отпускании, <code>0..1</code> для обычных аналоговых входов или <code>-1..1</code>, когда <code>isCentered</code> равен true.</td>
+</tr>
+<tr>
+<td><code>FILTERTYPE</code></td>
+<td>Выбранный тип фильтра ввода из привязки. Используется функциями ввода транспортного средства.</td>
+</tr>
+<tr>
+<td><code>PLAYER</code></td>
+<td>Индекс игрока для действий с поддержкой нескольких мест.</td>
+</tr>
+<tr>
+<td><code>ANGLE</code></td>
+<td>Данные угла поворота руля, если они предоставлены привязкой/устройством.</td>
+</tr>
+<tr>
+<td><code>LOCKTYPE</code></td>
+<td>Тип блокировки руля, если он предоставлен привязкой/устройством.</td>
+</tr>
+<tr>
+<td><code>OSCLOCKHP</code></td>
+<td>Высокоточная метка времени, используемая некоторыми путями ввода.</td>
+</tr>
+</tbody>
+</table>
+<p>Программная активация действий также может заменять:</p>
+<table>
+<thead>
+<tr>
+<th>Заполнитель</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VEHICLEID</code></td>
+<td>Идентификатор транспортного средства, переданный вспомогательной функции активации действия.</td>
+</tr>
+</tbody>
+</table>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"set_table"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"ctx"</span><span class="p">:</span> <span class="s2">"vlua"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"onChange"</span><span class="p">:</span> <span class="s2">"electrics.values.table = VALUE"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"Move Table"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"Moves the table with an analog input"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>С центрированным элементом управления:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"move_platform"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"ctx"</span><span class="p">:</span> <span class="s2">"vlua"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"isCentered"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"onChange"</span><span class="p">:</span> <span class="s2">"controller.getControllerSafe('platform').move(VALUE)"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"Move Platform"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"Moves the platform in both directions"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p><code>isCentered</code> изменяет диапазон значений с <code>0..1</code> на <code>-1..1</code>.</p>
+<hr/>
+<h2 id="execution-context">
+
+  Контекст выполнения
+</h2>
+<p>Поле <code>ctx</code> определяет, где будет выполняться код.</p>
+<table>
+<thead>
+<tr>
+<th><code>ctx</code></th>
+<th>Выполняется в</th>
+<th>Типичное применение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tlua</code></td>
+<td>Lua игрового движка. По умолчанию для обычных действий.</td>
+<td>Системы интерфейса/геймплея, глобальные команды, действия редактора/инструментов.</td>
+</tr>
+<tr>
+<td><code>vlua</code></td>
+<td>Lua активного транспортного средства. По умолчанию для действий, специфичных для транспортного средства.</td>
+<td>Контроллеры транспортного средства, электрика, трансмиссия, гидравлика, расширения транспортного средства.</td>
+</tr>
+<tr>
+<td><code>elua</code></td>
+<td>Асинхронный путь Lua игрового движка.</td>
+<td>Устаревшие/особые случаи. Предпочтительно использовать <code>tlua</code> для обычных действий GE Lua.</td>
+</tr>
+<tr>
+<td><code>bvlua</code></td>
+<td>Все Lua-контексты транспортных средств.</td>
+<td>Широковещательная команда Lua транспортного средства для всех транспортных средств.</td>
+</tr>
+</tbody>
+</table>
+<p>Устаревшие контексты:</p>
+<table>
+<thead>
+<tr>
+<th><code>ctx</code></th>
+<th>Статус</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ui</code></td>
+<td>Устарел. Используйте вместо него <code>tlua</code> и <code>guihooks</code>.</td>
+</tr>
+<tr>
+<td><code>ts</code></td>
+<td>Устарел. Используйте вместо него <code>tlua</code>.</td>
+</tr>
+<tr>
+<td><code>slua</code></td>
+<td>Устаревший псевдоним, заменяемый на <code>elua</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Если <code>ctx</code> не указан для обычного действия, система ввода по умолчанию использует <code>tlua</code>. Для действий, специфичных для транспортного средства, по умолчанию используется <code>vlua</code>.</p>
+<hr/>
+<h2 id="choosing-a-context">
+
+  Выбор контекста
+</h2>
+<p>Используйте <code>vlua</code>, когда действие управляет текущим транспортным средством:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"onChange"</span><span class="err">:</span> <span class="s2">"input.event('throttle', VALUE, FILTERTYPE)"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"ctx"</span><span class="err">:</span> <span class="s2">"vlua"</span>
+</span></span></code></pre>
+</div><p>Используйте <code>tlua</code>, когда действие управляет игровыми системами, интерфейсом, инструментами редактора или глобальным геймплеем:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"onDown"</span><span class="err">:</span> <span class="s2">"extensions.hook('onGameplayInteract')"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"ctx"</span><span class="err">:</span> <span class="s2">"tlua"</span>
+</span></span></code></pre>
+</div><p>Используйте <code>bvlua</code> только тогда, когда команду должны получить все транспортные средства:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"onDown"</span><span class="err">:</span> <span class="s2">"electrics.set_warn_signal(true)"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"ctx"</span><span class="err">:</span> <span class="s2">"bvlua"</span>
+</span></span></code></pre>
+</div><p>Не вызывайте API, предназначенные только для транспортных средств, из <code>tlua</code>, и не вызывайте системы интерфейса игрового движка напрямую из <code>vlua</code>.</p>
+<hr/>
+<h2 id="actionmap">
+
+  actionMap
+</h2>
+<p><code>actionMap</code> управляет тем, в какую карту действий будет помещена привязка.</p>
+<p>Поведение по умолчанию:</p>
+<table>
+<thead>
+<tr>
+<th>Условие</th>
+<th>Карта действий</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cat</code> равен <code>menu</code></td>
+<td><code>MenuActionMap</code></td>
+</tr>
+<tr>
+<td><code>ctx</code> равен <code>vlua</code></td>
+<td><code>VehicleCommonActionMap</code></td>
+</tr>
+<tr>
+<td>действие, специфичное для транспортного средства</td>
+<td><code>VehicleSpecificActionMap</code></td>
+</tr>
+<tr>
+<td>в остальных случаях</td>
+<td><code>NormalActionMap</code></td>
+</tr>
+</tbody>
+</table>
+<p>Можно переопределить это с помощью:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"actionMap"</span><span class="err">:</span> <span class="s2">"BigMap"</span>
+</span></span></code></pre>
+</div><p>Окончательное имя объекта сцены — это имя карты действий плюс <code>ActionMap</code>, например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">BigMapActionMap
+</span></span></code></pre>
+</div><p>Особый случай:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"actionMap"</span><span class="err">:</span> <span class="s2">"MenuIndependent"</span>
+</span></span></code></pre>
+</div><p>Это создаёт независимую от меню карту действий для каждого действия, используя префикс <code>MenuIndependent_</code>.</p>
+<hr/>
+<h2 id="regular-action-example">
+
+  Пример обычного действия
+</h2>
+<p>Это обычное действие выполняется в Lua игрового движка и переключает пользовательскую функцию интерфейса/инструмента:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"my_mod_toggle_tool"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"cat"</span><span class="p">:</span> <span class="s2">"menuExtra"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order"</span><span class="p">:</span> <span class="mi">900</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"ctx"</span><span class="p">:</span> <span class="s2">"tlua"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"actionMap"</span><span class="p">:</span> <span class="s2">"Normal"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"onDown"</span><span class="p">:</span> <span class="s2">"extensions.my_mod_tool.toggle()"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"Toggle My Tool"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"Opens or closes my custom tool"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Рекомендуемое расположение:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">lua/ge/extensions/core/input/actions/my_mod_actions.json
+</span></span></code></pre>
+</div><p>Используйте уникальное имя файла и уникальные имена действий, чтобы избежать конфликтов с другими модами.</p>
+<hr/>
+<h2 id="vehicle-specific-action-example">
+
+  Пример действия, специфичного для транспортного средства
+</h2>
+<p>Это действие, специфичное для транспортного средства, записывает значение в таблицу electrics транспортного средства:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"raise_arm"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"order"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"onChange"</span><span class="p">:</span> <span class="s2">"electrics.values.arm = VALUE"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"Raise Arm"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"desc"</span><span class="p">:</span> <span class="s2">"Raises the vehicle arm"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Рекомендуемое расположение:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicles/&lt;vehicleName&gt;/input_actions_my_mod.json
+</span></span></code></pre>
+</div><p>Действия, специфичные для транспортного средства, автоматически:</p>
+<ul>
+<li>получают внутреннее пространство имён текущего транспортного средства</li>
+<li>по умолчанию используют <code>ctx = "vlua"</code></li>
+<li>отображаются в категории элементов управления, специфичных для транспортного средства</li>
+</ul>
+<hr/>
+<h2 id="jbeam-event-actions">
+
+  Действия событий JBeam
+</h2>
+<p>Некоторые детали транспортного средства определяют данные триггеров/действий непосредственно в разделах <code>events</code> файлов JBeam.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"events"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"title"</span><span class="p">,</span> <span class="s2">"desc"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"table_up"</span><span class="p">,</span> <span class="s2">"ui.inputActions.tiltdeck.table_up.title"</span><span class="p">,</span> <span class="s2">"ui.inputActions.tiltdeck.table_up.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span> <span class="nt">"onChange"</span><span class="p">:</span> <span class="s2">"electrics.values.table = VALUE"</span><span class="p">,</span> <span class="nt">"order"</span><span class="p">:</span> <span class="mi">6</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Код действия использует те же поля <code>onChange</code>, <code>onDown</code>, <code>onUp</code> и поведение заполнителей, что и <code>input_actions.json</code>.</p>
+<p>Используйте этот подход, когда действие тесно связано с деталью или триггером. Используйте <code>input_actions*.json</code>, когда действие представляет собой обычную привязку на уровне транспортного средства.</p>
+<hr/>
+<h2 id="interaction-maps">
+
+  Карты взаимодействий
+</h2>
+<p>Карты взаимодействий транспортного средства, использующие <code>*.interaction.json</code>, также используют тот же формат кода действий.</p>
+<p>Они полезны для взаимодействий, таких как двери, защёлки, функции транспортного средства или специфичные для деталей элементы управления, которые должны отображаться в интерфейсе взаимодействия.</p>
+<p>Примеры см. в документации по <a data-doc="input/interaction-maps" href="/docs/input/interaction-maps">картам взаимодействий</a>
+ и документации по триггерам/взаимодействиям транспортного средства.</p>
+<hr/>
+<h2 id="best-practices">
+
+  Лучшие практики
+</h2>
+<ul>
+<li>Используйте <code>onDown</code> для переключателей.</li>
+<li>Используйте <code>onChange</code> для аналоговых значений и удерживаемых элементов управления.</li>
+<li>Держите фрагменты кода действий короткими.</li>
+<li>Помещайте сложную логику в модуль Lua или функцию контроллера, затем вызывайте эту функцию из действия.</li>
+<li>Используйте ключи локализации для <code>title</code> и <code>desc</code> при выпуске контента для конечных пользователей.</li>
+<li>Используйте уникальные имена действий и уникальные суффиксы файлов для модов.</li>
+<li>По возможности предоставляйте привязки по умолчанию для действий, специфичных для транспортного средства.</li>
+<li>Избегайте устаревших контекстов (<code>ui</code>, <code>ts</code>, <code>slua</code>).</li>
+<li>Тестируйте действия с клавиатурой и хотя бы одним аналоговым устройством, если действие поддерживает аналоговый ввод.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="action-does-not-appear-in-controls">
+
+  Действие не отображается в Controls
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>JSON-файл находится не в той папке.</li>
+<li>Синтаксическая ошибка в JSON.</li>
+<li>Дублирующееся имя действия было перезаписано.</li>
+<li>Неверная категория.</li>
+<li>Действие, специфичное для транспортного средства, не активно для текущего транспортного средства.</li>
+</ul>
+<h3 id="binding-appears-but-does-nothing">
+
+  Привязка отображается, но ничего не делает
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>У действия нет ни <code>onChange</code>, ни <code>onDown</code>, ни <code>onUp</code>, ни <code>onRelative</code>.</li>
+<li>Использован неверный <code>ctx</code>.</li>
+<li>Код вызывает модуль Lua, который не загружен в данном контексте.</li>
+<li>Неверное имя контроллера, специфичного для транспортного средства.</li>
+</ul>
+<h3 id="analog-control-behaves-like-a-button">
+
+  Аналоговый элемент управления ведёт себя как кнопка
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Действие использует <code>onDown</code> вместо <code>onChange</code>.</li>
+<li>Отсутствует <code>isCentered</code> для центрированной оси.</li>
+<li>Тип фильтра привязки не подходит.</li>
+</ul>
+<h3 id="action-categories">
+
+  Категории действий
+</h3>
+<p>Категория действия — обязательный параметр, влияющий только на внешнее отображение.</p>
+<p>Он влияет на то, где действие может отображаться в различных внутриигровых меню (например, в иерархии действий меню <code>Options</code> → <code>Controls</code>).</p>
+<p>Чтобы ознакомиться со списком доступных категорий, обратитесь к следующему файлу:</p>
+
+<pre tabindex="0"><code>lua/ge/extensions/core/input/categories.lua
+</code></pre>

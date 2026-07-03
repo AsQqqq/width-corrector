@@ -1,0 +1,471 @@
+<p>В jbeam существует 3 различных раздела камер. cameraExternal — орбитальная камера, cameraChase — камера преследования, и cameraInternal — используется для камер на приборной панели, капоте и других пользовательских камер.</p>
+<p>CameraExternal и CameraChase должны быть определены в том же компоненте, что и <a data-doc="vehicle/sections/refnodes" href="/docs/vehicle/sections/refnodes">refnodes</a>
+ (обычно это рама или кузов транспортного средства в зависимости от его конструкции), однако в некоторых случаях они могут быть переопределены другими деталями — например, надстройкой грузового кузова H-Series, чтобы игрок мог видеть поверх неё.</p>
+<p>При изменении любой из этих камер после перезагрузки jbeam может потребоваться переключить камеру, чтобы изменения вступили в силу.</p>
+<h3 id="cameraexternal">
+
+  cameraExternal
+</h3>
+<p>Внешняя камера — это орбитальная камера. Она определяется с использованием refnode как центральной точки и может свободно вращаться игроком.</p>
+<h4 id="optional-arguments">
+
+  Необязательные аргументы
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">5<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Расстояние от камеры до транспортного средства (м).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">3<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Минимальное расстояние от камеры до транспортного средства (м).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Максимальное расстояние составит distanceMin * 10.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":-17, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Поворот камеры по умолчанию (в градусах).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Как правило, не задаётся для внешней камеры — значение можно указать, но настройка по умолчанию оптимальна в большинстве случаев.</p>
+<p>Для cameraChase это значение инвертировано по сравнению с cameraExternal.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Смещение точки фокуса камеры (м).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Если задано значение 0,0,0, точкой фокуса камеры будет refnode.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">65<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Угол обзора камеры по умолчанию (в градусах).</div>
+</div>
+</div>
+<h4 id="example">
+
+  Пример
+</h4>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"cameraExternal"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"distance"</span><span class="o">:</span><span class="mf">4.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"distanceMin"</span><span class="o">:</span><span class="mf">1.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"offset"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.2</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.45</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"fov"</span><span class="o">:</span><span class="mi">65</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div>
+<h3 id="camerachase">
+
+  cameraChase
+</h3>
+<p>Камера преследования имеет преимущественно фиксированный угол обзора сзади автомобиля. Она определяется с использованием refnode как центральной точки и использует те же аргументы, что и cameraExternal.</p>
+<h4 id="example-1">
+
+  Пример
+</h4>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"cameraChase"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"distance"</span><span class="o">:</span><span class="mf">4.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"distanceMin"</span><span class="o">:</span><span class="mf">1.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"defaultRotation"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:-</span><span class="mf">11.2</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"offset"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.2</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.7</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"fov"</span><span class="o">:</span><span class="mi">65</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div>
+<h3 id="camerasinternal">
+
+  camerasInternal
+</h3>
+<p>Внутренние камеры в основном используются для камер на капоте и в салоне, однако с их помощью также можно настроить пользовательские виды — например, камеру на крыле.</p>
+<p>В отличие от двух других камер, которые используют refnodes в качестве точки отсчёта, внутренние камеры настраиваются как узлы (nodes), соединённые с остальной частью транспортного средства 6 балками (beams).</p>
+<p>Это позволяет регулировать жёсткость камеры — внутренняя камера может покачиваться при ускорении, торможении и в поворотах.</p>
+<p>Внутренние камеры всегда сохраняют один и тот же угол относительно refnode по мере перемещения узла камеры: например, если узел камеры смещается вперёд, камера будет смотреть вниз. При необходимости можно задать дополнительный набор refNodes, используя свойства "idRef", "idBack" и "idUp". Это в основном применяется для транспортных средств с вращающейся башней, чтобы камера вращалась вместе с ней.</p>
+<h4 id="required-arguments">
+
+  Обязательные аргументы
+</h4>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Тип камеры, отображаемый в интерфейсе.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Наиболее распространённые типы — "hood" и "dash", однако можно задать любое значение для пользовательских камер.</p>
+<p>"dash" и "driver" используются исключительно для основной внутренней камеры автомобиля и имеют особое поведение при взгляде назад.</p>
+<p>Типы "dash", "driver" и "rider" включают приглушение звука салона на определённом расстоянии от камеры.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Позиция узла камеры по оси X.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Позиция узла камеры по оси Y.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Позиция узла камеры по оси Z.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Угол обзора камеры по умолчанию.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Первый узел, с которым узел камеры будет соединён балкой.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Второй узел, с которым узел камеры будет соединён балкой.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Третий узел, с которым узел камеры будет соединён балкой.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Четвёртый узел, с которым узел камеры будет соединён балкой.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Пятый узел, с которым узел камеры будет соединён балкой.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Шестой узел, с которым узел камеры будет соединён балкой.</div>
+</div>
+</div>
+<h4 id="optional-arguments-1">
+
+  Необязательные аргументы
+</h4>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Масса узла камеры (кг).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Наличие коллизий узла камеры с остальными частями транспортного средства.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Наличие коллизий узла камеры с миром и другими транспортными средствами.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Является ли камера камерой для транспортного средства с правым рулём.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Вид за боковым окном будет располагаться справа, а не слева.</p>
+<p>Если rightHandCamera равно true, то rightHandDoor по умолчанию также равно true.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Расположена ли главная дверь транспортного средства с правой стороны.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>В режиме ходьбы игрок будет появляться с правой стороны транспортного средства при выходе из него, а не с левой.</p>
+<p>Если rightHandCamera равно true, то rightHandDoor по умолчанию также равно true.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Жёсткость балок, соединяющих узел камеры с остальной частью транспортного средства (Н/м).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Демпфирование балок, соединяющих узел камеры с остальной частью транспортного средства (Н/м/с).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Усилие, необходимое для деформации балок между узлом камеры и остальной частью транспортного средства (Н).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Усилие, необходимое для разрыва балок между узлом камеры и остальной частью транспортного средства (Н).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Позволяет задать дополнительный refnode, который камера будет использовать в качестве точки отсчёта.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Следует использовать совместно с idBack и idUp.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Имя узла, расположенного позади дополнительного refnode.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Следует использовать совместно с idRef и idUp.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Имя узла, расположенного выше дополнительного refnode.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Следует использовать совместно с idBack и idRef.</div>
+</div>
+</div>
+<h4 id="example-2">
+
+  Пример
+</h4>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl">    <span class="s2">"camerasInternal"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"type"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">,</span> <span class="s2">"fov"</span><span class="p">,</span> <span class="s2">"id1:"</span><span class="p">,</span> <span class="s2">"id2:"</span><span class="p">,</span> <span class="s2">"id3:"</span><span class="p">,</span> <span class="s2">"id4:"</span><span class="p">,</span> <span class="s2">"id5:"</span><span class="p">,</span> <span class="s2">"id6:"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span><span class="mf">1.24</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"rightHandCamera"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"collision"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">46000</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">435</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//hood cam
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">[</span><span class="s2">"hood"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.64</span><span class="p">,</span> <span class="mf">1.20</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="s2">"f7r"</span><span class="p">,</span><span class="s2">"f7l"</span><span class="p">,</span><span class="s2">"c3r"</span><span class="p">,</span><span class="s2">"c3l"</span><span class="p">,</span><span class="s2">"p1r"</span><span class="p">,</span><span class="s2">"p1l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">5001000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="s2">"FLT_MAX"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">400</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">75</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s2">"collision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//dash cam
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">[</span><span class="s2">"dash"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.343</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">1.23</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="s2">"f1rr"</span><span class="p">,</span><span class="s2">"f2l"</span><span class="p">,</span><span class="s2">"f3rr"</span><span class="p">,</span><span class="s2">"f4rr"</span><span class="p">,</span><span class="s2">"f4ll"</span><span class="p">,[],</span> <span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">5001000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="s2">"FLT_MAX"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span></code></pre>
+</div>

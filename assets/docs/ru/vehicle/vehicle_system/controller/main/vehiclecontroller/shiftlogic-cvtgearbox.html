@@ -1,0 +1,546 @@
+<h3 id="summary">
+
+  Краткое описание
+</h3>
+<p>Контроллер логики переключения передач CVT-коробки управляет выбором передаточного отношения трансмиссии и блокировкой гидротрансформатора.</p>
+<p>Он является расширением <a href="https://documentation.beamng.com/modding/vehicle/vehicle_system/controller/vehiclecontroller/" rel="noopener" target="_blank">контроллера транспортного средства</a>
+ и вызывается автоматически, если автомобиль оснащён <a href="https://documentation.beamng.com/modding/vehicle/vehicle_system/powertrain/gearbox/gearboxcvt/" rel="noopener" target="_blank">CVT-трансмиссией</a>
+.</p>
+<hr/>
+<h3 id="file-info">
+
+  Информация о файле
+</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Имя файла</strong></td>
+<td><em>shiftLogic-cvtGearbox.lua</em></td>
+</tr>
+<tr>
+<td><strong>Путь</strong></td>
+<td><em>/lua/vehicle/controller/shiftLogic-cvtGearbox.lua</em></td>
+</tr>
+<tr>
+<td><strong>Тип использования</strong></td>
+<td><em>Specific to vehicleController</em></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="jbeam-properties">
+
+  JBeam-свойства
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">20<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Насколько быстро передаточное отношение может фактически уменьшаться.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Меньшее значение повышает плавность, но задерживает реакцию на скорость автомобиля.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">5<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Насколько быстро передаточное отношение может фактически увеличиваться.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Меньшее значение повышает плавность, но задерживает реакцию на скорость автомобиля.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.5<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Чувствительность CVT к увеличению подачи газа</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Большее значение вызывает более быстрое принятие решения о понижении передачи при нажатии на газ</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">2<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Чувствительность CVT к уменьшению подачи газа</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Большее значение вызывает более быстрое принятие решения о повышении передачи при нажатии на газ</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">PRNDS21M<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Доступные режимы переключения.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">CVT-трансмиссии поддерживают только режимы P, R, N и D.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Минимальные обороты, при которых гидротрансформатор блокируется.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Значение основано на оборотах выходного вала гидротрансформатора, поэтому блокировка происходит на одинаковой скорости даже при значительном проскальзывании гидротрансформатора.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Диапазон оборотов, в пределах которого активируется муфта блокировки.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Наименьшая передача, при которой гидротрансформатор попытается заблокироваться.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">N<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Начальная передача трансмиссии при появлении автомобиля в игре.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.5<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Насколько быстро реагирует трансмиссия.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Меньшие значения означают, что трансмиссия будет изменять передаточные отношения медленнее.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">highShiftUp<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Целевые обороты двигателя при высокой нагрузке для двигателя с CVT-коробкой.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">CVT будет стремиться изменять передаточное отношение для достижения этих оборотов двигателя при разгоне с полным газом.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">lowShiftUp<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Целевые обороты двигателя при низкой нагрузке для двигателя с CVT-коробкой.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Целевые обороты двигателя при низкой нагрузке для двигателя с CVT-коробкой.</div>
+</div>
+</div>
+<hr/>
+<h3 id="electrics">
+
+  Electrics
+</h3>
+<div class="bng-table" id="table-1783007355227425501"><div class="bng-table-header"><div>Название</div><div>Единицы/Значения</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">lockupClutchRatio</div>
+</div><div>
+<div style="">Units/Values</div>
+<div style="">0 to 1</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Указывает положение муфты блокировки гидротрансформатора. 0 означает, что муфта разомкнута, 1 — полностью заблокирована.</div>
+</div></div></div>
+<hr/>
+<h3 id="public-functions">
+
+  Публичные функции
+</h3>
+<div class="bng-table" id="table-1783007355227558153"><div class="bng-table-header"><div>Название функции</div><div>Параметры</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">gearboxBehaviorChanged</div>
+</div><div>
+<div style="">Parameters</div>
+<div style="">behavior</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Переключает между аркадным и реалистичным режимами коробки передач.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">shiftUp</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Переключает на следующую позицию рычага переключения передач.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">shiftDown</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Переключает на предыдущую позицию рычага переключения передач.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">shiftToGearIndex</div>
+</div><div>
+<div style="">Parameters</div>
+<div style="">index</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Переключает рычаг передач в выбранное положение.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">getGearName</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Текущая передача, включённая в трансмиссии.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">getGearPosition</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Текущее положение автоматического переключателя передач.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Function name</div>
+<div style="">sendTorqueData</div>
+</div><div>
+<div style="">Parameters</div>
+<div style=""></div>
+</div><div>
+<div style="">Description</div>
+<div style="">Отправляет данные о крутящем моменте и мощности в пользовательский интерфейс.</div>
+</div></div></div>
+<hr/>
+<h3 id="public-properties">
+
+  Публичные свойства
+</h3>
+<div class="bng-table" id="table-1783007355227872955"><div class="bng-table-header"><div>Название</div><div>Описание</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">brake</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Ввод тормоза</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">checkEngine</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Указывает, отключён ли двигатель.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">clutchRatio</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Указывает состояние сцепления. 1 — полностью включено, 0 — полностью выключено.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">currentGearIndex</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Текущий индекс передачи коробки передач.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">energyStorages</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Накопитель(и) энергии, связанные с двигателем</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">engineLoad</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Нагрузка двигателя</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">engineThrottle</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Ввод дросселя.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">engineTorque</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Крутящий момент сгорания двигателя до потерь на трение.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">flywheelTorque</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Выходной крутящий момент двигателя.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">gearboxHandling</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Список, содержащий множество параметров, влияющих на поведение переключения коробки передач.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">gearboxTorque</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Выходной крутящий момент коробки передач.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">idleRPM</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Обороты холостого хода двигателя</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">ignition</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Указывает, что зажигание включено.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">inputValues</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Список, содержащий значения тормоза, дросселя и сцепления.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">isArcadeSwitched</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Указывает, включён ли аркадный режим коробки передач.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">isEngineRunning</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Указывает, что двигатель работает</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">isSportModeActive</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Указывает, активен ли спортивный режим.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">maxRPM</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Максимальные обороты двигателя</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">oilTemp</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Температура масла двигателя.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">rpm</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Текущие обороты двигателя</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">shiftPreventionData</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Список, содержащий пороговые значения пробуксовки для блокировки переключения передач.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">shiftBehavior</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Список, содержащий текущие оптимальные точки переключения, определённые контроллером транспортного средства.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">smoothedValues</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Список, содержащий сглаженные значения некоторых свойств.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">smoothedAvgAVInput</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Сглаженная угловая скорость входного вала коробки передач (рад/с)</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">throttle</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Ввод дросселя</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">timer</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Список, содержащий текущие значения времени</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">timerConstants</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Список, содержащий целевые значения для различных таймеров, заданные в jbeam</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div style="">Name</div>
+<div style="">waterTemp</div>
+</div><div>
+<div style="">Description</div>
+<div style="">Температура охлаждающей жидкости двигателя.</div>
+</div></div></div>
+<hr/>
+<h3 id="example-usage">
+
+  Пример использования
+</h3>
+<p>Раздел контроллера транспортного средства с параметрами, специфичными для данного вложенного контроллера, определёнными внутри jbeam-файла трансмиссии.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"vehicleController"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"automaticModes"</span><span class="o">:</span><span class="s2">"PRNDS"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"cvtHighRPM"</span><span class="o">:</span><span class="mi">5900</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"cvtLowRPM"</span><span class="o">:</span><span class="mi">600</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"torqueConverterLockupRPM"</span><span class="o">:</span> <span class="mi">1800</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"aggressionSmoothingDown"</span><span class="o">:</span><span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"cvtAggression"</span><span class="o">:</span><span class="mf">0.1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"aggressionHoldOffThrottleDelay"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div>

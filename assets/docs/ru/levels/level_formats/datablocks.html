@@ -1,0 +1,382 @@
+<p>Этот документ описывает JSON-файлы даблоков BeamNG.</p>
+<p>Даблоки — это повторно используемые определения данных движка. Они применяются во многих системах для описания общих ресурсов: частиц, эмиттеров, осадков, световых бликов, световых анимаций, звуков, фонового окружения, декалей и других повторно используемых объектов движка.</p>
+<p>Даблок сам по себе обычно не является видимым объектом уровня. Вместо этого он представляет собой именованное определение, на которое могут ссылаться другие объекты, системы или игровой код.</p>
+<hr/>
+<h2 id="overview">
+
+  Обзор
+</h2>
+<p>JSON-файл даблока — это JSON-объект, в котором каждый ключ верхнего уровня определяет один даблок.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"exampleData"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"exampleData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SomeDatablockClass"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Каждая запись даблока обычно содержит:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Имя объекта даблока. Обычно совпадает с ключом JSON.</td>
+</tr>
+<tr>
+<td><code>class</code></td>
+<td>Класс/тип даблока.</td>
+</tr>
+<tr>
+<td>class-specific fields</td>
+<td>Настройки, используемые данным типом даблока.</td>
+</tr>
+</tbody>
+</table>
+<p>Ключ верхнего уровня и поле <code>name</code> должны в норме совпадать.</p>
+<hr/>
+<h2 id="file-naming">
+
+  Именование файлов
+</h2>
+<p>Современные файлы даблоков обычно используют суффикс:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.datablocks.json
+</span></span></code></pre>
+</div><p>Примеры:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">art/datablocks/lights.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/sounds.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/audioProfiles.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/managedDatablocks.datablocks.json
+</span></span></code></pre>
+</div><p>Некоторые управляемые файлы даблоков используют специфичные для инструментов имена:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">art/shapes/particles/managedParticleData.json
+</span></span><span class="line"><span class="cl">art/shapes/particles/managedParticleEmitterData.json
+</span></span></code></pre>
+</div><p>Специфичные для уровня даблоки могут также находиться внутри папок уровней:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/datablocks/custom.datablocks.json
+</span></span></code></pre>
+</div><hr/>
+<h2 id="loading-behavior">
+
+  Поведение при загрузке
+</h2>
+<p>Во время загрузки уровня основные даблоки загружаются до объектов уровня. Это позволяет объектам сцены и системам ссылаться на даблоки по имени.</p>
+<p>Типичные базовые файлы включают:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">art/shapes/particles/managedParticleData.json
+</span></span><span class="line"><span class="cl">art/shapes/particles/managedParticleEmitterData.json
+</span></span><span class="line"><span class="cl">art/datablocks/audioProfiles.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/sounds.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/player.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/datablockExec.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/lights.datablocks.json
+</span></span><span class="line"><span class="cl">art/datablocks/managedDatablocks.datablocks.json
+</span></span></code></pre>
+</div><p>При загрузке уровня движок также выполняет поиск в папке уровня файлов, соответствующих шаблонам вида:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.datablocks.json
+</span></span><span class="line"><span class="cl">*Data.json
+</span></span></code></pre>
+</div><p>Они загружаются до создания объектов сцены уровня.</p>
+<hr/>
+<h2 id="legacy-cs-datablocks">
+
+  Устаревшие даблоки .cs
+</h2>
+<p>В устаревшем контенте даблоки могут быть определены в файлах TorqueScript <code>.cs</code>.</p>
+<p>Примеры:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">datablockExec.cs
+</span></span></code></pre>
+</div><p>Движок по-прежнему поддерживает некоторые пути загрузки устаревших даблоков <code>.cs</code>, однако новый контент должен использовать JSON-файлы даблоков.</p>
+<div class="bng-notice info">JSON-файлы даблоков являются современной заменой многих устаревших определений даблоков TorqueScript.</div>
+<hr/>
+<h2 id="general-structure">
+
+  Общая структура
+</h2>
+<p>Файл даблока содержит именованные записи:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"datablockName"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"datablockName"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SomeDatablockClass"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fieldA"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fieldB"</span><span class="p">:</span> <span class="s2">"value"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Минимальный пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"TurretFireSound"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"TurretFireSound"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXProfile"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"AudioMaster"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"filename"</span><span class="p">:</span> <span class="s2">"art/sound/turret_firing.wav"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"preload"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="common-datablock-classes">
+
+  Распространённые классы даблоков
+</h2>
+<p>Распространённые классы даблоков включают:</p>
+<table>
+<thead>
+<tr>
+<th>Класс</th>
+<th>Назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ParticleData</code></td>
+<td>Определяет внешний вид и поведение отдельных частиц.</td>
+</tr>
+<tr>
+<td><code>ParticleEmitterData</code></td>
+<td>Определяет поведение испускания частиц.</td>
+</tr>
+<tr>
+<td><code>ParticleEmitterNodeData</code></td>
+<td>Определяет настройки узла эмиттера частиц.</td>
+</tr>
+<tr>
+<td><code>PrecipitationData</code></td>
+<td>Определяет текстуры осадков.</td>
+</tr>
+<tr>
+<td><code>LightFlareData</code></td>
+<td>Определяет элементы бликов линз/световых бликов.</td>
+</tr>
+<tr>
+<td><code>LightAnimData</code></td>
+<td>Определяет поведение анимированной яркости, смещения или вращения источника света.</td>
+</tr>
+<tr>
+<td><code>SFXProfile</code></td>
+<td>Определяет повторно используемый профиль звукового события/файла.</td>
+</tr>
+<tr>
+<td><code>SFXAmbience</code></td>
+<td>Определяет данные фонового окружения или аудиоснимка.</td>
+</tr>
+</tbody>
+</table>
+<p>Поля, специфичные для каждого класса, описаны отдельно.</p>
+<p>Объекты сцены, которые обычно ссылаются на даблоки, включают <a href="https://documentation.beamng.com/modding/levels/level_classes/lights/" rel="noopener" target="_blank">Lights</a>
+и <a data-doc="levels/level_classes/sound" href="/docs/levels/level_classes/sound">Sound</a>
+.</p>
+<hr/>
+<h2 id="references-between-datablocks">
+
+  Ссылки между даблоками
+</h2>
+<p>Даблоки часто ссылаются друг на друга по имени.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"exampleEmitter"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"exampleEmitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ParticleEmitterData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"particles"</span><span class="p">:</span> <span class="s2">"exampleParticle"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Здесь <code>exampleEmitter</code> ссылается на даблок <code>ParticleData</code> с именем <code>exampleParticle</code>.</p>
+<p>Если указанный даблок отсутствует, эффект может не работать или использовать резервное поведение.</p>
+<hr/>
+<h2 id="texture-and-audio-paths">
+
+  Пути к текстурам и аудио
+</h2>
+<p>Многие даблоки ссылаются на текстуры или аудиоресурсы.</p>
+<p>Примеры:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"textureName"</span><span class="err">:</span> <span class="s2">"art/shapes/particles/steam.png"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"flareTexture"</span><span class="err">:</span> <span class="s2">"core/art/special/lensFlareSheet0.color.png"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"dropTexture"</span><span class="err">:</span> <span class="s2">"art/shapes/particles/Particle_rain_drop.dds"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"filename"</span><span class="err">:</span> <span class="s2">"art/sound/turret_firing.wav"</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"fileName"</span><span class="err">:</span> <span class="s2">"event:&gt;UI&gt;Missions&gt;Countdown_Go"</span>
+</span></span></code></pre>
+</div><p>Используйте корректные пути и убедитесь, что указанные файлы включены в мод или уровень.</p>
+<div class="bng-notice note">Некоторые классы даблоков используют <code>fileName</code>, другие могут использовать <code>filename</code>. Используйте существующий контент игры или документацию по конкретному классу в качестве ориентира.</div>
+<hr/>
+<h2 id="persistent-ids">
+
+  Постоянные идентификаторы
+</h2>
+<p>Некоторые сохранённые даблоки содержат:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"persistentId"</span><span class="err">:</span> <span class="s2">"c98465df-dd27-48d0-b855-3f5267b18400"</span>
+</span></span></code></pre>
+</div><p>Постоянные идентификаторы — это идентификаторы редактора/движка, используемые для обеспечения постоянства объектов.</p>
+<p>При создании даблоков вручную избегайте копирования одного и того же <code>persistentId</code> в другой, не связанный с ним даблок.</p>
+<div class="bng-notice warning">Не дублируйте значения <code>persistentId</code> между даблоками. При создании новых даблоков вручную опустите это поле и позвольте редактору сгенерировать его.</div>
+<hr/>
+<h2 id="null-and-placeholder-values">
+
+  Значения null и заполнители
+</h2>
+<p>Сохранённые файлы даблоков могут содержать значения <code>null</code> или пустые записи-заполнители.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"elementDist"</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"elementRect"</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"elementScale"</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>или:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{}</span>
+</span></span></code></pre>
+</div><p>Обычно они представляют неиспользуемые слоты массива или значения по умолчанию, записанные редактором. Инструменты, как правило, могут игнорировать неиспользуемые записи-заполнители, если только конкретный класс даблока не требует их наличия.</p>
+<hr/>
+<h2 id="editor-workflow">
+
+  Рабочий процесс в редакторе
+</h2>
+<p>Даблоки можно создавать и управлять ими с помощью инструментов редактора.</p>
+<p>При создании даблока:</p>
+<ol>
+<li>Редактор создаёт объект выбранного класса даблока.</li>
+<li>Опционально копирует поля из другого даблока.</li>
+<li>Регистрирует объект.</li>
+<li>Добавляет его в набор даблоков.</li>
+<li>Помечает его как изменённый в менеджере постоянства.</li>
+<li>Сохраняет его в JSON-файл даблока.</li>
+</ol>
+<p>Редактор отслеживает изменённые даблоки и может сохранять только модифицированные объекты.</p>
+<hr/>
+<h2 id="default-managed-datablock-file">
+
+  Файл управляемого даблока по умолчанию
+</h2>
+<p>Если пользовательское имя файла не задано, даблоки, созданные редактором, могут быть сохранены в управляемый файл вида:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">art/datablocks/managedDatablocks.json
+</span></span></code></pre>
+</div><p>или в управляемый файл, специфичный для класса/инструмента.</p>
+<p>Для упорядоченного контента предпочтительно сохранять связанные даблоки в файлы с понятными именами.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example/datablocks/traffic_lights.datablocks.json
+</span></span><span class="line"><span class="cl">levels/example/datablocks/weather_effects.datablocks.json
+</span></span><span class="line"><span class="cl">levels/example/datablocks/custom_sounds.datablocks.json
+</span></span></code></pre>
+</div><hr/>
+<h2 id="minimal-file-example">
+
+  Минимальный пример файла
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"exampleSound"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"exampleSound"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"SFXProfile"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"AudioDefault3D"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"fileName"</span><span class="p">:</span> <span class="s2">"art/sound/example.ogg"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">"exampleFlare"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"exampleFlare"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"LightFlareData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"flareTexture"</span><span class="p">:</span> <span class="s2">"core/art/special/lensFlareSheet0.color.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"overallScale"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>Используйте JSON-файлы даблоков для нового контента.</li>
+<li>Поддерживайте уникальность имён даблоков.</li>
+<li>Следите за согласованностью ключа верхнего уровня и поля <code>name</code>.</li>
+<li>Используйте описательные имена, отражающие назначение или систему.</li>
+<li>Загружайте/создавайте referenced даблоки до их потребителей.</li>
+<li>Избегайте копирования значений <code>persistentId</code> между несвязанными даблоками.</li>
+<li>Используйте пути к ресурсам, работающие как в обычной игре, так и в запакованных модах.</li>
+<li>По возможности предпочитайте общие/совместно используемые даблоки.</li>
+<li>Используйте инструменты редактора для создания и сохранения даблоков, когда они доступны.</li>
+<li>Удаляйте неиспользуемые даблоки, чтобы снизить нагроможденность и время загрузки.</li>
+<li>Группируйте связанные даблоки в файлы с понятными именами.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="datablock-is-not-found">
+
+  Даблок не найден
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Файл не был загружен.</li>
+<li>Неверный суффикс файла.</li>
+<li>Неверное значение <code>name</code>.</li>
+<li>Опечатка в имени referenced даблока.</li>
+<li>Ссылка на даблок сделана до его загрузки.</li>
+</ul>
+<h3 id="referenced-asset-is-missing">
+
+  Referenced ресурс отсутствует
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Неверный путь к текстуре/аудио.</li>
+<li>Файл не включён в мод или уровень.</li>
+<li>Путь работает локально, но не из запакованного мода.</li>
+<li>Неверный регистр символов в системах с чувствительностью к регистру.</li>
+</ul>
+<h3 id="datablock-loads-but-does-nothing">
+
+  Даблок загружается, но не имеет эффекта
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Ни один объект или система не ссылается на него.</li>
+<li>Отсутствуют обязательные поля, специфичные для класса.</li>
+<li>Дочерний referenced даблок отсутствует.</li>
+<li>Даблок был сохранён в неверный файл.</li>
+</ul>
+<h3 id="duplicate-datablock-names">
+
+  Дублирующиеся имена даблоков
+</h3>
+<p>Каждое имя даблока должен использовать только один объект. Переименуйте один из них и обновите ссылки.</p>
+<h3 id="persistent-id-conflict">
+
+  Конфликт постоянного идентификатора
+</h3>
+<p>Удалите продублированные поля <code>persistentId</code> и позвольте редактору заново их сгенерировать.</p>
+<hr/>
+<h2 id="summary">
+
+  Резюме
+</h2>
+<p>JSON-файлы даблоков хранят повторно используемые определения данных движка.</p>
+<p>Они могут определять частицы, эмиттеры, осадки, световые блики, световые анимации, звуки, фоновое окружение, декали и другие общие ресурсы.</p>
+<p>Современные даблоки должны храниться в JSON-файлах вида:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.datablocks.json
+</span></span></code></pre>
+</div><p>или в управляемых JSON-файлах, специфичных для инструментов.</p>
+<p>Объекты уровня и игровые системы ссылаются на даблоки по имени.</p>

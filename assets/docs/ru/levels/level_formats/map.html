@@ -1,0 +1,708 @@
+<p>Этот документ описывает необязательный файл <code>map.json</code>, используемый уровнями BeamNG для добавления вручную заданных сегментов навигационного графа.</p>
+<p>Навигационная карта используется системами ИИ, трафика, навигации, генерации маршрутов и смежными игровыми механиками. Большинство навигационных данных генерируется автоматически из объектов <code>DecalRoad</code> и <code>BeamNGWaypoint</code>, однако <code>map.json</code> позволяет создателям уровней вручную задавать дополнительные сегменты дорог/путей.</p>
+<hr/>
+<h2 id="file-location">
+
+  Расположение файла
+</h2>
+<p><code>map.json</code> помещается в папку уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/map.json
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/west_coast_usa/map.json
+</span></span></code></pre>
+</div><p>Если файл <code>map.json</code> отсутствует, навигационный граф всё равно может быть сгенерирован из объектов <code>DecalRoad</code> и <code>BeamNGWaypoint</code>.</p>
+<hr/>
+<h2 id="purpose">
+
+  Назначение
+</h2>
+<p>Используйте <code>map.json</code>, когда автоматической генерации дорожного графа недостаточно.</p>
+<p>Типичные сценарии использования:</p>
+<ul>
+<li>Тоннели</li>
+<li>Мосты</li>
+<li>Путепроводы</li>
+<li>Сложные перекрёстки</li>
+<li>Дороги, плохо представленные объектами <code>DecalRoad</code></li>
+<li>Пути с ручным управлением направлением движения</li>
+<li>Частные/закрытые дороги</li>
+<li>Специальные коннекторы для ИИ/навигации</li>
+<li>Скрытые навигационные связи</li>
+</ul>
+<p><code>map.json</code> не определяет визуальную геометрию дороги. Он задаёт только навигационные связи между существующими нодами в графе.</p>
+<hr/>
+<h2 id="relationship-with-decalroad-and-beamngwaypoint">
+
+  Связь с DecalRoad и BeamNGWaypoint
+</h2>
+<p>Навигационный граф строится из нескольких источников:</p>
+<ol>
+<li>Объекты <code>BeamNGWaypoint</code></li>
+<li>Объекты <code>DecalRoad</code> с <code>drivability &gt; 0</code></li>
+<li>Ручные сегменты из <code>map.json</code></li>
+</ol>
+<p>Сегменты <code>map.json</code> ссылаются на существующие имена нод. Ими могут быть:</p>
+<ul>
+<li>Имена объектов <code>BeamNGWaypoint</code></li>
+<li>Ноды, сгенерированные из объектов <code>DecalRoad</code></li>
+<li>Другие существующие навигационные ноды</li>
+</ul>
+<p>Если нода, указанная в <code>map.json</code>, не существует, сегмент не может быть создан в полном объёме, и в лог может быть записана ошибка.</p>
+<hr/>
+<h2 id="basic-structure">
+
+  Базовая структура
+</h2>
+<p><code>map.json</code> содержит объект верхнего уровня <code>segments</code>.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"bridge1"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Bridge1_A"</span><span class="p">,</span> <span class="s2">"Bridge1_B"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nt">"tunnel_A"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"tunnel_A_1"</span><span class="p">,</span> <span class="s2">"tunnel_A_2"</span><span class="p">,</span> <span class="s2">"tunnel_A_3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"flipDirection"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"lanesLeft"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Каждый ключ внутри <code>segments</code> является именем сегмента. Имя используется главным образом для организации и отладки.</p>
+<hr/>
+<h2 id="segment-fields">
+
+  Поля сегмента
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>По умолчанию</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nodes</code></td>
+<td>array/string</td>
+<td>обязательное</td>
+<td>Упорядоченный список имён нод, образующих сегмент.</td>
+</tr>
+<tr>
+<td><code>drivability</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>Предпочтение/множитель стоимости при прокладке пути. Меньшие значения — менее предпочтительный путь.</td>
+</tr>
+<tr>
+<td><code>oneWay</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Является ли сегмент односторонним.</td>
+</tr>
+<tr>
+<td><code>flipDirection</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Разворачивает логическое направление сегмента.</td>
+</tr>
+<tr>
+<td><code>speedLimit</code></td>
+<td>number</td>
+<td>авто</td>
+<td>Необязательное значение скорости в метрах в секунду, используемое системами ИИ/навигации. Значения <code>&lt;= 0</code> трактуются как «не задано».</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>string</td>
+<td><code>nil</code></td>
+<td>Метаданные типа дороги, например <code>private</code>.</td>
+</tr>
+<tr>
+<td><code>gatedRoad</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Обрабатывает сегмент как данные частной/закрытой дороги.</td>
+</tr>
+<tr>
+<td><code>hiddenInNavi</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Скрывает или убирает акцент на сегмент в навигационном отображении там, где это поддерживается.</td>
+</tr>
+<tr>
+<td><code>autoLanes</code></td>
+<td>bool</td>
+<td><code>true</code></td>
+<td>Если задано <code>false</code>, количество полос читается из <code>lanesLeft</code> и <code>lanesRight</code>.</td>
+</tr>
+<tr>
+<td><code>lanesLeft</code></td>
+<td>integer</td>
+<td><code>0</code></td>
+<td>Ручное количество полос для одной стороны, когда <code>autoLanes</code> равно <code>false</code>.</td>
+</tr>
+<tr>
+<td><code>lanesRight</code></td>
+<td>integer</td>
+<td><code>0</code></td>
+<td>Ручное количество полос для другой стороны, когда <code>autoLanes</code> равно <code>false</code>.</td>
+</tr>
+<tr>
+<td><code>autoJunction</code></td>
+<td>bool</td>
+<td><code>true</code></td>
+<td>Если задано <code>false</code>, предотвращает автоматическое слияние на нодах этого сегмента.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="nodes">
+
+  Ноды
+</h2>
+<p>Поле <code>nodes</code> задаёт упорядоченный путь сегмента.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"Bridge1_A"</span><span class="p">,</span> <span class="s2">"Bridge1_B"</span><span class="p">,</span> <span class="s2">"Bridge1_C"</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Это создаёт следующие связи:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Bridge1_A → Bridge1_B
+</span></span><span class="line"><span class="cl">Bridge1_B → Bridge1_C
+</span></span></code></pre>
+</div><p>Для двусторонних сегментов прокладка пути возможна в обоих направлениях. Для односторонних — направление движения зависит от <code>oneWay</code> и <code>flipDirection</code>.</p>
+<hr/>
+<h2 id="node-string-shorthand">
+
+  Краткая запись нод в виде строки
+</h2>
+<p>Поле <code>nodes</code> также может быть записано в виде строки.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="s2">"tunnel_A_1-tunnel_A_10"</span>
+</span></span></code></pre>
+</div><p>Это разворачивается в:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">tunnel_A_1
+</span></span><span class="line"><span class="cl">tunnel_A_2
+</span></span><span class="line"><span class="cl">tunnel_A_3
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">tunnel_A_10
+</span></span></code></pre>
+</div><p>Несколько диапазонов или отдельных нод можно разделить запятыми:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="s2">"Bridge1_A, tunnel_A_1-tunnel_A_10, Bridge1_B"</span>
+</span></span></code></pre>
+</div><div class="bng-notice note">Для раскрытия диапазона оба конца должны использовать одинаковый текстовый префикс и числовой суффикс.</div>
+<hr/>
+<h2 id="direction">
+
+  Направление
+</h2>
+<h3 id="oneway">
+
+  oneWay
+</h3>
+<p><code>oneWay</code> помечает сегмент как односторонний.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"oneWay"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>По умолчанию направление движения следует порядку списка <code>nodes</code>.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"oneWay"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Это создаёт односторонний путь от:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">A → B → C
+</span></span></code></pre>
+</div>
+<h3 id="flipdirection">
+
+  flipDirection
+</h3>
+<p><code>flipDirection</code> разворачивает логическое направление сегмента.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"flipDirection"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"A"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">,</span> <span class="s2">"C"</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"oneWay"</span><span class="err">:</span> <span class="kc">true</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"flipDirection"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Это создаёт односторонний путь от:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">C → B → A
+</span></span></code></pre>
+</div><p>Используйте это, когда порядок нод удобен для редактирования, но разрешённое направление движения — противоположное.</p>
+<hr/>
+<h2 id="drivability">
+
+  Проходимость (Drivability)
+</h2>
+<p><code>drivability</code> определяет, насколько желателен сегмент при прокладке пути.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"drivability"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre>
+</div><p>Типичные значения:</p>
+<table>
+<thead>
+<tr>
+<th>Значение</th>
+<th>Смысл</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>1</code></td>
+<td>Обычная дорога/путь.</td>
+</tr>
+<tr>
+<td><code>0.5</code></td>
+<td>Менее предпочтительный путь.</td>
+</tr>
+<tr>
+<td><code>&lt; 0.5</code></td>
+<td>Настоятельно нежелательный путь.</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td>Крайне нежелательный, однако внутренняя защита предотвращает нулевую стоимость.</td>
+</tr>
+</tbody>
+</table>
+<p>Стоимость навигации возрастает по мере снижения проходимости, поэтому системы ИИ и маршрутизации при возможности предпочитают дороги с более высокой проходимостью.</p>
+<hr/>
+<h2 id="speed-limit">
+
+  Ограничение скорости
+</h2>
+<p><code>speedLimit</code> может задаваться для каждого сегмента отдельно:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"speedLimit"</span><span class="err">:</span> <span class="mf">13.89</span>
+</span></span></code></pre>
+</div><p>Если <code>speedLimit</code> отсутствует или <code>&lt;= 0</code>, движок автоматически оценивает ограничение скорости на основе ширины/радиуса дороги, её проходимости и направления.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"speedLimit"</span><span class="err">:</span> <span class="mi">0</span>
+</span></span></code></pre>
+</div><p>означает «рассчитать автоматически».</p>
+<div class="bng-notice info">Если вы не уверены, опустите <code>speedLimit</code> и позвольте движку рассчитать его самостоятельно. Ограничение скорости задаётся в метрах в секунду.</div>
+<hr/>
+<h2 id="road-type-and-private-roads">
+
+  Тип дороги и частные дороги
+</h2>
+<p>Сегмент может задавать тип дороги:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"type"</span><span class="err">:</span> <span class="s2">"private"</span>
+</span></span></code></pre>
+</div><p>Также можно использовать:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gatedRoad"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Если <code>gatedRoad</code> равно true, сегмент обрабатывается как данные частной/закрытой дороги.</p>
+<p>Частные дороги влияют на поведение маршрутизации и трафика. Когда частные дороги соединяются с общественными, навигационный граф может помечать соединяющие рёбра как закрытые, чтобы прокладка пути обрабатывала их иначе.</p>
+<p>Используйте частные/закрытые дороги для:</p>
+<ul>
+<li>Ограниченных зон</li>
+<li>Грунтовых дорог</li>
+<li>Служебных дорог</li>
+<li>Парковок</li>
+<li>Гоночных трасс</li>
+<li>Дорог, не предназначенных для общего пользования</li>
+</ul>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"dirttrack"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dirttrack_1"</span><span class="p">,</span> <span class="s2">"dirttrack_2"</span><span class="p">,</span> <span class="s2">"dirttrack_3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gatedRoad"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="hidden-navigation-segments">
+
+  Скрытые навигационные сегменты
+</h2>
+<p><code>hiddenInNavi</code> может скрывать сегмент из навигационного отображения там, где это поддерживается:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"hiddenInNavi"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Это может быть полезно для:</p>
+<ul>
+<li>Внутренних коннекторов</li>
+<li>Служебных связей</li>
+<li>Вспомогательных путей только для ИИ</li>
+<li>Скрытых связей в тоннелях</li>
+<li>Навигационных маршрутов, не предназначенных для пользователя</li>
+</ul>
+<p>Сегмент может по-прежнему существовать в графе и использоваться системами в зависимости от контекста.</p>
+<hr/>
+<h2 id="lane-data">
+
+  Данные о полосах
+</h2>
+<p>Информация о полосах может генерироваться автоматически или задаваться вручную.</p>
+<h3 id="automatic-lanes">
+
+  Автоматические полосы
+</h3>
+<p>По умолчанию полосы генерируются исходя из ширины/радиуса дороги и правил дорожного движения.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoLanes"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>или не указываются вовсе.</p>
+<p>Движок использует правила дорожного движения уровня из <code>info.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"roadRules"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rightHandDrive"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>для определения допущений о стороне полосы.</p>
+<h3 id="manual-lanes">
+
+  Ручные полосы
+</h3>
+<p>Задайте <code>autoLanes</code> равным <code>false</code>, чтобы использовать количество полос вручную:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoLanes"</span><span class="err">:</span> <span class="kc">false</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"lanesLeft"</span><span class="err">:</span> <span class="mi">1</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"lanesRight"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre>
+</div><p>Для односторонних дорог данные о полосах могут внутренне формировать строку односторонних полос.</p>
+<p>Внутренняя строка полос использует:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">+ = direction from inNode to outNode
+</span></span><span class="line"><span class="cl">- = direction from outNode to inNode
+</span></span></code></pre>
+</div><p>Порядок полос зависит от правила <code>rightHandDrive</code> уровня.</p>
+<div class="bng-notice info"><code>lanesLeft</code> и <code>lanesRight</code> интерпретируются совместно с <code>roadRules.rightHandDrive</code> из <code>info.json</code>.</div>
+<hr/>
+<h2 id="road-rules-interaction">
+
+  Взаимодействие с правилами дорожного движения
+</h2>
+<p><code>map.json</code> использует правила дорожного движения из <code>info.json</code>.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"roadRules"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rightHandDrive"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"turnOnRed"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Соответствующее поле:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Используется картой графа?</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rightHandDrive</code></td>
+<td>Да</td>
+<td>Влияет на интерпретацию автоматического/ручного направления полос.</td>
+</tr>
+<tr>
+<td><code>turnOnRed</code></td>
+<td>Косвенно</td>
+<td>Используется системами трафика/навигации там, где применимо.</td>
+</tr>
+</tbody>
+</table>
+<p><code>rightHandDrive</code> не изменяет визуальный вид дороги. Это поле влияет на то, как интерпретируются или генерируются данные о навигационных полосах.</p>
+<hr/>
+<h2 id="auto-junction-merging">
+
+  Автоматическое слияние на перекрёстках
+</h2>
+<p>По умолчанию навигационный граф выполняет автоматическое слияние и обработку перекрёстков.</p>
+<p>Задайте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoJunction"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre>
+</div><p>чтобы предотвратить автоматическое слияние на нодах сегмента.</p>
+<p>Внутренне это помечает данные сегмента/ноды как <code>noMerge</code>.</p>
+<p>Используйте это для:</p>
+<ul>
+<li>Сложных перекрёстков</li>
+<li>Параллельных дорог, расположенных близко друг к другу</li>
+<li>Въездных пандусов тоннелей</li>
+<li>Мостов/путепроводов</li>
+<li>Мест, где автоматическое слияние создаёт некорректные соединения</li>
+</ul>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"junction_helper"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"j1"</span><span class="p">,</span> <span class="s2">"j2"</span><span class="p">,</span> <span class="s2">"j3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"autoJunction"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="generated-graph-processing">
+
+  Обработка сгенерированного графа
+</h2>
+<p>После загрузки данных из <code>DecalRoad</code>, <code>BeamNGWaypoint</code> и <code>map.json</code> движок обрабатывает навигационный граф.</p>
+<p>Процесс включает:</p>
+<ol>
+<li>Загрузку данных дорог и вейпойнтов</li>
+<li>Добавление ручных сегментов из <code>map.json</code></li>
+<li>Создание/оценку ограничений скорости</li>
+<li>Слияние перекрывающихся нод</li>
+<li>Разрешение T-образных перекрёстков</li>
+<li>Разрешение X-образных перекрёстков</li>
+<li>Слияние нод с ближайшими отрезками</li>
+<li>Обработку частных/закрытых дорог</li>
+<li>Оптимизацию/упрощение нод</li>
+<li>Преобразование графа в одностороннее хранение рёбер</li>
+<li>Построение пространственных ускоряющих структур для прокладки пути</li>
+</ol>
+<p>В связи с этим итоговый граф во время выполнения может не в точности совпадать с исходным файлом.</p>
+<hr/>
+<h2 id="example-simple-two-way-bridge">
+
+  Пример: простой двусторонний мост
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"bridge1"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Bridge1_A"</span><span class="p">,</span> <span class="s2">"Bridge1_B"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Это создаёт обычный двусторонний сегмент между <code>Bridge1_A</code> и <code>Bridge1_B</code>.</p>
+<hr/>
+<h2 id="example-one-way-bridge">
+
+  Пример: односторонний мост
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"bridge2"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Bridge2_A"</span><span class="p">,</span> <span class="s2">"Bridge2_B"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"flipDirection"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Это создаёт односторонний сегмент в направлении, обратном порядку указанных нод.</p>
+<hr/>
+<h2 id="example-tunnel-with-manual-lanes">
+
+  Пример: тоннель с ручными полосами
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"tunnel_A"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"tunnel_A_1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"tunnel_A_2"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"tunnel_A_3"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"tunnel_A_4"</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"autoLanes"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"lanesLeft"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"lanesRight"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="example-private-dirt-track">
+
+  Пример: частная грунтовая дорога
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dirttrack"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dirttrack_1"</span><span class="p">,</span> <span class="s2">"dirttrack_2"</span><span class="p">,</span> <span class="s2">"dirttrack_3"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"flipDirection"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"gatedRoad"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Этот сегмент обрабатывается как данные частной/закрытой дороги.</p>
+<hr/>
+<h2 id="example-range-shorthand">
+
+  Пример: краткая запись диапазона
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"tunnel_city_A"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="s2">"tunnel_city_A_1-tunnel_city_A_63"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"lanesLeft"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Это эквивалентно ручному перечислению всех нод от <code>tunnel_city_A_1</code> до <code>tunnel_city_A_63</code>.</p>
+<hr/>
+<h2 id="relationship-with-beamngwaypoint">
+
+  Связь с BeamNGWaypoint
+</h2>
+<p>Ручные сегменты нередко опираются на объекты <code>BeamNGWaypoint</code>, размещённые на уровне.</p>
+<p>Пример объекта вейпойнта:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"BeamNGWaypoint"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"tunnel_A_1"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Сегмент в <code>map.json</code> может затем ссылаться на него:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"tunnel_A_1"</span><span class="p">,</span> <span class="s2">"tunnel_A_2"</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Если у вейпойнта задан параметр <code>excludeFromMap</code>, он не добавляется в навигационный граф автоматически.</p>
+<hr/>
+<h2 id="debugging">
+
+  Отладка
+</h2>
+<p>Полезные инструменты/функции отладки включают:</p>
+<ul>
+<li>Визуализацию навигационного графа</li>
+<li>Логирование хэша графа</li>
+<li>Запросы ближайшей дороги</li>
+<li>Запросы пути</li>
+<li>Экспорт графа карты в SVG</li>
+</ul>
+<p>Система карты может экспортировать упрощённый SVG-вид графа для его проверки.</p>
+<p>Стандартная визуализация отображает:</p>
+<ul>
+<li>Ноды перекрёстков</li>
+<li>Ширину дорог</li>
+<li>Направления полос</li>
+<li>Цвета проходимости</li>
+<li>Закрытые/частные дороги</li>
+</ul>
+<hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>По возможности используйте <code>DecalRoad</code> для обычных дорог.</li>
+<li>Используйте <code>map.json</code> только для ручных исправлений и специальных соединений.</li>
+<li>Убедитесь, что каждая нода, на которую ссылается <code>map.json</code>, существует.</li>
+<li>Избегайте дублирующихся последовательных нод в сегменте.</li>
+<li>Внимательно используйте <code>oneWay</code> и <code>flipDirection</code>.</li>
+<li>Используйте <code>autoJunction: false</code> вблизи сложных путепроводов, тоннелей или близко расположенных параллельных дорог.</li>
+<li>Используйте <code>gatedRoad</code> или <code>type: "private"</code> для маршрутов, не предназначенных для общего пользования.</li>
+<li>Держите <code>drivability</code> близким к <code>1</code> для обычных дорог.</li>
+<li>Используйте более низкую <code>drivability</code> для труднопроходимых или менее предпочтительных маршрутов.</li>
+<li>Опускайте <code>speedLimit</code>, если только конкретное значение не является обязательным.</li>
+<li>Давайте сегментам понятные описательные имена.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Частые проблемы
+</h2>
+<h3 id="segment-does-not-appear-in-navigation">
+
+  Сегмент не отображается в навигации
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Файл <code>map.json</code> отсутствует или содержит ошибки</li>
+<li>Объект <code>segments</code> отсутствует</li>
+<li>Первая нода в сегменте не существует</li>
+<li>Одна из последующих нод не существует, из-за чего сегмент обрывается</li>
+<li>Указанные вейпойнты исключены из карты</li>
+</ul>
+<h3 id="ai-drives-the-wrong-direction">
+
+  ИИ едет в неправильном направлении
+</h3>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"oneWay"</span><span class="err">:</span> <span class="kc">true</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"flipDirection"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Если направление перевёрнуто, измените значение <code>flipDirection</code>.</p>
+<h3 id="lanes-behave-incorrectly">
+
+  Полосы работают некорректно
+</h3>
+<p>Проверьте:</p>
+<ul>
+<li><code>autoLanes</code></li>
+<li><code>lanesLeft</code></li>
+<li><code>lanesRight</code></li>
+<li><code>roadRules.rightHandDrive</code> в <code>info.json</code></li>
+</ul>
+<h3 id="roads-merge-incorrectly">
+
+  Дороги сливаются некорректно
+</h3>
+<p>Задайте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoJunction"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre>
+</div><p>для затронутых ручных сегментов.</p>
+<h3 id="route-uses-private-roads-unexpectedly">
+
+  Маршрут неожиданно использует частные дороги
+</h3>
+<p>Проверьте <code>gatedRoad</code>, <code>type</code> и то, как частные дороги соединяются с общественными.</p>
+<h3 id="speed-feels-wrong">
+
+  Скорость ощущается неправильной
+</h3>
+<p>Удалите <code>speedLimit</code>, чтобы включить автоматический расчёт, или убедитесь, что заданное значение соответствует предполагаемому типу дороги.</p>
+<hr/>
+<h2 id="summary">
+
+  Итог
+</h2>
+<p><code>map.json</code> — необязательный файл ручного навигационного графа.</p>
+<p>Он задаёт дополнительные сегменты путей между существующими навигационными нодами и используется преимущественно в особых случаях: тоннели, мосты, путепроводы, частные дороги и сложные перекрёстки.</p>
+<p>Основная структура:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"segment_name"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"node_a"</span><span class="p">,</span> <span class="s2">"node_b"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Большинство дорог должны генерироваться из объектов <code>DecalRoad</code>. Используйте <code>map.json</code>, когда требуется точный ручной контроль над связностью ИИ/навигации или когда использование декальных дорог на вашем уровне невозможно.</p>

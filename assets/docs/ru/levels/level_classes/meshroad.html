@@ -1,0 +1,423 @@
+<p><code>MeshRoad</code> — это дорожный объект на основе сплайна, генерирующий реальную меш-геометрию из узлов.</p>
+<p>Используйте его, когда дороге нужна реальная толщина, боковые грани, мосты, пандусы или геометрия, которая не является просто декалью, проецируемой на рельеф.</p>
+<p>Для окрашенных дорожных поверхностей, разметки, AI-маршрутов и дорог, проецируемых на рельеф, <code>DecalRoad</code> обычно является более предпочтительным выбором.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Basic example
+</h2>
+<p>Простой пример записи <code>MeshRoad</code> в <code>items.level.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"MeshRoad"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"bridge_meshroad_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"MissionGroup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"topMaterial"</span><span class="p">:</span> <span class="s2">"road_asphalt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"bottomMaterial"</span><span class="p">:</span> <span class="s2">"road_concrete"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"sideMaterial"</span><span class="p">:</span> <span class="s2">"road_concrete"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"textureLength"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"breakAngle"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"widthSubdivisions"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Каждый узел хранится как:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[x, y, z, width, depth, normalX, normalY, normalZ]
+</span></span></code></pre>
+</div><hr/>
+<h2 id="important-fields">
+
+  Important fields
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Должно быть <code>"MeshRoad"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя объекта на сцене.</td>
+</tr>
+<tr>
+<td><code>__parent</code></td>
+<td>string</td>
+<td>Родительская группа.</td>
+</tr>
+<tr>
+<td><code>topMaterial</code></td>
+<td>string</td>
+<td>Материал верхней поверхности дороги.</td>
+</tr>
+<tr>
+<td><code>bottomMaterial</code></td>
+<td>string</td>
+<td>Материал нижней поверхности.</td>
+</tr>
+<tr>
+<td><code>sideMaterial</code></td>
+<td>string</td>
+<td>Материал боковых, передней и задней граней.</td>
+</tr>
+<tr>
+<td><code>textureLength</code></td>
+<td>number</td>
+<td>Длина в метрах до повторения материала вдоль дороги.</td>
+</tr>
+<tr>
+<td><code>breakAngle</code></td>
+<td>number</td>
+<td>Пороговый угол в градусах, используемый при генерации срезов дороги из сплайна.</td>
+</tr>
+<tr>
+<td><code>widthSubdivisions</code></td>
+<td>integer</td>
+<td>Количество поперечных подразделений для генерируемых вершин.</td>
+</tr>
+<tr>
+<td><code>nodes</code></td>
+<td>array</td>
+<td>Упорядоченный список узлов. Каждый узел имеет формат <code>[x, y, z, width, depth, normalX, normalY, normalZ]</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="node-data">
+
+  Node data
+</h2>
+<p><code>MeshRoad</code> хранит свою форму в виде упорядоченного списка узлов.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Каждый узел содержит:</p>
+<table>
+<thead>
+<tr>
+<th align="right">Индекс</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right"><code>0</code></td>
+<td>Позиция X</td>
+</tr>
+<tr>
+<td align="right"><code>1</code></td>
+<td>Позиция Y</td>
+</tr>
+<tr>
+<td align="right"><code>2</code></td>
+<td>Позиция Z</td>
+</tr>
+<tr>
+<td align="right"><code>3</code></td>
+<td>Ширина дороги</td>
+</tr>
+<tr>
+<td align="right"><code>4</code></td>
+<td>Глубина/толщина дороги</td>
+</tr>
+<tr>
+<td align="right"><code>5</code></td>
+<td>Normal X</td>
+</tr>
+<tr>
+<td align="right"><code>6</code></td>
+<td>Normal Y</td>
+</tr>
+<tr>
+<td align="right"><code>7</code></td>
+<td>Normal Z</td>
+</tr>
+</tbody>
+</table>
+<p>Меш дороги генерируется между последовательными узлами.</p>
+<div class="bng-notice warning">Не обращайтесь с узлами <code>MeshRoad</code> как с узлами <code>DecalRoad</code>. Узлы <code>MeshRoad</code> включают данные о глубине и нормали.</div>
+<hr/>
+<h2 id="creating-meshroads">
+
+  Creating MeshRoads
+</h2>
+<p>В World Editor создавайте <code>MeshRoad</code>, когда вам нужна генерируемая геометрия дороги вместо проецируемой декали.</p>
+<p>Типичный рабочий процесс:</p>
+<ol>
+<li>Создайте объект <code>MeshRoad</code>.</li>
+<li>Расставьте узлы вдоль предполагаемой центральной линии дороги.</li>
+<li>Задайте ширину и глубину узлов.</li>
+<li>Отрегулируйте высоту и нормаль узлов так, чтобы полотно дороги повторяло необходимый уклон и угол поперечного наклона.</li>
+<li>Назначьте <code>topMaterial</code>, <code>bottomMaterial</code> и <code>sideMaterial</code>.</li>
+<li>Настройте <code>textureLength</code>, <code>breakAngle</code> и <code>widthSubdivisions</code>.</li>
+<li>Проверьте визуальное сглаживание, коллизии и поведение транспортного средства в игре.</li>
+</ol>
+<p>Используйте меньше, но хорошо расположенных узлов для плавных дорог. Добавляйте узлы там, где дорога должна намеренно менять направление, ширину, глубину, высоту или угол поперечного наклона.</p>
+<div class="bng-notice note"><code>MeshRoad</code> игнорирует стандартное масштабирование объектов. Для формирования дороги используйте узлы, ширину, глубину и настройки генерируемой геометрии.</div>
+<hr/>
+<h2 id="generation-and-smoothing">
+
+  Generation and smoothing
+</h2>
+<p><code>MeshRoad</code> не соединяет узлы прямыми меш-пролётами напрямую.</p>
+<p>При регенерации движок:</p>
+<ol>
+<li>Копирует каждый узел в узел сплайна, содержащий позицию, ширину, глубину и нормаль.</li>
+<li>Строит сплайн <code>CatmullRom&lt;MeshRoadSplineNode&gt;</code> из этих узлов.</li>
+<li>Дискретизирует сплайн между каждой парой авторских узлов.</li>
+<li>Создаёт срезы дороги вдоль дискретизированного сплайна.</li>
+<li>Строит сегменты дороги между последовательными срезами.</li>
+<li>Генерирует буферы вершин и индексов верхней, нижней и боковых частей на основе этих срезов.</li>
+</ol>
+<p>Это означает, что центральная линия, ширина, глубина и нормаль — всё интерполируется вдоль сплайна.</p>
+<hr/>
+<h2 id="catmull-rom-spline">
+
+  Catmull-Rom spline
+</h2>
+<p>Алгоритм сглаживания — интерполяция Catmull-Rom.</p>
+<p>Движок строит сплайн на основе авторских узлов:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">position + width + depth + normal
+</span></span></code></pre>
+</div><p>Для каждого отрезка между узлами он вычисляет сплайн и измеряет приблизительную длину отрезка. Отрезок разбивается на мелкие шаги перед принятием решения о расположении финальных срезов дороги.</p>
+<p>Интерполяция Catmull-Rom даёт плавные кривые через контрольные узлы. Это удобно при создании дорог, однако плотное или неравномерное расположение узлов может приводить к нежелательным изгибам или выходу за пределы.</p>
+<p>Хорошие практики создания:</p>
+<ul>
+<li>Сохраняйте равномерное расстояние между узлами.</li>
+<li>Добавляйте вспомогательные узлы до и после резких переходов.</li>
+<li>Избегайте резких изменений ширины/глубины на очень коротких участках.</li>
+<li>Проверяйте нормали угла поперечного наклона на поворотах и пандусах.</li>
+</ul>
+<hr/>
+<h2 id="breakangle">
+
+  breakAngle
+</h2>
+<p><code>breakAngle</code> управляет количеством генерируемых срезов, сохраняемых из дискретизированного сплайна.</p>
+<p>В процессе генерации движок сравнивает текущее дискретизированное направление с направлением в последнем сохранённом срезе. Новый срез сохраняется, когда:</p>
+<ul>
+<li>Это начало отрезка.</li>
+<li>Это последний образец последнего отрезка.</li>
+<li>Изменение угла больше, чем <code>breakAngle</code>.</li>
+</ul>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"breakAngle"</span><span class="err">:</span> <span class="mi">3</span>
+</span></span></code></pre>
+</div><p>Меньшие значения создают больше срезов и более гладкую генерируемую геометрию, особенно на поворотах.</p>
+<p>Большие значения создают меньше срезов, что может уменьшить объём геометрии, но сделает повороты более угловатыми.</p>
+<div class="bng-notice warning">Очень маленькие значения <code>breakAngle</code> могут увеличить количество генерируемых вершин, треугольников, данных коллизий и затраты на редактирование. Используйте наименьшее значение, обеспечивающее необходимую визуальную плавность и плавность езды.</div>
+<hr/>
+<h2 id="slice-orientation">
+
+  Slice orientation
+</h2>
+<p>Каждый генерируемый срез получает локальную систему координат:</p>
+<table>
+<thead>
+<tr>
+<th>Вектор</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fvec</code></td>
+<td>Направление вперёд вдоль дороги.</td>
+</tr>
+<tr>
+<td><code>rvec</code></td>
+<td>Направление вправо поперёк ширины дороги.</td>
+</tr>
+<tr>
+<td><code>uvec</code></td>
+<td>Направление вверх от нормали узла/сплайна.</td>
+</tr>
+</tbody>
+</table>
+<p>Движок использует нормаль среза и позиции соседних срезов для вычисления этих векторов.</p>
+<p>Затем вычисляются:</p>
+<table>
+<thead>
+<tr>
+<th>Точка</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>p1</code></td>
+<td>Центральная точка среза дороги.</td>
+</tr>
+<tr>
+<td><code>p0</code></td>
+<td>Точка верхнего левого края.</td>
+</tr>
+<tr>
+<td><code>p2</code></td>
+<td>Точка верхнего правого края.</td>
+</tr>
+<tr>
+<td><code>pb0</code></td>
+<td>Точка нижнего левого края.</td>
+</tr>
+<tr>
+<td><code>pb2</code></td>
+<td>Точка нижнего правого края.</td>
+</tr>
+</tbody>
+</table>
+<p>Ширина расширяется от центра вдоль <code>rvec</code>. Глубина уходит вниз вдоль <code>uvec</code>.</p>
+<p>Если нормали непоследовательны, генерируемая система координат может скручиваться. Это наиболее распространённая причина артефактов угла поперечного наклона или боковых граней на генерируемых меш-дорогах.</p>
+<hr/>
+<h2 id="widthsubdivisions">
+
+  widthSubdivisions
+</h2>
+<p><code>widthSubdivisions</code> добавляет дополнительные вершины поперёк верхней поверхности.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"widthSubdivisions"</span><span class="err">:</span> <span class="mi">2</span>
+</span></span></code></pre>
+</div><p>Верхняя поверхность использует:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">2 + widthSubdivisions
+</span></span></code></pre>
+</div><p>вершин на срез.</p>
+<p>Это может помочь широким дорогам или секциям с поперечным наклоном более плавно затеняться и деформироваться по ширине. Это также увеличивает количество вершин и треугольников.</p>
+<p>Нижняя и боковые поверхности не разбиваются поперечно так же, как верхняя поверхность.</p>
+<hr/>
+<h2 id="texture-mapping">
+
+  Texture mapping
+</h2>
+<p><code>textureLength</code> управляет координатой V вдоль дороги.</p>
+<p>При генерации вершин движок измеряет расстояние между последовательными срезами и увеличивает координату текстуры на:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">sliceDistance / textureLength
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"textureLength"</span><span class="err">:</span> <span class="mi">8</span>
+</span></span></code></pre>
+</div><p>Меньшие значения заставляют текстуру повторяться чаще. Большие значения растягивают текстуру на большее расстояние вдоль дороги.</p>
+<hr/>
+<h2 id="meshroad-vs-decalroad">
+
+  MeshRoad vs DecalRoad
+</h2>
+<table>
+<thead>
+<tr>
+<th>Сценарий использования</th>
+<th>Рекомендуемый класс</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Дорожная разметка или поверхность, проецируемая на рельеф</td>
+<td><code>DecalRoad</code></td>
+</tr>
+<tr>
+<td>Данные AI/навигационного маршрута</td>
+<td><code>DecalRoad</code></td>
+</tr>
+<tr>
+<td>Мост с видимыми боковыми гранями</td>
+<td><code>MeshRoad</code></td>
+</tr>
+<tr>
+<td>Приподнятый пандус или пользовательская геометрия дороги</td>
+<td><code>MeshRoad</code></td>
+</tr>
+<tr>
+<td>Дорога на существующем меше с материалом декали</td>
+<td><code>DecalRoad</code> с <code>overObjects</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>MeshRoad</code> создаёт геометрию. <code>DecalRoad</code> отрисовывает декаль на существующей геометрии.</p>
+<hr/>
+<h2 id="materials">
+
+  Materials
+</h2>
+<p><code>MeshRoad</code> может использовать три отдельных материала:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"topMaterial"</span><span class="err">:</span> <span class="s2">"road_asphalt"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"bottomMaterial"</span><span class="err">:</span> <span class="s2">"road_concrete"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"sideMaterial"</span><span class="err">:</span> <span class="s2">"road_concrete"</span>
+</span></span></code></pre>
+</div><p>Материалы должны бесшовно тайлиться вдоль дороги.</p>
+<p><code>textureLength</code> управляет частотой повторения материала:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"textureLength"</span><span class="err">:</span> <span class="mi">8</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="tool-notes">
+
+  Tool notes
+</h2>
+<p>Для инструментов, генерирующих дороги:</p>
+<ul>
+<li>Сохраняйте все восемь значений узла.</li>
+<li>Сохраняйте порядок узлов стабильным.</li>
+<li>По возможности нормализуйте нормали узлов.</li>
+<li>Генерируйте достаточно равномерное расстояние между узлами для более плавных результатов Catmull-Rom.</li>
+<li>Добавляйте вспомогательные узлы вокруг острых поворотов, крутых пандусов или резких изменений ширины/глубины.</li>
+<li>Настраивайте <code>breakAngle</code> вместо того, чтобы бездумно добавлять чрезмерное количество авторских узлов.</li>
+<li>Используйте <code>DecalRoad</code>, если результат — только проецируемая визуальная дорога.</li>
+<li>Используйте <code>MeshRoad</code>, когда требуется генерируемая геометрия, толщина или поведение наподобие моста.</li>
+<li>Проверяйте коллизии и поведение транспортного средства в игре после изменения генерируемых узлов.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Common issues
+</h2>
+<ul>
+<li>Дорога скручивается, потому что нормали узлов неверны или непоследовательны.</li>
+<li>Материалы растягиваются, потому что <code>textureLength</code> слишком велик.</li>
+<li>У дороги отсутствуют боковые/нижние визуальные элементы, потому что <code>sideMaterial</code> или <code>bottomMaterial</code> не указан.</li>
+<li>Генерируемые инструментом узлы используют четырёхзначный формат <code>DecalRoad</code> вместо восьмизначного формата <code>MeshRoad</code>.</li>
+<li>Повороты выглядят угловатыми, потому что <code>breakAngle</code> слишком велик.</li>
+<li>Меш слишком плотный, потому что <code>breakAngle</code> слишком мал или расстояние между узлами избыточно.</li>
+</ul>
+<hr/>
+<h2 id="validation-criteria">
+
+  Validation criteria
+</h2>
+<ul>
+<li>Все узлы имеют восемь числовых значений.</li>
+<li>Материалы верхней, боковых и нижней поверхностей существуют.</li>
+<li>Геометрия дороги следует заданному маршруту без скручивания.</li>
+<li>Повороты достаточно плавны на нормальной скорости езды.</li>
+<li>Генерируемая геометрия и коллизии остаются разумными для длины дороги.</li>
+<li>Транспортные средства могут ехать по генерируемой поверхности так, как задумано.</li>
+<li>Дороги-декали и AI-маршруты добавляются отдельно, когда требуются навигационные данные.</li>
+</ul>
+<p><strong>См. также:</strong> <a data-doc="levels/level_classes/decalorad" href="/docs/levels/level_classes/decalorad">DecalRoad</a>
+, <a data-doc="file_formats/materials" href="/docs/file_formats/materials">Формат файла материалов</a>
+, <a data-doc="levels/level_formats/map" href="/docs/levels/level_formats/map">Навигационная карта (<code>map.json</code>)</a>
+, <a data-doc="levels/level_formats/items" href="/docs/levels/level_formats/items">Файлы объектов уровня (<code>items.level.json</code>)</a>
+.</p>

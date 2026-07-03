@@ -1,0 +1,391 @@
+<h2 id="version-31-0x001f">
+
+  версия <code>31</code> / <code>0x001F</code>
+</h2>
+<p>В этом документе описывается формат файла <strong>v31</strong> BeamNG <em>cached Collada</em> (<code>.cdae</code>), создаваемый внутри кодовой базы BeamNG. Данные сериализуются в формате
+    <a class="link-ext" href="https://msgpack.org/" rel="noopener" target="_blank">MessagePack</a>
+ с возможным сжатием
+    <a class="link-ext" href="https://facebook.github.io/zstd/" rel="noopener" target="_blank">Zstandard</a>.
+Используйте эту информацию для создания или отладки собственных инструментов чтения файла.</p>
+<h3 id="why-use-a-binary-format-for-speed-and-efficiency">
+
+  Почему используется бинарный формат: скорость и эффективность
+</h3>
+<p>Файл <code>.cdae</code> хранит данные формы в бинарном формате по нескольким причинам:</p>
+<ol>
+<li><strong>Меньший размер</strong>: Бинарные данные имеют меньше накладных расходов по сравнению с текстовыми форматами, что снижает использование дискового пространства и время загрузки.</li>
+<li><strong>Более быстрый разбор</strong>: Инструменты и движок могут значительно быстрее считывать целые числа, числа с плавающей точкой и другие элементы в бинарном виде, нежели разбирать их из текста.</li>
+<li><strong>Упрощённый рабочий процесс</strong>: В бинарном формате расположение данных (например, float, int, векторы) ближе к структурам памяти, что сводит к минимуму количество преобразований.</li>
+<li><strong>Единообразное представление</strong>: Бинарный формат исключает неоднозначность в форматировании, делая операции чтения/записи более надёжными.</li>
+</ol>
+<p>Этот компактный и последовательный подход в конечном счёте повышает производительность при загрузке форм, особенно в масштабе.</p>
+<hr/>
+<h3 id="overview-of-the-cdae-file-content-v31">
+
+  Обзор содержимого файла .cdae (v31)
+</h3>
+<p>Формат v31 вводит более структурированный подход с отдельным заголовком и телом, а также опциональным сжатием:</p>
+<p><strong>Приблизительная псевдокодовая таблица содержимого файла .cdae версии v31</strong> </p>
+<table>
+<thead>
+<tr>
+<th align="right">Шаг</th>
+<th align="left">Содержимое</th>
+<th align="left">Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">1</td>
+<td align="left"><em>Заголовок файла</em> (32-битное целое, версия).</td>
+<td align="left">Проверьте <code>version &amp; 0xFF == 31</code>, чтобы убедиться в версии v31.</td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td align="left"><em>Размер заголовка</em> (32-битное беззнаковое целое).</td>
+<td align="left">Размер следующих данных заголовка в байтах.</td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td align="left"><em>Заголовок MsgPack</em> (словарь с метаданными)</td>
+<td align="left">Содержит информацию о флаге сжатия, размере тела и т. д.</td>
+</tr>
+<tr>
+<td align="right">4</td>
+<td align="left"><em>Данные тела</em> (возможно, сжатые)</td>
+<td align="left">При наличии сжатия используйте Zstandard для распаковки. Содержит данные формы.</td>
+</tr>
+</tbody>
+</table>
+<p>Заголовок — это словарь MsgPack, содержащий метаданные о файле, включая информацию о том, сжато ли тело.
+Тело содержит фактические данные формы также в формате MsgPack.</p>
+<hr/>
+<h3 id="using-cdae-dump-infopy">
+
+  Использование <code>cdae_dump_info.py</code>
+</h3>
+<p>Для дополнительного способа проверки или отладки файлов <code>.cdae</code> можно воспользоваться скриптом
+<a href="https://documentation.beamng.com/modding/file_formats/cdae/cdae_dump_info.py" rel="noopener" target="_blank">cdae_dump_info.py</a>.
+Например, выполните следующую команду в консоли/терминале:</p>
+
+<pre tabindex="0"><code>&gt;python cdae_dump_info.py vehicles\pickup\pickup.cdae
+</code></pre>
+
+<h3 id="file-structure-header-and-body">
+
+  Структура файла: заголовок и тело
+</h3>
+<p>В <strong>начале</strong> файла формат начинается со следующего:</p>
+<ol>
+<li>
+<p><strong>32-битное целое</strong> <code>version</code>:</p>
+
+<pre tabindex="0"><code>version = (smVersion | (mExporterVersion &lt;&lt; 16))
+</code></pre>
+<p>где <strong><code>smVersion</code></strong> установлен в <code>31</code> для данного формата, а <strong><code>exporter_version</code></strong> — отдельное 16-битное значение в старших битах.</p>
+<p>Читателю следует проверить <code>(version &amp; 0xFF) == 31</code>, чтобы убедиться, что это форма <em>v31</em>.</p>
+</li>
+<li>
+<p><strong>32-битное беззнаковое целое</strong> <code>headerSize</code>:
+Указывает размер следующих данных заголовка MsgPack.</p>
+</li>
+<li>
+<p><strong>Заголовок MsgPack</strong>:
+Словарь, содержащий метаданные о файле, такие как:</p>
+<ul>
+<li><code>compression</code>: Булево значение, указывающее, сжато ли тело с помощью Zstandard</li>
+<li><code>bodysize</code>: Размер данных тела (в байтах)</li>
+<li>Прочие возможные метаданные</li>
+</ul>
+</li>
+<li>
+<p><strong>Данные тела</strong>:</p>
+<ul>
+<li>Если <code>compression</code> равно true, тело сжато с помощью Zstandard и требует распаковки</li>
+<li>После распаковки (при необходимости) тело содержит фактические данные формы в формате MsgPack</li>
+</ul>
+</li>
+</ol>
+<hr/>
+<h3 id="overview-of-the-msgpack-body-data">
+
+  Обзор данных тела MsgPack
+</h3>
+<p>После считывания и (при необходимости) распаковки данных тела можно разобрать объекты MsgPack в определённом порядке:</p>
+<ol>
+<li>
+<p><strong>Информация о форме</strong>:</p>
+<ul>
+<li><code>mSmallestVisibleSize</code> (float)</li>
+<li><code>mSmallestVisibleDL</code> (int32)</li>
+<li><code>radius</code> (float)</li>
+<li><code>tubeRadius</code> (float)</li>
+<li><code>center</code> (Point3F — 3 float-значения)</li>
+<li><code>bounds</code> (Box3F — 6 float-значений)</li>
+</ul>
+</li>
+<li>
+<p><strong>Несколько векторов (pack_vector)</strong>, каждый хранится как:</p>
+<ul>
+<li>32-битное знаковое целое для длины вектора</li>
+<li>32-битное знаковое целое для размера элемента в байтах</li>
+<li>Блок необработанных бинарных данных (MsgPack «bin») длиной <code>vector.size * elementSize</code>.</li>
+</ul>
+<p>Код считывает их в следующем порядке:</p>
+<ul>
+<li>
+<p><code>nodes</code></p>
+</li>
+<li>
+<p><code>objects</code></p>
+</li>
+<li>
+<p><code>subShapeFirstNode</code></p>
+</li>
+<li>
+<p><code>subShapeFirstObject</code></p>
+</li>
+<li>
+<p><code>subShapeNumNodes</code></p>
+</li>
+<li>
+<p><code>subShapeNumObjects</code></p>
+</li>
+<li>
+<p><code>defaultRotations</code></p>
+</li>
+<li>
+<p><code>defaultTranslations</code></p>
+</li>
+<li>
+<p><code>nodeRotations</code></p>
+</li>
+<li>
+<p><code>nodeTranslations</code></p>
+</li>
+<li>
+<p><code>nodeUniformScales</code></p>
+</li>
+<li>
+<p><code>nodeAlignedScales</code></p>
+</li>
+<li>
+<p><code>nodeArbitraryScaleFactors</code></p>
+</li>
+<li>
+<p><code>nodeArbitraryScaleRots</code></p>
+</li>
+<li>
+<p><code>groundTranslations</code></p>
+</li>
+<li>
+<p><code>groundRotations</code></p>
+</li>
+<li>
+<p><code>objectStates</code></p>
+</li>
+<li>
+<p><code>triggers</code></p>
+</li>
+<li>
+<p><code>details</code></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Массив строк</strong></p>
+<ul>
+<li>Значение <code>uint32</code> для количества имён формы.</li>
+<li>Каждое имя — строка MsgPack.</li>
+</ul>
+</li>
+<li>
+<p><strong>Меши</strong></p>
+<ul>
+<li>Значение <code>uint32</code> — общее количество мешей.</li>
+<li>Каждый меш содержит:
+<ul>
+<li>
+<p><code>uint32 meshType</code>:</p>
+<ul>
+<li><code>0</code> → StandardMesh</li>
+<li><code>1</code> → SkinMesh</li>
+<li><code>2</code> → DecalMesh (устарело)</li>
+<li><code>3</code> → SortedMesh</li>
+<li><code>4</code> → NullMesh</li>
+</ul>
+</li>
+<li>
+<p>Для ненулевых мешей:</p>
+<ul>
+<li><code>int32 numFrames</code></li>
+<li><code>int32 numMatFrames</code></li>
+<li><code>int32 parentMesh</code></li>
+<li><code>Box3F mBounds</code> (6 float-значений)</li>
+<li><code>Point3F mCenter</code> (3 float-значения)</li>
+<li><code>float mRadius</code></li>
+</ul>
+<p>Затем дополнительные вызовы <code>pack_vector</code> для:</p>
+<ul>
+<li><code>verts</code></li>
+<li><code>tverts</code></li>
+<li><code>tverts2</code></li>
+<li><code>colors</code></li>
+<li><code>norms</code></li>
+<li><code>encodedNorms</code></li>
+<li><code>primitives</code></li>
+<li><code>indices</code></li>
+<li><code>tangents</code></li>
+</ul>
+<p>И в конце:</p>
+<ul>
+<li><code>int32 vertsPerFrame</code></li>
+<li><code>uint32 meshFlags</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Для мешей типа SkinMesh (тип 1) считываются дополнительные данные:</strong></p>
+<ul>
+<li>Сначала определяется, является ли меш родительским (<code>parentMesh &lt; 0</code>)</li>
+<li>Для родительских мешей:
+<ul>
+<li>Вектор <code>skinMesh.initialVerts</code></li>
+<li>Вектор <code>skinMesh.initialNorms</code></li>
+</ul>
+</li>
+<li>Для всех мешей типа SkinMesh:
+<ul>
+<li>Вектор <code>skinMesh.initialTransforms</code></li>
+</ul>
+</li>
+<li>Для родительских мешей:
+<ul>
+<li>Вектор <code>skinMesh.vertexIndex</code></li>
+<li>Вектор <code>skinMesh.boneIndex</code></li>
+<li>Вектор <code>skinMesh.weight</code></li>
+<li>Вектор <code>skinMesh.nodeIndex</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Последовательности (Sequences)</strong></p>
+<ul>
+<li>Значение <code>uint32 numSequences</code>.</li>
+<li>Для каждой последовательности:
+<ul>
+<li><code>int32 nameIndex</code></li>
+<li><code>uint32 flags</code></li>
+<li><code>int32 numKeyframes</code></li>
+<li><code>float duration</code></li>
+<li><code>int32 priority</code></li>
+<li><code>int32 firstGroundFrame</code></li>
+<li><code>int32 numGroundFrames</code></li>
+<li><code>int32 baseRotation</code></li>
+<li><code>int32 baseTranslation</code></li>
+<li><code>int32 baseScale</code></li>
+<li><code>int32 baseObjectState</code></li>
+<li><code>int32 baseDecalState</code></li>
+<li><code>int32 firstTrigger</code></li>
+<li><code>int32 numTriggers</code></li>
+<li><code>float toolBegin</code></li>
+<li><code>TSIntegerSet rotationMatters</code></li>
+<li><code>TSIntegerSet translationMatters</code></li>
+<li><code>TSIntegerSet scaleMatters</code></li>
+<li><code>TSIntegerSet visMatters</code></li>
+<li><code>TSIntegerSet frameMatters</code></li>
+<li><code>TSIntegerSet matFrameMatters</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Список материалов</strong> (необязательно)</p>
+<ul>
+<li>Значение <code>uint32 materialCount</code>.</li>
+<li>Для каждого материала:
+<ul>
+<li><code>string name</code></li>
+<li><code>uint32 flags</code></li>
+<li><code>uint32 reflectanceMap</code></li>
+<li><code>uint32 bumpMap</code></li>
+<li><code>uint32 detailMap</code></li>
+<li><code>float detailScale</code></li>
+<li><code>float reflectionAmount</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>На этом данные заканчиваются. Краткие определения:</p>
+<ul>
+<li><code>Point3F</code>: 3 float-значения <code>[x, y, z]</code>.</li>
+<li><code>Box3F</code>: минимальный и максимальный углы => 6 float-значений итого.</li>
+<li><code>TSIntegerSet</code>: специализированный битовый набор для флагов узлов/элементов.</li>
+</ul>
+<hr/>
+<h3 id="reading-strategy-pseudocode">
+
+  Стратегия чтения (псевдокод)
+</h3>
+<ol>
+<li>
+<p><strong>Считайте</strong> первые 4 байта (32-битное целое) → <code>version</code>.</p>
+<ul>
+<li>Проверьте <code>version &amp; 0xFF == 31</code>.</li>
+<li>Извлеките <code>exporter_version = version &gt;&gt; 16</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Считайте</strong> следующие 4 байта (32-битное беззнаковое целое) → <code>headerSize</code>.</p>
+</li>
+<li>
+<p><strong>Считайте</strong> <code>headerSize</code> байт и разберите как MsgPack → <code>header_info</code>.</p>
+<ul>
+<li>Проверьте, является ли <code>header_info['compression']</code> истинным.</li>
+<li>Запомните значение <code>bodysize</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Считайте</strong> оставшиеся байты → <code>body_data</code>.</p>
+<ul>
+<li>Если сжатие включено, распакуйте с помощью Zstandard.</li>
+</ul>
+</li>
+<li>
+<p><strong>Передайте</strong> распакованное тело в парсер MsgPack.</p>
+</li>
+<li>
+<p><strong>Считайте</strong> информацию о форме:</p>
+<ul>
+<li><code>mSmallestVisibleSize</code> (float)</li>
+<li><code>mSmallestVisibleDL</code> (int32)</li>
+<li><code>radius</code> (float)</li>
+<li><code>tubeRadius</code> (float)</li>
+<li><code>center</code> (3 float-значения)</li>
+<li><code>bounds</code> (6 float-значений)</li>
+</ul>
+</li>
+<li>
+<p><strong>Считайте</strong> несколько векторов в точном порядке, описанном выше.</p>
+</li>
+<li>
+<p><strong>Считайте</strong> массив имён: количество (uint32), затем столько же строк.</p>
+</li>
+<li>
+<p><strong>Считайте</strong> меши: общее количество (uint32), затем данные каждого меша.</p>
+<ul>
+<li>Для мешей типа SkinMesh обрабатывайте родительские и дочерние меши по-разному, с дополнительными векторами.</li>
+</ul>
+</li>
+<li>
+<p><strong>Считайте</strong> последовательности: количество (uint32), затем данные каждой последовательности.</p>
+</li>
+<li>
+<p><strong>Считайте</strong> список материалов (при наличии): количество (uint32), затем данные каждого материала.</p>
+</li>
+</ol>

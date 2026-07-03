@@ -1,0 +1,90 @@
+<h2 id="overview">
+
+  Обзор
+</h2>
+<p>В BeamNG стекло либо разбито, либо цело — в зависимости от состояния <code>deformgroup</code>, который фиксирует определённый уровень деформации и переключает текстуру меша стекла, делая его разбитым.</p>
+<p>С учётом этого текстуры повреждения стекла должны быть максимально универсальными. Например, разбитые лобовые стёкла должны выглядеть равномерно треснувшими, чтобы не было очевидно, из какого угла лобового стекла распространились трещины.</p>
+<div class="line-inner-small"></div>
+<h2 id="windshield">
+
+  Лобовое стекло
+</h2>
+<p>Это наиболее художественно сложная часть текстуры повреждения стекла, и обычно требуется несколько итераций методом проб и ошибок, чтобы добиться нужного результата. В Substance Painter есть кисть-частица Fracture, идеально подходящая для этой задачи, однако параметры по умолчанию требуют значительной настройки.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glass-damage-textures/1.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glass-damage-textures/2.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glass-damage-textures/3.png"/>
+</span></div>
+<p>Как показано выше, сначала добавьте слой заливки с чёрной маской и слой рисования. Основной цвет слоя заливки должен быть очень светлым бирюзовым с оттенком 0.5. При размере кисти 0.1 уменьшите значение particle dt до достаточно низкого, чтобы шаги между точками кисти не были видны и трещины выглядели как непрерывная линия. Уменьшение SpawnSpeed также может помочь сделать линии более непрерывными, а не точечными.</p>
+<hr/>
+<p>Чтобы улучшить внешний вид трещин, необходимо настроить почти все значения кисти-частицы:</p>
+<ul>
+<li><code>Shape</code> — установка значения <code>Thorn</code> даёт наиболее чёткие линии</li>
+<li><code>ParticleLife</code> — следует задать очень высокое значение, чтобы трещины не обрывались, не достигнув другой трещины</li>
+<li><code>ParticleSpeed</code> — отрегулируйте так, чтобы значение было достаточно низким для предотвращения разрывов линий, но достаточно высоким для быстрого выполнения большого количества итераций (<em>при более высоких скоростях влияние турбулентности также снижается</em>)</li>
+<li><code>SpeedFactorAtTrigger</code> — задайте достаточно высокое значение, чтобы эффекты турбулентности были схожи на ветвях трещин</li>
+<li><code>StopSpeedRatio</code> — прекращает распространение трещины, когда она достигает данного соотношения от начальной скорости. Экспериментируйте с этим параметром для управления количеством ветвей трещин</li>
+<li><code>TriggerDeviation</code> — установите высокое значение, чтобы ветви трещин не расходились исключительно под прямыми углами</li>
+<li><code>TriggerTimeMax</code> — максимальный интервал времени до ветвления трещины</li>
+<li><code>TriggerTimeMin</code> — минимальный интервал времени до ветвления трещины</li>
+<li><code>TurbulencePower</code> — сила эффекта турбулентности — обязательно регулируйте пропорционально скорости частиц</li>
+<li><code>TurbulenceScale</code> — установите очень низкое значение, чтобы избежать волнистой или завитой турбулентности</li>
+</ul>
+<p>Если удерживать кнопку мыши при использовании кисти Fracture, трещины будут взаимодействовать друг с другом и образовывать границы для других трещин. Попробуйте удерживать левую кнопку мыши для рисования частицами Fracture и быстро касаться каждого угла лобового стекла, чтобы запустить трещины из углов, не отпуская кнопку мыши. Когда трещины встретятся в центре лобового стекла, они прекратят распространение на границах друг друга. Приведённые ниже результаты были достигнуты с использованием показанных на изображении настроек частиц:</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glass-damage-textures/4.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glass-damage-textures/5.png"/>
+</span></div>
+<p>В случае с повреждением лобового стекла действует принцип «меньше — лучше»: старайтесь не перегружать лобовое стекло трещинами, особенно помня о том, что этот узор впоследствии придётся воссоздавать вручную в виде 3D-меша. Ожидайте, что на отработку техники и поиск удачной итерации уйдёт 15–30 минут. Помните, что данный узор трещин будет хорошо виден игроку, особенно из вида из кабины.</p>
+<p>Когда вы будете довольны узором трещин, следует применить к маске слоя несколько фильтров для придания более естественного вида. Наиболее подходящие фильтры для трещин лобового стекла:</p>
+<ul>
+<li>Blur Slope (режим наложения «Min») — создаёт случайные вариации толщины линий, делая трещины более сложными по виду.</li>
+<li>Blur Slope (режим наложения «Max») — позволяет имитировать эффекты преломления и каустические блики, обусловленные толщиной стекла.</li>
+<li>Sharpen — применяйте этот фильтр поверх фильтров Blur Slope для улучшения чёткости трещин.</li>
+</ul>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glass-damage-textures/6.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glass-damage-textures/7.png"/>
+</span></div>
+<div class="line-inner-small"></div>
+<h2 id="side-and-rear-windows">
+
+  Боковые и заднее стёкла
+</h2>
+<p>Как правило, они изготовлены из закалённого стекла, которое разбивается на мелкие осколки. Поскольку при аварии эти осколки обычно осыпаются, хотя некоторые остаются прикреплёнными к раме окна по краям, мы текстурируем разбитые боковые и заднее стёкла равномерной текстурой трещин высокой плотности с неровным отверстием в центре.</p>
+<p>Начните с создания нового слоя заливки с материалом, схожим с материалом трещин лобового стекла, но с немного отрицательным значением Height. Добавьте чёрную маску и начните рисовать на ней кистью Cracks при небольшом размере кисти.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glass-damage-textures/8.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glass-damage-textures/9.png"/>
+</span></div>
+<p>Добавьте новый слой заливки с материалом для отверстий в разбитом закалённом стекле. У этого материала все каналы отключены, кроме Height и Opacity. Установите Opacity на 0, а Height на низкое значение, чтобы отверстие имело чёткий край на карте нормалей.</p>
+<p>Используйте кисть Crystal с параметром Hardness, установленным на максимум, и параметром Shape, установленным на минимум, чтобы рисовать неровные отверстия в стекле:</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glass-damage-textures/10.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glass-damage-textures/11.png"/>
+</span></div>
+<div class="line-inner-small"></div>
+<h2 id="light-covers">
+
+  Рассеиватели фар
+</h2>
+<p>Они должны трескаться как лобовое стекло, но поскольку изготовлены не из ламинированного стекла, осколки могут отламываться, обнажая отражатель под ними. Снова используйте кисть-частицу Fracture и слой трещин лобового стекла, а затем применяйте слой отверстий, чтобы удалить фрагменты, не прикреплённые к раме фары.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glass-damage-textures/12.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glass-damage-textures/13.png"/>
+</span></div>
+<p>Это ещё один случай, когда «меньше — лучше»: повреждение, как правило, выглядит более убедительно в игре при меньшем количестве осколков стекла.</p>

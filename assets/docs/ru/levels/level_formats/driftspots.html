@@ -1,0 +1,387 @@
+<p>На этой странице описываются локальные для уровня папки с дрифт-спотами.</p>
+<p>Дрифт-споты определяют испытания по дрифту в режиме свободного катания. Они объединяют UI-метаданные, цели для подсчёта очков, пространственные настройки, данные маршрута, граничные данные и объекты-маркеры сцены.</p>
+<h2 id="file-location">
+
+  Расположение файлов
+</h2>
+<p>Дрифт-споты хранятся в корне уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/driftSpots/&lt;spotName&gt;/
+</span></span></code></pre>
+</div><p>Общие файлы:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">info.json
+</span></span><span class="line"><span class="cl">spot.driftSpot.json
+</span></span><span class="line"><span class="cl">race.race.json
+</span></span><span class="line"><span class="cl">bounds.sites.json
+</span></span><span class="line"><span class="cl">preview.jpg
+</span></span></code></pre>
+</div><p>Система дрифта обнаруживает споты, сканируя каталоги в поисках <code>spot.driftSpot.json</code>.</p>
+<h2 id="discovery-behavior">
+
+  Поведение при обнаружении
+</h2>
+<p>При загрузке уровня система дрифт-спотов сканирует:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/driftSpots/
+</span></span></code></pre>
+</div><p>Каждая папка, содержащая <code>spot.driftSpot.json</code>, считается одним дрифт-спотом. Имя папки становится частью идентификатора дрифт-спота, поэтому оставляйте его неизменным после релиза или после того, как на него начнут ссылаться данные карьеры/прогресса.</p>
+<h2 id="file-roles">
+
+  Роли файлов
+</h2>
+<table>
+<thead>
+<tr>
+<th>Файл</th>
+<th>Назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>info.json</code></td>
+<td>Отображаемое название, данные разблокировки, цели, награды и UI-метаданные.</td>
+</tr>
+<tr>
+<td><code>spot.driftSpot.json</code></td>
+<td>Пространственная настройка дрифт-спота, трансформация телепорта на глобальной карте, определения линий дрифта и ссылки на объекты-маркеры сцены.</td>
+</tr>
+<tr>
+<td><code>race.race.json</code></td>
+<td>Данные пути/маршрута, используемые геймплеем дрифта.</td>
+</tr>
+<tr>
+<td><code>bounds.sites.json</code></td>
+<td>Граничные зоны игровой или зачётной области.</td>
+</tr>
+<tr>
+<td><code>preview.*</code></td>
+<td>Необязательное изображение предпросмотра для резервного отображения в UI.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="infojson">
+<code>info.json</code>
+</h2>
+<p>Файл <code>info.json</code> дрифт-спота — это не то же самое, что <code>info.json</code> уровня. Он является локальным для конкретного дрифт-спота и обычно содержит данные UI и прогресса:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Отображаемое название или ключ перевода.</td>
+</tr>
+<tr>
+<td><code>objectives</code></td>
+<td>Пороги очков и награды: бронза, серебро и золото.</td>
+</tr>
+<tr>
+<td><code>unlock</code></td>
+<td>Необязательные данные разблокировки/прогресса.</td>
+</tr>
+</tbody>
+</table>
+<p>Пороги очков следует подбирать в ходе реального вождения. Если они слишком низкие, прогресс ощущается случайным; если слишком высокие, спот может казаться игрокам неработающим.</p>
+<p>Минимальный <code>info.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.driftSpots.harbor.name"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"objectives"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"bronze"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"score"</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"rewards"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"money"</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"beamXP"</span><span class="p">:</span> <span class="mi">25</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"silver"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"score"</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"rewards"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"money"</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"beamXP"</span><span class="p">:</span> <span class="mi">50</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"gold"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"score"</span><span class="p">:</span> <span class="mi">15000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"rewards"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"money"</span><span class="p">:</span> <span class="mi">1500</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"beamXP"</span><span class="p">:</span> <span class="mi">75</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"unlock"</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Используйте стабильные идентификаторы целей. Системы прогресса могут хранить информацию о выполнении по идентификатору цели.</p>
+<h2 id="spotdriftspotjson">
+<code>spot.driftSpot.json</code>
+</h2>
+<p>Этот файл хранит пространственную настройку спота. Основные концепции:</p>
+<table>
+<thead>
+<tr>
+<th>Концепция</th>
+<th>Назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bigMapTp</code></td>
+<td>Позиция/поворот/масштаб телепорта дрифт-спота на глобальной карте.</td>
+</tr>
+<tr>
+<td><code>lines</code></td>
+<td>Одно или несколько определений стартовой/зачётной линии.</td>
+</tr>
+<tr>
+<td><code>markerObjects</code></td>
+<td>Объекты сцены, используемые как видимые маркеры или управляемые маркеры.</td>
+</tr>
+<tr>
+<td><code>startDir</code></td>
+<td>Направление, используемое линией дрифта или логикой старта.</td>
+</tr>
+</tbody>
+</table>
+<p>Конкретная схема расположения линий может варьироваться в зависимости от спота. По возможности сохраняйте файл, созданный редактором Drift Data Editor.</p>
+<p>Минимальная структура <code>spot.driftSpot.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"spatialInfo"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"bigMapTp"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"rot"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"scl"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"lines"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"lineOne"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"markerObjects"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">"harbor_line_1_a"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">"harbor_line_1_b"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">"harbor_drift_sign"</span>
+</span></span><span class="line"><span class="cl">        <span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"rot"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"scl"</span><span class="p">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"startDir"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="spotdriftspotjson-fields">
+Поля <code>spot.driftSpot.json</code>
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Обязательное</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spatialInfo</code></td>
+<td>Да</td>
+<td>Контейнер для данных телепорта и линий.</td>
+</tr>
+<tr>
+<td><code>spatialInfo.bigMapTp</code></td>
+<td>Рекомендуется</td>
+<td>Трансформация телепорта на глобальной карте.</td>
+</tr>
+<tr>
+<td><code>spatialInfo.lines</code></td>
+<td>Да</td>
+<td>Одно или несколько определений линий дрифта.</td>
+</tr>
+<tr>
+<td><code>markerObjects</code></td>
+<td>Рекомендуется</td>
+<td>Имена объектов сцены, управляемых дрифт-спотом.</td>
+</tr>
+<tr>
+<td><code>pos</code> / <code>rot</code> / <code>scl</code></td>
+<td>Да, для каждой линии</td>
+<td>Трансформация триггера/объёма линии.</td>
+</tr>
+<tr>
+<td><code>startDir</code></td>
+<td>Рекомендуется</td>
+<td>Ожидаемое направление въезда для линии.</td>
+</tr>
+</tbody>
+</table>
+<p><code>rot</code> хранится в виде массива кватернионов. <code>scl</code> управляет размером объёма линии.</p>
+<h2 id="raceracejson-and-boundssitesjson">
+<code>race.race.json</code> и <code>bounds.sites.json</code>
+</h2>
+<p>Загрузчик дрифт-спота ожидает эти файлы рядом с <code>spot.driftSpot.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">race.race.json
+</span></span><span class="line"><span class="cl">bounds.sites.json
+</span></span></code></pre>
+</div><p><code>race.race.json</code> описывает путь, используемый геймплеем дрифта. <code>bounds.sites.json</code> содержит игровую/зачётную область. Эти форматы используются совместно с другими игровыми системами, поэтому предпочтительнее создавать их с помощью существующих инструментов для путей и сайтов, а не вручную составлять большие файлы.</p>
+<h2 id="folder-identity">
+
+  Идентификация папки
+</h2>
+<p>Идентификатор спота формируется на основе текущего уровня и имени папки:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">&lt;levelName&gt;/&lt;spotName&gt;
+</span></span></code></pre>
+</div><p>Сохраняйте имена папок стабильными после того, как появятся ссылки на них в данных прогресса, карьеры, лигах или UI.</p>
+<h2 id="scene-object-references">
+
+  Ссылки на объекты сцены
+</h2>
+<p><code>spot.driftSpot.json</code> может ссылаться на объекты-маркеры сцены для линий дрифта и знаков. Во время выполнения эти объекты обычно скрыты или управляются системой дрифта.</p>
+<p>При перемещении или переименовании объектов-маркеров дрифта одновременно обновляйте файл дрифт-спота.</p>
+<p>Объекты-маркеры следует чётко группировать в сцене, чтобы можно было обслуживать дрифт-спот без поиска по всему дереву уровня.</p>
+<h2 id="relationship-with-missions-and-pois">
+
+  Связь с миссиями и POI
+</h2>
+<p>Дрифт-споты могут отображаться как POI на глобальной карте и могут использовать те же паттерны, что и данные путей миссий. Файлы <code>race.race.json</code> и <code>bounds.sites.json</code> следует считать частью спота, даже несмотря на то что аналогичные имена файлов используются и в миссиях.</p>
+<p>Система дрифта также может сохранять прогресс игрока отдельно от файлов уровня. Изменение имён папок, идентификаторов целей или идентификаторов спотов после релиза может нарушить привязку существующих результатов или данных о выполнении.</p>
+<h2 id="authoring-workflow">
+
+  Рабочий процесс создания
+</h2>
+<ol>
+<li>Создайте или выберите дорогу/область для использования.</li>
+<li>Создайте объекты-маркеры и расставьте линии в сцене уровня.</li>
+<li>По возможности создайте <code>spot.driftSpot.json</code> с помощью редактора Drift Data Editor.</li>
+<li>Добавьте или обновите <code>race.race.json</code> для нужного маршрута.</li>
+<li>Добавьте <code>bounds.sites.json</code> для зачётной/игровой области.</li>
+<li>Настройте пороги целей в <code>info.json</code> на основе реальных тестовых заездов.</li>
+<li>Проверьте маркер на глобальной карте и цель телепорта.</li>
+</ol>
+<h2 id="creating-a-drift-spot-with-editor-tools">
+
+  Создание дрифт-спота с помощью инструментов редактора
+</h2>
+<p>При наличии используйте редактор Drift Data Editor. Он помогает поддерживать согласованность пространственных данных и ссылок на маркеры.</p>
+<p>Рекомендуемый рабочий процесс с приоритетом редактора:</p>
+<ol>
+<li>Откройте уровень в World Editor.</li>
+<li>Создайте отдельную группу сцены для маркеров дрифт-спота.</li>
+<li>Разместите видимые меши-маркеры или знаки для стартовых/зачётных линий дрифта.</li>
+<li>Используйте Drift Data Editor для определения линий дрифта и пространственных данных.</li>
+<li>Сохраните спот в папку <code>levels/&lt;levelName&gt;/driftSpots/&lt;spotName&gt;/</code>.</li>
+<li>Создайте или обновите <code>race.race.json</code> для нужного пути дрифта.</li>
+<li>Создайте или обновите <code>bounds.sites.json</code> для зачётной области.</li>
+<li>Добавьте <code>info.json</code> с названием, данными разблокировки и целями.</li>
+<li>Перезагрузите уровень или данные дрифта и протестируйте с глобальной карты.</li>
+</ol>
+<p>Делайте имена объектов-маркеров короткими, но понятными. Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">garage_line_1_a
+</span></span><span class="line"><span class="cl">garage_line_1_b
+</span></span><span class="line"><span class="cl">garage_drift_sign
+</span></span></code></pre>
+</div>
+<h2 id="writing-files-manually">
+
+  Создание файлов вручную
+</h2>
+<p>Ручное создание возможно, но при этом легче нарушить ссылки на маркеры или трансформации. При редактировании вручную действуйте в следующем порядке:</p>
+<ol>
+<li>Сначала создайте папку.</li>
+<li>Напишите <code>info.json</code> с названием и небольшим набором целей.</li>
+<li>Создайте <code>bounds.sites.json</code> в редакторе Sites Editor.</li>
+<li>Создайте или скопируйте путь <code>race.race.json</code>, затем настройте его для данного спота.</li>
+<li>В последнюю очередь напишите <code>spot.driftSpot.json</code> — после того как имена объектов-маркеров и трансформации окончательно установлены.</li>
+</ol>
+<p>Минимальная полезная папка дрифт-спота обычно требует:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">info.json
+</span></span><span class="line"><span class="cl">spot.driftSpot.json
+</span></span><span class="line"><span class="cl">race.race.json
+</span></span><span class="line"><span class="cl">bounds.sites.json
+</span></span></code></pre>
+</div><p>Не настраивайте пороги целей до тех пор, пока расстановка линий, маршрут и граница не будут окончательными.</p>
+<h2 id="updating-an-existing-drift-spot">
+
+  Обновление существующего дрифт-спота
+</h2>
+<p>При редактировании существующего спота:</p>
+<ul>
+<li>Сохраняйте имя папки, если может существовать прогресс игрока или данные карьеры.</li>
+<li>Сохраняйте идентификаторы целей, такие как <code>bronze</code>, <code>silver</code> и <code>gold</code>, если только не планируется намеренный сброс прогресса.</li>
+<li>Если объекты-маркеры переименованы, обновите все записи <code>markerObjects</code>.</li>
+<li>Если маршрут существенно изменился, пересмотрите пороги очков.</li>
+<li>Если телепорт на глобальной карте изменился, протестируйте спавн на нескольких транспортных средствах.</li>
+</ul>
+<h2 id="troubleshooting">
+
+  Устранение неполадок
+</h2>
+<h3 id="spot-does-not-appear">
+
+  Спот не отображается
+</h3>
+<p>Проверьте:</p>
+<ul>
+<li>Папка находится в <code>levels/&lt;levelName&gt;/driftSpots/</code>.</li>
+<li>Файл <code>spot.driftSpot.json</code> существует.</li>
+<li>Файл <code>info.json</code> существует, или резервные данные отображения приемлемы.</li>
+<li>Функция включена в текущем игровом режиме.</li>
+</ul>
+<h3 id="markers-are-missing-or-stuck-visible">
+
+  Маркеры отсутствуют или постоянно отображаются
+</h3>
+<p>Проверьте:</p>
+<ul>
+<li>Каждое имя маркера в <code>spot.driftSpot.json</code> существует в сцене уровня.</li>
+<li>Объекты-маркеры не были переименованы при распаковке префаба или очистке сцены.</li>
+<li>Спот был перезагружен после редактирования имён маркеров.</li>
+</ul>
+<h3 id="scores-or-objectives-feel-wrong">
+
+  Очки или цели кажутся неверными
+</h3>
+<p>Проверьте:</p>
+<ul>
+<li><code>race.race.json</code> соответствует нужному маршруту.</li>
+<li><code>bounds.sites.json</code> охватывает нужную зачётную область.</li>
+<li>Пороги очков целей в <code>info.json</code> были настроены с использованием нужного класса транспортных средств.</li>
+<li>Игрок въезжает на линию в ожидаемом направлении.</li>
+</ul>
+<h2 id="validation-checklist">
+
+  Чеклист проверки
+</h2>
+<ul>
+<li>Папка содержит <code>spot.driftSpot.json</code> и <code>info.json</code>.</li>
+<li>Имя папки спота стабильно и уникально в пределах уровня.</li>
+<li><code>race.race.json</code> существует и соответствует нужному маршруту.</li>
+<li><code>bounds.sites.json</code> существует и охватывает нужную область.</li>
+<li>Имена объектов-маркеров, на которые ссылается <code>spot.driftSpot.json</code>, существуют в сцене уровня.</li>
+<li>Трансформация телепорта на глобальной карте безопасна и указывает на нужную стартовую область.</li>
+<li>Пороги целей в <code>info.json</code> достижимы в обычном геймплее.</li>
+<li>Имена папок и идентификаторы целей стабильны после того, как данные прогресса начинают зависеть от них.</li>
+</ul>
+<h2 id="related-pages">
+
+  Связанные страницы
+</h2>
+<ul>
+<li><a data-doc="levels/level_formats/sites" href="/docs/levels/level_formats/sites">Sites (.sites.json)</a>
+</li>
+<li><a data-doc="levels/level_classes/gameplayareas" href="/docs/levels/level_classes/gameplayareas">Gameplay Areas and Points of Interest</a>
+</li>
+<li><a data-doc="levels/gameplay_data" href="/docs/levels/gameplay_data">Level Gameplay Data</a>
+</li>
+</ul>

@@ -1,0 +1,201 @@
+<p><code>Prefab</code> — это объект сцены, который размещает и загружает повторно используемую группу объектов из файла префаба.</p>
+<p>Объект <code>Prefab</code> хранит трансформацию размещения и ссылку на файл. Дочерние объекты хранятся в самом файле префаба.</p>
+<p>Описание формата файла префаба см. в документации <a data-doc="levels/level_formats/prefab" href="/docs/levels/level_formats/prefab">Prefab format</a>.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Простой пример
+</h2>
+<p>Простая запись <code>Prefab</code> в файле <code>items.level.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Prefab"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"gas_station_prefab"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"MissionGroup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"filename"</span><span class="p">:</span> <span class="s2">"/levels/example/art/prefabs/gas_station.prefab.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"loadMode"</span><span class="p">:</span> <span class="s2">"Automatic"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="important-fields">
+
+  Важные поля
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Должно быть <code>"Prefab"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя объекта сцены.</td>
+</tr>
+<tr>
+<td><code>__parent</code></td>
+<td>string</td>
+<td>Родительская группа.</td>
+</tr>
+<tr>
+<td><code>filename</code></td>
+<td>string/path</td>
+<td>Загружаемый файл префаба. Может указывать на <code>.prefab</code> или <code>.prefab.json</code>.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Позиция размещения префаба.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Поворот при размещении префаба.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Масштаб размещения префаба.</td>
+</tr>
+<tr>
+<td><code>loadMode</code></td>
+<td>enum/string</td>
+<td><code>"Automatic"</code> или <code>"Manual"</code>.</td>
+</tr>
+<tr>
+<td><code>useGlobalTranslation</code></td>
+<td>bool</td>
+<td>Поведение трансформации для совместимости и особых случаев, применяемое к дочерним объектам.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="filename">
+
+  filename
+</h2>
+<p><code>filename</code> указывает на файл префаба:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"filename"</span><span class="err">:</span> <span class="s2">"/levels/example/art/prefabs/gas_station.prefab.json"</span>
+</span></span></code></pre>
+</div><p>Современные файлы префабов обычно используют:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.prefab.json
+</span></span></code></pre>
+</div><p>Устаревший контент может использовать:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.prefab
+</span></span></code></pre>
+</div><div class="bng-notice warning">Если файл отсутствует или файл префаба не содержит корректной корневой группы, префаб не сможет создать свои дочерние объекты.</div>
+<hr/>
+<h2 id="loadmode">
+
+  loadMode
+</h2>
+<p>Поддерживаемые значения:</p>
+<table>
+<thead>
+<tr>
+<th>Значение</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Automatic</code></td>
+<td>Загружает префаб при добавлении объекта <code>Prefab</code>.</td>
+</tr>
+<tr>
+<td><code>Manual</code></td>
+<td>Не загружается автоматически. Префаб должен быть загружен скриптом или инструментом.</td>
+</tr>
+</tbody>
+</table>
+<p>Для большинства контента уровня следует использовать:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"loadMode"</span><span class="err">:</span> <span class="s2">"Automatic"</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="transform-behavior">
+
+  Поведение трансформации
+</h2>
+<p>Трансформация объекта <code>Prefab</code> применяется к дочерним объектам, загруженным из файла префаба.</p>
+<p>Это позволяет размещать повторно используемую группу объектов несколько раз с различными позицией, поворотом или масштабом.</p>
+<p>Для большинства контента оставляйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"useGlobalTranslation"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre>
+</div><p>Используйте <code>useGlobalTranslation</code> только при работе с существующим контентом или специфическим рабочим процессом инструмента, который этого требует.</p>
+<hr/>
+<h2 id="relationship-with-prefab-files">
+
+  Связь с файлами префабов
+</h2>
+<p>Класс и формат файла выполняют различные функции:</p>
+<table>
+<thead>
+<tr>
+<th>Компонент</th>
+<th>Ответственность</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Объект <code>Prefab</code></td>
+<td>Размещение, трансформация, ссылка на файл, режим загрузки.</td>
+</tr>
+<tr>
+<td>Файл <code>.prefab.json</code> / <code>.prefab</code></td>
+<td>Данные дочерних объектов и корневая группа.</td>
+</tr>
+</tbody>
+</table>
+<p>Не дублируйте все дочерние объекты в файле элементов уровня, если они должны находиться внутри файла префаба.</p>
+<hr/>
+<h2 id="tool-notes">
+
+  Примечания для инструментов
+</h2>
+<p>Для инструментов, создающих или изменяющих префабы:</p>
+<ul>
+<li>Сохраняйте пути <code>filename</code> и обеспечивайте их переносимость.</li>
+<li>Храните трансформацию <code>Prefab</code> отдельно от трансформаций дочерних объектов.</li>
+<li>Используйте <code>Prefab</code> для повторно используемых групп объектов, а не для отдельных статических мешей.</li>
+<li>Используйте <code>TSStatic</code> или <code>Forest</code> для размещения отдельных или повторяющихся мешей там, где группировка с помощью префаба не нужна.</li>
+<li>Следуйте структуре файла префаба, описанной на странице формата префаба.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Типичные проблемы
+</h2>
+<ul>
+<li>Префаб не отображается, поскольку значение <code>filename</code> задано неверно или отсутствует.</li>
+<li>Префаб загружается не в том месте, потому что трансформации дочерних объектов и трансформация самого префаба были «запечены» одновременно.</li>
+<li>Несколько экземпляров префаба конфликтуют между собой, поскольку имена дочерних объектов не обрабатываются корректно в рамках рабочего процесса префаба.</li>
+<li>Используется <code>loadMode</code> равный <code>Manual</code>, однако ни один скрипт или инструмент не загружает префаб.</li>
+</ul>
+<hr/>
+<h2 id="validation-criteria">
+
+  Критерии валидации
+</h2>
+<ul>
+<li><code>filename</code> указывает на существующий файл префаба.</li>
+<li>Значение <code>loadMode</code> задано намеренно.</li>
+<li>Дочерние объекты отображаются в ожидаемой позиции в мировых координатах.</li>
+<li>Перемещение или поворот объекта <code>Prefab</code> перемещает дочерние объекты, как ожидается.</li>
+<li>Сам файл префаба соответствует правилам формата префаба.</li>
+</ul>

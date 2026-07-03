@@ -1,0 +1,433 @@
+<p>Флексбоди — это модели, которые привязываются к вашим нодам и подвергаются деформации.</p>
+<p>Игра рассчитывает деформацию, сопоставляя каждую вершину с ближайшими нодами и перемещая её вместе с движением этих нод.</p>
+<p>Флексбоди привязываются к набору нод через группы: деформация флексбоди происходит только под влиянием движения нод из этих конкретных групп. Подробнее см. на <a data-doc="vehicle/sections/nodes" href="/docs/vehicle/sections/nodes">странице нод</a>
+.</p>
+<p>Все меши должны находиться в одном или нескольких .dae-файлах — либо в папке вашего автомобиля, либо в общей папке. Подробнее см. на <a href="https://documentation.beamng.com/modding/modelling/vehicle_modeling/" rel="noopener" target="_blank">странице моделирования транспортных средств</a>
+.</p>
+<h3 id="deform-groups">
+
+  Группы деформации
+</h3>
+<p>Дополнительная возможность — группы деформации. Они позволяют вызвать смену материала на модели, когда заданный набор балок деформируется. Чаще всего применяются для фар и стёкол.</p>
+<p><video controls="" src="BreakgroupExample.mp4"></video></p>
+<p>Когда одна из балок с тем же свойством <code>deformGroup</code>, что и у данного флексбоди, деформируется достаточно, чтобы достичь порогового значения <code>deformationTriggerRatio</code>, или когда балка разрушается, материал модели заменяется на материал, указанный в свойстве <code>deformMaterialDamaged</code>.</p>
+<h3 id="mesh-to-node-mapping">
+
+  Привязка меша к нодам
+</h3>
+<p>Каждая вершина меша привязывается к 3 или 4 нодам: центральной ноде, нодам <code>VX</code> и <code>VY</code>, расположенным так, чтобы воображаемые линии (или балки), проведённые от них к центральной ноде, образовывали угол примерно 90 градусов, и, если возможно, ноде <code>VZ</code>, расположенной так, чтобы линия от неё к центральной ноде образовывала угол примерно 90 градусов с остальными линиями. Система привязки флексбоди находит для каждой вершины ближайшие ноды, удовлетворяющие этим критериям, с учётом ряда ограничений на максимальное расстояние, из-за которых некоторые вершины могут привязываться к нодам, образующим угол меньше прямого, но находящимся ближе к ним.</p>
+<p>Если ноды <code>VX</code> или <code>VY</code> не удаётся найти ни в одной из назначенных групп, меш не будет сгенерирован и в консоли появится ошибка:</p>
+<ul>
+<li>Ошибка ноды <code>VX</code> означает, что для всех вершин удаётся найти только центральную ноду. Это возможно лишь в том случае, когда группа состоит всего из 1 ноды.</li>
+<li>Ошибка ноды <code>VY</code> означает, что система флексбоди не может найти ни одной ноды, образующей угол 90 градусов, для части или всех вершин. Причин может быть несколько; определить их можно по поведению флексбоди в игре:
+<ul>
+<li>Если флексбоди полностью невидим в игре, значит ни одна из вершин не может найти ноды, образующие прямой угол. Отладка этой ситуации:
+<ul>
+<li>Это может происходить, когда группа состоит всего из 2 нод или когда все ноды группы располагаются на одной прямой. Для исправления необходима третья нода в группе где-нибудь в стороне, с балкой, образующей угол примерно 90 градусов с другими балками группы. Ей не нужна коллизия — она может существовать исключительно для помощи системе флексбоди; такая нода называется <code>flexbody help node</code>. Обычно они присутствуют на длинных тонких конструкциях, например антеннах.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/flexbodies/flexbody_help.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/flexbodies/flexbody_help_hu9ddd0f85847c3ce16ae99ec7b213bb6d_167897_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Убедитесь, что флексбоди не расположен слишком далеко от всех нод — возможно, в позициях нод в Jbeam допущена опечатка.</li>
+</ul>
+</li>
+<li>Если флексбоди частично видим, но часть его отсутствует или странно растянута, значит некоторые вершины смогли найти ноды, образующие прямой угол, но не все. В этом случае:
+<ul>
+<li>Сначала проверьте, нет ли в группе нод, занимающих одинаковые позиции (это легко увидеть в режиме отладки имён нод) — при необходимости удалите одну из таких нод или снимите с неё свойство группы (возможно, стоит также убрать у неё selfCollision).</li>
+<li>Если ни одна из нод не делит позицию с другой, проблема в <code>flexbody help node</code> (если она вообще присутствует); проверьте следующие пункты:
+<ul>
+<li>Если <code>flexbody help node</code> отсутствует, её следует добавить со стороны, где часть флексбоди отсутствует или растянута.</li>
+<li>Если нода уже присутствует, значит некоторые вершины не могут использовать её для образования достаточно широкого угла. В таком случае ноду следует сдвинуть дальше от остальных нод, чтобы наименьший угол, образованный воображаемыми линиями в этой группе, стал больше.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Иногда система флексбоди может привязывать некоторые вершины к не самым подходящим нодам, что при деформации заставляет их перемещаться в неожиданные положения и образовывать так называемые <code>spikes</code> (шипы) в меше. Чтобы этого избежать, ноды следует располагать в виде сетки без выбросов, которые могут вызвать нежелательную привязку вершин. Если дополнительные ноды за пределами сетки необходимы для других целей, их можно исключить из группы. В качестве примера правильного расположения нод в виде сетки можно рассмотреть стандартные транспортные средства с включёнными режимами отладки «Nodes» и «Triangles».</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/flexbodies/schoolbus_jbeam.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/flexbodies/schoolbus_jbeam_hu9bde52d955f036e1b210e0e33bdc494c_12381869_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+Обратите внимание на область вокруг заднего колёсного арка. Общая сетка выровнена по окнам, однако часть нод в первом и втором рядах пришлось переместить для привязки к заднему крылу. Само по себе это могло бы вызвать появление <code>spikes</code>, однако проблема была решена путём смещения нод прямо над ними на половину этого расстояния, чтобы они образовывали прямые наклонные линии с нодами выше и ниже. Поиск подобных решений требует метода проб и ошибок; опыт помогает ускорить этот процесс.</p>
+<h3 id="required-arguments">
+
+  Обязательные аргументы
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"flexbodies"</span> <span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span><span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"my_mesh"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"my_group"</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Определяет имя меша</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Это то же имя, что и в Blender.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Определяет список групп нод, к которым привязан данный меш</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Меш может быть привязан к одной или нескольким группам нод. Подробнее о группах см. на странице нод.</div>
+</div>
+</div>
+<p>"nonFlexMaterials" — устаревшая унаследованная функция, которая больше не используется и недоступна. Она применялась со старой моделью шин для предотвращения сжатия жёсткого меша колеса вместе с шиной.</p>
+<h3 id="optional-arguments">
+
+  Необязательные аргументы
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Смещение позиции флексбоди (м)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">}</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Смещение поворота флексбоди (градусы)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Использует внутреннюю систему поворотов Эйлера +Z +X +Y.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"rot"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">}</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":1, "y":1, "z":1}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Коэффициент масштабирования флексбоди</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">}</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Определяет группу деформации, которая будет использоваться для данного меша</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Это имя должно совпадать с именем группы деформации, определённой в секции балок.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Имя исходного материала, который будет заменён</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Любой меш с применённой группой деформации должен иметь только один материал во избежание проблем. Для этого может потребоваться разделение деталей на несколько компонентов, например разделение линзы и отражателя фары.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Имя материала, используемого при срабатывании группы деформации</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Звуковой клип, который воспроизводится при срабатывании группы деформации</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Громкость звукового клипа, воспроизводимого при срабатывании группы деформации</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Смещает меш по осям YZ и зеркально по оси X, если позиция не центрирована по ней (м)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Этот параметр никогда не задаётся явно в секции Flexbodies, а передаётся из секции <a data-doc="vehicle/sections/slots" href="/docs/vehicle/sections/slots">Slots</a>
+.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Смещает меш по осям XYZ (м)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Этот параметр никогда не задаётся явно в секции Flexbodies, а передаётся из секции <a data-doc="vehicle/sections/slots" href="/docs/vehicle/sections/slots">Slots</a>
+.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">dictionary<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">{"x":0, "y":0, "z":0, "px":0, "py":0, "pz":0}<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Поворачивает меш на <code>x, y, z</code> градусов по осям XYZ относительно центральной точки <code>px, py, pz</code></div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Этот параметр никогда не задаётся явно в секции Flexbodies, а передаётся из секции <a data-doc="vehicle/sections/slots" href="/docs/vehicle/sections/slots">Slots</a>
+.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Должна ли позиция меша игнорировать модификатор nodeOffset</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Заменяет заданный набор материалов флексбоди другим набором материалов</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Пример использования:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"part"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"group"</span><span class="p">],</span> <span class="p">[],{</span><span class="s2">"materialOverride"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"originalMaterial1"</span><span class="p">,</span><span class="s2">"replacementMaterial1"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"originalMaterial2"</span><span class="p">,</span><span class="s2">"replacementMaterial2"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]}],</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<h3 id="simple-example">
+
+  Простой пример
+</h3>
+<p>Меш с именем "my_mesh" привязывается к нодам группы "my_group".</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"flexbodies"</span> <span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span><span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"my_mesh"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"my_group"</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div>
+<h3 id="advanced-example">
+
+  Расширенный пример
+</h3>
+<p>Пример фар с группами деформации.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl">   <span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">         <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">         <span class="p">[</span><span class="s2">"pickup_headlightframe_R"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"pickup_fascia"</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">         <span class="c1">////lights
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>         <span class="p">{</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"headlightglass_R_break"</span><span class="p">,</span> <span class="s2">"deformMaterialBase"</span><span class="o">:</span><span class="s2">"gavril_lights"</span><span class="p">,</span> <span class="s2">"deformMaterialDamaged"</span><span class="o">:</span><span class="s2">"gavril_lights_dmg"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">         <span class="p">[</span><span class="s2">"pickup_headlight_R"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"pickup_fascia"</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">         <span class="c1">//glass
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>         <span class="p">{</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"headlightglass_R_break"</span><span class="p">,</span> <span class="s2">"deformMaterialBase"</span><span class="o">:</span><span class="s2">"pickup_glass"</span><span class="p">,</span> <span class="s2">"deformMaterialDamaged"</span><span class="o">:</span><span class="s2">"pickup_glass_dmg"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">         <span class="p">[</span><span class="s2">"pickup_headlightglass_R"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"pickup_fascia"</span><span class="p">],[]{</span><span class="s2">"deformSound"</span><span class="o">:</span><span class="s2">"event:&gt;Destruction&gt;Vehicle&gt;Glass&gt;glassbreaksound4"</span><span class="p">,</span> <span class="s2">"deformVolume"</span><span class="o">:</span><span class="mf">0.6</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">         <span class="p">{</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span></code></pre>
+</div><p>Пример флексбоди с использованием модификаторов и нескольких групп нод.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl">    <span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//wheels
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">[</span><span class="s2">"steelwheel_10a_13x5_5"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"wheel_FR"</span><span class="p">,</span><span class="s2">"wheelhub_FR"</span><span class="p">],</span> <span class="p">[],</span> <span class="p">{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="o">-</span><span class="mf">0.50</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:-</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">},</span> <span class="s2">"rot"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span> <span class="s2">"scale"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="s2">"steelwheel_10a_13x5_5"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"wheel_FL"</span><span class="p">,</span><span class="s2">"wheelhub_FL"</span><span class="p">],</span> <span class="p">[],</span> <span class="p">{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mf">0.50</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:-</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">0.0</span><span class="p">},</span> <span class="s2">"rot"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>    <span class="s2">"scale"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span></code></pre>
+</div><p>Использование materialOverride для определения нескольких деталей с различными цветовыми вариантами.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"us_semi_conventional_bullbar_type_bare"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Bare Metal"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">450</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"us_semi_conventional_bullbar_type"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">   <span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="s2">"longnose_bullbar"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"us_semi_bullbar"</span><span class="p">],</span> <span class="p">[],{</span><span class="s2">"materialOverride"</span><span class="o">:</span><span class="p">[[</span><span class="s2">"us_semi_common"</span><span class="p">,</span><span class="s2">"us_semi_common"</span><span class="p">]]}],</span>
+</span></span><span class="line"><span class="cl">   <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"us_semi_conventional_bullbar_type_chrome"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Polished"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">450</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"us_semi_conventional_bullbar_type"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">   <span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="s2">"longnose_bullbar"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"us_semi_bullbar"</span><span class="p">],</span> <span class="p">[],{</span><span class="s2">"materialOverride"</span><span class="o">:</span><span class="p">[[</span><span class="s2">"us_semi_common"</span><span class="p">,</span><span class="s2">"us_semi_common_chrome"</span><span class="p">]]}],</span>
+</span></span><span class="line"><span class="cl">   <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"us_semi_conventional_bullbar_type_painted"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Painted"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">450</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"us_semi_conventional_bullbar_type"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">   <span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="s2">"longnose_bullbar"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"us_semi_bullbar"</span><span class="p">],</span> <span class="p">[],{</span><span class="s2">"materialOverride"</span><span class="o">:</span><span class="p">[[</span><span class="s2">"us_semi_common"</span><span class="p">,</span><span class="s2">"us_semi_common_painted"</span><span class="p">]]}],</span>
+</span></span><span class="line"><span class="cl">   <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"us_semi_conventional_bullbar_type_black"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Black"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">450</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"us_semi_conventional_bullbar_type"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">   <span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="s2">"longnose_bullbar"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"us_semi_bullbar"</span><span class="p">],</span> <span class="p">[],{</span><span class="s2">"materialOverride"</span><span class="o">:</span><span class="p">[[</span><span class="s2">"us_semi_common"</span><span class="p">,</span><span class="s2">"us_semi_common_black"</span><span class="p">]]}],</span>
+</span></span><span class="line"><span class="cl">   <span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">},</span>
+</span></span></code></pre>
+</div><p>Использование materialOverride для нескольких флексбоди одновременно.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"flexbodies"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"[group]:"</span><span class="p">,</span> <span class="s2">"nonFlexMaterials"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"materialOverride"</span><span class="o">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"us_trucklight_signal_R"</span><span class="p">,</span> <span class="s2">"us_trucklight_amber_R"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"us_trucklight_signal_L"</span><span class="p">,</span> <span class="s2">"us_trucklight_amber_L"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"us_trucklight_taillight_R"</span><span class="p">,</span> <span class="s2">"us_trucklight_red_R2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"us_trucklight_taillight_L"</span><span class="p">,</span> <span class="s2">"us_trucklight_red_L2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"us_trucklightglass_signal_R"</span><span class="p">,</span> <span class="s2">"us_trucklightglass_amber_R"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"us_trucklightglass_signal_L"</span><span class="p">,</span> <span class="s2">"us_trucklightglass_amber_L"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"us_trucklightglass_taillight_R"</span><span class="p">,</span> <span class="s2">"us_trucklightglass_red_R2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="s2">"us_trucklightglass_taillight_L"</span><span class="p">,</span> <span class="s2">"us_trucklightglass_red_L2"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"us_trucklight_taillight_R"</span><span class="p">,</span>     <span class="p">[</span><span class="s2">"schoolbus_body"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.880</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:-</span><span class="mf">0.855</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mf">2.661</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"us_trucklight_signal_R"</span><span class="p">,</span>        <span class="p">[</span><span class="s2">"schoolbus_body"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.685</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:-</span><span class="mf">0.855</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mf">2.661</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"us_trucklight_taillight_L"</span><span class="p">,</span>     <span class="p">[</span><span class="s2">"schoolbus_body"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mf">0.880</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:-</span><span class="mf">0.855</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mf">2.661</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"us_trucklight_signal_L"</span><span class="p">,</span>        <span class="p">[</span><span class="s2">"schoolbus_body"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mf">0.685</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:-</span><span class="mf">0.855</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mf">2.661</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"us_trucklightglass_taillight_R"</span><span class="p">,[</span><span class="s2">"schoolbus_body"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.880</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:-</span><span class="mf">0.855</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mf">2.661</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"us_trucklightglass_signal_R"</span><span class="p">,</span>   <span class="p">[</span><span class="s2">"schoolbus_body"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.685</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:-</span><span class="mf">0.855</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mf">2.661</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"us_trucklightglass_taillight_L"</span><span class="p">,[</span><span class="s2">"schoolbus_body"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mf">0.880</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:-</span><span class="mf">0.855</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mf">2.661</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"us_trucklightglass_signal_L"</span><span class="p">,</span>   <span class="p">[</span><span class="s2">"schoolbus_body"</span><span class="p">],[],{</span><span class="s2">"pos"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mf">0.685</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:-</span><span class="mf">0.855</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mf">2.661</span><span class="p">}}],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"materialOverride"</span><span class="o">:</span><span class="p">[]},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div>

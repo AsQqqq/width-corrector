@@ -1,0 +1,350 @@
+<p><code>This feature is supported as of BeamNG.tech and .drive version 0.6.0 to latest.</code></p>
+<p>Система соединителей (coupler system) — это функция объединения двух нод. Соединённые ноды будут находиться в заданном диапазоне расстояний друг от друга и реагировать на одинаковые силы. До соединения ноды будут притягиваться друг к другу, как только расстояние между ними достигнет заданного значения. Система может работать как между нодами одного транспортного средства, так и между нодами двух разных машин — автоматически или по нажатию клавиши. Примеры использования: жёсткое крепление деталей кузова, фаркопы для прицепов, защёлки дверей, капотов, крышек багажника и задних бортов.</p>
+<p>Для работы системы необходима нода со свойством couplerTag и другая нода со свойством Tag того же значения. В данном разделе мы будем называть их «нодой-соединителем» (coupler node) и «нодой-тегом» (tag node) соответственно, чтобы легче понять, какие свойства относятся к какой ноде. При соединении автомобиля с прицепом конец фаркопа на машине должен быть нодой-соединителем, а конец гнезда фаркопа на прицепе — нодой-тегом. При соединении двух разных деталей одного транспортного средства порядок не важен.</p>
+<h3 id="functionality">
+
+  Функциональность
+</h3>
+<p>Система начинает работать, когда нода-соединитель переходит в состояние Active. Активные ноды-соединители и соответствующие им ноды-теги начинают притягиваться друг к другу, после чего объединяются в одну; сила в обоих направлениях одинакова. Подключённая нода-соединитель более не считается Active. Сломанные (Broken) ноды-соединители не могут быть переведены в состояние Active никаким способом и не будут снова подключаться к нодам-тегам.</p>
+<p>При соединении двух нод одного транспортного средства в момент спауна лучше, чтобы они имели одинаковые координаты. Одна нода-соединитель может быть соединена только с одной нодой-тегом одновременно, однако её можно отсоединить и затем подключить к той же или другой ноде-тегу. Аналогично, нода-тег может быть соединена только с одной нодой-соединителем, но после отключения может быть подключена к той же или другой ноде-соединителю.</p>
+<p>Системой соединителей также можно управлять через Advanced Coupler Control — эта тема слишком сложна для данного раздела документации и здесь не рассматривается.
+Ещё одна система управления соединителями — Couplings, используемая на седельных тягачах и прицепах.</p>
+<p>Для самой системы нет разницы (кроме незначительных отличий производительности, которые вас не должны беспокоить) — принадлежат ли ноды одному транспортному средству или разным. Тем не менее существуют различные подсистемы, которые работают только при соединении двух разных транспортных средств, например масштабирование камеры при подключении прицепа.</p>
+<h3 id="coupler-toggle-system">
+
+  Система переключения соединителей (Coupler Toggle System)
+</h3>
+<p>Тесно связанная с основной система, позволяющая фактически прицепить прицеп к автомобилю, — это Coupler Toggle System. Она активируется нажатием назначенной клавиши (по умолчанию L) или через радиальное меню. При использовании система сначала проверяет, соединены ли какие-либо из относящихся к ней нод с другими нодами. Если да — она их отсоединяет; если нет — переводит те, что не находятся в состоянии Broken, в состояние Active и включает визуализацию нод-соединителей и нод-тегов с помощью цветных шаров; одинаковые теги и couplerTags отображаются одним цветом.</p>
+<p>Нода является релевантной для Coupler Toggle System, если у неё есть свойство couplerTag, её состояние не равно Broken и у неё нет свойства couplerLock или couplerWeld. Это означает, что только ноды, называемые в данном разделе нодами-соединителями, могут быть релевантными для этой системы.</p>
+<p>Вы можете активировать Coupler Toggle System с помощью <a data-doc="vehicle/sections/triggers" href="/docs/vehicle/sections/triggers">триггера</a>
+. Если вы хотите активировать её для всех релевантных соединителей, используйте "beamstate.toggleCouplers()" без аргументов в качестве функции. Однако вы также можете передать аргументы для конкретной функциональности, например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"beamstate.toggleCouplers('pintle', true, false, true)"</span><span class="p">,</span>
+</span></span></code></pre>
+</div><p>Аргументы, используемые функцией, следующие:</p>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">couplerTag соединителя, который нужно переключить</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Если пусто, будет работать для всех couplerTags.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Будут ли также отсоединяться соединители со свойством couplerLock</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Будут ли также отсоединяться соединители со свойством couplerWeld</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Принудительно ли подключать и отключать соединители с системой autoCoupling</div>
+</div>
+</div>
+<p>Аналогично можно использовать "beamstate.attachCouplers(_nodetag)" и "beamstate.detachCouplers(_nodetag, forceLocked, forceWelded)".</p>
+<h3 id="nodes-section-arguments">
+
+  Аргументы секции нод
+</h3>
+<h4 id="common">
+
+  Общие
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Максимальная сила, прикладываемая к нодам перед их отсоединением (Н)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Если нода-соединитель и нода-тег имеют разные значения couplerStrength, максимальной силой считается меньшее из двух.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Разъединит ноды при поломке выбранной <a data-doc="vehicle/sections/beams" href="/docs/vehicle/sections/beams">breakGroup</a>
+</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">В основном применяется при соединении деталей одного транспортного средства. При разъединении нод состояние ноды-соединителя устанавливается в Broken, лишая её возможности снова соединиться с нодой-тегом.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Список электрических сигналов (electrics), которые будут переданы с другого транспортного средства на данное</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Актуально только при соединении двух разных транспортных средств. В основном используется при определении соединителя фаркопа на прицепах. Как правило, задаётся для прицепа, а не для тягача. Можно использовать и на тягаче, но имейте в виду, что это перезапишет его собственные electrics.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"importElectrics"</span><span class="o">:</span> <span class="p">[</span><span class="s2">"lowhighbeam"</span><span class="p">,</span> <span class="s2">"reverse"</span><span class="p">,</span> <span class="s2">"signal_L"</span><span class="p">,</span> <span class="s2">"signal_R"</span><span class="p">],</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<h4 id="coupler-node">
+
+  Нода-соединитель
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Тег ноды-тега, к которой будет подключаться данная нода-соединитель</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Часто используемые теги для сцепки разных транспортных средств:</p>
+<ul>
+<li>"tow_hitch" — для стандартных автомобильных фаркопов и прицепов</li>
+<li>"gooseneck_hitch" — для фаркопов типа гусиная шея на пикапах и прицепах</li>
+<li>"fifthwheel_v2" — для полуприцепов (устаревший тег для старых модов: "fifthwheel")</li>
+<li>"pintle" — для крюковых сцепок (pintle hitch) и переходных тележек прицепа</li>
+<li>Теги для сцепки морских контейнеров: "cp1_h" — нижний горизонтальный, "cp2_h" — верхний горизонтальный, "cp_v" — вертикальный</li>
+</ul>
+<p>Не рекомендуется использовать эти теги для соединения деталей одного транспортного средства.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Расстояние (в метрах), на котором данная нода будет пытаться соединиться с другой нодой, находясь в состоянии Active</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Чаще всего используется для соединения автомобилей и прицепов. Большие значения делают выравнивание автомобиля/прицепа менее требовательным. Это свойство не обязательно использовать, если вместо него применяется couplerStartRadius.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">То же, что и выше; кроме того, использование этого свойства переводит соединитель в состояние Active после спауна</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Это означает, что ноды, находящиеся в данном радиусе друг от друга, попытаются соединиться сразу после спауна транспортного средства, без необходимости их переключения. Если это свойство не используется, Active не будет состоянием по умолчанию, и ноды потребуют переключения для соединения.</p>
+<p>Чаще всего используется для соединения деталей одного транспортного средства, а не прицепов. Рекомендуется задавать очень малое значение, как и расстояние между деталями при спауне, которое в идеале должно быть равно 0, чтобы сразу после спауна не происходило значительного смещения.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Если true, нода не будет участвовать в системе соединителей, однако сможет менять состояние другими способами</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Это означает, что нода, не активная при спауне, может стать активной только через Lua-код, не связанный с Coupler Toggle System. Аналогично, нода, активная при спауне (использующая свойство couplerStartRadius), может отключиться только при переходе в состояние Broken или через Lua-код.</p>
+<p>Это полезно для систем, где соединитель должен блокироваться и разблокироваться по запросу, но не должен быть связан с Coupler Toggle System, а использование advanced coupler control было бы избыточным. Хороший пример — блокируемый задний борт самосвала.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Если true, нода не будет участвовать в системе соединителей и не сможет менять состояние никакими другими способами</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Это означает, что нода, не активная при спауне, никогда не сможет стать активной, а нода, активная при спауне (использующая свойство couplerStartRadius), может отключиться только при переходе в состояние Broken.</p>
+<p>Часто используется при соединении деталей лёгких жёстких конструкций на одном транспортном средстве, например панелей кузова из стеклопластика. При использовании этого свойства всегда следует задавать couplerStartRadius, иначе ноды никогда не соединятся и couplerTag не будет иметь никакого эффекта.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.025<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Радиус (в метрах), при котором две ноды считаются одной и защёлкиваются вместе в соединённом состоянии</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">В большинстве случаев следует оставлять значение по умолчанию, допускающее незначительный люфт между нодами.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.3<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Скорость силы защёлкивания ноды в состоянии Active (м/с)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">В большинстве случаев следует оставлять значение по умолчанию.</div>
+</div>
+</div>
+<h4 id="tag-node">
+
+  Нода-тег
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">couplerTag ноды-соединителя, к которой будет подключаться данная нода-тег</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Часто используемые теги для сцепки разных транспортных средств:</p>
+<ul>
+<li>"tow_hitch" — для стандартных автомобильных фаркопов и прицепов</li>
+<li>"gooseneck_hitch" — для фаркопов типа гусиная шея на пикапах и прицепах</li>
+<li>"fifthwheel_v2" — для полуприцепов (устаревший тег для старых модов: "fifthwheel")</li>
+<li>"pintle" — для крюковых сцепок (pintle hitch) и переходных тележек прицепа</li>
+<li>Теги для сцепки морских контейнеров: "cp1_h" — нижний горизонтальный, "cp2_h" — верхний горизонтальный, "cp_v" — вертикальный</li>
+</ul>
+<p>Не рекомендуется использовать эти теги для соединения деталей одного транспортного средства.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">table<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Список входных сигналов (inputs), которые будут переданы с другого транспортного средства на данное</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Актуально только при соединении двух разных транспортных средств. В основном используется при определении соединителя фаркопа на прицепах. Должно задаваться для прицепа, а не для тягача.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"importInputs"</span><span class="o">:</span> <span class="p">[</span><span class="s2">"brake"</span><span class="p">,</span> <span class="s2">"parkingbrake"</span><span class="p">]</span>
+</span></span></code></pre>
+</div></div>
+</div>
+</div>
+<h3 id="simple-example">
+
+  Простой пример
+</h3>
+<p>Соединение двух нод одного транспортного средства.</p>
+<p>Нода-соединитель:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"hd4l4"</span><span class="p">,</span>  <span class="mf">1.15</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.26</span><span class="p">,</span> <span class="mf">1.20</span><span class="p">,</span> <span class="p">{</span><span class="s2">"couplerTag"</span><span class="o">:</span><span class="s2">"hood_side_latch_L"</span><span class="p">,</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">"hood_side_latch_L"</span><span class="p">,</span><span class="s2">"couplerStrength"</span><span class="o">:</span><span class="mi">12000</span><span class="p">,</span><span class="s2">"couplerRadius"</span><span class="o">:</span><span class="mf">0.01</span><span class="p">,</span><span class="s2">"couplerStartRadius"</span><span class="o">:</span><span class="mf">0.01</span><span class="p">,</span><span class="s2">"couplerWeld"</span><span class="o">:</span><span class="kc">true</span><span class="p">}],</span>
+</span></span></code></pre>
+</div><p>Нода-тег:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"sd1l"</span><span class="p">,</span>  <span class="mf">0.85</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.12</span><span class="p">,</span> <span class="mf">1.41</span><span class="p">,</span> <span class="p">{</span><span class="s2">"tag"</span><span class="o">:</span><span class="s2">"hood_side_latch_L"</span><span class="p">,</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">"hood_side_latch_L"</span><span class="p">}],</span>
+</span></span></code></pre>
+</div>
+<h3 id="advanced-example">
+
+  Расширенный пример
+</h3>
+<p>Соединение двух транспортных средств через фаркоп.</p>
+<p>Фаркоп автомобиля (нода-соединитель):</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"tw"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.76</span><span class="p">,</span> <span class="mf">0.58</span><span class="p">,{</span><span class="s2">"couplerTag"</span><span class="o">:</span><span class="s2">"tow_hitch"</span><span class="p">,</span><span class="s2">"couplerStrength"</span><span class="o">:</span><span class="mi">2001000</span><span class="p">,</span><span class="s2">"couplerRadius"</span><span class="o">:</span><span class="mi">1</span><span class="p">}],</span>
+</span></span></code></pre>
+</div><p>Конец тяги прицепа (нода-тег):</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"cf8"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.245</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="p">{</span><span class="s2">"tag"</span><span class="o">:</span><span class="s2">"tow_hitch"</span><span class="p">,</span><span class="s2">"couplerStrength"</span><span class="o">:</span><span class="mi">801000</span><span class="p">,</span><span class="s2">"importElectrics"</span><span class="o">:</span> <span class="p">[</span><span class="s2">"lowhighbeam"</span><span class="p">,</span> <span class="s2">"reverse"</span><span class="p">,</span> <span class="s2">"signal_L"</span><span class="p">,</span> <span class="s2">"signal_R"</span><span class="p">],</span><span class="s2">"importInputs"</span><span class="o">:</span> <span class="p">[</span><span class="s2">"brake"</span><span class="p">,</span> <span class="s2">"parkingbrake"</span><span class="p">]}],</span>
+</span></span></code></pre>
+</div>

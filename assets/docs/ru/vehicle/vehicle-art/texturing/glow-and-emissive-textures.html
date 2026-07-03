@@ -1,0 +1,118 @@
+<h2 id="overview">
+
+  Обзор
+</h2>
+<p>Этот рабочий процесс требует <strong>Blender</strong> и <strong>Substance Painter</strong> — и ничего больше. В результате получится запечённая карта свечения (glowmap), создающая у пользователя ощущение отражённого света.</p>
+<p>Здесь основной акцент сделан на 3D-светильниках — в зависимости от сценария использования плоский 2D-свет может потребовать несколько иного подхода.</p>
+<div class="bng-notice note"><p>Приведённый пример основан на проекте Bastion.</p>
+<p>Все использованные здесь файлы можно найти в <code>vehicle_artwork/bastion/source/lights_updated</code></p>
+</div>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/1.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/2.png"/>
+</span></div>
+<div class="bng-notice tip">Наилучший результат достигается при наличии настроенной <code>normalmap</code>, поскольку свет взаимодействует с ней и создаёт приятные детали.</div>
+<div class="line-inner-small"></div>
+<h2 id="getting-started-in-blender">
+
+  Начало работы в Blender
+</h2>
+<p>Сначала выберите все меши, использующие материал, связанный с картой свечения, и поместите их в новую коллекцию.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/3.png"/>
+</span></div>
+<p>Материал уже назначен — в данном случае это <code>bastion_lights</code>. Этому материалу необходимо применить <code>normalmap</code> в редакторе шейдеров, что легко сделать с помощью простой ноды, содержащей узлы <strong>Image Texture</strong> и <strong>Normal Map</strong>.</p>
+<p>Помните, что для текстуры Image Texture необходимо установить цветовое пространство <code>Non-Color</code>, поскольку используется карта нормалей.</p>
+<p>Также поэкспериментируйте со <strong>значениями шероховатости</strong> в BSDF — так вы сможете точнее настроить способ отражения света от поверхности. Используйте <strong><em>почти</em> чёрный</strong> <code>Base Color</code> — это важно для работы с масками в Substance Painter, поскольку <strong>сейчас мы по сути создаём только маски, с которыми будем работать позже в Blender</strong>.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/4.png"/>
+</span></div>
+<hr/>
+<p><strong>Настройка свечения</strong></p>
+<p>Следующий шаг — добавление источника света. Возьмите точечный источник света и разместите его там, где находилась бы лампочка.</p>
+<p>После размещения источников света можно заметить, что они взаимодействуют с применённой <code>normalmap</code>. Помните, что источник света должен быть белым, так как наша цель — создать маску.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/5.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/6.png"/>
+</span></div>
+<p>Для запекания важно отключить значок камеры у остальных источников света, не относящихся к конкретной настройке, которую вы хотите запечь — камера определяет, будет ли объект рендериться. В данном случае мы хотим запечь только коллекцию <code>front drl</code>.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/7.png"/>
+</span></div>
+<hr/>
+<h3 id="baking">
+
+  Запекание
+</h3>
+<p>Далее перейдём к запеканию. Для этого необходимо использовать движок рендеринга <strong>Cycles</strong>.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/8.png"/>
+</span></div>
+<hr/>
+<p>После его выбора появится несколько вкладок, одна из которых — <code>Bake</code> — нужна нам. Здесь настройте режим запекания Combined, как показано, и отрегулируйте отступ по своему усмотрению.</p>
+<p>Довольны настройкой? Отлично — теперь выберите меш, для которого будет запекаться карта свечения. В данном случае мы хотим запечь DRL для меша <code>bastion_headlight_R</code>. Выделите его левым кликом и нажмите кнопку <strong>Bake</strong>.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/9.png"/>
+</span></div>
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/10.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/10_hu329bd37a384cd16be001064128a6a26f_929428_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<hr/>
+<p>По завершении запекания вы должны получить изображение, похожее на это:</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/11.png"/>
+</span></div>
+<p>Этот результат можно использовать для импорта в Substance Painter в качестве растровой маски.</p>
+<div class="line-inner-small"></div>
+<h2 id="continue-in-substance-painter">
+
+  Продолжение в Substance Painter
+</h2>
+<p>В проекте Painter создайте слой заливки с эмиссией, затем добавьте только что созданное изображение в качестве растровой маски.</p>
+<p><span class="bng-mark caution"><strong>Не забудьте добавить канал <code>Emissive</code> в свой проект в разделе <code>Texture Set Settings</code></strong></span></p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/12.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/13.png"/>
+</span></div>
+<hr/>
+<p>После этого рекомендую немного поработать с уровнями маски, поскольку при запекании мы не использовали чисто чёрный цвет. Просто сдвиньте тёмный тон так, чтобы чёрные области маски стали действительно чёрными.</p>
+<p>Установите для эмиссии белый цвет — и карта свечения готова к работе. Конечно, можно использовать и любой другой цвет — рабочий процесс в Painter очень легко корректировать на ходу.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/14.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/15.png"/>
+</span></div>
+<p><span class="bng-mark caution"><strong>Не забудьте также настроить эмиссионный вывод при экспорте материала!</strong></span></p>
+<hr/>
+<h3 id="baking-emissive-maps-to-glass">
+
+  Запекание карт эмиссии на стекло
+</h3>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/16.png"/>
+</span></div>
+<p>Чтобы получить текстуру такого типа, которую можно использовать как растровую маску, достаточно внести несколько изменений в используемые материалы. Остальной рабочий процесс остаётся прежним.</p>
+<p>По сути, точечные источники света остаются на своих местах, но стекло, закрывающее корпус фары, становится видимым.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/17.png"/>
+</span></div>
+<hr/>
+<p>Важно, чтобы <strong>оба меша были включены для рендеринга</strong> (включая точечные источники света), — тогда отражение света внутри корпуса фары также повлияет на то, как освещение запекается на стекло.</p>
+<p>Также важно установить для базового цвета стекла очень тёмное значение — вот так:</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/18.png"/>
+</span></div>
+<hr/>
+<p>Остальные настройки материала можно регулировать по своему усмотрению — но помните, что нужно экспериментировать с параметрами пропускания (transmission) и шероховатости пропускания (transmission roughness), чтобы <strong>получить результат, подходящий для вашего транспортного средства</strong></p>
+<p>Настройка материала для запекаемого стекла выглядит следующим образом:</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/texturing/glow-and-emissive-textures/19.png"/>
+</span></div>
+<p>А при запекании стекла, чтобы свет правильно отражался, просто установите белый базовый цвет для корпуса фары и т.д.</p>

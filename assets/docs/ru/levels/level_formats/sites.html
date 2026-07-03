@@ -1,0 +1,902 @@
+<p>Этот документ описывает файлы BeamNG <code>.sites.json</code>.</p>
+<p>Файлы sites хранят пространственные метаданные, связанные с игровым процессом, такие как:</p>
+<ul>
+<li>Локации</li>
+<li>Зоны</li>
+<li>Места парковки</li>
+<li>Теги</li>
+<li>Пользовательские поля</li>
+</ul>
+<p>Они используются системами геймплея, миссиями, трафиком, логикой парковки, объектами, точками интереса и инструментами редактора для идентификации именованных точек и областей уровня.</p>
+<hr/>
+<h2 id="overview">
+
+  Обзор
+</h2>
+<p>Файл <code>.sites.json</code> определяет именованные пространственные данные. В отличие от обычных объектов сцены, sites не отрисовываются как геометрия уровня. Вместо этого они описывают полезные игровые позиции, области и места парковки.</p>
+<p>Основные варианты использования:</p>
+<ul>
+<li>Точки старта и финиша миссий</li>
+<li>Именованные городские районы или регионы карты</li>
+<li>Зоны объектов, такие как гаражи или автосалоны</li>
+<li>Размещение мест парковки</li>
+<li>Зоны появления транспортных средств</li>
+<li>Зоны доставки/разгрузки</li>
+<li>Фильтрация игровых зон</li>
+<li>Метаданные для трафика, парковки и процедурных миссий</li>
+<li>Границы миссий</li>
+</ul>
+<p>Sites обычно редактируются с помощью:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">World Editor → Gameplay → Sites Editor
+</span></span></code></pre>
+</div><div class="bng-notice info">Sites — это метаданные геймплея, а не геометрия сцены. Они, как правило, потребляются скриптами и системами геймплея, а не отрисовываются напрямую.</div>
+<hr/>
+<h2 id="file-locations">
+
+  Расположение файлов
+</h2>
+<p>Файлы sites используют суффикс:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.sites.json
+</span></span></code></pre>
+</div><p>Распространённые примеры:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/city.sites.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities.sites.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/garages.sites.json
+</span></span><span class="line"><span class="cl">gameplay/missions/&lt;levelName&gt;/&lt;missionType&gt;/&lt;missionName&gt;/bounds.sites.json
+</span></span><span class="line"><span class="cl">/gameplay/*.sites.json
+</span></span></code></pre>
+</div><p>Менеджер sites может сканировать файлы <code>.sites.json</code> внутри папок уровней и по пути:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/gameplay/
+</span></span></code></pre>
+</div><p>Это позволяет использовать как специфичные для уровня, так и общие игровые sites.</p>
+<hr/>
+<h2 id="common-sites-files">
+
+  Распространённые файлы sites
+</h2>
+<table>
+<thead>
+<tr>
+<th>Файл</th>
+<th>Назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>city.sites.json</code></td>
+<td>Файл sites уровня по умолчанию. Обычно используется для общих зон, локаций и мест парковки.</td>
+</tr>
+<tr>
+<td><code>facilities.sites.json</code></td>
+<td>Sites, на которые ссылаются объекты: гаражи, заправочные станции, автосалоны, компьютеры, дрэг-стрипы и т. д.</td>
+</tr>
+<tr>
+<td><code>garages.sites.json</code></td>
+<td>Зоны и места парковки, связанные с гаражами/карьерой; часто загружаются системами, которым нужны списки гаражных зон.</td>
+</tr>
+<tr>
+<td><code>bounds.sites.json</code></td>
+<td>Данные о границах миссий; часто используются старыми/конвертированными форматами миссий.</td>
+</tr>
+<tr>
+<td><code>/gameplay/*.sites.json</code></td>
+<td>Общие/глобальные файлы sites, используемые системами геймплея или инструментами.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="default-level-sites-file">
+
+  Файл sites уровня по умолчанию
+</h2>
+<p>При запуске уровня системы геймплея обычно пытаются загрузить файл sites по умолчанию для текущей карты:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">&lt;level folder&gt;/city.sites.json
+</span></span></code></pre>
+</div><p>Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/west_coast_usa/city.sites.json
+</span></span></code></pre>
+</div><p>Если файл существует, он загружается и кэшируется менеджером sites.</p>
+<p>Этот файл по умолчанию обычно используется следующими системами:</p>
+<ul>
+<li>Вспомогательные средства для метаданных города/уровня</li>
+<li>Парковка</li>
+<li>Случайный выбор места парковки</li>
+<li>Поиск зоны по позиции</li>
+<li>Метаданные групп транспортных средств</li>
+<li>Утилиты миссий и геймплея</li>
+</ul>
+<hr/>
+<h2 id="other-sites-file-examples">
+
+  Примеры других файлов sites
+</h2>
+<h3 id="facilitiessitesjson">
+
+  facilities.sites.json
+</h3>
+<p>Объекты обычно определяются в файлах <code>info.json</code> или <code>*.facilities.json</code>, однако эти определения объектов нередко ссылаются на зоны или места парковки, хранящиеся в файле <code>.sites.json</code>.</p>
+<p>Например, объект гаража может ссылаться на:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"sitesFile"</span><span class="err">:</span> <span class="s2">"facilities.sites.json"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"zoneNames"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"garage_downtown"</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"parkingSpotNames"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"garage_downtown_01"</span><span class="p">,</span> <span class="s2">"garage_downtown_02"</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Файл sites содержит фактические данные о зонах и местах парковки.</p>
+<div class="bng-notice note">Файл объектов (facilities) определяет метаданные объекта. Файл <code>.sites.json</code> определяет пространственные зоны и места парковки, используемые этим объектом.</div>
+<h3 id="garagessitesjson">
+
+  garages.sites.json
+</h3>
+<p>Некоторые системы геймплея/карьеры загружают файл sites из настроенной папки, обычно:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">garages.sites.json
+</span></span></code></pre>
+</div><p>Это используется для формирования списков зон, связанных с гаражами. Например, инструменты могут загружать все названия зон из этого файла, чтобы дизайнеры могли выбирать допустимые начальную и конечную гаражные зоны.</p>
+<h3 id="boundssitesjson">
+
+  bounds.sites.json
+</h3>
+<p>Некоторые данные миссий используют файл <code>bounds.sites.json</code> для хранения границ миссий.</p>
+<p>Рабочий процесс портирования миссии может конвертировать:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">bounds.sites.json
+</span></span></code></pre>
+</div><p>в более новый формат границ.</p>
+<p>В этом случае файл sites обычно содержит одну или несколько зон, причём первая зона может использоваться в качестве границы миссии.</p>
+<hr/>
+<h2 id="main-data-types">
+
+  Основные типы данных
+</h2>
+<p>Файл sites может содержать три основных типа пространственных элементов:</p>
+<table>
+<thead>
+<tr>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Локация (Location)</strong></td>
+<td>Именованная точка или небольшая область. Полезна для ориентиров, точек миссий и ссылок.</td>
+</tr>
+<tr>
+<td><strong>Зона (Zone)</strong></td>
+<td>Именованный полигон/область, используемый для проверки того, находится ли позиция внутри региона.</td>
+</tr>
+<tr>
+<td><strong>Место парковки (Parking Spot)</strong></td>
+<td>Позиция и ориентация, в которых транспортные средства могут быть размещены, заспавнены или проверены на наличие парковки.</td>
+</tr>
+</tbody>
+</table>
+<p>Каждый тип также может иметь:</p>
+<ul>
+<li>Имя</li>
+<li>Порядок сортировки</li>
+<li>Теги</li>
+<li>Пользовательские поля</li>
+</ul>
+<hr/>
+<h2 id="locations">
+
+  Локации
+</h2>
+<p>Локации — это именованные точки или небольшие пространственные маркеры.</p>
+<p>Они полезны для:</p>
+<ul>
+<li>Точек старта миссий</li>
+<li>Точек финиша миссий</li>
+<li>Ориентиров</li>
+<li>Точек доставки</li>
+<li>Ссылок для ИИ/навигации</li>
+<li>Опорных точек камеры или геймплея</li>
+</ul>
+<p>Локация обычно хранит:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Название локации.</td>
+</tr>
+<tr>
+<td><code>pos</code></td>
+<td>Мировая позиция.</td>
+</tr>
+<tr>
+<td><code>radius</code></td>
+<td>Необязательный размер/область влияния.</td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>Необязательный список тегов.</td>
+</tr>
+<tr>
+<td><code>customFields</code></td>
+<td>Необязательные метаданные геймплея.</td>
+</tr>
+<tr>
+<td><code>sortOrder</code></td>
+<td>Значение порядка в редакторе.</td>
+</tr>
+</tbody>
+</table>
+<p>Примеры названий локаций:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">gas_station
+</span></span><span class="line"><span class="cl">police_station
+</span></span><span class="line"><span class="cl">industrial_delivery_01
+</span></span><span class="line"><span class="cl">race_start
+</span></span></code></pre>
+</div><hr/>
+<h2 id="zones">
+
+  Зоны
+</h2>
+<p>Зоны определяют именованные области карты.</p>
+<p>Они обычно используются для:</p>
+<ul>
+<li>Районов</li>
+<li>Границ миссий</li>
+<li>Зон объектов</li>
+<li>Зон гаражей/автосалонов</li>
+<li>Зон доставки</li>
+<li>Фильтрации групп транспортных средств</li>
+<li>Группировки мест парковки</li>
+<li>Логики регионов появления</li>
+<li>Проверки игровых областей</li>
+</ul>
+<p>Игровой код может запрашивать зоны, содержащие позицию, например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">getZonesForPosition(pos)
+</span></span></code></pre>
+</div><p>Зоны особенно полезны, когда системе нужно знать «где» что-то находится, а не только ближайшую точку.</p>
+<hr/>
+<h2 id="zone-boundaries">
+
+  Границы зон
+</h2>
+<p>Зоны — это полигональные области, образованные вершинами. Данные некоторых зон могут также включать вертикальные ограничения, такие как верхняя и нижняя плоскости.</p>
+<p>Концептуальная зона может содержать:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"downtown"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vertices"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">]}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"top"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"active"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normal"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"bot"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"active"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">-10</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"normal"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">-1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><div class="bng-notice warning">Точная сериализованная структура генерируется редактором Sites и системой игровых sites. По возможности используйте редактор для создания и сохранения файлов.</div>
+<hr/>
+<h2 id="zone-priority">
+
+  Приоритет зон
+</h2>
+<p>Зоны могут использовать пользовательское поле с именем:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">priority
+</span></span></code></pre>
+</div><p>Зоны с более высоким приоритетом предпочтительнее, когда несколько зон содержат одну и ту же позицию.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"customFields"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"priority"</span><span class="p">:</span> <span class="mi">10</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Это полезно, когда меньшая, более специфичная область находится внутри более крупной общей зоны.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">City
+</span></span><span class="line"><span class="cl"> └── Downtown
+</span></span><span class="line"><span class="cl">      └── Dealership
+</span></span></code></pre>
+</div><p>Если все три зоны содержат одну и ту же позицию, системы могут выбирать зону с наивысшим приоритетом.</p>
+<hr/>
+<h2 id="zone-custom-fields">
+
+  Пользовательские поля зон
+</h2>
+<p>Зоны могут хранить метаданные геймплея в пользовательских полях.</p>
+<p>Часто используемое поле:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicleGroup
+</span></span></code></pre>
+</div><p>Система также поддерживает суффиксы для нескольких записей:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicleGroup
+</span></span><span class="line"><span class="cl">vehicleGroup1
+</span></span><span class="line"><span class="cl">vehicleGroup2
+</span></span><span class="line"><span class="cl">vehicleGroup3
+</span></span><span class="line"><span class="cl">vehicleGroup4
+</span></span></code></pre>
+</div><p>Это позволяет одной зоне ссылаться на несколько групп транспортных средств или записей метаданных.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"customFields"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"priority"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicleGroup"</span><span class="p">:</span> <span class="s2">"city"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicleGroup1"</span><span class="p">:</span> <span class="s2">"traffic"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicleGroup2"</span><span class="p">:</span> <span class="s2">"parked"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Игровой код может объединять эти поля из зон с наивысшим приоритетом, соответствующих условию.</p>
+<hr/>
+<h2 id="parking-spots">
+
+  Места парковки
+</h2>
+<p>Места парковки определяют позиции размещения транспортных средств.</p>
+<p>Они используются для:</p>
+<ul>
+<li>Припаркованного трафика</li>
+<li>Спауна транспортных средств в миссиях</li>
+<li>Быстрого перемещения в гараж</li>
+<li>Пунктов назначения доставки</li>
+<li>Позиций начала/конца сценариев</li>
+<li>Случайного выбора места парковки</li>
+<li>Валидации парковки</li>
+</ul>
+<p>Место парковки обычно хранит:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Название места парковки.</td>
+</tr>
+<tr>
+<td><code>pos</code></td>
+<td>Мировая позиция.</td>
+</tr>
+<tr>
+<td><code>rot</code></td>
+<td>Ориентация транспортного средства.</td>
+</tr>
+<tr>
+<td><code>scl</code></td>
+<td>Размер/габариты места парковки.</td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>Необязательный список тегов.</td>
+</tr>
+<tr>
+<td><code>customFields</code></td>
+<td>Необязательные метаданные геймплея.</td>
+</tr>
+<tr>
+<td><code>sortOrder</code></td>
+<td>Значение порядка в редакторе.</td>
+</tr>
+</tbody>
+</table>
+<p>Места парковки могут быть связаны с зонами. Например, место парковки внутри зоны может наследовать метаданные района, объекта или геймплея из этой зоны.</p>
+<hr/>
+<h2 id="parking-spot-tags">
+
+  Теги мест парковки
+</h2>
+<p>Места парковки могут использовать теги для управления поведением парковки.</p>
+<p>Распространённые теги:</p>
+<table>
+<thead>
+<tr>
+<th>Тег</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>banned</code></td>
+<td>Система парковки не должна использовать это место.</td>
+</tr>
+<tr>
+<td><code>forwards</code></td>
+<td>Предпочтительная парковка передом.</td>
+</tr>
+<tr>
+<td><code>backwards</code></td>
+<td>Предпочтительная парковка задом.</td>
+</tr>
+<tr>
+<td><code>perfect</code></td>
+<td>Избегать случайного смещения/поворота при парковке.</td>
+</tr>
+<tr>
+<td><code>street</code></td>
+<td>Обозначает место парковки у обочины. Может сохранять отслеживание, чтобы ИИ мог объезжать транспортное средство.</td>
+</tr>
+<tr>
+<td><code>nightTime</code></td>
+<td>Место чаще используется ночью.</td>
+</tr>
+<tr>
+<td><code>dayTime</code></td>
+<td>Место чаще используется днём.</td>
+</tr>
+</tbody>
+</table>
+<p>Они в основном используются системами динамической парковки и трафика.</p>
+<hr/>
+<h2 id="parking-spot-custom-fields">
+
+  Пользовательские поля мест парковки
+</h2>
+<p>Места парковки могут использовать пользовательские поля, такие как:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">probability
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"customFields"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="mf">0.5</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Это управляет тем, насколько вероятно использование места системами, расставляющими припаркованные транспортные средства.</p>
+<p>Система парковки также может корректировать вероятность в зависимости от времени суток с помощью тегов <code>nightTime</code> и <code>dayTime</code>.</p>
+<hr/>
+<h2 id="random-parking-spot-selection">
+
+  Случайный выбор места парковки
+</h2>
+<p>Утилиты геймплея могут выбирать случайные пары мест парковки.</p>
+<p>Например, одна функция может возвращать:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">start parking spot
+</span></span><span class="line"><span class="cl">destination parking spot
+</span></span><span class="line"><span class="cl">start zone
+</span></span><span class="line"><span class="cl">destination zone
+</span></span></code></pre>
+</div><p>с минимальным расстоянием между стартом и пунктом назначения.</p>
+<p>Это полезно для:</p>
+<ul>
+<li>Процедурных миссий</li>
+<li>Маршрутов доставки</li>
+<li>Случайных заданий по вождению</li>
+<li>Карьерного геймплея</li>
+</ul>
+<hr/>
+<h2 id="tags">
+
+  Теги
+</h2>
+<p>Sites поддерживают теги для:</p>
+<ul>
+<li>Локаций</li>
+<li>Зон</li>
+<li>Мест парковки</li>
+</ul>
+<p>Теги используются для фильтрации и организации данных.</p>
+<p>Примеры тегов:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">delivery
+</span></span><span class="line"><span class="cl">garage
+</span></span><span class="line"><span class="cl">fuel
+</span></span><span class="line"><span class="cl">parking
+</span></span><span class="line"><span class="cl">industrial
+</span></span><span class="line"><span class="cl">urban
+</span></span><span class="line"><span class="cl">offroad
+</span></span><span class="line"><span class="cl">race
+</span></span><span class="line"><span class="cl">banned
+</span></span><span class="line"><span class="cl">street
+</span></span><span class="line"><span class="cl">nightTime
+</span></span><span class="line"><span class="cl">dayTime
+</span></span></code></pre>
+</div><p>В редакторе Sites есть отдельные вкладки для:</p>
+<ul>
+<li>Тегов локаций (Location Tags)</li>
+<li>Тегов зон (Zone Tags)</li>
+<li>Тегов мест парковки (Parking Spot Tags)</li>
+</ul>
+<hr/>
+<h2 id="custom-fields">
+
+  Пользовательские поля
+</h2>
+<p>Пользовательские поля позволяют системам геймплея прикреплять произвольные метаданные к sites.</p>
+<p>Примеры:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"customFields"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"priority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"vehicleGroup"</span><span class="p">:</span> <span class="s2">"traffic_city"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"missionType"</span><span class="p">:</span> <span class="s2">"delivery"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"difficulty"</span><span class="p">:</span> <span class="s2">"easy"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"probability"</span><span class="p">:</span> <span class="mf">0.75</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Пользовательские поля обычно используются системами, которым нужны специфичные для карты данные без их жёсткого кодирования в скриптах.</p>
+<hr/>
+<h2 id="facilities-and-sites">
+
+  Объекты и sites
+</h2>
+<p>Объекты используют файлы sites для получения пространственных данных.</p>
+<p>Определения объектов могут ссылаться на:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"sitesFile"</span><span class="err">:</span> <span class="s2">"facilities.sites.json"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"zoneNames"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"dealership_downtown"</span><span class="p">]</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"parkingSpotNames"</span><span class="err">:</span> <span class="p">[</span><span class="s2">"dealership_downtown_01"</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Затем система объектов загружает эти файлы sites и выполняет поиск:</p>
+<ul>
+<li>Зон по имени</li>
+<li>Мест парковки по имени</li>
+</ul>
+<p>Это используется для:</p>
+<ul>
+<li>Гаражей</li>
+<li>Заправочных станций</li>
+<li>Автосалонов</li>
+<li>Компьютеров</li>
+<li>Частных продавцов</li>
+<li>Поставщиков услуг доставки</li>
+<li>Дрэг-стрипов</li>
+</ul>
+<hr/>
+<h2 id="mission-boundaries">
+
+  Границы миссий
+</h2>
+<p>Некоторые старые форматы миссий хранят границы в:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">bounds.sites.json
+</span></span></code></pre>
+</div><p>Эти файлы обычно содержат зоны, представляющие игровую/миссионную область.</p>
+<p>Инструменты конвертации миссий могут преобразовывать эти данные в более новые форматы границ/путей/маршрутов.</p>
+<p>Типичная конвертация:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">bounds.sites.json → boundary file
+</span></span><span class="line"><span class="cl">race.race.json → path file
+</span></span><span class="line"><span class="cl">race.race.json startPositions → starting position file
+</span></span></code></pre>
+</div><hr/>
+<h2 id="sites-editor">
+
+  Редактор Sites
+</h2>
+<p>Редактор Sites доступен в Мировом редакторе (World Editor):</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">World Editor → Gameplay → Sites Editor
+</span></span></code></pre>
+</div><p>Редактор предоставляет вкладки для:</p>
+<ul>
+<li>Локаций (Locations)</li>
+<li>Зон (Zones)</li>
+<li>Мест парковки (Parking Spots)</li>
+<li>Тегов локаций (Location Tags)</li>
+<li>Тегов зон (Zone Tags)</li>
+<li>Тегов мест парковки (Parking Spot Tags)</li>
+</ul>
+<p>Редактор позволяет:</p>
+<ul>
+<li>Создавать новые файлы sites</li>
+<li>Загружать существующие файлы <code>.sites.json</code></li>
+<li>Сохранять файлы sites</li>
+<li>Сортировать локации по имени</li>
+<li>Сортировать зоны по имени</li>
+<li>Сортировать места парковки по имени</li>
+<li>Перечислять дублирующиеся имена мест парковки</li>
+<li>Переименовывать места парковки на основе содержащей их зоны</li>
+</ul>
+<hr/>
+<h2 id="saving">
+
+  Сохранение
+</h2>
+<p>При сохранении из редактора Sites путь к файлу сохраняется в объекте sites:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">sites.dir
+</span></span><span class="line"><span class="cl">sites.name
+</span></span></code></pre>
+</div><p>Файл записывается в формате JSON с использованием:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">jsonWriteFile(path, data, true)
+</span></span></code></pre>
+</div><p>По возможности используйте редактор для сохранения, так как он гарантирует, что сериализованная структура соответствует ожиданиям системы игровых sites.</p>
+<hr/>
+<h2 id="loading-and-caching">
+
+  Загрузка и кэширование
+</h2>
+<p>Менеджер sites загружает файлы sites через:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">gameplay_sites_sitesManager.loadSites(filepath)
+</span></span></code></pre>
+</div><p>Загруженные файлы кэшируются по пути. Если тот же файл запрашивается повторно, используется кэшированный объект sites, если только не запрошена принудительная перезагрузка.</p>
+<p>Кэш очищается по окончании миссии.</p>
+<hr/>
+<h2 id="manager-discovery">
+
+  Обнаружение менеджером
+</h2>
+<p>Менеджер sites может сканировать все уровни в поисках файлов <code>.sites.json</code>.</p>
+<p>Он хранит список файлов sites для каждого уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">sitesByLevel[levelName] = { ... }
+</span></span></code></pre>
+</div><p>Редактор Sites может отображать их через:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">File → Sites in Manager...
+</span></span></code></pre>
+</div><p>Это упрощает поиск и загрузку файлов sites с других уровней или из <code>/gameplay</code>.</p>
+<hr/>
+<h2 id="simplified-structure">
+
+  Упрощённая структура
+</h2>
+<p>Точная сериализованная структура генерируется системой игровых sites, однако концептуально файл sites содержит:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"city"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"locations"</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"zones"</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"parkingSpots"</span><span class="p">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"tags"</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"customFields"</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Упрощённый концептуальный пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"city"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"locations"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"gas_station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"radius"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"tags"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"fuel"</span><span class="p">,</span> <span class="s2">"service"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"zones"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"downtown"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"vertices"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">]}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"customFields"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"priority"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"vehicleGroup"</span><span class="p">:</span> <span class="s2">"city"</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"parkingSpots"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"downtown_parking_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"pos"</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"rot"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"scl"</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"tags"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"parking"</span><span class="p">,</span> <span class="s2">"street"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"customFields"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"probability"</span><span class="p">:</span> <span class="mf">0.75</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><div class="bng-notice warning">Этот пример демонстрирует концептуальную модель данных. Для точного форматирования создайте и сохраните файл с помощью редактора Sites.</div>
+<hr/>
+<h2 id="recommended-workflow">
+
+  Рекомендуемый рабочий процесс
+</h2>
+<ol>
+<li>Откройте Мировой редактор (World Editor).</li>
+<li>Откройте <strong>Gameplay → Sites Editor</strong>.</li>
+<li>Создайте или загрузите файл <code>.sites.json</code>.</li>
+<li>Добавьте локации, зоны и места парковки.</li>
+<li>При необходимости добавьте теги и пользовательские поля.</li>
+<li>Используйте инструменты сортировки/перечисления для поддержания порядка данных.</li>
+<li>Сохраните в соответствующий файл:
+<ul>
+<li><code>city.sites.json</code> — для sites уровня по умолчанию</li>
+<li><code>facilities.sites.json</code> — для пространственных данных объектов</li>
+<li><code>garages.sites.json</code> — для данных зон гаражей/карьеры</li>
+<li><code>bounds.sites.json</code> — для данных о границах миссий, при необходимости</li>
+</ul>
+</li>
+</ol>
+<hr/>
+<h2 id="naming-recommendations">
+
+  Рекомендации по именованию
+</h2>
+<p>Используйте чёткие и стабильные имена.</p>
+<p>Хорошие примеры:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">downtown
+</span></span><span class="line"><span class="cl">industrial_zone
+</span></span><span class="line"><span class="cl">gas_station_01
+</span></span><span class="line"><span class="cl">garage_downtown
+</span></span><span class="line"><span class="cl">parking_downtown_001
+</span></span><span class="line"><span class="cl">delivery_port_03
+</span></span><span class="line"><span class="cl">race_start_city
+</span></span></code></pre>
+</div><p>Избегайте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">test
+</span></span><span class="line"><span class="cl">new
+</span></span><span class="line"><span class="cl">zone1
+</span></span><span class="line"><span class="cl">asdf
+</span></span><span class="line"><span class="cl">parking
+</span></span></code></pre>
+</div><p>Для мест парковки часто полезны пронумерованные имена:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">parking_downtown_001
+</span></span><span class="line"><span class="cl">parking_downtown_002
+</span></span><span class="line"><span class="cl">parking_downtown_003
+</span></span></code></pre>
+</div><p>Редактор включает инструмент <strong>Enumerate Parking Spots</strong> для работы с дублирующимися именами.</p>
+<hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>Используйте <code>city.sites.json</code> в качестве файла sites уровня по умолчанию.</li>
+<li>При необходимости используйте отдельные файлы sites для специализированных данных, например <code>facilities.sites.json</code> или <code>garages.sites.json</code>.</li>
+<li>Используйте зоны для крупных именованных областей.</li>
+<li>Используйте локации для конкретных точек интереса.</li>
+<li>Используйте места парковки для размещения транспортных средств.</li>
+<li>Используйте теги для фильтрации.</li>
+<li>Используйте пользовательские поля для метаданных геймплея.</li>
+<li>Используйте <code>priority</code> для перекрывающихся зон.</li>
+<li>Сохраняйте имена стабильными, как только от них зависят миссии, объекты или данные карьеры.</li>
+<li>По возможности используйте редактор Sites вместо ручного редактирования.</li>
+<li>Сохраняйте и тестируйте после крупных изменений.</li>
+<li>Не удаляйте и не переименовывайте зоны/места парковки, на которые ссылаются другие файлы.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="sites-file-does-not-load">
+
+  Файл sites не загружается
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Файл не существует</li>
+<li>Недопустимый JSON</li>
+<li>Неверное расширение файла</li>
+<li>Файл не назван по шаблону <code>*.sites.json</code></li>
+<li>Файл находится не по ожидаемому пути уровня/геймплея</li>
+</ul>
+<h3 id="default-sites-are-not-loaded">
+
+  Sites по умолчанию не загружаются
+</h3>
+<p>Убедитесь, что уровень содержит:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">city.sites.json
+</span></span></code></pre>
+</div><p>в папке уровня.</p>
+<h3 id="facility-zone-or-parking-spot-is-missing">
+
+  Зона объекта или место парковки отсутствует
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Объект ссылается на неверный <code>sitesFile</code></li>
+<li><code>zoneNames</code> не совпадают с именами зон в файле sites</li>
+<li><code>parkingSpotNames</code> не совпадают с именами мест парковки в файле sites</li>
+<li>Путь к файлу sites неверен</li>
+</ul>
+<h3 id="parking-spot-is-not-found">
+
+  Место парковки не найдено
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Имя места парковки изменилось</li>
+<li>Файл не загружен</li>
+<li>Место парковки удалено</li>
+<li>Теги или пользовательские поля не соответствуют ожидаемым фильтрам</li>
+<li>Место парковки помечено тегом <code>banned</code></li>
+</ul>
+<h3 id="parked-cars-do-not-spawn-in-expected-spots">
+
+  Припаркованные автомобили не появляются в ожидаемых местах
+</h3>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">banned
+</span></span><span class="line"><span class="cl">probability
+</span></span><span class="line"><span class="cl">dayTime
+</span></span><span class="line"><span class="cl">nightTime
+</span></span><span class="line"><span class="cl">street
+</span></span><span class="line"><span class="cl">perfect
+</span></span><span class="line"><span class="cl">forwards
+</span></span><span class="line"><span class="cl">backwards
+</span></span></code></pre>
+</div><p>Также убедитесь, что транспортное средство помещается в габариты места парковки.</p>
+<h3 id="zone-priority-does-not-work-as-expected">
+
+  Приоритет зоны работает не так, как ожидается
+</h3>
+<p>Проверьте пользовательское поле зоны:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">priority
+</span></span></code></pre>
+</div><p>Оно должно быть числовым.</p>
+<h3 id="vehicle-group-data-is-missing">
+
+  Данные группы транспортных средств отсутствуют
+</h3>
+<p>Проверьте пользовательские поля зоны:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicleGroup
+</span></span><span class="line"><span class="cl">vehicleGroup1
+</span></span><span class="line"><span class="cl">vehicleGroup2
+</span></span><span class="line"><span class="cl">vehicleGroup3
+</span></span><span class="line"><span class="cl">vehicleGroup4
+</span></span></code></pre>
+</div>
+<h3 id="parking-spots-have-duplicate-names">
+
+  Места парковки имеют дублирующиеся имена
+</h3>
+<p>Используйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Tools → Enumerate Parking Spots
+</span></span></code></pre>
+</div><p>в редакторе Sites.</p>
+<hr/>
+<h2 id="summary">
+
+  Итоги
+</h2>
+<p>Файлы <code>.sites.json</code> хранят метаданные игровой карты.</p>
+<p>Они определяют:</p>
+<ul>
+<li>Локации</li>
+<li>Зоны</li>
+<li>Места парковки</li>
+<li>Теги</li>
+<li>Пользовательские поля</li>
+</ul>
+<p>Файл sites уровня по умолчанию обычно:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">city.sites.json
+</span></span></code></pre>
+</div><p>Другие распространённые примеры включают:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">facilities.sites.json
+</span></span><span class="line"><span class="cl">garages.sites.json
+</span></span><span class="line"><span class="cl">bounds.sites.json
+</span></span></code></pre>
+</div><p>Sites используются системами геймплея для поиска именованных мест, определения зон по позиции, выбора мест парковки, поддержки объектов и применения специфичных для карты метаданных, таких как группы транспортных средств и приоритеты.</p>

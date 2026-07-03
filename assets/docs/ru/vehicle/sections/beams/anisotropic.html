@@ -1,0 +1,111 @@
+<p>Анизотропные балки — это балки, свойства которых различаются в зависимости от того, сжимаются они или растягиваются относительно своей начальной длины. Основное применение в игре — боковины шин: они должны сжиматься, поглощая удары, но не должны растягиваться сверх начальной длины под действием центробежных сил.</p>
+<p>Такие балки также можно использовать в других конструкциях, например в верёвках.</p>
+<p>Свойство <code>transitionZone</code> позволяет точнее настроить поведение балки при растяжении, создавая плавный переход между стандартными значениями сжатия и значениями растяжения.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/beams/anisotropic/Anisotropic.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/beams/anisotropic/Anisotropic_hu361874a838490d643008e596d8c2ae25_60388_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="required-arguments">
+
+  Обязательные аргументы
+</h3>
+<p>См. <a data-doc="vehicle/sections/beams" href="/docs/vehicle/sections/beams">страницу балок</a>
+.</p>
+<p>Стандартные аргументы жёсткости и демпфирования применяются, когда балка сжимается.</p>
+<h3 id="optional-arguments">
+
+  Необязательные аргументы
+</h3>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">beamSpring<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Жёсткость балки при растяжении сверх начальной длины (Н/м).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">beamDamp<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Демпфирование балки при растяжении сверх начальной длины (Н/м/с).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">При превышении этого предела балка автоматически разрушается.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Значение 0.0 означает, что балка разрушится при любом растяжении. 0.5 — балка разрушится, растянувшись до 150% начальной длины. 1.0 — балка разрушится, растянувшись до 200% начальной длины.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Задаёт диапазон, в котором жёсткость и демпфирование плавно переходят к значениям <code>springExpansion</code> и <code>dampExpansion</code>.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">По умолчанию свойства балки изменяются мгновенно при превышении начальной длины, однако добавление <code>transitionZone</code> создаёт зону плавного нарастания значений. Значение 0.1 создаёт зону, равную 10% начальной длины балки.</div>
+</div>
+</div>
+<p>Анизотропные балки также поддерживают те же необязательные аргументы, что и <a data-doc="vehicle/sections/beams" data-frag="optional-arguments" href="/docs/vehicle/sections/beams#optional-arguments">стандартные балки</a>
+.</p>
+<h3 id="simple-examples">
+
+  Простые примеры
+</h3>
+<p>Ограниченные балки, используемые для крыши кабриолета.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|ANISOTROPIC"</span><span class="p">,</span> <span class="s2">"transitionZone"</span><span class="o">:</span><span class="mf">0.05</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">5100</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">150</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"springExpansion"</span><span class="o">:</span><span class="mi">41000</span><span class="p">,</span><span class="s2">"dampExpansion"</span><span class="o">:</span><span class="mi">150</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">3500</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="mi">8000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"deformLimitExpansion"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf1rr"</span><span class="p">,</span><span class="s2">"rf2rr"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf2rr"</span><span class="p">,</span><span class="s2">"rf3rr"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf3rr"</span><span class="p">,</span><span class="s2">"rf4rr"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf4rr"</span><span class="p">,</span><span class="s2">"rf4r"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf6rr"</span><span class="p">,</span><span class="s2">"rf7rr"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf7rr"</span><span class="p">,</span><span class="s2">"rf7r"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf1ll"</span><span class="p">,</span><span class="s2">"rf2ll"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf2ll"</span><span class="p">,</span><span class="s2">"rf3ll"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf3ll"</span><span class="p">,</span><span class="s2">"rf4ll"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf4ll"</span><span class="p">,</span><span class="s2">"rf4l"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf6ll"</span><span class="p">,</span><span class="s2">"rf7ll"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"rf7ll"</span><span class="p">,</span><span class="s2">"rf7l"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span></code></pre>
+</div>

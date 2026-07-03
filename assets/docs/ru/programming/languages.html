@@ -1,0 +1,78 @@
+<p>При программировании модов для BeamNG вы, скорее всего, будете использовать следующие языки:</p>
+<ul>
+<li>Lua: основной язык программирования, как правило применяется для вычисления максимально возможного количества логики. Например, игровая логика, различное поведение транспортных средств, части физики и т.д.</li>
+<li>Javascript/Html: используется для отображения информации в пользовательском интерфейсе. Как правило, мы рекомендуем применять его только для отображения в UI, оставляя как можно больше логики на стороне Lua. Сторона Lua затем передаёт результаты всех вычислений на сторону UI, где Javascript/Html лишь отображает их. Это обычно помогает сделать ваш код более надёжным.</li>
+</ul>
+<ul>
+<li><a data-doc="programming/extensions" href="/docs/programming/extensions">LUA Extensions</a>
+: это модульная система BeamNG. Она включает сериализацию, события и т.д.</li>
+<li><a data-doc="programming/virtualmachines" href="/docs/programming/virtualmachines">Virtual Machines</a>
+: BeamNG запускает несколько независимых систем Lua параллельно, а также несколько экземпляров UI, которые мы называем VM.</li>
+<li><a data-doc="programming/virtualmachines" data-frag="communication" href="/docs/programming/virtualmachines#communication">Virtual Machines Queues</a>
+: основная система BeamNG для обмена данными между виртуальными машинами.</li>
+<li><a data-doc="programming/virtualmachines" data-frag="communication" href="/docs/programming/virtualmachines#communication">Virtual Machines Mailboxes</a>
+`: вторичная система BeamNG для обмена данными между виртуальными машинами VLUA.</li>
+</ul>
+<h1 class="anchored">
+
+  Соглашения о написании кода в BeamNG
+</h1>
+<h4 id="style">
+
+  Стиль
+</h4>
+<ul>
+<li>Пример именования папок: <strong>ge/someFolderHere/lowerCamelCase/</strong></li>
+<li>Пример именования файлов: <strong>lowerCamelCase.lua</strong></li>
+<li>Отступы: <strong>2 пробела (не табуляция)</strong></li>
+<li>Удаление пробелов в конце строк: <strong>включено</strong></li>
+<li>Имена функций и переменных: <strong>camelCase</strong></li>
+<li>Имена «классов»: верхний camelCase (PascalCase), пример: <strong>MyCoolClass</strong></li>
+</ul>
+<h4 id="source-code-location">
+
+  Расположение исходного кода
+</h4>
+<p>Пожалуйста, обратитесь к разделу <a data-doc="programming/virtualmachines" data-frag="source-code-location" href="/docs/programming/virtualmachines#source-code-location">расположение исходного кода</a>
+ для получения информации о том, куда должны помещаться ваши файлы.</p>
+<h1 class="anchored">
+
+  Основы языка Lua
+</h1>
+<p>Хотя вам следует самостоятельно изучить программирование и язык Lua, здесь приведены самые основные сведения о языке:</p>
+<h4 id="basic-terminology">
+
+  Базовая терминология
+</h4>
+<ul>
+<li><code>Table</code>: базовый и единственный тип контейнера в Lua. В зависимости от способа использования таблицы, она будет напоминать массив (список) или словарь (отображение).</li>
+<li><code>Array</code>: таблица Lua, содержащая только целочисленные ключи от 1 до бесконечности. Можно корректно подсчитать с помощью <code>#tbl</code></li>
+<li><code>Dictionary</code> (<code>dict</code>): таблица Lua, содержащая ключи любых типов. Нельзя подсчитать с помощью <code>#tbl</code>.</li>
+<li><code>Module</code>: традиционный <code>module</code> Lua является устаревшим. Не используйте его</li>
+<li><code>Package</code>: стандартный
+    <a class="link-ext" href="https://www.lua.org/manual/5.3/manual.html#6.3" rel="noopener" target="_blank">пакет Lua</a>
+. Используется, но при возможности отдавайте предпочтение расширениям (Extensions). Смотрите
+    <a class="link-ext" href="http://lua-users.org/wiki/ModulesTutorial" rel="noopener" target="_blank"><em>здесь</em></a>
+ и также
+    <a class="link-ext" href="http://lua-users.org/wiki/TheEssenceOfLoadingCode" rel="noopener" target="_blank"><em>здесь</em></a>
+.</li>
+</ul>
+<h4 id="syntactic-sugar">
+
+  Синтаксический сахар
+</h4>
+<p>Для удобства язык Lua иногда предлагает различные способы написания идентично работающего кода. Например:</p>
+<ul>
+<li><code>myTable.ident</code> эквивалентно <code>myTable['ident']</code></li>
+<li><code>myObject:name(args)</code> является синтаксическим сахаром для <code>myObject.name(myObject, args)</code></li>
+<li><code>myFunction{fields}</code> является синтаксическим сахаром для <code>myFunction({fields})</code></li>
+<li><code>myFunction'string'</code> (или <code>myFunction"string"</code>, или <code>myFunction[[string]]</code>) является синтаксическим сахаром для <code>myFunction('string')</code></li>
+<li><code>function t.a.b.c:foobar(params) body end</code> является синтаксическим сахаром для <code>t.a.b.c.foobar = function(self, params) body end</code></li>
+</ul>
+<h5 id="programming-documentation-feedback">
+
+  Обратная связь по документации по программированию
+</h5>
+<p><em>Если вы считаете, что данная <strong>документация по программированию</strong> слишком высокоуровневая, слишком низкоуровневая, в ней отсутствуют важные темы, она содержит ошибки и т.д., пожалуйста, напишите
+    <a class="link-ext" href="https://www.beamng.com/threads/new-beamng-drive-documentation.77939/" rel="noopener" target="_blank">сообщение в этой теме</a>
+ и упомяните меня лично, написав <code>@stenyak</code>, чтобы я получил уведомление.</em></p>

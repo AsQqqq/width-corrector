@@ -1,0 +1,144 @@
+<h2 id="uv-map-and-material-optimization">
+
+  Оптимизация UV-карт и материалов
+</h2>
+<p>Это упростит работу: вы можете использовать столько материалов, сколько потребуется, поскольку Vulkan упаковывает текстуры при загрузке. Таким образом, ваши карты могут быть настолько маленькими, насколько вы хотите.</p>
+<div class="bng-notice note"><ul>
+<li>Оставляйте около 10% свободного пространства в каждой UV-карте для будущих изменений</li>
+<li>Каждый острый рёбр должен также быть швом UV; фаскам нормалей нужно некоторое пространство</li>
+<li>Между UV-островами необходимо соблюдать отступ в 8 пикселей</li>
+<li>Плотность текстуры — 512 пикс./м в общем случае (если только не применяется техника тайловых текстур)</li>
+<li>Убедитесь, что имена карт <code>UV0</code> и <code>UV1</code> используются последовательно
+<ul>
+<li><code>UV0</code> — для детализации текстуры и нормалей</li>
+<li><code>UV1</code> — для дизайна ливреи</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="line-inner-small"></div>
+<h3 id="uv-packing">
+
+  Упаковка UV
+</h3>
+<ul>
+<li>Текстуры должны разрабатываться для игрового разрешения 4098x4098 или меньше</li>
+<li>Для достижения достаточно высокой плотности пикселей при наилучшем качестве требуется значительная оптимизация</li>
+</ul>
+<hr/>
+<h3 id="uv-overlap">
+
+  Перекрытие UV
+</h3>
+<ul>
+<li>Не забывайте перекрывать UV у одинаковых объектов</li>
+<li>Зеркально отражайте UV с осью симметрии (если только в текстурировании не будет очевидного отражения)</li>
+<li>Рёбра одного и того же материала можно перекрывать</li>
+<li>Шланги и провода следует перекрывать</li>
+<li>Нижние части бамперов, крыльев и порогов можно разместить в общем UV-пространстве, если они не содержат уникальных деталей.</li>
+<li>Грани на краях панелей на 2-й UV-карте могут быть спроецированы неортографически, если это необходимо для предотвращения сильного растяжения.</li>
+<li>Альтернативные детали кузова должны иметь 2-ю UV-карту, спроецированную поверх друг друга, чтобы дизайн окраски выглядел одинаково на всех возможных версиях транспортного средства</li>
+</ul>
+<hr/>
+<p><strong>Пример</strong></p>
+<p>Используя эти советы, я создал пример с рессорой.</p>
+<ul>
+<li>Эта рессора имеет:
+<ul>
+<li>Ось симметрии</li>
+<li>UV, которые могут быть квадратными</li>
+</ul>
+</li>
+</ul>
+<p>Теперь она оптимизирована и не имеет зазубренных краёв между листами.</p>
+<p><strong>ДО (плохо)</strong>
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle-art/uv-unwrapping/2_before.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/2_before_hu94576e62069ea8aa79187548bd285416_378975_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p><strong>ПОСЛЕ (хорошо)</strong>
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle-art/uv-unwrapping/3_after.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/3_after_hu94576e62069ea8aa79187548bd285416_467482_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<hr/>
+<h3 id="uv0">
+
+  UV0
+</h3>
+<p><em>(для детализации текстуры и нормалей)</em></p>
+<p><strong>Выравнивание UV-карт по прямоугольнику</strong></p>
+<ul>
+<li>Мы отдаём приоритет фаскам карты нормалей перед растяжением; карты, включающие фаску, должны быть строго вертикальными или горизонтальными</li>
+<li>Пожалуйста, ознакомьтесь со справочными материалами, чтобы понять, когда растяжение слишком велико и допустимо использовать негоризонтальную или невертикальную UV-карту</li>
+<li>Не забывайте минимизировать растяжение в пределах UV-карты, если фасок карты нормалей там нет</li>
+</ul>
+<p>Примеры смотрите на этой странице:
+<a data-doc="vehicle/vehicle-art/uv-unwrapping/making-edges-straight" href="/docs/vehicle/vehicle-art/uv-unwrapping/making-edges-straight">Выравнивание рёбер для фасок нормалей</a>
+</p>
+<p><strong><div class="bng-mark caution">Не используйте UV с неправильной ориентацией и непрямыми границами!</div></strong>
+Если граница не прямая, это вызовет нежелательные проблемы с антиалиасингом, как в данном примере:
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle-art/uv-unwrapping/1.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/1_hu22c39b15740add3b0579540104288197_111336_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<hr/>
+<h3 id="uv1">
+
+  UV1
+</h3>
+<p><em>(2-я UV-карта, для виниловых обёрток транспортного средства)</em></p>
+<ul>
+<li>Эта карта должна быть удобной для восприятия, а UV-острова должны располагаться в соответствии с их реальным положением.</li>
+<li>Эти карты не нужно выравнивать по прямоугольнику</li>
+<li>Карты должны создаваться с минимальным растяжением</li>
+<li>Большинство граней на этой UV-карте должны быть спроецированы ортографически — сверху, сбоку или спереди.</li>
+<li>Неиспользуемые UV-карты должны иметь нулевую ширину и нулевую высоту, затем помещаться в координату 0,0.</li>
+<li>Панели кузова не должны перекрываться, чтобы избежать зеркального отражения текста</li>
+</ul>
+<p>Это делается для того, чтобы разработчики и модмейкеры могли легко создать ливрею для транспортного средства без зеркального текста или странного растяжения. В отличие от других карт, эта обычно создаётся в Photoshop, поэтому расположение UV-островов должно соответствовать их положению в 3D-пространстве.</p>
+<p></p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/7_uv_map_example.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/8_uv_map_example_hu427358e8ed5498932ba016f44af2dbfc_4754174_0x2000_resize_q85_bgfff_box_3.jpg"/>
+</span></div>
+<hr/>
+<h3 id="uv-map-examples">
+
+  Примеры UV-карт
+</h3>
+<p>Пример UV-развёртки для внедорожной шины и обычного диска:
+</p><div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/5_uv_map_example.png"/>
+</span></div>
+<div class="block media-show media-image-single media-image-simple"><span style="text-align: center;">
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/6_uv_map_example.png"/>
+</span></div>
+<div class="line-inner-small"></div>
+<h2 id="pixel-density">
+
+  Плотность пикселей
+</h2>
+<h3 id="interior">
+
+  Интерьер
+</h3>
+<p>Плотность пикселей панелей кузова и внешних элементов должна быть близка к Vivace для достижения одинакового качества деталей карты нормалей.</p>
+<p><strong>Множители плотности пикселей:</strong></p>
+<ul>
+<li>Рулевое колесо / панели с текстом и иконками / кнопки / диффузоры = 150%</li>
+<li>Приборная панель / панели перед полем зрения игрока = 100%</li>
+<li>UV с низкой видимостью (пол, фоновые панели, кабели) = 60% с оптимизацией перекрытия</li>
+<li>Скрытые UV = 30%</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle-art/uv-unwrapping/4_pixel_density.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/uv-unwrapping/4_pixel_density_huf69ea72b6f0587543f48d92fdea67e15_2821618_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<hr/>
+<h3 id="exterior">
+
+  Экстерьер
+</h3>
+<ul>
+<li>Всегда видимые части, такие как панели кузова = 100%</li>
+<li>Не всегда видимые части, такие как нижняя часть кузова = 75%</li>
+<li>Грани, видимые только при отсоединении детали = 50%</li>
+</ul>

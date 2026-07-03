@@ -1,0 +1,399 @@
+<p><code>BeamNGWaypoint</code> — лёгкий объект сцены, используемый в качестве именованной точки на уровне. Он широко применяется системами ИИ/навигации, миссиями, триггерами, гонками, чекпойнтами и при ручной настройке навигационного графа.</p>
+<p>Вейпойнты не отображаются во время обычной игры, если не включена отладочная отрисовка или объект не выбран в World Editor.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Базовый пример
+</h2>
+<p>Пример <code>BeamNGWaypoint</code> в <code>items.level.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"BeamNGWaypoint"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"wp_tunnel_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drawDebug"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"directionalWaypoint"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"excludeFromMap"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="important-fields">
+
+  Важные поля
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Должно быть <code>"BeamNGWaypoint"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя вейпойнта. Важно для ссылок из миссий, скриптов и <code>map.json</code>.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Мировая позиция.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Вращение объекта в виде матрицы 3×3. Актуально преимущественно для направленных вейпойнтов.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Радиус/размер вейпойнта. Внутри движка трактуется как равномерный.</td>
+</tr>
+<tr>
+<td><code>drawDebug</code></td>
+<td>bool</td>
+<td>Рисует отладочную сферу в позиции вейпойнта.</td>
+</tr>
+<tr>
+<td><code>directionalWaypoint</code></td>
+<td>bool</td>
+<td>Делает вейпойнт направленным: вместо простой сферы используется обнаружение через полупространство/плоскость.</td>
+</tr>
+<tr>
+<td><code>excludeFromMap</code></td>
+<td>bool</td>
+<td>Исключает данный вейпойнт из генерации карты ИИ/навигации.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="name">
+
+  Имя
+</h2>
+<p>Поле <code>name</code> очень важно.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"name"</span><span class="err">:</span> <span class="s2">"tunnel_A_01"</span>
+</span></span></code></pre>
+</div><p>Имена вейпойнтов используются:</p>
+<ul>
+<li>Ручными навигационными сегментами в <code>map.json</code></li>
+<li>Логикой миссий</li>
+<li>Чекпойнтами</li>
+<li>Маршрутами ИИ</li>
+<li>Lua-скриптами</li>
+<li>Инструментами редактора</li>
+</ul>
+<p>Используйте стабильные, понятные имена. Избегайте переименования вейпойнтов после того, как на них уже ссылаются другие файлы.</p>
+<p>Хорошие примеры:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">wp_city_start
+</span></span><span class="line"><span class="cl">tunnel_A_01
+</span></span><span class="line"><span class="cl">bridge_exit_02
+</span></span><span class="line"><span class="cl">race_checkpoint_05
+</span></span></code></pre>
+</div><p>Избегайте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Waypoint1
+</span></span><span class="line"><span class="cl">test
+</span></span><span class="line"><span class="cl">new
+</span></span><span class="line"><span class="cl">abc
+</span></span></code></pre>
+</div><hr/>
+<h2 id="position">
+
+  Позиция
+</h2>
+<p><code>position</code> задаёт центр вейпойнта в мировом пространстве.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"position"</span><span class="err">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Для инструментов навигации и построения маршрутов размещайте вейпойнт вблизи центра предполагаемого пути или дороги.</p>
+<p>Для чекпойнтов размещайте его там, где транспортное средство должно проехать.</p>
+<hr/>
+<h2 id="scale-radius">
+
+  Масштаб / радиус
+</h2>
+<p>Вейпойнты используют масштаб как фактический радиус/размер.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Движок трактует масштабирование вейпойнта как равномерное. Если изменяется одна ось, вейпойнт применяет это значение равномерно.</p>
+<p>Например, при задании:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>результат фактически будет соответствовать равномерному изменению радиуса/масштаба, а не истинному неравномерному объёму.</p>
+<div class="bng-notice info">Используйте равномерные значения масштаба для вейпойнтов. Неравномерное масштабирование не имеет смысла при обычном поведении вейпойнтов.</div>
+<hr/>
+<h2 id="drawdebug">
+
+  drawDebug
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"drawDebug"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>При включении вейпойнт рисует отладочную сферу в редакторе/вьюпорте.</p>
+<p>Вейпойнты также отображаются, когда:</p>
+<ul>
+<li>Объект выбран</li>
+<li>Включена глобальная отладочная отрисовка вейпойнтов</li>
+<li>Это запрошено настройками визуализации редактора</li>
+</ul>
+<p>Это удобно для проверки позиции и размера вейпойнта.</p>
+<hr/>
+<h2 id="directionalwaypoint">
+
+  directionalWaypoint
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"directionalWaypoint"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Направленный вейпойнт ведёт себя иначе, чем обычный сферический.</p>
+<p>При включении вейпойнт усекается направляющей плоскостью, образуя направленную/плоскую поверхность обнаружения. Это полезно для чекпойнтов, где важно направление движения.</p>
+<p>Направленные вейпойнты наиболее востребованы для:</p>
+<ul>
+<li>Чекпойнтов гонок</li>
+<li>Односторонних пропускных ворот</li>
+<li>Валидации маршрута</li>
+<li>Триггеров миссий, где важно направление пересечения</li>
+</ul>
+<p>Ориентация вейпойнта определяется его трансформом/вращением.</p>
+<hr/>
+<h2 id="excludefrommap">
+
+  excludeFromMap
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"excludeFromMap"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>При включении вейпойнт игнорируется системой карты ИИ/навигации.</p>
+<p>Используйте это для вейпойнтов, предназначенных только для миссий или скриптов и не должных становиться навигационными нодами.</p>
+<p>Примеры использования:</p>
+<ul>
+<li>Маркеры только для миссий</li>
+<li>Визуальные/отладочные вейпойнты</li>
+<li>Чекпойнты, не предназначенные для маршрутизации ИИ</li>
+<li>Вспомогательные точки, используемые скриптами</li>
+</ul>
+<p>Если <code>excludeFromMap</code> равно false, вейпойнт может быть включён как ручная навигационная нода.</p>
+<hr/>
+<h2 id="relationship-with-mapjson">
+
+  Связь с map.json
+</h2>
+<p><code>BeamNGWaypoint</code> часто используется совместно с <code>map.json</code>.</p>
+<p>Пример вейпойнта:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"BeamNGWaypoint"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Bridge1_A"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"excludeFromMap"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Пример сегмента <code>map.json</code>, ссылающегося на него:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"segments"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"bridge1"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Bridge1_A"</span><span class="p">,</span> <span class="s2">"Bridge1_B"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Если вейпойнт, на который ссылается <code>map.json</code>, не существует, сегмент не может быть корректно связан.</p>
+<div class="bng-notice warning">Не устанавливайте <code>excludeFromMap</code> в true для вейпойнтов, на которые ссылается <code>map.json</code> как на навигационные ноды.</div>
+<hr/>
+<h2 id="navigation-graph-updates">
+
+  Обновления навигационного графа
+</h2>
+<p>Когда вейпойнт добавляется, удаляется, перемещается или редактируется, движок уведомляет систему карты Lua.</p>
+<p>Это позволяет обновлять навигационный граф при редактировании вейпойнтов.</p>
+<p>События включают:</p>
+<ul>
+<li>Вейпойнт добавлен</li>
+<li>Вейпойнт удалён</li>
+<li>Вейпойнт изменён</li>
+<li>Изменён трансформ</li>
+</ul>
+<p>В рабочих процессах редактора перезагрузка карты может быть незначительно отложена, чтобы не перестраивать навигационный граф на каждом кадре во время перемещения объекта.</p>
+<hr/>
+<h2 id="relationship-with-missions-and-checkpoints">
+
+  Связь с миссиями и чекпойнтами
+</h2>
+<p>Вейпойнты широко используются системами геймплея и миссий.</p>
+<p>Примеры:</p>
+<ul>
+<li>Чекпойнты гонок</li>
+<li>Ноды пути для испытаний на время</li>
+<li>Позиции восстановления/чекпойнтов</li>
+<li>Точки триггеров миссий</li>
+<li>Целевые точки ИИ</li>
+<li>Точки спавна/ориентиры</li>
+</ul>
+<p>Для использования в качестве чекпойнтов задавайте подходящий масштаб, чтобы вейпойнт был достаточно большим для надёжного проезда транспортных средств.</p>
+<p>Для направленных чекпойнтов используйте <code>directionalWaypoint</code>.</p>
+<hr/>
+<h2 id="debug-visualization">
+
+  Отладочная визуализация
+</h2>
+<p>При отрисовке вейпойнт отображается как полупрозрачная оранжевая сфера.</p>
+<p>Если включён <code>directionalWaypoint</code>, дополнительно отрисовывается:</p>
+<ul>
+<li>Стрелка направления</li>
+<li>Направляющая плоскость/сетка</li>
+</ul>
+<p>Это помогает проверить направление вейпойнта и поведение триггера/чекпойнта.</p>
+<hr/>
+<h2 id="minimal-navigation-waypoint">
+
+  Минимальный навигационный вейпойнт
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"BeamNGWaypoint"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"road_node_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"excludeFromMap"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Используйте это для нод навигационного графа или ссылок в <code>map.json</code>.</p>
+<hr/>
+<h2 id="mission-only-waypoint">
+
+  Вейпойнт только для миссий
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"BeamNGWaypoint"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"mission_marker_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drawDebug"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"excludeFromMap"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Используйте это для ссылок в миссиях/скриптах, которые не должны влиять на навигацию ИИ.</p>
+<hr/>
+<h2 id="directional-checkpoint-waypoint">
+
+  Направленный чекпойнт-вейпойнт
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"BeamNGWaypoint"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"checkpoint_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">-1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"directionalWaypoint"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"excludeFromMap"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Используйте это для логики в стиле чекпойнтов, где важно направление пересечения.</p>
+<hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>Используйте чёткие, стабильные имена вейпойнтов.</li>
+<li>Используйте равномерные значения масштаба.</li>
+<li>Используйте <code>excludeFromMap: true</code> для вейпойнтов только для миссий.</li>
+<li>Оставляйте <code>excludeFromMap: false</code> для вейпойнтов, используемых в <code>map.json</code>.</li>
+<li>Используйте <code>directionalWaypoint</code> для направленных чекпойнтов.</li>
+<li>Размещайте вейпойнты по центру предполагаемого пути или зоны срабатывания.</li>
+<li>Используйте <code>drawDebug</code> только при необходимости.</li>
+<li>Избегайте размещения лишних вейпойнтов в навигационном графе.</li>
+<li>После редактирования навигационных вейпойнтов проверяйте ИИ/поиск пути.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="waypoint-does-not-appear">
+
+  Вейпойнт не отображается
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li><code>drawDebug</code> равно false</li>
+<li>Глобальная отладочная отрисовка вейпойнтов отключена</li>
+<li>Объект не выбран</li>
+<li>Вейпойнт находится за пределами области видимости/отладочной отрисовки</li>
+</ul>
+<h3 id="mapjson-segment-cannot-find-waypoint">
+
+  Сегмент map.json не может найти вейпойнт
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Имя вейпойнта не совпадает</li>
+<li>Вейпойнт был переименован</li>
+<li>Вейпойнт отсутствует в <code>items.level.json</code></li>
+<li><code>excludeFromMap</code> равно true</li>
+<li>Вейпойнт не загрузился</li>
+</ul>
+<h3 id="ai-path-does-not-use-waypoint">
+
+  Маршрут ИИ не использует вейпойнт
+</h3>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"excludeFromMap"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre>
+</div><p>Также убедитесь, что вейпойнт подключён через <code>map.json</code> или допустимый источник дорожного графа.</p>
+<h3 id="checkpoint-triggers-from-wrong-direction">
+
+  Чекпойнт срабатывает с неверного направления
+</h3>
+<p>Используйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"directionalWaypoint"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>и проверьте вращение вейпойнта.</p>
+<h3 id="waypoint-radius-feels-wrong">
+
+  Радиус вейпойнта кажется неверным
+</h3>
+<p>Используйте равномерный масштаб:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"scale"</span><span class="err">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Избегайте неравномерного масштаба для вейпойнтов.</p>
+<hr/>
+<h2 id="summary">
+
+  Итог
+</h2>
+<p><code>BeamNGWaypoint</code> — именованный пространственный маркер, используемый навигацией, миссиями, чекпойнтами, скриптами и инструментами редактора.</p>
+<p>Он может выступать в роли:</p>
+<ul>
+<li>Ручной навигационной ноды</li>
+<li>Опорной точки миссии</li>
+<li>Объёма чекпойнта/триггера</li>
+<li>Ссылки на ноду в <code>map.json</code></li>
+</ul>
+<p>Используйте <code>excludeFromMap</code>, чтобы управлять участием в навигации, и <code>directionalWaypoint</code>, когда требуется обнаружение с учётом направления.</p>
+<p><strong>См. также:</strong> <a data-doc="levels/level_formats/map" href="/docs/levels/level_formats/map">Навигационная карта (<code>map.json</code>)</a>
+, <a data-doc="levels/level_formats/buslines" href="/docs/levels/level_formats/buslines">Маршруты автобусов</a>
+, <a data-doc="levels/level_formats/items" href="/docs/levels/level_formats/items">Файлы объектов уровня (<code>items.level.json</code>)</a>
+.</p>

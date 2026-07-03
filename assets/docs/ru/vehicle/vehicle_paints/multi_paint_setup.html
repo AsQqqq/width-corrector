@@ -1,0 +1,89 @@
+<p>Схема мульти-покраски включает до 3 записей <a data-doc="vehicle/vehicle_paints/paint_definition" href="/docs/vehicle/vehicle_paints/paint_definition">краски</a>
+ и имя набора. Каждая краска применяется к соответствующей <a data-doc="vehicle/vehicle_paints/paint_materials_intro" href="/docs/vehicle/vehicle_paints/paint_materials_intro">цветовой палитре</a>
+, что позволяет задать все доступные цвета краски при спауне транспортного средства.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_veh.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_veh.png"/>
+</span></a>
+<em>Выбор схемы мульти-покраски при спауне транспортного средства.</em></p>
+<p>Схемы мульти-покраски отображаются в отдельной вкладке меню покраски в конфигураторе транспортного средства.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_part.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_part_hu9d391bfcc23e172962372a6163e4b70c_33651_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>Схемы мульти-покраски в конфигураторе транспортного средства.</em></p>
+<h3 id="defining-multi-paint-setups">
+
+  Определение схем мульти-покраски
+</h3>
+<p>Схемы мульти-покраски можно определить либо в <a data-doc="vehicle/vehicle_paints/paint_library" href="/docs/vehicle/vehicle_paints/paint_library">библиотеке красок</a>
+, либо в основном файле <code>info.json</code> транспортного средства. В обоих случаях определение выглядит одинаково:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"multiPaintSetups"</span> <span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"team_offroad_colors"</span> <span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"Orange Race Colors"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint1"</span><span class="o">:</span> <span class="s2">"signal_orange"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint2"</span><span class="o">:</span> <span class="s2">"palladium_gray"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint3"</span><span class="o">:</span> <span class="s2">"black_diamond"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"rennspecht_green_colors"</span> <span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"Rennspecht Green Colors"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint1"</span><span class="o">:</span> <span class="s2">"rennspecht_green"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint2"</span><span class="o">:</span> <span class="s2">"palladium_gray"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">(...)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Ключи "paint1", "paint2" и "paint3" ссылаются на <strong>идентификаторы красок (Paint ID)</strong>, которые будут применены для 1-й, 2-й и 3-й цветовой палитры соответственно. Если схема определена внутри файла <a data-doc="vehicle/vehicle_paints/paint_library" href="/docs/vehicle/vehicle_paints/paint_library">библиотеки красок</a>
+, краски также должны быть библиотечными. При определении схемы внутри файла <code>info.json</code> можно также использовать стандартные краски — в этом случае вместо идентификаторов используются имена красок. Если <code>paint2</code> или <code>paint3</code> не определены, для этой цветовой палитры будет использована <code>paint1</code>.</p>
+<p>Файл <code>info.json</code> транспортного средства может использовать как собственные схемы мульти-покраски, так и общие из библиотеки красок.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"multiPaintSetups"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"rennspecht_green_colors"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"rennspecht_black_colors"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"rennspecht_blue_colors"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"Battlehawk Purple"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint1"</span><span class="o">:</span> <span class="s2">"Extra Purple"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint2"</span><span class="o">:</span> <span class="s2">"Satin Black"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint3"</span><span class="o">:</span> <span class="s2">"Satin Gray"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"Battlehawk Green"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint1"</span><span class="o">:</span> <span class="s2">"Goblin Green"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint2"</span><span class="o">:</span> <span class="s2">"Satin Black"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"paint3"</span><span class="o">:</span> <span class="s2">"Satin Gray"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p>В обоих случаях все цвета красок из библиотеки должны быть заранее объявлены в разделе libraryPaints. Их можно назначить с помощью <a data-doc="vehicle/vehicle_paints/paint_definition" href="/docs/vehicle/vehicle_paints/paint_definition">пользовательского класса</a>
+, чтобы не перегружать селектор красок.</p>
+<p>Схема мульти-покраски может содержать только 1 краску и иметь то же имя, что и эта краска, маскируясь под обычный вариант окраски. Это удобно для добавления опции выбора однотонного цвета для транспортных средств, оснащённых двухтонным дизайном покраски по умолчанию.</p>
+<h3 id="using-multi-paint-setups-as-default">
+
+  Использование схем мульти-покраски по умолчанию
+</h3>
+<p>Как в основном файле <code>info.json</code> транспортного средства, так и в отдельном файле <code>info_[config name].json</code> конкретной конфигурации, схема мульти-покраски заменяет устаревшие значения "defaultPaintName1/2/3". Устаревший метод по-прежнему работает для обратной совместимости, однако defaultMultiPaintSetup имеет приоритет. Его можно использовать одним из следующих способов:</p>
+<ul>
+<li>Указав имя схемы мульти-покраски, определённой в <code>info.json</code> или импортированной из библиотеки. Например: <code>"defaultMultiPaintSetup":"Champagne"</code>. В этом случае при спауне транспортного средства через селектор эта схема мульти-покраски будет выделена.</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_selection.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_selection_hu5e286b96508200bb09885504d4b03d2a_419125_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>Схема мульти-покраски по умолчанию для данной конфигурации выделена.</em></p>
+<ul>
+<li>Определив собственную схему, специфичную для данной конфигурации. Например:</li>
+</ul>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"defaultMultiPaintSetup"</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"Turbo Race"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"paint1"</span><span class="o">:</span> <span class="s2">"Royal Blue"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"paint2"</span><span class="o">:</span> <span class="s2">"Solar Yellow"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"paint3"</span><span class="o">:</span> <span class="s2">"Solar Yellow"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>В этом случае схема будет отображаться в списке мульти-покраски только при выборе данной конкретной конфигурации.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_selection2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle_paints/multi_paint_setup/multipaint_selection2_hu10b9fb81b68a1f5d79fabf5aac6eb439_446809_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+<em>Схема мульти-покраски по умолчанию добавляется при выборе пользовательской конфигурации, которая её использует.</em></p>
+<p>Моддерам рекомендуется полностью заменить использование синтаксиса <code>defaultPaintName</code> на схемы мульти-покраски.</p>

@@ -1,0 +1,104 @@
+<p><code>CameraBookmark</code> хранит позиции закладок редактора/камеры в уровне.</p>
+<p>Эти объекты часто встречаются в поставляемых уровнях в составе групп закладок камеры. Они преимущественно полезны для редакторов, инструментов, скриншотов, синематиков и повторяемых точек обзора.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Базовый пример
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"CameraBookmark"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"overview_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"__parent"</span><span class="p">:</span> <span class="s2">"CameraBookmarks"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"observer"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="important-fields">
+
+  Важные поля
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Должно быть <code>"CameraBookmark"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Название закладки.</td>
+</tr>
+<tr>
+<td><code>__parent</code></td>
+<td>string</td>
+<td>Родительская группа, часто <code>CameraBookmarks</code>.</td>
+</tr>
+<tr>
+<td><code>position</code></td>
+<td>array[3]</td>
+<td>Позиция закладки камеры.</td>
+</tr>
+<tr>
+<td><code>rotationMatrix</code></td>
+<td>array[9]</td>
+<td>Ориентация закладки камеры.</td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>array[3]</td>
+<td>Стандартный масштаб объекта сцены. Обычно <code>[1, 1, 1]</code>.</td>
+</tr>
+<tr>
+<td><code>observer</code></td>
+<td>bool</td>
+<td>Помечает закладку как подходящую для использования камерой наблюдателя.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="tool-notes">
+
+  Примечания для инструментов
+</h2>
+<p>Для инструментов, обрабатывающих файлы объектов уровня:</p>
+<ul>
+<li>Сохраняйте закладки камеры, если только вы намеренно не очищаете данные редактора.</li>
+<li>Оставляйте названия стабильными, если на них ссылаются скриншоты, инструменты проверки или скрипты.</li>
+<li>Рассматривайте их как вспомогательные объекты редактора, а не как игровую геометрию.</li>
+<li>По возможности группируйте их в чётко обозначенную группу закладок камеры.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<ul>
+<li>Закладка открывается с неправильным видом, поскольку <code>rotationMatrix</code> был изменён или пересчитан некорректно.</li>
+<li>Очистка инструментом удаляет закладки, которые используются в процессах проверки или съёмки скриншотов.</li>
+<li>Закладки неудобно использовать, потому что их названия слишком общие или дублируются.</li>
+</ul>
+<hr/>
+<h2 id="validation-criteria">
+
+  Критерии валидации
+</h2>
+<ul>
+<li>Закладки загружаются в редакторе.</li>
+<li>Точки обзора направлены на полезные области уровня.</li>
+<li>Названия достаточно описательны для использования инструментами и редактором.</li>
+<li>Инструменты сохраняют закладки, если только их удаление не является намеренным.</li>
+</ul>
+<p><strong>См. также:</strong> <a data-doc="levels/level_formats/items" href="/docs/levels/level_formats/items">Файлы объектов уровня (<code>items.level.json</code>)</a>
+.</p>

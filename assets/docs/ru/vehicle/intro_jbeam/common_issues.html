@@ -1,0 +1,222 @@
+<p>При возникновении любой проблемы с jbeam первым делом откройте консоль (по умолчанию клавиша <kbd>`</kbd>) и проверьте сообщения об ошибках.</p>
+<p>Сообщения об ошибках отображаются в консоли красным цветом, предупреждения — жёлтым.</p>
+<h3 id="syntax-issues">
+
+  Синтаксические ошибки
+</h3>
+<p>Первый тип проблем — синтаксические ошибки jbeam, из-за которых парсер не сможет разобрать файл и затронутая деталь не загрузится. Подробнее о синтаксисе см. страницу <a data-doc="vehicle/intro_jbeam/jbeamsyntax" href="/docs/vehicle/intro_jbeam/jbeamsyntax">введение в синтаксис jbeam</a>
+.</p>
+<p>В консоли должно появиться сообщение об ошибке красным цветом, похожее на "unable to decode JSON: /vehicles/<em>vehicleName</em>/<em>jbeamFile</em>.jbeam", — оно указывает, какой именно файл не удалось загрузить.</p>
+<h4 id="missing-quotation-marks">
+
+  Отсутствующие кавычки
+</h4>
+<p>Очень распространённая ошибка — случайно пропустить открывающую или закрывающую кавычку строки, особенно в именах нод.</p>
+<p>Парсер, как правило, довольно точно указывает на место подобной ошибки.</p>
+<p>Например, в следующем jbeam :</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"bd8l"</span><span class="p">,</span><span class="mf">0.31</span><span class="p">,</span><span class="mf">1.68</span><span class="p">,</span><span class="mf">0.52</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"bd8ll"</span><span class="p">,</span><span class="mf">0.64</span><span class="p">,</span><span class="mf">1.68</span><span class="p">,</span><span class="mf">0.52</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//bed sides lower
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span><span class="mf">0.4</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"bd9rr,-0.627,0.381,0.25], //Missing quotation mark in the node name.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    ["</span><span class="nx">bd9</span><span class="s2">",0.0,0.381,0.3],
+</span></span></span><span class="line"><span class="cl"><span class="s2">    ["</span><span class="nx">bd9ll</span><span class="s2">",0.627,0.381,0.25],
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">    ["</span><span class="nx">bd10rr</span><span class="s2">",-0.627,0.706,0.25],
+</span></span></span><span class="line"><span class="cl"><span class="s2">    ["</span><span class="nx">bd10ll</span><span class="err">"</span><span class="p">,</span><span class="mf">0.627</span><span class="p">,</span><span class="mf">0.706</span><span class="p">,</span><span class="mf">0.25</span><span class="p">],</span>
+</span></span></code></pre>
+</div><p>В консоли это будет выглядеть так :</p>
+<blockquote>
+<p>unable to decode JSON: /vehicles/pigeon/pigeon_bed.jbeam</p>
+<p>JSON decoding error: [string "lua/common/json.lua"]:55: Invalid input near line 68, '["bd9",0.0,0.381,0.3],'</p>
+</blockquote>
+<p>Продвинутый текстовый редактор также поможет выявить проблему, подсвечивая строки и делая очевидными любые несоответствия. Ниже показан пример в Visual Studio Code с языком, установленным как "JSON with comments"</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/VSCExampleString.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/VSCExampleString_huceff10aa39cf7d78fb873b13ee486e42_31741_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="missing-brackets">
+
+  Отсутствующие скобки
+</h4>
+<p>Все элементы jbeam определяются как секции, ограниченные скобками. Крайне важно, чтобы каждая открывающая скобка имела соответствующую закрывающую, иначе парсер завершится с ошибкой.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/Brackets.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/Brackets_hu895714171756022381458c5cce89f96c_38464_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>В консоли сообщение об ошибке обычно не так точно указывает на место проблемы, как в случае со строками, однако должно сообщить файл и примерное местонахождение ошибки — как правило, это либо секция, содержащая ошибку, либо секция, расположенная сразу после неё.</p>
+<blockquote>
+<p>unable to decode JSON: /vehicles/pigeon/pigeon_bed.jbeam</p>
+<p>JSON decoding error: [string "lua/common/json.lua"]:55: Invalid input near line 95, '"beams":['"'</p>
+</blockquote>
+<h4 id="duplicate-component-name">
+
+  Дублирующееся имя компонента
+</h4>
+<p>Если в вашем jbeam есть 2 детали с одинаковым именем, в консоли появится ошибка следующего вида :</p>
+<blockquote>
+<p>Duplicate part found : pigeon_hood from file /vehicles/pigeon/pigeon_hood.jbeam</p>
+</blockquote>
+<p>В подобном случае последняя деталь перезапишет первую деталь с тем же именем. Чтобы избежать этого, необходимо либо удалить одну из деталей, либо переименовать её в jbeam.</p>
+<p>Имейте в виду, что деталь, упомянутая в сообщении об ошибке, является второй найденной деталью, тогда как первый экземпляр этого компонента может находиться в другом файле.</p>
+<h3 id="flexbody-issues">
+
+  Проблемы с флексбоди
+</h3>
+<p>Проблемы, связанные с флексбоди, приводят к тому, что деталь загружается корректно вместе со своей jbeam-структурой, однако сам флексбоди не отображается.</p>
+<h4 id="flexbody-shows-up-offset">
+
+  Флексбоди отображается со смещением
+</h4>
+<p>Если флексбоди отображается в игре, но в неправильном положении, даже если в Blender он расположен корректно, скорее всего, начало координат детали смещено.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/OffsetFlexbody.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/OffsetFlexbody_hu7427911e75114d5a7d0d5dae08f88c02_580143_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Для исправления этой проблемы ознакомьтесь с <a href="https://documentation.beamng.com/modding/modelling/vehicle_modeling/#flexbodies" rel="noopener" target="_blank">руководством по моделированию</a>
+</p>
+<h4 id="missing-flexbody-error">
+
+  Ошибка отсутствующего флексбоди
+</h4>
+<p>Если игра не может найти ваш флексбоди, в консоли появится следующее сообщение :</p>
+<blockquote>
+<p>Failed to get render mesh <em>MeshName</em></p>
+</blockquote>
+<p>Это означает либо то, что меш отсутствует в dae-файле в папке вашего мода, либо то, что вы допустили опечатку при указании имени модели в <a data-doc="vehicle/sections/flexbodies" href="/docs/vehicle/sections/flexbodies">секции flexbody</a>
+</p>
+<h4 id="missing-nodegroup">
+
+  Отсутствующая группа нод
+</h4>
+<p>Если модель не отображается и при этом в консоли нет ошибок, обычно это означает, что в группе нод, указанной в секции flexbody, нет ни одной ноды.</p>
+<p>Как правило, это вызвано опечаткой в определении группы — либо в секции flexbody, либо в секции нод.</p>
+<h4 id="vy-node-error">
+
+  Ошибка ноды VY
+</h4>
+<p>Ошибка ноды VY отображается в консоли следующим образом :</p>
+<blockquote>
+<p>FLEXBODY ERROR on mesh <em>MeshName</em>: VY node not found</p>
+</blockquote>
+<p>Это означает, что физический движок не может корректно привязать флексбоди к заданному набору нод. Существует несколько возможных причин.</p>
+<p>Первая — недостаточное количество нод. Физическому движку требуется как минимум 3 ноды, а желательно больше, назначенных каждому флексбоди для корректного расчёта деформации.</p>
+<p>Другая возможная проблема — расположение нод относительно друг друга. Если все ноды выстроены в линию или находятся в одной плоскости, игра может не суметь привязать флексбоди к нодам и выдать ошибку VY.</p>
+<p>Наконец, последняя возможная проблема — если ноды не покрывают флексбоди должным образом. Если части флексбоди расположены далеко от всех назначенных нод, игра не сможет корректно интерполировать их положение на основе координат нод.</p>
+<p>Во всех случаях лучшим решением является добавление большего количества нод в группы нод флексбоди или назначение дополнительных групп нод.</p>
+<h4 id="no-material-assigned">
+
+  Материал не назначен
+</h4>
+<p>Если в Blender вашей модели не назначен материал, модель не будет отображаться, а в консоли появится следующая ошибка :</p>
+<blockquote>
+<p>Mesh [<em>MeshName</em>] has no material assigned… cant be rendered</p>
+</blockquote>
+<h3 id="structural-issues">
+
+  Структурные проблемы
+</h3>
+<p>Структурные проблемы обычно не вызывают ошибок в консоли, однако приводят к видимым неполадкам в jbeam — вибрации, излишней мягкости конструкции и т. д.</p>
+<p>В большинстве случаев не забывайте перепроверять параметры балок. Лёгкая деформация деталей или странное поведение подвески могут быть вызваны слишком низкими значениями deform, недостаточно подобранными жёсткостью/демпфированием для конкретного применения или неверно установленными ограничениями.</p>
+<h4 id="structure-collapses-on-spawn">
+
+  Конструкция разрушается при спауне
+</h4>
+<p>Разрушение конструкции при спауне обычно вызвано недостаточным количеством раскосов в вашем jbeam. Подробнее читайте на странице <a data-doc="vehicle/intro_jbeam" href="/docs/vehicle/intro_jbeam">введение в jbeam</a>
+.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/Bracing.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/Bracing_hu99819008d7439f38df8c91e9b97e987b_46826_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>В случае плоских компонентов может также потребоваться использование так называемой ноды-жёсткостника (rigidifier node) — ноды без коллизий, смещённой от поверхности и соединённой с каждой нодой панели. Если нода-жёсткостник уже есть, возможно, её нужно отнести дальше от поверхности.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/RigidifierExample.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/RigidifierExample_hu9dcb2c29354c91c3defd0e731fa51187_597755_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="instability">
+
+  Нестабильность
+</h4>
+<p>Одним из главных ограничений при настройке балочных структур в beamNG является нестабильность конструкции.</p>
+<p>Существует несколько уровней нестабильности, с которыми вы можете столкнуться. Наихудший из них, возникающий когда проблемные балки не могут сломаться, — это исчезновение автомобиля при спауне вместе с сообщением "instability detected".</p>
+<p>Однако нестабильность также может вызывать отрыв ломаемых компонентов при спауне или их вибрацию и пульсацию на месте, что очень легко заметить в режиме отладки балок "Stress": балки стремительно мигают из ярко-синего в ярко-красный цвет.</p>
+<p><video autoplay="" controls="" src="Instability.mp4"></video></p>
+<p>Это следствие слишком высоких значений beamSpring и/или beamDamp относительно nodeWeight. Исправляется либо снижением beamSpring/Damp, либо увеличением nodeWeight. Нестабильность также может быть вызвана или усилена тем, что ноды выталкиваются при спауне, создавая нагрузку на конструкцию.</p>
+<h4 id="panels-getting-pushed-out-of-the-car-on-spawn-or-vibrating">
+
+  Панели выталкиваются из автомобиля при спауне или вибрируют
+</h4>
+<p>Распространённая проблема с панелями и элементами подвески — ноды, которые появляются внутри треугольников и выталкиваются наружу при спауне. Обычно это проявляется в виде расширяющихся зазоров между панелями при спауне или вибрирующих на месте компонентов. Эти проблемы также можно обнаружить в режиме отладки напряжений, наблюдая за ростом напряжения балок после спауна транспортного средства.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/panelGapIssues.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/panelGapIssues_hu77ec240d72c6c576ea48ea50a268a1c9_133087_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Существует 2 возможных способа устранить этот тип проблемы. Первый, обычно рекомендуемый для кузовных панелей, — перемещение нод таким образом, чтобы исключить взаимопроникновение при спауне.</p>
+<p>В некоторых случаях, например в подвеске, где точное положение нод важно для обеспечения правильной геометрии, можно также установить "selfCollision" в значение false. Однако имейте в виду, что это позволит компоненту свободно проходить сквозь транспортное средство, что не всегда является желаемым поведением.</p>
+<h4 id="major-deformation-on-spawn">
+
+  Значительная деформация при спауне
+</h4>
+<p>Значительная деформация, возникающая непосредственно при спауне автомобиля, может иметь несколько возможных причин.</p>
+<p>Первая возможная причина — несоосность слайд-нод с их рейкой, из-за чего они резко возвращаются в положение при спауне. Это легко обнаружить, заспаунив автомобиль с остановленной физикой и используя режим отладки напряжений: связанные балки будут отображаться напряжёнными даже без предварительного сжатия.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/MissalignedSlideNodes.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/MissalignedSlideNodes_huba86f953373c87a63211f089e620f391_985587_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Другая возможность — нестабильность, которая прекращается после определённого уровня деформации. Чтобы убедиться в этом, можно посмотреть на режим отладки напряжений в момент спауна автомобиля, используя замедление 100x. Должна быть видна вибрация, возникающая сразу при спауне. Для устранения этой проблемы обратитесь к разделу об исправлении нестабильности.</p>
+<p>Также причиной может быть чрезмерное или слишком быстрое предварительное сжатие балки. Убедитесь, что вы не допустили ошибку и не сжимаете балку слишком сильно. Если балка просто сжимается слишком быстро, вы можете замедлить изменение с помощью beamPrecompression time, добавив его в строку с балкой следующим образом :</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"fx5l"</span><span class="p">,</span><span class="s2">"st1l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="s2">"$=$toe_FR-$steer_center_F"</span><span class="p">,</span><span class="s2">"beamPrecompressionTime"</span><span class="o">:</span><span class="mf">0.5</span><span class="p">}],</span>
+</span></span></code></pre>
+</div>
+<h4 id="leaking-properties">
+
+  Утечка свойств
+</h4>
+<p>Утечка свойств возникает, когда компонент, который не должен быть подвержен действию определённого параметра (например, breakgroup, deformgroup, свойства коллизий и т. д.), всё же оказывается им затронут.</p>
+<p>Пример утечки breakGroup: задний бампер может рассыпаться при отрыве переднего бампера.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/common_issues/LeakingBreakGroup.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/common_issues/LeakingBreakGroup_hubcc40d7be9bf040e9b8271b8b5e99136_910389_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Для breakgroup и deformgroup это легко обнаруживается в соответствующих режимах отладки.</p>
+<p>Во всех случаях самый простой способ избежать подобных проблем — добавить в конец ваших деталей завершающую строку, сбрасывающую свойства к стандартным значениям:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="c1">//closing statement for beams
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span><span class="s2">"breakGroupType"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"optional"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"breakGroup"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span></code></pre>
+</div><p>В некоторых случаях также рекомендуется использовать <a data-doc="vehicle/intro_jbeam/jbeamsyntax" data-frag="table-row-modifiers" href="/docs/vehicle/intro_jbeam/jbeamsyntax#table-row-modifiers">модификаторы строк таблицы</a>
+, чтобы полностью исключить риск утечки свойств.</p>
+<h3 id="other-common-console-issues">
+
+  Другие распространённые ошибки консоли
+</h3>
+<p>Хорошей практикой перед публикацией мода является просмотр консоли на наличие любых ошибок, даже если мод, судя по всему, загружается корректно.</p>
+<p>Эти ошибки снижают производительность, а также затрудняют выявление реальных проблем.</p>
+<p>Ниже приведены некоторые из наиболее распространённых ошибок, которые вы можете увидеть, но которые не будут оказывать видимого влияния на мод.</p>
+<h4 id="duplicate-beams">
+
+  Дублирующиеся балки
+</h4>
+<p>Дублирующиеся балки могут появиться из-за опечаток и ошибок при копировании и вставке. Они отображаются в консоли в виде жёлтых сообщений "duplicated beam between nodes"</p>
+<blockquote>
+<p>duplicated beam between nodes: <em>node1</em> and <em>node2</em></p>
+</blockquote>
+<p>Для исправления достаточно удалить одну из лишних ссылок на данную балку.</p>
+<h4 id="missing-node">
+
+  Отсутствующая нода
+</h4>
+<p>Ещё одна ошибка, которая не обязательно влияет на функциональность мода, — это ошибка отсутствующей ноды, которая отображается в консоли примерно следующим образом :</p>
+<blockquote>
+<p>link target not found : beams/1787 &gt; nodes/<em>nodeName</em> id1:nil, id2:nil, partOrigin: <em>PartName</em> - DATA DISCARDED</p>
+</blockquote>
+<p>Это может быть результатом опечатки или балки/треугольника, которую вы забыли удалить после удаления ноды.</p>
+<p>Если отсутствующая нода отсутствует из-за того, что она не входит в текущий набор выбранных деталей, рекомендуется использовать свойство "optional".</p>
+<h4 id="missing-flexbody">
+
+  Отсутствующий флексбоди
+</h4>
+<p>Если ваш jbeam основан на уже существующем jbeam, или вы вносили изменения в флексбоди, вы можете столкнуться с этой проблемой :</p>
+<blockquote>
+<p>Failed to get render mesh <em>MeshName</em></p>
+</blockquote>
+<p>Если на вашем транспортном средстве нет видимых отсутствующих мешей, просто удалите ссылку на этот флексбоди из вашего jbeam.</p>

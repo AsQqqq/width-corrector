@@ -1,0 +1,969 @@
+<p><code>DecalRoad</code> — это объект-декаль в форме полосы, задаваемый цепочкой дорожных узлов. Он используется главным образом для дорог, путей, окрашенных полос на поверхности, следов шин, разметки и других протяжённых декальных поверхностей, следующих рельефу местности или статическим мешам.</p>
+<p><code>DecalRoad</code> не является дорожной геометрией. Он проецируется/обрезается по существующим поверхностям, как правило по рельефу, и отображается в виде декали.</p>
+<p>Кроме того, это один из основных источников данных для ИИ/навигации. Дороги с положительным значением <code>drivability</code> могут вносить вклад в навигационный граф, используемый ИИ, трафиком и системами маршрутизации.</p>
+<hr/>
+<h2 id="basic-example">
+
+  Базовый пример
+</h2>
+<p>Простая запись <code>DecalRoad</code> в файле <code>items.level.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"DecalRoad"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"road_main_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"road_asphalt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"textureLength"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"autoLanes"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"renderPriority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Каждый узел хранится в виде:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[x, y, z, width]
+</span></span></code></pre>
+</div><hr/>
+<h2 id="important-fields">
+
+  Важные поля
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class</code></td>
+<td>string</td>
+<td>Должно быть <code>"DecalRoad"</code>.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Имя объекта сцены.</td>
+</tr>
+<tr>
+<td><code>material</code></td>
+<td>string</td>
+<td>Материал, используемый для отрисовки декали дороги.</td>
+</tr>
+<tr>
+<td><code>nodes</code></td>
+<td>array</td>
+<td>Список дорожных узлов. Каждый узел задаётся как <code>[x, y, z, width]</code>.</td>
+</tr>
+<tr>
+<td><code>textureLength</code></td>
+<td>number</td>
+<td>Длина в метрах до повтора текстуры материала.</td>
+</tr>
+<tr>
+<td><code>renderPriority</code></td>
+<td>integer</td>
+<td>Порядок отрисовки. DecalRoad-объекты отрисовываются в порядке убывания приоритета.</td>
+</tr>
+<tr>
+<td><code>zBias</code></td>
+<td>number</td>
+<td>Дополнительное смещение по глубине/рендеру.</td>
+</tr>
+<tr>
+<td><code>decalBias</code></td>
+<td>number</td>
+<td>Высота/смещение над обрезаемой поверхностью.</td>
+</tr>
+<tr>
+<td><code>distanceFade</code></td>
+<td>array[2]</td>
+<td>Параметры затухания по расстоянию.</td>
+</tr>
+<tr>
+<td><code>startEndFade</code></td>
+<td>array[2]</td>
+<td>Длина затухания в начале и конце дороги.</td>
+</tr>
+<tr>
+<td><code>overObjects</code></td>
+<td>bool</td>
+<td>Разрешает обрезку поверх статических мешей, а не только по рельефу.</td>
+</tr>
+<tr>
+<td><code>hiddenInNavi</code></td>
+<td>bool</td>
+<td>Скрывает дорогу с навигационного отображения там, где это поддерживается.</td>
+</tr>
+<tr>
+<td><code>persistentId</code></td>
+<td>string</td>
+<td>Постоянный идентификатор редактора/движка. Обычно генерируется автоматически.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="node-data">
+
+  Данные узлов
+</h2>
+<p><code>DecalRoad</code> хранит свою форму в виде упорядоченного списка узлов.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Каждый узел содержит:</p>
+<table>
+<thead>
+<tr>
+<th align="right">Индекс</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right"><code>0</code></td>
+<td>Позиция X</td>
+</tr>
+<tr>
+<td align="right"><code>1</code></td>
+<td>Позиция Y</td>
+</tr>
+<tr>
+<td align="right"><code>2</code></td>
+<td>Позиция Z</td>
+</tr>
+<tr>
+<td align="right"><code>3</code></td>
+<td>Ширина дороги</td>
+</tr>
+</tbody>
+</table>
+<p>Дорога генерируется между последовательными узлами.</p>
+<p>Ширина узла управляет шириной дороги в данной точке. Ширина интерполируется вдоль дороги.</p>
+<div class="bng-notice info">Если <code>overObjects</code> отключён, высота узла проецируется на высоту рельефа при регенерации.</div>
+<hr/>
+<h2 id="terrain-projection">
+
+  Проекция на рельеф
+</h2>
+<p>По умолчанию <code>DecalRoad</code> проецируется на рельеф.</p>
+<p>Он считывает высоту рельефа и корректирует сгенерированные края так, чтобы они лежали на поверхности рельефа.</p>
+<p>Это означает, что значение Z узла зачастую менее важно для дорог на рельефе, поскольку дорога привязывается к нему при регенерации.</p>
+<p>Если уровень не содержит рельефа и параметр <code>overObjects</code> не включён, дорога не сможет сгенерироваться корректно.</p>
+<hr/>
+<h2 id="overobjects">
+
+  overObjects
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"overObjects"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>При включении <code>DecalRoad</code> может проецироваться поверх статических мешей наравне с рельефом.</p>
+<p>Это полезно для:</p>
+<ul>
+<li>Мостов</li>
+<li>Эстакад</li>
+<li>Тоннелей</li>
+<li>Дорог на меш-геометрии</li>
+<li>Парковочных конструкций</li>
+<li>Пользовательских мешей дорог</li>
+</ul>
+<p>При отключении дорога рассчитана на рельеф.</p>
+<div class="bng-notice warning">Если на карте нет рельефа и дорога не использует <code>overObjects</code>, дорога может не сгенерироваться.</div>
+<hr/>
+<h2 id="material">
+
+  Материал
+</h2>
+<p>Поле <code>material</code> ссылается на датаблок <code>Material</code>.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"material"</span><span class="err">:</span> <span class="s2">"road_asphalt"</span>
+</span></span></code></pre>
+</div><p>Материал должен быть разработан для отрисовки декали дороги и обычно тайлится вдоль её длины.</p>
+<p>Важные требования к материалу:</p>
+<ul>
+<li>Текстура должна тайлиться вертикально/вдоль дороги.</li>
+<li>Прозрачность может использоваться для мягких краёв или разметки.</li>
+<li>Карта нормалей/шероховатости может применяться для детализации поверхности дороги.</li>
+<li>Лаковое покрытие не используется для материалов декальных дорог.</li>
+</ul>
+<p>Если материал не найден, дорога использует предупреждающий материал.</p>
+<hr/>
+<h2 id="texture-length">
+
+  Длина текстуры
+</h2>
+<p><code>textureLength</code> управляет частотой повтора материала дороги вдоль неё.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"textureLength"</span><span class="err">:</span> <span class="mi">8</span>
+</span></span></code></pre>
+</div><p>Это означает, что текстура повторяется примерно каждые 8 метров.</p>
+<p>Используйте меньшие значения для плотных повторяющихся узоров, большие — для крупной разметки или протяжённых текстур.</p>
+<hr/>
+<h2 id="render-priority">
+
+  Приоритет отрисовки
+</h2>
+<p><code>renderPriority</code> управляет порядком наложения пересекающихся декальных дорог.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"renderPriority"</span><span class="err">:</span> <span class="mi">10</span>
+</span></span></code></pre>
+</div><p>Декальные дороги отрисовываются в порядке убывания приоритета.</p>
+<p>Используйте приоритет отрисовки при наложении:</p>
+<ul>
+<li>Разметки полос поверх асфальта</li>
+<li>Пешеходных переходов поверх дорожного покрытия</li>
+<li>Следов шин поверх дорожного покрытия</li>
+<li>Патч-декалей поверх базовых дорог</li>
+</ul>
+<hr/>
+<h2 id="zbias-and-decalbias">
+
+  zBias и decalBias
+</h2>
+<p><code>zBias</code> и <code>decalBias</code> влияют на то, как декальная дорога смещается/сдвигается по глубине относительно целевой поверхности.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"zBias"</span><span class="err">:</span> <span class="mi">0</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"decalBias"</span><span class="err">:</span> <span class="mi">0</span>
+</span></span></code></pre>
+</div><p>Эти параметры помогают избежать z-fighting, при котором дорога мерцает относительно поверхности под ней.</p>
+<p>Используйте небольшие значения. Большие значения могут вызвать видимое парение или артефакты сортировки.</p>
+<hr/>
+<h2 id="distancefade">
+
+  distanceFade
+</h2>
+<p><code>distanceFade</code> управляет затуханием по расстоянию.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"distanceFade"</span><span class="err">:</span> <span class="p">[</span><span class="mi">300</span><span class="p">,</span> <span class="mi">50</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Первое значение — основное расстояние затухания, второе — диапазон затухания.</p>
+<p>Если <code>distanceFade</code> не задан, используется значение по умолчанию:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">[300, 50]
+</span></span></code></pre>
+</div><p>Первое значение, как правило, должно быть больше второго.</p>
+<div class="bng-notice warning">Некорректные значения затухания могут привести к тому, что дороги исчезают слишком рано или ведут себя непредсказуемо.</div>
+<hr/>
+<h2 id="startendfade">
+
+  startEndFade
+</h2>
+<p><code>startEndFade</code> создаёт затухание дороги в её начале и конце.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"startEndFade"</span><span class="err">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Это полезно для плавного перехода декалей дорог в другие поверхности или устранения резких обрывов.</p>
+<table>
+<thead>
+<tr>
+<th>Значение</th>
+<th>Смысл</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Первое значение</td>
+<td>Расстояние затухания в начале дороги.</td>
+</tr>
+<tr>
+<td>Второе значение</td>
+<td>Расстояние затухания в конце дороги.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="spline-settings">
+
+  Настройки сплайна
+</h2>
+<p><code>DecalRoad</code> может генерировать края, используя либо устаревшую, либо улучшенную логику сплайна.</p>
+<h3 id="improvedspline">
+
+  improvedSpline
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"improvedSpline"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Использует более новую генерацию сплайна на основе Catmull-Rom.</p>
+<h3 id="smoothness">
+
+  smoothness
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"smoothness"</span><span class="err">:</span> <span class="mf">0.5</span>
+</span></span></code></pre>
+</div><p>Управляет плавностью сплайна:</p>
+<table>
+<thead>
+<tr>
+<th>Значение</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>Более линейный</td>
+</tr>
+<tr>
+<td><code>0.5</code></td>
+<td>Средняя плавность</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>Полностью плавный</td>
+</tr>
+</tbody>
+</table>
+<h3 id="detail">
+
+  detail
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"detail"</span><span class="err">:</span> <span class="mf">0.1</span>
+</span></span></code></pre>
+</div><p>Управляет шагом дискретизации сплайна.</p>
+<p>Меньшие значения создают больше подразделений. Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">0.1 = every 10%
+</span></span><span class="line"><span class="cl">0.2 = every 20%
+</span></span><span class="line"><span class="cl">0.5 = midpoint only
+</span></span></code></pre>
+</div>
+<h3 id="looped">
+
+  looped
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"looped"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Соединяет конец дороги с её началом.</p>
+<p>Полезно для замкнутых трасс и кольцевых маршрутов.</p>
+<h3 id="starttangent-endtangent">
+
+  startTangent / endTangent
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"startTangent"</span><span class="err">:</span> <span class="kc">true</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"endTangent"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Использует первую/последнюю точку в качестве маркеров касательной для более плавных конечных точек.</p>
+<hr/>
+<h2 id="spline-generation-modes">
+
+  Режимы генерации сплайна
+</h2>
+<p><code>DecalRoad</code> поддерживает два режима генерации сплайна:</p>
+<ul>
+<li>Устаревший режим сплайна</li>
+<li>Улучшенный режим сплайна</li>
+</ul>
+<p>Оба режима преобразуют управляющие узлы дороги в сгенерированные края. Эти края затем используются для обрезки по рельефу/статике, генерации UV-развёртки, отрисовки и данных ИИ/навигации.</p>
+<hr/>
+<h3 id="legacy-spline-mode">
+
+  Устаревший режим сплайна
+</h3>
+<p>Устаревший режим используется, когда:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"improvedSpline"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre>
+</div><p>или когда поле не включено.</p>
+<p>Устаревший режим строит сплайн Catmull-Rom через узлы дороги, а затем определяет, где размещать сгенерированные края, основываясь на изменениях направления кривой.</p>
+<p>Процесс в общих чертах:</p>
+<ol>
+<li>Построить сплайн Catmull-Rom из позиций узлов.</li>
+<li>Построить второй сплайн для ширины дороги.</li>
+<li>Пройти вдоль сплайна между каждой парой управляющих узлов.</li>
+<li>Добавить сгенерированный край, когда:
+<ul>
+<li>это начало сегмента,</li>
+<li>это конец дороги,</li>
+<li>или изменение направления превышает <code>breakAngle</code>.</li>
+</ul>
+</li>
+</ol>
+<p>Таким образом, <code>breakAngle</code> управляет плотностью подразделения дороги на поворотах.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"improvedSpline"</span><span class="err">:</span> <span class="kc">false</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"breakAngle"</span><span class="err">:</span> <span class="mi">3</span>
+</span></span></code></pre>
+</div><p>Меньшие значения <code>breakAngle</code> создают больше сгенерированных краёв на поворотах, улучшая точность формы, но увеличивая объём сгенерированной геометрии.</p>
+<p>Большие значения создают меньше краёв, что может быть дешевле, но выглядеть менее плавно.</p>
+<hr/>
+<h3 id="improved-spline-mode">
+
+  Улучшенный режим сплайна
+</h3>
+<p>Улучшенный режим используется, когда:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"improvedSpline"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Этот режим также использует интерполяцию Catmull-Rom, но подразделение управляется более непосредственно через <code>detail</code> и <code>smoothness</code>.</p>
+<p>Процесс в общих чертах:</p>
+<ol>
+<li>Считать позиции узлов и их ширину.</li>
+<li>При необходимости использовать первый/последний узел как маркеры касательной, если включены <code>startTangent</code> или <code>endTangent</code>.</li>
+<li>Если включён <code>looped</code>, завернуть индексы узлов так, чтобы дорога образовывала замкнутый контур.</li>
+<li>Вычислить кривую Catmull-Rom с равными интервалами.</li>
+<li>Сгенерировать край в каждом интервале.</li>
+<li>Интерполировать ширину дороги вдоль той же кривой.</li>
+<li>Спроецировать сгенерированные точки на высоту поверхности рельефа/статики.</li>
+</ol>
+<p>В улучшенном режиме:</p>
+<ul>
+<li><code>smoothness</code> управляет натяжением кривой Catmull-Rom.</li>
+<li><code>detail</code> управляет плотностью дискретизации.</li>
+<li><code>looped</code> позволяет создавать замкнутые дороги/трассы.</li>
+<li><code>startTangent</code> и <code>endTangent</code> улучшают управление направлением в конечных точках.</li>
+</ul>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"improvedSpline"</span><span class="err">:</span> <span class="kc">true</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"smoothness"</span><span class="err">:</span> <span class="mf">0.5</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"detail"</span><span class="err">:</span> <span class="mf">0.1</span>
+</span></span></code></pre>
+</div><p>Здесь <code>detail: 0.1</code> означает, что кривая дискретизируется примерно каждые 10% каждого сегмента.</p>
+<hr/>
+<h3 id="choosing-a-mode">
+
+  Выбор режима
+</h3>
+<p>По возможности используйте <strong>улучшенный сплайн</strong> для новых дорог. Он обеспечивает более предсказуемое управление плавностью, поведением петель и подразделением.</p>
+<p>Используйте <strong>устаревший режим</strong> главным образом для старого контента или когда нужно сохранить точную форму существующей дороги.</p>
+<table>
+<thead>
+<tr>
+<th>Режим</th>
+<th>Лучшее применение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Устаревший</td>
+<td>Существующие старые дороги, совместимость.</td>
+</tr>
+<tr>
+<td>Улучшенный</td>
+<td>Новые дороги, более плавные кривые, петли, лучший контроль.</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice warning">Переключение существующей дороги с устаревшего на улучшенный режим сплайна может незначительно изменить её форму. После смены режима проверьте края дороги, UV-развёртку, декали и поведение ИИ/навигации.</div>
+<hr/>
+<h2 id="breakangle">
+
+  breakAngle
+</h2>
+<p><code>breakAngle</code> используется алгоритмом устаревшего сплайна.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"breakAngle"</span><span class="err">:</span> <span class="mi">3</span>
+</span></span></code></pre>
+</div><p>Дорога подразделяется, когда угол кривой превышает этот порог.</p>
+<p>Меньшие значения генерируют больше промежуточных краёв на поворотах.</p>
+<hr/>
+<h2 id="generated-edges">
+
+  Сгенерированные края
+</h2>
+<p>В процессе регенерации узлы дороги преобразуются в края дороги.</p>
+<p>Каждый сгенерированный край содержит:</p>
+<ul>
+<li>Центральную точку</li>
+<li>Точки левого/правого краёв</li>
+<li>Ширину</li>
+<li>Вектор направления вперёд</li>
+<li>Вектор направления вправо</li>
+<li>Вектор направления вверх</li>
+<li>Индекс родительского узла</li>
+</ul>
+<p>Эти края затем используются для захвата/обрезки треугольников лежащего ниже рельефа/статического меша.</p>
+<hr/>
+<h2 id="geometry-capture">
+
+  Захват геометрии
+</h2>
+<p><code>DecalRoad</code> не создаёт плоскую меш-дорогу напрямую. Вместо этого он:</p>
+<ol>
+<li>Строит полосу из краёв дороги.</li>
+<li>Создаёт плоскости обрезки для каждого сегмента.</li>
+<li>Захватывает треугольники рельефа/статического меша внутри полосы дороги.</li>
+<li>Генерирует вершины и индексы декальной дороги.</li>
+<li>Назначает UV-координаты на основе ширины дороги и <code>textureLength</code>.</li>
+<li>Разбивает дорогу на пакеты для отрисовки.</li>
+</ol>
+<p>Это позволяет дороге следовать лежащей в основе поверхности.</p>
+<hr/>
+<h2 id="batching-and-rendering">
+
+  Пакетирование и отрисовка
+</h2>
+<p>Декальные дороги группируются по материалу и приоритету отрисовки.</p>
+<p>Менеджер статических декальных дорог перестраивает и пакетирует геометрию дорог для эффективной отрисовки.</p>
+<p>Дороги разбиваются на узлы/пакеты рендера для:</p>
+<ul>
+<li>Отсечения (culling)</li>
+<li>Затухания по расстоянию</li>
+<li>Упорядочивания по приоритету отрисовки</li>
+<li>Управления большими объёмами данных дороги</li>
+</ul>
+<p>Это важно, поскольку уровни могут содержать множество сегментов декальных дорог.</p>
+<hr/>
+<h2 id="packed-vertex-range">
+
+  Диапазон упакованных вершин
+</h2>
+<p>Рендерер декальных дорог упаковывает позиции вершин относительно начал блоков.</p>
+<p>Большие пакеты декальных дорог разбиваются на блоки, чтобы упакованные локальные позиции оставались в пределах поддерживаемого диапазона.</p>
+<p>Если дорога формирует пакет слишком большого размера или слишком большого охвата, в журнал могут записываться ошибки о диапазоне упакованных позиций или количестве вершин.</p>
+<p>Для наилучших результатов:</p>
+<ul>
+<li>Избегайте крайне длинных одиночных дорог с огромными непрерывными пролётами.</li>
+<li>Разбивайте очень длинные дороги на более короткие участки.</li>
+<li>Избегайте очень широких дорог со сложной обрезкой по многим объектам.</li>
+</ul>
+<hr/>
+<h2 id="terrain-and-static-object-updates">
+
+  Обновления рельефа и статических объектов
+</h2>
+<p>Декальные дороги могут регенерироваться при изменении лежащей в основе поверхности.</p>
+<p>Примеры:</p>
+<ul>
+<li>Изменение высоты рельефа</li>
+<li>Перемещение статического объекта при включённом <code>overObjects</code></li>
+<li>Изменение узлов дороги</li>
+<li>Изменение материала</li>
+<li>Изменение настроек сплайна</li>
+<li>Изменение настроек смещения/затухания</li>
+</ul>
+<p>Когда изменения рельефа перекрываются с дорогой, дорога может быть помечена для регенерации.</p>
+<hr/>
+<p><code>DecalRoad</code> может участвовать в формировании данных ИИ/навигации.</p>
+<p>Важные поля навигации:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>drivability</code></td>
+<td>number</td>
+<td>Определяет, использует ли ИИ эту дорогу и каким образом.</td>
+</tr>
+<tr>
+<td><code>autoLanes</code></td>
+<td>bool</td>
+<td>Автоматически генерирует данные о полосах движения.</td>
+</tr>
+<tr>
+<td><code>lanesLeft</code></td>
+<td>integer</td>
+<td>Количество полос с одной стороны (задаётся вручную).</td>
+</tr>
+<tr>
+<td><code>lanesRight</code></td>
+<td>integer</td>
+<td>Количество полос с другой стороны (задаётся вручную).</td>
+</tr>
+<tr>
+<td><code>oneWay</code></td>
+<td>bool</td>
+<td>Помечает дорогу как одностороннюю.</td>
+</tr>
+<tr>
+<td><code>flipDirection</code></td>
+<td>bool</td>
+<td>Разворачивает логическое направление движения.</td>
+</tr>
+<tr>
+<td><code>gatedRoad</code></td>
+<td>bool</td>
+<td>Помечает дорогу как закрытую/частную.</td>
+</tr>
+<tr>
+<td><code>autoJunction</code></td>
+<td>bool</td>
+<td>Разрешает автоматические соединения перекрёстков.</td>
+</tr>
+<tr>
+<td><code>useSubdivisions</code></td>
+<td>bool</td>
+<td>Генерирует более детальные данные дороги для ИИ.</td>
+</tr>
+<tr>
+<td><code>hiddenInNavi</code></td>
+<td>bool</td>
+<td>Скрывает дорогу с навигационного отображения там, где это поддерживается.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="drivability">
+
+  drivability
+</h2>
+<p><code>drivability</code> управляет тем, используется ли дорога ИИ/навигацией и каким образом.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"drivability"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre>
+</div><p>Типичные значения:</p>
+<table>
+<thead>
+<tr>
+<th>Значение</th>
+<th>Смысл</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-1</code></td>
+<td>Не используется для ИИ/навигации.</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>Обычная/оптимальная дорога.</td>
+</tr>
+<tr>
+<td><code>0.5</code></td>
+<td>Менее предпочтительная дорога, часто грунтовая или с плохим покрытием.</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td>Очень плохой маршрут, как правило, избегается.</td>
+</tr>
+</tbody>
+</table>
+<p>Если вы хотите, чтобы ИИ-трафик использовал дорогу, установите <code>drivability</code> выше <code>0</code>.</p>
+<p>Если дорога является только визуальной, используйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"drivability"</span><span class="err">:</span> <span class="mi">-1</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="autolanes">
+
+  autoLanes
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoLanes"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>При включении полосы движения генерируются автоматически на основе ширины дороги и правил дорожного движения.</p>
+<p>При отключении используйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"lanesLeft"</span><span class="err">:</span> <span class="mi">1</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"lanesRight"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre>
+</div><p>Ручные настройки полос интерпретируются совместно с настройкой <code>roadRules.rightHandDrive</code> уровня из файла <code>info.json</code>.</p>
+<hr/>
+<h2 id="oneway-and-flipdirection">
+
+  oneWay и flipDirection
+</h2>
+<p><code>oneWay</code> делает дорогу односторонней:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"oneWay"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>По умолчанию направление соответствует порядку узлов.</p>
+<p><code>flipDirection</code> разворачивает логическое направление:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"flipDirection"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Используйте <code>flipDirection</code>, если ИИ едет в неверном направлении.</p>
+<hr/>
+<h2 id="gatedroad">
+
+  gatedRoad
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gatedRoad"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Помечает дорогу как закрытую/частную.</p>
+<p>Используется для:</p>
+<ul>
+<li>Частных дорог</li>
+<li>Дорог с ограниченным доступом</li>
+<li>Грунтовых трасс</li>
+<li>Гоночных трасс</li>
+<li>Непубличных маршрутов</li>
+</ul>
+<p>При обработке навигации частные/закрытые дороги обрабатываются иначе, чем обычные общественные дороги.</p>
+<hr/>
+<h2 id="autojunction">
+
+  autoJunction
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoJunction"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>При включении навигационная система может автоматически соединять пути в местах их пересечения.</p>
+<p>Отключите для дорог, где автоматическое слияние создаёт некорректные соединения:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoJunction"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre>
+</div><p>Полезно для:</p>
+<ul>
+<li>Эстакад</li>
+<li>Тоннелей</li>
+<li>Параллельных дорог</li>
+<li>Сложных перекрёстков</li>
+<li>Близко расположенных дорог на разных высотах</li>
+</ul>
+<hr/>
+<h2 id="usesubdivisions">
+
+  useSubdivisions
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"useSubdivisions"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>При включении граф ИИ/навигации может использовать более детальные данные о подразделении краёв дороги вместо только управляющих узлов.</p>
+<p>Это может улучшить точность навигационного пути на криволинейных дорогах.</p>
+<hr/>
+<h2 id="hiddeninnavi">
+
+  hiddenInNavi
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"hiddenInNavi"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Скрывает дорогу с навигационного отображения там, где это поддерживается, при этом позволяя ей существовать в графе в зависимости от поведения системы.</p>
+<hr/>
+<h2 id="serialization">
+
+  Сериализация
+</h2>
+<p>В современном формате <code>items.level.json</code> узлы дороги хранятся в массиве <code>nodes</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"nodes"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>В устаревшей сериализации TorqueScript использовались повторяющиеся поля <code>Node = "x y z width";</code>. В современном JSON следует использовать массив <code>nodes</code>.</p>
+<hr/>
+<h2 id="minimal-road-example">
+
+  Минимальный пример дороги
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"DecalRoad"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"road_asphalt_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"road_asphalt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"textureLength"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"renderPriority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"autoLanes"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"autoJunction"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="one-way-road-example">
+
+  Пример односторонней дороги
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"DecalRoad"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"highway_ramp_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"road_asphalt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"textureLength"</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"oneWay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"flipDirection"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"autoLanes"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"lanesLeft"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"lanesRight"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">160</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="bridge-overobjects-example">
+
+  Пример моста / overObjects
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"DecalRoad"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"bridge_decal_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"road_asphalt"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"overObjects"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"textureLength"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"autoJunction"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="visual-only-marking-example">
+
+  Пример только визуальной разметки
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"DecalRoad"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"painted_line_01"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"material"</span><span class="p">:</span> <span class="s2">"road_line_white"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"textureLength"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"renderPriority"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"drivability"</span><span class="p">:</span> <span class="mi">-1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"decalBias"</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>Используйте <code>DecalRoad</code> для декалей дорог и навигационных поверхностей, а не для приподнятой дорожной геометрии.</li>
+<li>Используйте <code>TSStatic</code> или рельеф для реальной физической геометрии.</li>
+<li>Используйте <code>overObjects</code> для мостов, эстакад, тоннелей или меш-дорог.</li>
+<li>Подбирайте <code>textureLength</code> в соответствии с задуманным масштабом материала.</li>
+<li>Используйте <code>renderPriority</code> для слоистой разметки.</li>
+<li>Устанавливайте <code>drivability</code> правильно:
+<ul>
+<li><code>1</code> для обычных дорог</li>
+<li><code>0.5</code> для грунтовых/бездорожных дорог</li>
+<li><code>-1</code> для только визуальных декалей</li>
+</ul>
+</li>
+<li>Отключайте <code>autoJunction</code> для наложенных дорог, эстакад или близко расположенных параллельных путей.</li>
+<li>Используйте правильные настройки полос для ИИ/трафика.</li>
+<li>Разбивайте очень длинные или сложные дороги на управляемые участки.</li>
+<li>Регенерируйте дороги после изменения рельефа или узлов.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="road-does-not-render">
+
+  Дорога не отображается
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Менее двух узлов</li>
+<li>Неверный или отсутствующий материал</li>
+<li>Нет рельефа и <code>overObjects</code> отключён</li>
+<li>Дорога не захватила никакой лежащей в основе геометрии</li>
+<li>Скрыта затуханием по расстоянию</li>
+<li>Материал — <code>road_invisible</code></li>
+</ul>
+<h3 id="road-flickers-or-z-fights">
+
+  Дорога мерцает или проявляется z-fighting
+</h3>
+<p>Отрегулируйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"decalBias"</span><span class="err">:</span> <span class="mf">0.001</span>
+</span></span></code></pre>
+</div><p>или проверьте материал/приоритет отрисовки.</p>
+<h3 id="road-floats-above-terrain">
+
+  Дорога парит над рельефом
+</h3>
+<p>Возможно, слишком большое значение <code>decalBias</code>, или дорога проецируется поверх непредвиденного объекта.</p>
+<h3 id="road-does-not-follow-bridge-mesh">
+
+  Дорога не следует мешу моста
+</h3>
+<p>Включите:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"overObjects"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div>
+<h3 id="ai-does-not-use-the-road">
+
+  ИИ не использует дорогу
+</h3>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"drivability"</span><span class="err">:</span> <span class="mi">1</span>
+</span></span></code></pre>
+</div><p>Также проверьте настройки полос и участвует ли дорога в навигационном графе.</p>
+<h3 id="ai-drives-the-wrong-direction">
+
+  ИИ едет в неверном направлении
+</h3>
+<p>Переключите:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"flipDirection"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>или проверьте порядок узлов.</p>
+<h3 id="roads-connect-incorrectly">
+
+  Дороги соединяются некорректно
+</h3>
+<p>Установите:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"autoJunction"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre>
+</div><p>для проблемных дорог.</p>
+<h3 id="texture-repeats-too-often-or-too-slowly">
+
+  Текстура повторяется слишком часто или слишком редко
+</h3>
+<p>Отрегулируйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"textureLength"</span><span class="err">:</span> <span class="mi">8</span>
+</span></span></code></pre>
+</div><p>Меньшие значения повторяют чаще. Большие значения растягивают/повторяют реже.</p>
+<h3 id="road-disappears-in-distance">
+
+  Дорога исчезает на расстоянии
+</h3>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"distanceFade"</span><span class="err">:</span> <span class="p">[</span><span class="mi">300</span><span class="p">,</span> <span class="mi">50</span><span class="p">]</span>
+</span></span></code></pre>
+</div><p>или увеличьте расстояние затухания.</p>
+<hr/>
+<h2 id="summary">
+
+  Итоги
+</h2>
+<p><code>DecalRoad</code> — это объект декали дороги, проецируемой на рельеф/статические поверхности.</p>
+<p>Он используется как визуально, так и для ИИ/навигации. Визуально он отображает текстурированную полосу, обрезаемую по рельефу или статическим мешам. Для игрового процесса он может передавать данные о дороге/полосах/проходимости в навигационный граф.</p>
+<p>Используйте его для дорог, путей, разметки и поверхностей, подключённых к навигации. Для реальной приподнятой геометрии используйте <code>TSStatic</code> или рельеф, при необходимости проецируя поверх <code>DecalRoad</code>.</p>
+<p><strong>См. также:</strong> <a data-doc="file_formats/materials" href="/docs/file_formats/materials">Формат файлов материалов</a>
+, <a data-doc="levels/level_formats/decals" href="/docs/levels/level_formats/decals">Формат декалей</a>
+, <a data-doc="levels/level_formats/map" href="/docs/levels/level_formats/map">Навигационная карта (<code>map.json</code>)</a>
+, <a data-doc="levels/level_classes/meshroad" href="/docs/levels/level_classes/meshroad">MeshRoad</a>
+.</p>

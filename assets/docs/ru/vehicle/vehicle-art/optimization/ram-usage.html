@@ -1,0 +1,57 @@
+<h2 id="fundamentals">
+
+  Основы
+</h2>
+<div class="line-inner-small"></div>
+<h2 id="checking-ram-usage">
+
+  Проверка использования RAM
+</h2>
+<p>Для выявления проблем можно воспользоваться следующим встроенным инструментом:</p>
+<ol>
+<li>Запустите игру в режиме Direct X <span class="bng-mark caution"><strong>(этот инструмент пока не работает в Vulkan)</strong></span></li>
+<li>Откройте График производительности (
+  <span class="bng-keys"><span class="bng-key key">Ctrl</span><span class="key-add">+</span><span class="bng-key key">Shift</span><span class="key-add">+</span><span class="bng-key key">F</span></span>) → <code>GPU Memory Profiling</code></li>
+<li>Убедитесь, что включён параметр <code>Update Data</code> на вкладке <code>General</code>
+<div class="block media-show media-image-single media-image-simple"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/ram-usage/1_performance_gpu_profiling.png"/>
+</span></div></li>
+<li>Выполните поиск по запросу <code>vehicle:Texture</code>
+<div class="block media-show media-image-single media-image-simple"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/ram-usage/2_performance_veh_texture.png"/>
+</span></div></li>
+</ol>
+<p>Для получения более детальной информации:</p>
+<ol>
+<li>Перейдите на вкладку <code>GPU Memory Profiling</code></li>
+<li>Откройте раздел <code>GFX Texture Objects</code> внутри неё</li>
+<li>Разверните меню <code>Filter</code></li>
+<li>Выберите <code>vehicle</code> и снимите выделение со всего остального в списке, чтобы увидеть дополнительные данные
+<div class="block media-show media-image-single media-image-simple"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/ram-usage/3_performance_additional.png"/>
+</span></div></li>
+</ol>
+<div class="bng-notice tip">Дополнительные советы см. в разделе <a data-doc="vehicle/vehicle-art/optimization/materials-and-meshes" href="/docs/vehicle/vehicle-art/optimization/materials-and-meshes">Оптимизация материалов и мешей</a>
+.</div>
+<div class="line-inner-small"></div>
+<h2 id="common-issues">
+
+  Типичные проблемы
+</h2>
+<p><span class="bng-badge"><span class="bng-badge-danger">Проблема</span></span> Очень высокое потребление видеопамяти (GPU RAM), которое необходимо снизить — целевое значение ниже 300 МБ.<br/>
+<span class="bng-badge"><span class="bng-badge-success">Решение</span></span> Уменьшите размеры текстур до нужного уровня; можно также использовать новое творческое тайлинг-разбиение текстур для сохранения плотности текстур.</p>
+<hr/>
+<p><span class="bng-badge"><span class="bng-badge-danger">Проблема</span></span> Иногда мы добавляем детали, которые используют лишь 1% огромного набора текстур.<br/>
+<span class="bng-badge"><span class="bng-badge-success">Решение</span></span> Например, до недавних изменений добавление антенны к транспортному средству загружало в RAM весь набор текстур внедорожных деталей, хотя автомобилю требовалось всего несколько пикселей из него.</p>
+<hr/>
+<p><strong>Другие типичные проблемы:</strong></p>
+<ul>
+<li><strong>Карты AO</strong> нередко имеют излишне высокое разрешение. Поскольку они мягкие и лишены чётких деталей, их можно значительно уменьшить без видимых потерь качества.</li>
+<li><strong>Карты лакового покрытия (cc.data)</strong> как правило малозаметны или даже дублируют карты непрозрачности, поэтому высокое разрешение им не нужно или вовсе излишне.</li>
+<li><strong>Металличность и карты шероховатости</strong> обычно просты по содержанию, но при этом хранятся в очень высоком разрешении. Их часто можно уменьшить — тем более что более детальные текстуры, например карты нормалей, способны скрыть артефакты низкого разрешения. Пример ниже — карта металличности, которую можно существенно уменьшить, поскольку в ней нет никаких деталей.
+<div class="block media-show media-image-single media-image-simple"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/vehicle-art/optimization/ram-usage/4_common_issues_maps_example.png"/>
+</span></div></li>
+</ul>
+<div class="bng-notice tip">Всегда учитывайте взаимодействие разных карт. Детализированная карта нормалей 4K может скрыть недостатки карт шероховатости или металличности с более низким разрешением.</div>
+<div class="line-inner-small"></div>

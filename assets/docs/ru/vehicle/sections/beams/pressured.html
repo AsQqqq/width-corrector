@@ -1,0 +1,164 @@
+<p>Балки с давлением используются для имитации прогрессивной пневматической пружины, которая становится жёстче при сжатии. Чаще всего они применяются для боковин шин и специализированных подвесок.</p>
+<p>Их можно представить как виртуальный пневмоцилиндр с поршнем заданной площади. Давление в пневмоцилиндре изменяется в зависимости от изменения его объёма, который целиком определяется длиной балки. Сжатие балки до половины её длины приведёт к уменьшению объёма вдвое, давление при этом удвоится, а вместе с ним — и результирующая сила.</p>
+<p>Итоговая кривая силы выглядит следующим образом: давление стремится к бесконечности по мере сжатия балки до нулевой длины.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/beams/pressured/PressuredBeam.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/beams/pressured/PressuredBeam_hu45afab42357446da370bdc285ad566fe_9427_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Имейте в виду: если сила становится слишком большой, это вызывает нестабильность. Существуют 3 способа обойти эту проблему:</p>
+<ul>
+<li>Использовать ограничители, не допускающие сжатия балки до критической точки</li>
+<li>Использовать параметр <code>maxPressure</code> или <code>maxPressurePSI</code>, чтобы балка разрушалась до потери стабильности</li>
+<li>Использовать параметр <code>pressureLimit</code> или <code>pressureLimitPSI</code> для ограничения максимально допустимого давления до стабильного значения</li>
+</ul>
+<p>Параметр коэффициента объёма изменяет длину виртуального пневмоцилиндра относительно длины балки. Значение 2 означает, что виртуальный пневмоцилиндр вдвое короче балки, из-за чего давление начинает расти раньше. При значениях меньше 1 давление никогда не достигнет бесконечности, а при значении 0 давление не будет изменяться вовсе.</p>
+<p>Ниже показано, как выглядят кривые силы при различных коэффициентах объёма.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/beams/pressured/VolumeCoef.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/beams/pressured/VolumeCoef_huca04a97f477cfd97053f097b53daa3f2_22240_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>При растяжении результирующая сила будет складываться как из параметра <code>beamSpring</code>, так и из силы давления. Это помогает ограничить растяжение балки.</p>
+<h3 id="required-arguments">
+
+  Обязательные аргументы
+</h3>
+<p>См. <a data-doc="vehicle/sections/beams" href="/docs/vehicle/sections/beams">страницу балок</a>
+.</p>
+<p>При растяжении результирующая сила будет складываться как из параметра <code>beamSpring</code>, так и из силы давления.</p>
+<h3 id="optional-arguments">
+
+  Необязательные аргументы
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Начальное давление (Па) в виртуальном пневмоцилиндре, используемое для создания балки с давлением.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Начальное давление (PSI) в виртуальном пневмоцилиндре, используемое для создания балки с давлением.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Следует использовать либо этот параметр, либо давление в Па, но не оба одновременно.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Площадь поршня виртуального пневмоцилиндра (м²), используемая для создания балки с давлением.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Большие значения дают бо́льшие силы при том же давлении.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Влияет на прогрессивность балки с давлением, изменяя размер виртуального пневмоцилиндра.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Большие значения приводят к более раннему росту давления. Имейте в виду, что при значениях выше 1 давление в какой-то момент достигнет бесконечности, что может вызвать нестабильность.</div>
+</div>
+</div>
+<p>Ниже приведены аргументы ограничения давления — следует использовать только один из них одновременно, а не несколько, в зависимости от ожидаемого результата. Помните, что давление в балке с давлением растёт при её сжатии, поэтому максимальные давления, близкие к начальному, могут привести к разрушению балки при обычной эксплуатации.</p>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Максимальное давление (Па), при превышении которого балка с давлением разрушится.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Максимальное давление (PSI), при превышении которого балка с давлением разрушится.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Максимальное давление (Па), выше которого давление больше не увеличивается.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">FLT_MAX<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Максимальное давление (PSI), выше которого давление больше не увеличивается.</div>
+</div>
+</div>
+<p>Балки с давлением также поддерживают те же необязательные аргументы, что и <a data-doc="vehicle/sections/beams" data-frag="optional-arguments" href="/docs/vehicle/sections/beams#optional-arguments">стандартные балки</a>
+.</p>
+<h3 id="simple-examples">
+
+  Простые примеры
+</h3>
+<p>Балки с давлением, используемые в части системы подвески автобуса.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|PRESSURED"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamSpring"</span><span class="o">:</span><span class="mi">100</span><span class="p">,</span><span class="s2">"beamDamp"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"beamDeform"</span><span class="o">:</span><span class="mi">100000</span><span class="p">,</span><span class="s2">"beamStrength"</span><span class="o">:</span><span class="mi">250000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ab1l"</span><span class="p">,</span><span class="s2">"ab3l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"pressurePSI"</span><span class="o">:</span><span class="mi">60</span><span class="p">,</span><span class="s2">"surface"</span><span class="o">:</span><span class="mf">0.05</span><span class="p">,</span><span class="s2">"volumeCoef"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"name"</span><span class="o">:</span><span class="s2">"airbag_RL"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="s2">"ab1r"</span><span class="p">,</span><span class="s2">"ab3r"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"pressurePSI"</span><span class="o">:</span><span class="mi">60</span><span class="p">,</span><span class="s2">"surface"</span><span class="o">:</span><span class="mf">0.05</span><span class="p">,</span><span class="s2">"volumeCoef"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"name"</span><span class="o">:</span><span class="s2">"airbag_RR"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="s2">"beamPrecompression"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamType"</span><span class="o">:</span><span class="s2">"|NORMAL"</span><span class="p">,</span> <span class="s2">"beamLongBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"beamShortBound"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span></code></pre>
+</div>

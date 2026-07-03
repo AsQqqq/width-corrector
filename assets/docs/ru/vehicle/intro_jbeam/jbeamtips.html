@@ -1,0 +1,349 @@
+<p>Это коллекция советов и приёмов, накопленных разработчиками за многие годы. Следование им позволяет повысить качество ваших Jbeam-структур. Они рассчитаны на опытных модеров, которые уже умеют создавать полноценный транспорт, однако будут полезны и начинающим.</p>
+<h2 id="ide">
+
+  IDE
+</h2>
+<p>Здесь речь идёт о программе, которую вы выбираете для редактирования Jbeam-файлов, например
+    <a class="link-ext" href="https://code.visualstudio.com/download" rel="noopener" target="_blank">Visual Studio Code</a>
+ или
+    <a class="link-ext" href="https://cursor.com/" rel="noopener" target="_blank">Cursor</a>
+.</p>
+<h3 id="indentation-using-spaces">
+
+  Отступы с использованием пробелов
+</h3>
+<p>Рекомендуется использовать настройку, команду или макрос, обеспечивающие расстановку отступов в ваших Jbeam-файлах пробелами, а не табуляцией. Тогда отступы останутся точно такими же, если вы или кто-то другой откроет файл в другом редакторе.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/tabsToSpaces.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/tabsToSpaces.png"/>
+</span></a></p>
+<h3 id="vertical-selection">
+
+  Вертикальное выделение
+</h3>
+<p>Лучше всего выстраивать отступы в Jbeam так, чтобы имена нод и координаты были выровнены по столбцам.</p>
+<p>Тогда, когда нужно изменить значение сразу во многих строках, можно воспользоваться вертикальным выделением (<kbd>SHIFT + ALT + LMB</kbd> или средняя кнопка мыши вместо левой в VS Code и аналогичных программах).
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/verticalSelection.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/verticalSelection_hub497e8476d7d0cae93165af1d17311e3_12157_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="batch-replace-in-selection">
+
+  Пакетная замена в выделении
+</h3>
+<p>При выполнении пакетного переименования или замены в Jbeam-файле всегда ограничивайте область действия текущими выделенными строками, чтобы не нарушить синтаксис в Jbeam-модификаторах.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/replaceInSelection2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/replaceInSelection2_hufe953bd8e4f8a233a75fd1d60bc1fcc4_9872_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="cursor-ai">
+
+  Cursor AI
+</h3>
+<p>Если вы используете Cursor вместо Visual Studio Code для редактирования Jbeam-файлов, вы можете получить помощь от встроенного ИИ. Хотя он не способен проектировать Jbeam-структуры за вас, он полезен для длинных, монотонных, точных задач — например, при настройке позиций множества slidenodes для выравнивания по рельсам.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/ai1.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/ai1.png"/>
+</span></a>
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/ai2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/ai2_hu8df461abf8a25e65dc8000e6a1381ab4_1511386_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h2 id="nodes-beams-triangles">
+
+  Nodes, Beams, Triangles
+</h2>
+<p>Здесь вы найдёте советы, касающиеся структурных элементов Jbeam.</p>
+<h3 id="jbeam-collision-system">
+
+  Система коллизий Jbeam
+</h3>
+<p>Ниже собрана вся информация о коллизиях Jbeam из разных разделов документации, сведённая в единый список. Обращайтесь к нему при отладке проблем с коллизиями.</p>
+<ul>
+<li>Существует 3 типа коллизий: коллизия с картой высот, статическая коллизия и динамическая коллизия. Все они привязаны исключительно к нодам в Jbeam.</li>
+<li>Статическая коллизия оказывает большее влияние на производительность, чем коллизия с картой высот.</li>
+<li>Коллизия с картой высот и статическая коллизия управляются параметром <code>staticCollision</code> в Jbeam, который по умолчанию равен параметру <code>collision</code>, если явно не задан для ноды.</li>
+<li>Коллизия с картой высот имеет некоторую «глубину», которая помогает шинам катиться плавнее.</li>
+<li>Динамическая коллизия имеет более высокий приоритет, чем статическая.</li>
+<li>Динамическая коллизия делится на <code>collision</code> (между транспортными средствами) и <code>selfCollision</code> (между деталями одного и того же транспортного средства) в Jbeam.</li>
+<li>Если <code>collision</code> равен false, то <code>selfCollision</code> будет отключён, даже если задан как true.</li>
+<li>Если нода является <code>fixed</code>, то <code>collision</code> и <code>selfCollision</code> отключены, но <code>staticCollision</code> всё равно можно включить.</li>
+<li>Если нода является стандартным или продвинутым <code>coupler</code>, то <code>selfCollision</code> временно отключается на ней, пока она соединена.</li>
+<li><code>SelfCollision</code> не применяется между нодой и треугольником, составленным из нод с тем же <code>group</code>, что и у этой ноды (при наличии нескольких <code>groups</code> учитывается первая). Это можно и нужно использовать, если вы хотите, чтобы определённые ноды и треугольники не сталкивались, но при этом в целом хотите сохранить <code>selfCollision</code>.</li>
+<li>Треугольники имеют «толщину» 2,5 см — это максимальное расстояние от зелёной стороны поверхности треугольника, на котором нода может находиться до применения коллизии. В инструментах отладки это визуализируется при настройках по умолчанию, когда нода и треугольник соприкасаются.</li>
+<li>Толщину треугольника можно изменить с помощью параметра <code>externalCollisionBias</code>, если возникают проблемы с проникновением, которые нельзя устранить другим способом.</li>
+<li>Треугольники имеют не только коллизию, но и систему anticlip. Она определяет, с какой стороны треугольника нода окажется после столкновения.</li>
+<li>Треугольники <code>NONCOLLIDABLE</code> по-прежнему имеют anticlip, но значительно лучше для производительности.</li>
+<li>Важно, чтобы каждая нода с <code>selfCollision</code> имела хотя бы треугольники <code>NONCOLLIDABLE</code> на поверхности, которая наиболее вероятно будет сталкиваться с чем-либо. Именно поэтому выхлопные трубы, например, имеют треугольники <code>NONCOLLIDABLE</code>.</li>
+</ul>
+<h3 id="breakgroup-as-a-table">
+
+  BreakGroup в виде таблицы
+</h3>
+<p><code>BreakGroup</code> может быть таблицей, и при <code>breakGroupType</code>, установленном в 1, это означает, что балка сломается при срабатывании любой из 2 <code>breakGroups</code>.
+Это может сильно помочь с опорными балками. Например, если у вас есть передняя и задняя дверь с опорными балками между ними, и вы хотите, чтобы они ломались при отрыве любой из дверей.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/breakGroup.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/breakGroup_hu89bec07fdc2999e0139b13c6a5c53b7a_27409_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="breaking-rails-and-torsionbars">
+
+  Разрушение рельсов и торсионных балок
+</h3>
+<p>Рельсы и торсионные балки не поддерживают <code>breakGroups</code> так, как вы могли бы ожидать. Чтобы правильно разорвать звено рельса, нужно сломать балку, проходящую между нодами этого звена. Чтобы сломать торсионную балку, нужно сломать балку, проходящую между двумя её последовательными нодами.</p>
+<p>Зачастую лучший вариант — создать фиктивную балку без пружины и демпфирования, с максимальной деформацией и прочностью, со свойствами <code>disableMeshBreaking</code> и <code>disableTriangleBreaking</code>, с нужной breakGroup (или несколькими), привязанной к рельсу или торсионной балке, расположенную между 2 её нодами, и с <code>breakGroupType</code>, установленным в 1. Эта балка будет существовать исключительно для разрушения рельса или торсионной балки и не будет иметь побочных эффектов.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/torsionbarBreaker.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/torsionbarBreaker.png"/>
+</span></a></p>
+<h3 id="collision-slidenodes">
+
+  Collision slidenodes
+</h3>
+<p>Иногда может потребоваться увеличить плотность нод вдоль краёв конструкции — например, чтобы предотвратить проникновение объектов через край при прямом падении на него. Это можно сделать без ущерба для деформации конструкции, используя рельсы и slidenodes.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/collisionSlidenodes.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/collisionSlidenodes_hu0acf365f4b45d5039e20fb40382d8da7_1050944_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Ниже приведён алгоритм добавления collision slidenodes оптимальным для деформации и производительности способом:</p>
+<ol>
+<li>Присвойте всем нодам детали 2 группы. Группа 1 — для коллизии, группа 2 — та же, что и у меша.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode1.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode1_hu44805ed5fd53021bb8aaaabff6ab8fe0_29875_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Добавьте рельсы между всеми нодами на краях, где требуется больше точек коллизии.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode2.png"/>
+</span></a></li>
+<li>Добавьте ноды, которые будут выступать в роли slidenodes на этих рельсах. У них должен быть включён selfCollision и они должны принадлежать только группе 1. Тогда они не будут сталкиваться с треугольниками, на которых расположены, но будут сталкиваться с другими частями транспортного средства. Если два края расположены близко друг к другу, чередуйте ноды на них для лучшей производительности.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode3.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode3_huc1d84682a86a0b7774e1b3de962fd252_26403_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Определите slidenodes на их рельсах. Теперь collision nodes будут зафиксированы на рельсах, но смогут скользить вдоль них.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode4.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode4_hu37c15fdeaad2a62b6775839f2699f6d2_69676_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Присоедините каждую ноду балками к структурным нодам вдоль рельса в обоих направлениях. Теперь collision nodes полностью зафиксированы.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode5.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode5_huafb4d9b09a2207c7d3a8ffd23a315d97_36032_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Slidenodes пока нестабильны, поскольку рельсам не хватает демпфирования. Проверьте, в каких направлениях трясутся collision nodes при захвате nodegrabber. Используйте отладку сил нод.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode6.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode6_huf047c93642d0bdf078be727d060a8f33_322720_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Добавьте балки в направлении вибрации между collision nodes и другими структурными нодами детали. Повторяйте предыдущий и этот шаги до тех пор, пока тряску не удастся воспроизвести.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode7.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode7_hu7fd2cde8959cf74c151ea3743000bbeb_14625_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+<li>Добавьте треугольники <code>NONCOLLIDABLE</code> поверх уже имеющихся треугольников детали, между collision slidenodes и структурными нодами, как будто вы создаёте Jbeam обычным способом без треугольников структурных нод. Таким образом система anticlip будет работать для collision slidenodes, предотвращая их застревание, без дополнительных затрат на производительность от добавления коллидируемых треугольников.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode8.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode8_hubed4436b986681ce6bf85986417860e7_15275_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+Добавлять указанные треугольники проще при временно удалённых структурных треугольниках, чтобы видеть, что вы делаете, в визуализации отладки.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/slidenode9.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/slidenode9_hude550c0b601a91e172c5d757cc82b2af_660090_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></li>
+</ol>
+<h2 id="flexbodies-and-props">
+
+  Flexbodies и Props
+</h2>
+<p>Этот раздел содержит советы по позиционированию визуальных частей транспортного средства в Jbeam.</p>
+<h3 id="global-arguments">
+
+  Глобальные аргументы
+</h3>
+<p>Для props типа spotlight и pointlight обычно лучше использовать необязательный аргумент <code>baseTranslationGlobal</code> вместо стандартного <code>baseTranslation</code>. Аналогично — <code>baseRotationGlobal</code> вместо <code>baseRotation</code>. Они используют ту же систему координат, что и Blender, поэтому можно выровнять их по 3D-модели без каких-либо догадок.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"props"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"func"</span><span class="p">,</span> <span class="s2">"mesh"</span><span class="p">,</span> <span class="s2">"idRef:"</span><span class="p">,</span> <span class="s2">"idX:"</span><span class="p">,</span> <span class="s2">"idY:"</span><span class="p">,</span> <span class="s2">"baseRotation"</span><span class="p">,</span> <span class="s2">"rotation"</span><span class="p">,</span> <span class="s2">"translation"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"multiplier"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lightInnerAngle"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lightOuterAngle"</span><span class="o">:</span><span class="mi">120</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lightRange"</span><span class="o">:</span><span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lightColor"</span><span class="o">:</span><span class="p">{</span><span class="s2">"r"</span><span class="o">:</span><span class="mi">255</span><span class="p">,</span> <span class="s2">"g"</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">"b"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"a"</span><span class="o">:</span><span class="mi">255</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lightAttenuation"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lightCastShadows"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"flareName"</span><span class="o">:</span><span class="s2">"vehicleBrakeLightFlare"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"flareScale"</span><span class="o">:</span><span class="mf">0.012</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">"lightBrightness"</span><span class="o">:</span><span class="mf">0.08</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"brakelights"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"t4r"</span><span class="p">,</span> <span class="s2">"t4"</span><span class="p">,</span> <span class="s2">"t3l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="s2">"baseTranslationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.22</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">2.44</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">1.07</span><span class="p">},</span><span class="s2">"baseRotationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"reverselight_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"brakelights"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"t4r"</span><span class="p">,</span> <span class="s2">"t4"</span><span class="p">,</span> <span class="s2">"t3l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="s2">"baseTranslationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.13</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">2.44</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">1.07</span><span class="p">},</span><span class="s2">"baseRotationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"reverselight_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"brakelights"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"t4r"</span><span class="p">,</span> <span class="s2">"t4"</span><span class="p">,</span> <span class="s2">"t3l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="s2">"baseTranslationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:-</span><span class="mf">0.04</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">2.44</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">1.07</span><span class="p">},</span><span class="s2">"baseRotationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"reverselight_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"brakelights"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"t4r"</span><span class="p">,</span> <span class="s2">"t4"</span><span class="p">,</span> <span class="s2">"t3l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="s2">"baseTranslationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mf">0.04</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">2.44</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">1.07</span><span class="p">},</span><span class="s2">"baseRotationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"reverselight_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"brakelights"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"t4r"</span><span class="p">,</span> <span class="s2">"t4"</span><span class="p">,</span> <span class="s2">"t3l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="s2">"baseTranslationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mf">0.13</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">2.44</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">1.07</span><span class="p">},</span><span class="s2">"baseRotationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"reverselight_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="s2">"brakelights"</span><span class="p">,</span> <span class="s2">"SPOTLIGHT"</span><span class="p">,</span> <span class="s2">"t4r"</span><span class="p">,</span> <span class="s2">"t4"</span><span class="p">,</span> <span class="s2">"t3l"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"z"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="s2">"baseTranslationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span> <span class="mf">0.22</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mf">2.44</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mf">1.07</span><span class="p">},</span><span class="s2">"baseRotationGlobal"</span><span class="o">:</span><span class="p">{</span><span class="s2">"x"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="o">:</span><span class="mi">180</span><span class="p">},</span><span class="s2">"deformGroup"</span><span class="o">:</span><span class="s2">"reverselight_break"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div>
+<h3 id="flexbody-rotation-setup-in-blender">
+
+  Настройка поворота флексбоди в Blender
+</h3>
+<p>При использовании универсальных флексбоди общего назначения, например внедорожных фар, их часто требуется повернуть сразу по нескольким осям для выравнивания с остальной 3D-моделью.</p>
+<p>Настроить поворот можно в Blender. Импортируйте нужную деталь, позиционируйте её, установите систему поворота как <code>ZXY Euler</code>, поверните меш и скопируйте результат в Jbeam.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/rotationBlender.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/rotationBlender_hu451e4f0d89f97e950cf0c01cb6bf6a2c_57357_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h2 id="troubleshooting">
+
+  Устранение неполадок
+</h2>
+<p>Этот раздел посвящён поиску и исправлению распространённых проблем.</p>
+<h3 id="checking-for-deformed-beams">
+
+  Проверка деформированных балок
+</h3>
+<p>Часто бывает полезно проверить, не деформировалась ли хоть одна балка. Для этого на вкладке Debug в Vehicle Configurator:</p>
+<ul>
+<li>установите режим визуализации балок <code>Deformation</code></li>
+<li>снимите галочку с переключателя рядом с полем ввода <code>Range Max</code></li>
+<li>снимите галочку <code>Use Inclusive Range</code> ниже</li>
+<li>оставьте остальные настройки по умолчанию.</li>
+</ul>
+<p>Это выделит все деформированные балки и выведет информацию о них в консоль.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/deformationCheck.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/deformationCheck_hu73aabd12483886324736ea05807fad25_41878_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="stress-checking">
+
+  Проверка напряжений
+</h3>
+<p>Чрезмерное напряжение в балках — ранний признак структурных проблем, таких как проникновение нод сквозь треугольники, неправильно выровненные slidenodes или проблемы с предкомпрессией балок. Чтобы правильно проверить уровни напряжений на автомобиле:</p>
+<ol>
+<li>Установите гравитацию на ноль в меню Environment.</li>
+<li>После того как автомобиль поднимется от земли, перезагрузите его нажатием <kbd>CTRL + R</kbd>, чтобы обнулить инерцию.</li>
+<li>Выключите двигатель через интерфейс или клавишу <kbd>V</kbd>, чтобы расслабить трансмиссию и гидравлику.</li>
+<li>Используя вкладку Debug в Vehicle Configurator или комбинацию <kbd>CTRL + NUMPADMINUS</kbd>, уменьшите видимость меша автомобиля.</li>
+<li>Установите режим визуализации балок «Stress» через вкладку отладки или нажимая <kbd>CTRL + B</kbd>.</li>
+<li>Возможно, стоит подождать несколько секунд, чтобы убедиться в стабильности всего.</li>
+</ol>
+<p>У стабильной Jbeam-структуры результат будет выглядеть примерно так. Напряжённых балок должно быть немного, и они будут относиться к подвеске, шинам и замкам открывающихся панелей.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/stressDebugNormal.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/stressDebugNormal_hudebbb09a58f521aac57adf3e861c240b_272258_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>У нестабильной конструкции будет отчётливо видно, что в некоторых областях напряжение выше, чем в других. Это признак того, что что-то в этих областях требует исправления. Можно включить визуализацию имён нод, чтобы определить, какая именно нода является проблемной. Проверьте:</p>
+<ul>
+<li>ноды, сталкивающиеся с треугольниками при спавне (совет: используйте <a data-doc="vehicle/intro_jbeam/debugtools" data-frag="live-editor-apps" href="/docs/vehicle/intro_jbeam/debugtools#live-editor-apps">Node Triangle Self Collision Detector</a>
+)</li>
+<li>slidenodes, неправильно выровненные со своими рельсами в Jbeam-файле</li>
+<li>утечки модификаторов beamPrecompression.</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/stressDebugBig.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/stressDebugBig_hu3b4e073190f81bbc21ec5e7961ab1aee_538362_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="unstable-vibrations">
+
+  Нестабильные вибрации
+</h3>
+<p>Когда флексбоди вибрирует при спавне, это обычно признак слишком высоких значений пружины и/или демпфирования на единицу веса ноды где-то в конструкции. Чтобы локализовать конкретное место проблемы, можно использовать визуализацию сил нод. Области с наибольшими или наиболее значительными нестабильными силами с наибольшей вероятностью являются проблемными. Стабильные силы (те, что не меняют быстро размер и направление) можно игнорировать — они вызваны couplers.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/unstableForces.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/unstableForces_hu9e7eee24d818e8289a8380210d8dd5f0_468816_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Обратите внимание, что хотя в большинстве случаев отладку напряжений балок и отладку сил нод можно использовать взаимозаменяемо, для очень тяжёлых и жёстких транспортных средств они дадут очень разные результаты, поскольку силы масштабируются с весом ноды, в отличие от напряжения.
+На тяжёлом и жёстком транспортном средстве отладка сил нод может давать много ложных срабатываний вокруг тяжёлых несущих нод.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/heavyForces.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/heavyForces_huf5f896d9e8c1e159c6d10784018cf1db_266578_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>При этом отладка напряжений балок будет вести себя ближе к тому, как это происходит на обычном транспортном средстве — с той разницей, что естественно напряжённые балки, например шинные, будут выглядеть значительно более выраженными, что затрудняет обнаружение реальных проблем.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/heavyStress.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/heavyStress_hu189f943854f8928839f317cc2ae13678_237417_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Поэтому на таких транспортных средствах лучше всего проверять оба режима, чтобы убедиться в отсутствии реальных проблем.</p>
+<h3 id="long-structure-wobble">
+
+  Раскачка длинных конструкций
+</h3>
+<p>Некоторые длинные конструкции с большей частью массы на конце — например, зеркало-перекладина школьного автобуса с длинным рычагом — имеют свойственные им проблемы с раскачкой, которые трудно устранить. Вот совет, как с этим бороться:</p>
+<ul>
+<li>Добавьте балки исключительно для демпфирования, идущие к какой-либо другой детали, которая не связана напрямую с вашей деталью, чтобы получить большее плечо рычага.</li>
+<li>Настройте breakGroup для этих балок в виде таблицы: включите каждую breakGroup цепочки деталей между двумя нодами балки, чтобы демпфирующие балки ломались при разрушении любого звена цепи.</li>
+<li>Установите breakGroupType равным 1, чтобы отрыв вашей детали не влиял на остальные детали. Также установите beamStrength на максимум, чтобы балки не ломались от чрезмерных сил.</li>
+</ul>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/breakGroupChain.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/breakGroupChain_hu11d3c18b984195db8ca557d7673416c4_31800_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h2 id="performance-optimization">
+
+  Оптимизация производительности
+</h2>
+<p>Обращайтесь к этому разделу, если ваш Jbeam испытывает проблемы с производительностью на стороне процессора.</p>
+<h3 id="large-tires">
+
+  Крупные шины
+</h3>
+<p>Крупные шины требуют баланса между достаточно хорошей коллизией для возможности заезда на транспортное средство или реквизит без проникновения, и относительно хорошей производительностью процессора, поскольку они легко могут оказаться наиболее нагружающей частью всего автомобиля.
+Для достижения хорошего баланса можно поиграть со многими параметрами шин, например:</p>
+<ul>
+<li><code>selfCollision</code>, если нас устраивает отсутствие столкновений колёс с остальным транспортным средством</li>
+<li><code>numRays</code> — плотность нод на шине. Меньше лучей означает лучшую производительность, но большее сопротивление качению и риск проникновения</li>
+<li><code>wheelAngle</code> для сдвоенных шин — при правильной настройке можно снизить <code>numRays</code></li>
+<li><code>triangleCollision</code> — следует включать, когда шина достаточно большая, чтобы заехать на другое транспортное средство, но это очень затратно</li>
+<li><code>hubSide1TriangleCollision</code>, <code>hubSide2TriangleCollision</code> — следует отключать, если на вашем транспортном средстве вероятнее удар по шине, чем по колесу; также можно включить только с одной стороны при необходимости и/или для внутренних сдвоенных шин</li>
+<li><code>enableTireLbeams</code> — отключение может помочь с производительностью при большом количестве колёс, но это увеличит сопротивление качению сложно преодолимым образом</li>
+</ul>
+<p>Хорошим компромиссом часто является включённый <code>selfCollision</code>, пониженный <code>numRays</code> для сдвоенных колёс, отключённые <code>hubSide1TriangleCollision</code> и <code>hubSide2TriangleCollision</code>, остальные параметры настраиваются под конкретное транспортное средство.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/tires.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/tires_huf53bbe8bb5601c1db59d6cca1851d790_1065989_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Сдвоенные колёса также можно построить как одно широкое колесо. Это даёт значительный прирост производительности, но имеет много недостатков, поэтому следует применять такой подход только на прицепах грузовиков, где колёса не приводятся и не сталкиваются напрямую ни с чем перед ними.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/dually.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/dually_hudb11c86d9130c5a7b207c883f06e973a_568766_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="triangle-sleep-mode">
+
+  Режим сна треугольника
+</h3>
+<p>Если у треугольника нет нод, способных потенциально столкнуться с ним (нет <code>selfCollision</code>, другая <code>group</code>, нет <code>coupler</code> и т.д.) в пределах 10 см с любой стороны, он войдёт в «режим сна», немного улучшая производительность. Прирост может быть значительным при большом количестве таких треугольников.
+Это полезно помнить при оптимизации больших закрытых конструкций, таких как интерьеры надстроек или прицепов. Например, в фургоне-рефрижераторе грузы размещены выше пола именно для использования этой возможности.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/sleepmode.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/sleepmode_hu329946a8bed7e44bfc04aa1cfb829589_3352037_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="noncollidable-triangles">
+
+  Неколлидируемые треугольники
+</h3>
+<p>Небольшие конструкции с плотными нодами, например внедорожные фары, в идеале должны использовать треугольники <code>NONCOLLIDABLE</code> вместо <code>NORMALTYPE</code>.
+Это связано с тем, что коллидируемый треугольник не оказывает дополнительного влияния на производительность, если в пределах 50 см от его поверхности нет нод, однако каждая нода в этом диапазоне добавляет дополнительную нагрузку. При большом количестве нод на треугольник ситуация может сильно ухудшиться, поэтому в плотных областях треугольники должны быть <code>NONCOLLIDABLE</code>.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/noncollidable.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/noncollidable_hu378d1553f64f022d91991e225c0db521_1379122_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Треугольники <code>NONCOLLIDABLE</code> также можно использовать на таких деталях, как ограждения, где имеются большие зазоры в коллизии, чтобы коллизия осуществлялась только через ноды, а треугольники существовали исключительно для anticlip.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/railing.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/railing_hu36aa7459084364364c6b802a61d7045f_563295_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="jbeam-clipping">
+
+  Проникновение в Jbeam
+</h3>
+<p>Если нода проникает сквозь треугольник во время езды (находится в пределах 2,5 см от него и сталкивается с ним), это постоянно генерирует события коллизий. Если на автомобиле много таких нод, производительность начнёт снижаться.
+В общем случае минимальное расстояние между нодами и треугольниками должно составлять 3 см, а для особо гибких деталей — 3,5 см, чтобы иметь дополнительный запас прочности. Используйте <a data-doc="vehicle/intro_jbeam/debugtools" data-frag="live-editor-apps" href="/docs/vehicle/intro_jbeam/debugtools#live-editor-apps">Node Triangle Self Collision Detector</a>
+ для поиска таких нод.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/collisionDetector.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/collisionDetector_hu451087a0c869188affcfea219620df9b_301103_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="deformgroups">
+
+  DeformGroups
+</h3>
+<p>При использовании <code>deformGroups</code> помните, что именно <code>deformationTriggerRatio</code> является ресурсоёмким свойством, а не сам <code>deformGroup</code>. Всегда следите за тем, чтобы свойство <code>deformationTriggerRatio</code> не утекало! Проверить это можно через режимы отладки балок.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/deformationTriggerRatio.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/deformationTriggerRatio_hu44847085723022fdbd44f6fe4f4e0a1f_620755_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a>
+Имейте в виду, что <code>deformGroups</code> также срабатывают при поломке балок, а не только при достижении соотношения. Поэтому при возможности можно настроить <code>deformGroups</code> на активацию при поломке балок — это будет менее затратно для производительности.</p>
+<h3 id="ground-collision">
+
+  Коллизия с поверхностью
+</h3>
+<p>Статическая коллизия оказывает большее влияние на производительность для объектов карты, чем коллизия с картой высот. Поэтому для транспортного средства, которое часто ездит по ассетам карты, например камням, а не по обычной асфальтной дороге, важнее иметь меньше нод снизу. Именно поэтому защитные пластины на скалолазах не имеют слишком высокой плотности нод.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/skidplate.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/skidplate_hu36f97d1c08ebc5666b6593c3280b2f35_558721_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h3 id="separate-static-and-dynamic-collision">
+
+  Раздельная статическая и динамическая коллизия
+</h3>
+<p>Некоторые конструкции слишком толсты для плоскостного Jbeam, но слишком тонки, чтобы оправдать полноценную трёхмерную динамическую коллизию из соображений производительности (см. «Неколлидируемые треугольники» выше), — например, плоские прямоугольные зеркала на грузовике. Если нужна точная коллизия с землёй, но динамическая коллизия не важна, можно сделать ноды с отключёнными <code>collision</code> и <code>selfCollision</code>, но включённым <code>staticCollision</code>, и без треугольников к ним. Это поможет производительности, особенно если они расположены близко к треугольникам другой детали.
+<a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/intro_jbeam/jbeamtips/thinStructure.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/intro_jbeam/jbeamtips/thinStructure_hu4da430dc5394b98a85dc22c88bc6ad2e_265345_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>

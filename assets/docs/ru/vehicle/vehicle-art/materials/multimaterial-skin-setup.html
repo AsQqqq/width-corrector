@@ -1,0 +1,50 @@
+<h2 id="overview">
+
+  Обзор
+</h2>
+<p><strong>Настройка скинов с несколькими материалами на одном транспортном средстве.</strong></p>
+<p>После выполнения <a data-doc="materials/vehicle/skinsystem/skintutorial" href="/docs/materials/vehicle/skinsystem/skintutorial">руководства по скинам</a>
+ и правильной настройки всего необходимого может быть непонятно, почему у автомобиля с двумя окрашенными в цвет кузова материалами скины отображаются некорректно.</p>
+<p>Однако это не так сложно, как может показаться на первый взгляд — данная статья поможет вам разобраться, как решить эту проблему.</p>
+<div class="line-inner-small"></div>
+<h2 id="organization">
+
+  Организация
+</h2>
+<p>В целом для скинов всегда удобно иметь отдельный файл <code>skin.materials.json</code>, в котором они все хранятся — так проще поддерживать порядок, и именно такая схема используется нами на всех наших транспортных средствах.</p>
+<p>Как указать, какой скин к чему относится (пример с <code>midtruck</code>):
+</p><div class="bng-notice usage"><div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl">  <span class="s2">"midtruck_main.skin.stripes"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">    <span class="s2">"name"</span><span class="o">:</span> <span class="s2">"midtruck_main.skin.stripes"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">    <span class="s2">"mapTo"</span><span class="o">:</span> <span class="s2">"midtruck_main.skin.stripes"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">    <span class="s2">"class"</span><span class="o">:</span> <span class="s2">"Material"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">  <span class="p">}</span>
+</span></span></code></pre>
+</div></div>
+<div class="line-inner-small"></div>
+<h2 id="naming-setup">
+
+  Именование и настройка
+</h2>
+<p>Имя материала скина состоит из трёх частей, которые в данном случае являются:</p>
+<ul>
+<li><code>midtruck_main</code> — материал, к которому привязан этот скин (обычно тот, что указан в 3D-программе, например Blender).</li>
+<li><code>skin</code> — группа скина; насколько можно судить, это позволяет объединить скины в определённую категорию — например, для различных цветов интерьера можно использовать <code>skin_interior</code>.</li>
+<li><code>stripes</code> — само название скина; оно должно быть одинаковым во всех частях скина (например, <code>midtruck_main.skin.stripes</code>, <code>midruck_shelter.skin.stripes</code>).</li>
+</ul>
+<p>Таким образом, логически, чтобы скин <code>"stripes"</code> применялся к обоим материалам (<code>"midtruck_main"</code> и <code>"midtruck_shelter"</code>), необходимо назначить им одинаковое имя.</p>
+<hr/>
+<p>Остальная часть настройки скина достаточно проста.</p>
+<p>В JBeam вам нужно будет настроить скин обычным образом, и благодаря корректной настройке материала он должен отображаться на предназначенных для него деталях.</p>
+<div class="bng-notice usage"><div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl">  <span class="s2">"midtruck_skin_stripes"</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">    <span class="s2">"information"</span><span class="o">:</span><span class="p">{</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">        <span class="s2">"authors"</span><span class="o">:</span><span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">        <span class="s2">"name"</span><span class="o">:</span><span class="s2">"Stripes (Colorable)"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">        <span class="s2">"value"</span><span class="o">:</span><span class="mi">500</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl">    <span class="s2">"slotType"</span> <span class="o">:</span> <span class="s2">"paint_design"</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl">    <span class="s2">"skinName"</span> <span class="o">:</span> <span class="s2">"stripes"</span>
+</span></span><span class="line"><span class="ln">9</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div></div>

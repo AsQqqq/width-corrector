@@ -1,0 +1,1017 @@
+<p><code>Forest</code> — это объект сцены, отвечающий за рендеринг, отсечение, коллизии и взаимодействие с ветром для элементов леса на уровне.</p>
+<p>Система Forest предназначена для очень большого количества повторяющихся статических объектов, например:</p>
+<ul>
+<li>Деревья</li>
+<li>Кусты</li>
+<li>Камни</li>
+<li>Пучки травы</li>
+<li>Брёвна</li>
+<li>Небольшие природные пропы</li>
+<li>Повторяющиеся рассеянные ассеты</li>
+</ul>
+<p>Элементы Forest, как правило, эффективнее, чем размещение тысяч отдельных объектов <code>TSStatic</code>. Для повторяющейся растительности и рассеянных ассетов используйте систему Forest по возможности.</p>
+<hr/>
+<h2 id="relationship-to-forest-files">
+
+  Связь с файлами леса
+</h2>
+<p>Объект <code>Forest</code> обычно не хранит расположение отдельных элементов непосредственно внутри <code>items.level.json</code>.</p>
+<p>Вместо этого он загружает файлы расположения леса из папки уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/forest/*.forest4.json
+</span></span></code></pre>
+</div><p>Определения типов элементов леса хранятся отдельно в:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/art/forest/managedItemData.json
+</span></span></code></pre>
+</div><p>Обе системы работают совместно:</p>
+<table>
+<thead>
+<tr>
+<th>Файл / Объект</th>
+<th>Назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Forest</code> object</td>
+<td>Объект сцены, загружающий и управляющий данными леса.</td>
+</tr>
+<tr>
+<td><code>managedItemData.json</code></td>
+<td>Определяет типы элементов леса: деревья, камни, кусты и пр.</td>
+</tr>
+<tr>
+<td><code>*.forest4.json</code></td>
+<td>Хранит размещённые экземпляры элементов леса.</td>
+</tr>
+<tr>
+<td><code>ForestItemData</code></td>
+<td>Объект рантайма/редактора, представляющий один тип элемента леса.</td>
+</tr>
+<tr>
+<td><code>ForestWindEmitter</code></td>
+<td>Применяет ветер к ближайшим или ко всем элементам леса.</td>
+</tr>
+<tr>
+<td><code>ForestBrush</code> / <code>ForestBrushElement</code></td>
+<td>Только для редактора: настройка кисти для рисования элементов леса.</td>
+</tr>
+</tbody>
+</table>
+<p>Подробнее о самом формате файла смотрите в документации <code>Forest Data (.forest4.json) and managedItemData.json</code>.</p>
+<hr/>
+<h2 id="basic-forest-object">
+
+  Базовый объект Forest
+</h2>
+<p>Обычно уровень содержит один объект Forest со стандартным именем:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">theForest
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Forest"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"theForest"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"lodReflectScalar"</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Объект Forest использует глобальные границы, и позиция его трансформа обычно не влияет на размещение элементов.</p>
+<div class="bng-notice info">Элементы леса хранятся в файлах данных леса. Перемещение объекта <code>Forest</code> не перемещает элементы леса.</div>
+<hr/>
+<h2 id="important-forest-fields">
+
+  Важные поля объекта Forest
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dataFile</code></td>
+<td>string</td>
+<td>Устаревшее поле источника данных леса. Скрыто / не сериализуется в современном использовании.</td>
+</tr>
+<tr>
+<td><code>lodReflectScalar</code></td>
+<td>number</td>
+<td>Скаляр LOD, применяемый при рендеринге леса в отражениях.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="lodreflectscalar">
+
+  lodReflectScalar
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"lodReflectScalar"</span><span class="err">:</span> <span class="mi">2</span>
+</span></span></code></pre>
+</div><p><code>lodReflectScalar</code> изменяет поведение дальнего обрезания / LOD при рендеринге леса в проходах отражений.</p>
+<p>Более высокие значения могут заставить отражения леса использовать меньший уровень детализации или иначе отсекать объекты, улучшая производительность отражений.</p>
+<p>Это главным образом инструмент управления производительностью и качеством для отражённых лесов.</p>
+<hr/>
+<h2 id="loading-behavior">
+
+  Поведение при загрузке
+</h2>
+<p>При добавлении объекта <code>Forest</code> в сцену происходит следующее:</p>
+<ol>
+<li>Устанавливаются глобальные границы.</li>
+<li>Объект добавляет себя в сцену.</li>
+<li>Выполняется поиск файлов расположения леса.</li>
+<li>При наличии загружаются современные файлы <code>.forest4.json</code>.</li>
+<li>При необходимости выполняется откат к более старым форматам.</li>
+<li>Предварительно загружаются данные элементов леса.</li>
+<li>При необходимости строятся внутренние пространственные ячейки и пакеты рендеринга.</li>
+</ol>
+<p>Приоритет отдаётся современным файлам:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.forest4.json
+</span></span></code></pre>
+</div><p>Более старые форматы устарели:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">*.forest
+</span></span><span class="line"><span class="cl">*.forest.json
+</span></span></code></pre>
+</div><p>При обнаружении старых файлов движок выводит предупреждения с просьбой к автору уровня пересохранить и удалить их.</p>
+<hr/>
+<h2 id="multiple-forest-files">
+
+  Несколько файлов леса
+</h2>
+<p>Современные данные леса обычно разбиты по типам элементов.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/example/forest/oak_large.forest4.json
+</span></span><span class="line"><span class="cl">levels/example/forest/pine_small.forest4.json
+</span></span><span class="line"><span class="cl">levels/example/forest/rock_large.forest4.json
+</span></span></code></pre>
+</div><p>При сохранении система Forest группирует элементы по внутреннему имени <code>ForestItemData</code> и записывает по одному файлу <code>.forest4.json</code> на каждый тип.</p>
+<p>Неиспользуемые файлы леса могут быть удалены или заархивированы при сохранении — в зависимости от того, остались ли элементы леса данного типа.</p>
+<hr/>
+<h2 id="forest-cells">
+
+  Ячейки леса
+</h2>
+<p>Элементы леса организованы в пространственные ячейки.</p>
+<p>Система ячеек используется для:</p>
+<ul>
+<li>Быстрого поиска</li>
+<li>Отсечения</li>
+<li>Пакетного рендеринга</li>
+<li>Коллизий</li>
+<li>Рейкастов</li>
+<li>Выделения в редакторе</li>
+<li>Запросов ветра</li>
+</ul>
+<p>Ячейки могут делиться, если содержат слишком много элементов. Это формирует пространственную иерархию, позволяя движку быстро пропускать области за пределами обзора камеры или области запроса.</p>
+<hr/>
+<h2 id="buckets-and-spatial-lookup">
+
+  Бакеты и пространственный поиск
+</h2>
+<p>Данные леса используют бакеты верхнего уровня, основанные на позиции элемента. Каждый бакет содержит <code>ForestCell</code>.</p>
+<p>При добавлении элемента:</p>
+<ol>
+<li>Позиция элемента преобразуется в ключ бакета.</li>
+<li>Бакет/ячейка находится или создаётся.</li>
+<li>Элемент вставляется в эту ячейку.</li>
+<li>Если ячейка содержит слишком много элементов, она делится на подячейки.</li>
+</ol>
+<p>Это делает запросы быстрее, чем перебор каждого элемента леса на уровне.</p>
+<hr/>
+<h2 id="item-lookup">
+
+  Поиск элементов
+</h2>
+<p>Элементы леса можно найти по:</p>
+<ul>
+<li>Внутреннему ключу леса</li>
+<li>UID</li>
+<li>Позиции/бакету</li>
+<li>Запросу по прямоугольнику</li>
+<li>Запросу по радиусу</li>
+<li>Запросу по фрустуму</li>
+<li>Запросу по полигону</li>
+</ul>
+<p>Используется в:</p>
+<ul>
+<li>Рендеринге</li>
+<li>Коллизиях</li>
+<li>Выделении</li>
+<li>Редактировании кистью</li>
+<li>Инструментах биомов</li>
+<li>Обновлениях ветра</li>
+<li>Скриптах/инструментах</li>
+</ul>
+<hr/>
+<h2 id="forestitemdata">
+
+  ForestItemData
+</h2>
+<p><code>ForestItemData</code> определяет один тип элемента леса.</p>
+<p>Включает:</p>
+<ul>
+<li>Файл шейпа</li>
+<li>Настройки коллизий</li>
+<li>Радиус размещения</li>
+<li>Настройки ветра</li>
+<li>Настройки выравнивания по рельефу</li>
+<li>Аннотацию</li>
+</ul>
+<p>Важные поля:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shapeFile</code></td>
+<td>Шейп, используемый данным типом элемента леса.</td>
+</tr>
+<tr>
+<td><code>collidable</code></td>
+<td>Участвуют ли элементы данного типа в коллизиях.</td>
+</tr>
+<tr>
+<td><code>radius</code></td>
+<td>Радиус размещения, используемый для предотвращения скученности.</td>
+</tr>
+<tr>
+<td><code>snapRotationToTerrain</code></td>
+<td>Выравнивает размещённые элементы по нормали поверхности.</td>
+</tr>
+<tr>
+<td><code>windScale</code></td>
+<td>Общее влияние ветра.</td>
+</tr>
+<tr>
+<td><code>trunkBendScale</code></td>
+<td>Величина изгиба ствола.</td>
+</tr>
+<tr>
+<td><code>branchAmp</code></td>
+<td>Амплитуда колебания веток от ветра.</td>
+</tr>
+<tr>
+<td><code>detailAmp</code></td>
+<td>Амплитуда колебания листьев/кистей/деталей от ветра.</td>
+</tr>
+<tr>
+<td><code>detailFreq</code></td>
+<td>Частота колебания листьев/кистей/деталей от ветра.</td>
+</tr>
+<tr>
+<td><code>mass</code></td>
+<td>Используется в пружинной симуляции ветра.</td>
+</tr>
+<tr>
+<td><code>rigidity</code></td>
+<td>Сопротивление силе ветра.</td>
+</tr>
+<tr>
+<td><code>tightnessCoefficient</code></td>
+<td>Сопротивление изгибу.</td>
+</tr>
+<tr>
+<td><code>dampingCoefficient</code></td>
+<td>Затухание колебаний со временем.</td>
+</tr>
+<tr>
+<td><code>annotation</code></td>
+<td>Аннотация/классификация для отладки.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="shape-loading">
+
+  Загрузка шейпа
+</h2>
+<p>Каждый <code>ForestItemData</code> ссылается на шейп:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"shapeFile"</span><span class="err">:</span> <span class="s2">"/levels/example/art/shapes/trees/oak_large.dae"</span>
+</span></span></code></pre>
+</div><p>Шейп загружается один раз и используется совместно всеми элементами данного типа.</p>
+<p>Это одна из главных причин эффективности Forest для повторяющихся ассетов.</p>
+<hr/>
+<h2 id="rendering">
+
+  Рендеринг
+</h2>
+<p>Рендеринг леса оптимизирован для большого числа повторяющихся экземпляров.</p>
+<p>Рендерер:</p>
+<ol>
+<li>Находит видимые ячейки леса.</li>
+<li>Отсекает ячейки за пределами камеры/фрустума.</li>
+<li>Группирует видимые элементы по типу.</li>
+<li>Выбирает LOD для каждого элемента.</li>
+<li>Использует инстансинг/пакетирование для повторяющихся элементов.</li>
+<li>Использует импостеры/билборды там, где это возможно.</li>
+</ol>
+<p>При включённом Scene Static Manager рендеринг леса может направляться через этот оптимизированный путь.</p>
+<hr/>
+<h2 id="forest-vs-tsstatic">
+
+  Forest vs TSStatic
+</h2>
+<p>Используйте Forest для большого числа повторяющихся объектов.</p>
+<p>Используйте <code>TSStatic</code> для индивидуально размещённых объектов.</p>
+<table>
+<thead>
+<tr>
+<th>Сценарий использования</th>
+<th>Рекомендация</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Тысячи деревьев</td>
+<td>Forest</td>
+</tr>
+<tr>
+<td>Повторяющиеся камни/кусты</td>
+<td>Forest</td>
+</tr>
+<tr>
+<td>Рассеивание травы/растительности</td>
+<td>Forest / GroundCover depending use</td>
+</tr>
+<tr>
+<td>Одиночное здание</td>
+<td>TSStatic</td>
+</tr>
+<tr>
+<td>Уникальный мост</td>
+<td>TSStatic</td>
+</tr>
+<tr>
+<td>Вручную размещённый проп</td>
+<td>TSStatic</td>
+</tr>
+<tr>
+<td>Объект, требующий особого трансформа или поведения материала</td>
+<td>TSStatic</td>
+</tr>
+</tbody>
+</table>
+<div class="bng-notice info">Forest — как правило, наиболее лёгкий вариант для большого числа повторяющихся статических объектов. <code>TSStatic</code> лучше подходит для индивидуально размещённых мешей.</div>
+<hr/>
+<h2 id="lod-and-billboards">
+
+  LOD и билборды
+</h2>
+<p>Элементы леса используют LOD, хранящиеся в их файлах шейпов.</p>
+<p>Во время рендеринга движок оценивает размер элемента в пространстве экрана и выбирает подходящий уровень детализации. Если наименее детализированный уровень — это билборд/импостер, элемент может быть отрисован в виде пакетного импостера.</p>
+<p>Вся ячейка леса может быть отрисована как пакет импостеров, если наибольший элемент в ячейке может быть переведён в билборд на текущей дистанции.</p>
+<p>Это существенно повышает производительность для удалённой растительности.</p>
+<hr/>
+<h2 id="imposter-batching">
+
+  Пакетирование импостеров
+</h2>
+<p>Ячейки леса могут формировать пакеты импостеров.</p>
+<p>Пакет объединяет элементы, использующие одинаковый последний уровень детализации/тип импостера.</p>
+<p>Это снижает накладные расходы на отрисовку для удалённых лесов.</p>
+<p>Пакетирование используется, когда:</p>
+<ul>
+<li>Тип элемента поддерживает уровень детализации билборд/импостер.</li>
+<li>Ячейка находится достаточно далеко.</li>
+<li>Импостеры не отключены.</li>
+</ul>
+<p>Отладочные настройки могут принудительно включать или отключать импостеры:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Forest::smForceImposters
+</span></span><span class="line"><span class="cl">Forest::smDisableImposters
+</span></span></code></pre>
+</div><hr/>
+<h2 id="reflection-rendering">
+
+  Рендеринг в отражениях
+</h2>
+<p>Forest использует <code>lodReflectScalar</code> для регулировки рендеринга в проходах отражений.</p>
+<p>В отражениях детализация леса может быть снижена или отсечение выполняться раньше — для повышения производительности.</p>
+<p>Это важно, поскольку рендеринг лесов в проходах отражений может быть ресурсозатратным.</p>
+<hr/>
+<h2 id="collision">
+
+  Коллизия
+</h2>
+<p>Forest может обеспечивать коллизии для элементов леса, если их <code>ForestItemData</code> является collidable.</p>
+<p>Система коллизий:</p>
+<ol>
+<li>Запрашивает ячейки леса вблизи области коллизии.</li>
+<li>Находит соответствующие элементы леса.</li>
+<li>Использует данные коллизии каждого элемента.</li>
+<li>Строит или повторно использует кэшированные данные коллизии для каждого шейпа.</li>
+<li>Добавляет трансформированные меши коллизий в физику.</li>
+</ol>
+<p>Данные коллизии кэшируются по файлу шейпа, чтобы избежать повторного построения одной и той же коллизии для каждого элемента.</p>
+<div class="bng-notice warning">Элементы леса с коллизией могут стать ресурсозатратными, если меш коллизии слишком сложен или плотность элементов очень высока.</div>
+<hr/>
+<h2 id="raycasts">
+
+  Рейкасты
+</h2>
+<p>Forest поддерживает рейкасты против элементов леса.</p>
+<p>Рейкасты могут использовать:</p>
+<ul>
+<li>Детали коллизии/видимости</li>
+<li>Детали рендерного меша, при запросе</li>
+</ul>
+<p>Используется в:</p>
+<ul>
+<li>Выделении</li>
+<li>Запросах коллизий</li>
+<li>Рейкастах геймплея</li>
+<li>Инструментах редактора</li>
+</ul>
+<p>Если луч попадает в элемент леса, возвращаемым объектом является объект <code>Forest</code>, а дополнительные внутренние данные элемента могут использоваться инструментами.</p>
+<hr/>
+<h2 id="decals">
+
+  Декали
+</h2>
+<p>Forest не поддерживает проецирование декалей так же, как это делают рельеф и статические меши.</p>
+<p>На запросы списка полигонов для декалей Forest возвращает false.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">PLC_Decal → false
+</span></span></code></pre>
+</div><p>Это означает, что декали дорог и другие проецируемые декали не должны полагаться на геометрию элементов леса в качестве приёмников декалей.</p>
+<hr/>
+<h2 id="wind">
+
+  Ветер
+</h2>
+<p>Элементы леса могут реагировать на ветер, если их шейп/настройка материала это поддерживают.</p>
+<p>Для работы ветра требуется:</p>
+<ul>
+<li><code>windScale &gt; 0</code></li>
+<li>Данные цвета вершин в шейпе для весов ветра</li>
+<li>Функции материала, поддерживающие деформацию от ветра</li>
+<li>Активный <code>ForestWindEmitter</code> или глобальный источник ветра</li>
+</ul>
+<p>Ветер воздействует на:</p>
+<ul>
+<li>Изгиб ствола</li>
+<li>Движение веток</li>
+<li>Движение листьев/кистей/деталей</li>
+<li>Отклик на локальный импульс</li>
+</ul>
+<hr/>
+<h2 id="forestwindemitter">
+
+  ForestWindEmitter
+</h2>
+<p><code>ForestWindEmitter</code> задаёт ветер на уровне.</p>
+<p>Может действовать как:</p>
+<ul>
+<li>Глобальный направленный ветер</li>
+<li>Локальный радиальный источник ветра</li>
+</ul>
+<p>Важные поля:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>windEnabled</code></td>
+<td>Включает данный эмиттер.</td>
+</tr>
+<tr>
+<td><code>radialEmitter</code></td>
+<td>Если true, ветер является локальным/радиальным вместо глобального направленного.</td>
+</tr>
+<tr>
+<td><code>strength</code></td>
+<td>Сила ветра.</td>
+</tr>
+<tr>
+<td><code>radius</code></td>
+<td>Радиус для радиальных эмиттеров.</td>
+</tr>
+<tr>
+<td><code>gustStrength</code></td>
+<td>Максимальная сила порыва.</td>
+</tr>
+<tr>
+<td><code>gustFrequency</code></td>
+<td>Частота порывов в секундах.</td>
+</tr>
+<tr>
+<td><code>gustYawAngle</code></td>
+<td>Угол отклонения направления.</td>
+</tr>
+<tr>
+<td><code>gustYawFrequency</code></td>
+<td>Частота отклонения направления.</td>
+</tr>
+<tr>
+<td><code>gustWobbleStrength</code></td>
+<td>Случайное покачивание, добавляемое к порывам/турбулентности.</td>
+</tr>
+<tr>
+<td><code>turbulenceStrength</code></td>
+<td>Сила турбулентности.</td>
+</tr>
+<tr>
+<td><code>turbulenceFrequency</code></td>
+<td>Частота турбулентности.</td>
+</tr>
+</tbody>
+</table>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestWindEmitter"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"forest_wind"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"windEnabled"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"radialEmitter"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"strength"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gustStrength"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gustFrequency"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gustYawAngle"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gustYawFrequency"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"turbulenceStrength"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"turbulenceFrequency"</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="wind-update-radius">
+
+  Радиус обновления ветра
+</h2>
+<p>Менеджер ветра собирает только ближайшие к камере деревья, реагирующие на ветер.</p>
+<p>Это управляется настройками движка, такими как радиус эффекта ветра.</p>
+<p>Элементы с:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">windScale &lt; 0.001
+</span></span></code></pre>
+</div><p>пропускаются при заполнении информации о размещении для обновления ветра.</p>
+<p>Это позволяет не тратить процессорное время на статичные камни или растительность без реакции на ветер.</p>
+<hr/>
+<h2 id="radial-impulses">
+
+  Радиальные импульсы
+</h2>
+<p>Forest может применять радиальные импульсы к ближайшим элементам, реагирующим на ветер.</p>
+<p>Используется для эффектов, таких как:</p>
+<ul>
+<li>Взрывы</li>
+<li>Мощные локальные силы</li>
+<li>Взаимодействие с порывами ветра</li>
+</ul>
+<p>Импульс воздействует на локальные аккумуляторы ветра и вызывает временное отклонение/реакцию ближайшей растительности.</p>
+<hr/>
+<h2 id="forest-editor">
+
+  Редактор леса
+</h2>
+<p>Редактор леса использует объект <code>Forest</code> с именем:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">theForest
+</span></span></code></pre>
+</div><p>Если активный лес отсутствует, редактор может создать его.</p>
+<p>Редактор изменяет данные леса с помощью таких инструментов, как:</p>
+<ul>
+<li>Рисование</li>
+<li>Стирание</li>
+<li>Стирание выбранных</li>
+<li>Привязка к рельефу</li>
+<li>Инструменты размещения биомов</li>
+</ul>
+<p>Изменения сохраняются в данных леса и записываются в файлы <code>.forest4.json</code>.</p>
+<hr/>
+<h2 id="forestbrush">
+
+  ForestBrush
+</h2>
+<p><code>ForestBrush</code> — это контейнер только для редактора, содержащий объекты <code>ForestBrushElement</code>.</p>
+<p>Хранится в:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">ForestBrushGroup
+</span></span></code></pre>
+</div><p>Кисть определяет, какие типы элементов леса можно рисовать и с какими правилами размещения.</p>
+<hr/>
+<h2 id="forestbrushelement">
+
+  ForestBrushElement
+</h2>
+<p><code>ForestBrushElement</code> определяет параметры размещения для одного типа элемента леса.</p>
+<p>Важные поля:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>forestItemData</code></td>
+<td>Тип элемента леса для размещения.</td>
+</tr>
+<tr>
+<td><code>probability</code></td>
+<td>Относительная вероятность при случайном выборе.</td>
+</tr>
+<tr>
+<td><code>rotationRange</code></td>
+<td>Диапазон случайного вращения по рысканью.</td>
+</tr>
+<tr>
+<td><code>scaleMin</code></td>
+<td>Минимальный случайный масштаб.</td>
+</tr>
+<tr>
+<td><code>scaleMax</code></td>
+<td>Максимальный случайный масштаб.</td>
+</tr>
+<tr>
+<td><code>scaleExponent</code></td>
+<td>Смещение между минимальным и максимальным масштабом.</td>
+</tr>
+<tr>
+<td><code>sinkMin</code></td>
+<td>Минимальная величина погружения.</td>
+</tr>
+<tr>
+<td><code>sinkMax</code></td>
+<td>Максимальная величина погружения.</td>
+</tr>
+<tr>
+<td><code>sinkRadius</code></td>
+<td>Радиус, используемый для погружения на склонах.</td>
+</tr>
+<tr>
+<td><code>slopeMin</code></td>
+<td>Минимально допустимый уклон.</td>
+</tr>
+<tr>
+<td><code>slopeMax</code></td>
+<td>Максимально допустимый уклон.</td>
+</tr>
+<tr>
+<td><code>elevationMin</code></td>
+<td>Минимально допустимая высота.</td>
+</tr>
+<tr>
+<td><code>elevationMax</code></td>
+<td>Максимально допустимая высота.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="forestbrushtool">
+
+  ForestBrushTool
+</h2>
+<p><code>ForestBrushTool</code> — инструмент редактора для рисования, стирания и корректировки элементов леса.</p>
+<p>Важные поля инструмента кисти:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mode</code></td>
+<td>Режим: рисование, стирание, стирание выбранных или привязка к рельефу.</td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td>Радиус кисти.</td>
+</tr>
+<tr>
+<td><code>pressure</code></td>
+<td>Плотность/интенсивность мазка кисти.</td>
+</tr>
+<tr>
+<td><code>hardness</code></td>
+<td>Жёсткость/спад кисти.</td>
+</tr>
+<tr>
+<td><code>depthOffset</code></td>
+<td>Смещение выше/ниже рельефа относительно опорной точки элемента.</td>
+</tr>
+<tr>
+<td><code>forceAlignToTerrain</code></td>
+<td>Принудительное выравнивание по нормали рельефа.</td>
+</tr>
+<tr>
+<td><code>snapSinkEnabled</code></td>
+<td>Включает погружение при привязке к рельефу.</td>
+</tr>
+<tr>
+<td><code>snapSink</code></td>
+<td>Величина погружения при операции привязки.</td>
+</tr>
+<tr>
+<td><code>snapAnyForestItemType</code></td>
+<td>Привязка всех типов элементов вместо только выбранных.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="paint-mode">
+
+  Режим рисования
+</h2>
+<p>Режим рисования случайным образом размещает элементы леса внутри окружности кисти.</p>
+<p>Процесс в общих чертах:</p>
+<ol>
+<li>Вычислить область кисти.</li>
+<li>Умножить на <code>pressure</code>.</li>
+<li>Выбрать типы элементов на основе <code>ForestBrushElement.probability</code>.</li>
+<li>Случайным образом задать масштаб и поворот.</li>
+<li>Выполнить рейкаст по рельефу/статической поверхности.</li>
+<li>Проверить ограничения по уклону/высоте.</li>
+<li>Проверить ближайшие элементы по радиусу размещения.</li>
+<li>Применить погружение/смещение по глубине.</li>
+<li>Добавить элемент с поддержкой отмены.</li>
+</ol>
+<p>Это создаёт естественное случайное рассеивание.</p>
+<hr/>
+<h2 id="erase-modes">
+
+  Режимы стирания
+</h2>
+<p>Режим стирания удаляет элементы леса внутри кисти.</p>
+<p>Режимы:</p>
+<table>
+<thead>
+<tr>
+<th>Режим</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Erase</code></td>
+<td>Стирает любой элемент леса под кистью.</td>
+</tr>
+<tr>
+<td><code>EraseSelected</code></td>
+<td>Стирает только выбранные/активные типы элементов леса.</td>
+</tr>
+</tbody>
+</table>
+<p>Объём стирания определяется давлением кисти.</p>
+<hr/>
+<h2 id="snap-to-terrain">
+
+  Привязка к рельефу
+</h2>
+<p>Режим привязки к рельефу перемещает существующие элементы леса на поверхность рельефа/статики.</p>
+<p>Также может:</p>
+<ul>
+<li>Применять погружение</li>
+<li>Выравнивать по нормали рельефа</li>
+<li>Учитывать выбранные типы элементов</li>
+</ul>
+<p>Это полезно после редактирования рельефа или когда элементы неправильно висят в воздухе или врезаются в поверхность.</p>
+<hr/>
+<h2 id="biome-placement">
+
+  Размещение биомов
+</h2>
+<p>Инструменты Forest включают расширенные рабочие процессы размещения биомов.</p>
+<p>Инструменты биомов могут размещать или заменять элементы леса на основе:</p>
+<ul>
+<li>Индекса материала рельефа</li>
+<li>Маски в оттенках серого</li>
+<li>Областей лассо/полигона</li>
+<li>Диапазона уклонов</li>
+<li>Диапазона высот</li>
+<li>Областей спада</li>
+<li>Зон исключения</li>
+<li>Правил размещения по краям</li>
+</ul>
+<p>Эти инструменты полезны для крупномасштабной генерации растительности.</p>
+<p>Примеры использования:</p>
+<ul>
+<li>Заполнить материал травы кустами</li>
+<li>Разместить камни вдоль краёв биома</li>
+<li>Рассеять деревья только на определённых склонах</li>
+<li>Заменить старые элементы биома в выбранной области</li>
+<li>Использовать маски для управления плотностью растительности</li>
+</ul>
+<hr/>
+<h2 id="context-ids">
+
+  Контекстные ID
+</h2>
+<p>Элементы леса могут хранить контекстный ID инструмента.</p>
+<p>Примеры:</p>
+<ul>
+<li>Обычное размещение в редакторе</li>
+<li>Размещение инструментами биомов</li>
+</ul>
+<p>Это позволяет инструментам определять, какие элементы созданы инструментами биомов, и выборочно удалять/заменять только эти элементы.</p>
+<hr/>
+<h2 id="saving">
+
+  Сохранение
+</h2>
+<p>При сохранении элементы леса группируются по типу и записываются в:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/forest/&lt;type&gt;.forest4.json
+</span></span></code></pre>
+</div><p>Имя файла формируется из типа/внутреннего имени элемента леса с заменой недопустимых символов.</p>
+<p>Если тип элемента больше не содержит элементов:</p>
+<ul>
+<li>Если лес пуст, файл может быть удалён.</li>
+<li>В противном случае неиспользуемые файлы могут быть переименованы/заархивированы.</li>
+</ul>
+<hr/>
+<h2 id="dirty-state">
+
+  Состояние изменений
+</h2>
+<p>Данные леса отслеживают, были ли они изменены.</p>
+<p>Редактор использует это, чтобы определить, нужно ли сохранять данные леса.</p>
+<p>Полезные команды/методы:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">save()
+</span></span><span class="line"><span class="cl">reload()
+</span></span><span class="line"><span class="cl">clear()
+</span></span><span class="line"><span class="cl">regenCells()
+</span></span><span class="line"><span class="cl">isDirty()
+</span></span></code></pre>
+</div><hr/>
+<h2 id="zoning">
+
+  Зонирование
+</h2>
+<p>Ячейки леса обновляют состояние видимости зоны при изменении зонирования сцены.</p>
+<p>Это позволяет корректно отсекать ячейки леса для систем видимости внутри/снаружи помещений.</p>
+<hr/>
+<h2 id="debug-stats">
+
+  Отладочная статистика
+</h2>
+<p>Система Forest предоставляет некоторые отладочные данные:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">$Forest::totalCells
+</span></span><span class="line"><span class="cl">$Forest::cellsRendered
+</span></span><span class="line"><span class="cl">$Forest::cellItemsRendered
+</span></span><span class="line"><span class="cl">$Forest::cellsBatched
+</span></span><span class="line"><span class="cl">$Forest::cellItemsBatched
+</span></span></code></pre>
+</div><p>Они могут помочь диагностировать производительность рендеринга леса.</p>
+<p>Дополнительная отладочная отрисовка может показывать ячейки леса и границы.</p>
+<hr/>
+<h2 id="minimal-forest-object-example">
+
+  Минимальный пример объекта Forest
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"Forest"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"theForest"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"position"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rotationMatrix"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"scale"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"lodReflectScalar"</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="minimal-forestitemdata-example">
+
+  Минимальный пример ForestItemData
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"pine_small"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"class"</span><span class="p">:</span> <span class="s2">"ForestItemData"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"internalName"</span><span class="p">:</span> <span class="s2">"pine_small"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"shapeFile"</span><span class="p">:</span> <span class="s2">"/levels/example/art/shapes/trees/pine_small.dae"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"collidable"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"radius"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"snapRotationToTerrain"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"windScale"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"trunkBendScale"</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"branchAmp"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"detailAmp"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"detailFreq"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"mass"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"rigidity"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"tightnessCoefficient"</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"dampingCoefficient"</span><span class="p">:</span> <span class="mf">0.7</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>Используйте Forest для повторяющихся природных/рассеянных ассетов.</li>
+<li>Используйте <code>TSStatic</code> для индивидуальных уникальных объектов.</li>
+<li>Оптимизируйте шейпы элементов леса.</li>
+<li>Используйте LOD и детали билборд/импостер для деревьев.</li>
+<li>Держите меши коллизий простыми.</li>
+<li>Отключайте коллизии для декоративной листвы, когда это возможно.</li>
+<li>Используйте <code>radius</code> для предотвращения скученности.</li>
+<li>Включайте ветер только для ассетов, которым это необходимо.</li>
+<li>Устанавливайте <code>windScale</code> в <code>0</code> для камней/статичных пропов.</li>
+<li>Используйте инструменты биомов для крупномасштабного размещения.</li>
+<li>Сохраняйте данные леса после серьёзных правок.</li>
+<li>Удаляйте старые файлы <code>.forest</code> / <code>.forest.json</code> после обновления.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="forest-items-do-not-appear">
+
+  Элементы леса не отображаются
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Отсутствует объект <code>Forest</code></li>
+<li>Отсутствуют файлы <code>.forest4.json</code></li>
+<li>Отсутствует <code>managedItemData.json</code></li>
+<li>Несовпадение внутреннего имени <code>ForestItemData</code></li>
+<li>Некорректный <code>shapeFile</code></li>
+<li>Ошибка загрузки шейпа</li>
+</ul>
+<h3 id="some-items-are-missing">
+
+  Некоторые элементы отсутствуют
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Отсутствует определение типа элемента</li>
+<li>Переименованный/удалённый <code>ForestItemData</code></li>
+<li>Некорректные строки в <code>.forest4.json</code></li>
+<li>Масштаб ниже минимального</li>
+</ul>
+<h3 id="forest-collision-is-too-heavy">
+
+  Коллизия леса слишком ресурсозатратна
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Слишком много элементов с коллизией</li>
+<li>Сложные меши коллизий</li>
+<li>Высокая плотность размещения</li>
+<li>Коллизия включена для мелкой декоративной листвы</li>
+</ul>
+<h3 id="wind-does-not-affect-trees">
+
+  Ветер не воздействует на деревья
+</h3>
+<p>Проверьте:</p>
+<ul>
+<li><code>windScale</code> больше <code>0</code></li>
+<li>В шейпе есть данные цвета вершин для весов ветра</li>
+<li>Материал поддерживает деформацию от ветра</li>
+<li><code>ForestWindEmitter</code> существует и включён</li>
+<li>Элемент находится в радиусе эффекта ветра</li>
+</ul>
+<h3 id="items-float-above-terrain">
+
+  Элементы висят над рельефом
+</h3>
+<p>Используйте привязку к рельефу, проверьте опорную точку элемента или скорректируйте погружение/смещение по глубине.</p>
+<h3 id="items-are-buried-too-deeply">
+
+  Элементы слишком глубоко уходят в землю
+</h3>
+<p>Уменьшите значения погружения или проверьте опорную точку ассета.</p>
+<h3 id="forest-editor-says-no-forest-exists">
+
+  Редактор леса сообщает об отсутствии леса
+</h3>
+<p>Создайте или добавьте объект <code>Forest</code> с именем <code>theForest</code>.</p>
+<hr/>
+<h2 id="summary">
+
+  Итог
+</h2>
+<p><code>Forest</code> — главная система для рендеринга и управления большим числом повторяющихся статических элементов на уровне.</p>
+<p>Она загружает данные расположения из файлов <code>.forest4.json</code>, использует определения <code>ForestItemData</code> из <code>managedItemData.json</code>, организует элементы в пространственные ячейки, поддерживает отсечение и пакетирование, может обеспечивать коллизии и поддерживает деформацию от ветра для растительности.</p>
+<p>Используйте Forest для крупномасштабных повторяющихся природных ассетов, а <code>TSStatic</code> — для индивидуально размещённых статических мешей.</p>

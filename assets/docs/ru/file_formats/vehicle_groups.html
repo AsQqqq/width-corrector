@@ -1,0 +1,322 @@
+<p>На этой странице описаны файлы групп транспортных средств, используемые трафиком, парковкой, миссиями, инструментами редактора и другими игровыми системами.</p>
+<p>Группа транспортных средств — это именованный пул записей модель/конфигурация. Она определяет, что может быть создано при спауне, но не то, где транспортные средства появляются и как они ведут себя на дороге. Размещение и поведение по-прежнему определяются трафиком, парковкой, миссиями, локациями и данными навигационного графа.</p>
+<h2 id="file-structure">
+
+  Структура файла
+</h2>
+<p>Большинство авторских групп транспортных средств используют следующую структуру:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"Example Traffic Group"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"tags"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"example"</span><span class="p">,</span> <span class="s2">"traffic"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"data"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"model"</span><span class="p">:</span> <span class="s2">"covet"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"config"</span><span class="p">:</span> <span class="s2">"DXi_A"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"model"</span><span class="p">:</span> <span class="s2">"pickup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"config"</span><span class="p">:</span> <span class="s2">"d15_4wd_A_facelift"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="top-level-fields">
+
+  Поля верхнего уровня
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Обязательно</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>Рекомендуется</td>
+<td>Используйте <code>custom</code> для групп, созданных вручную.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>Рекомендуется</td>
+<td>Отображаемое/отладочное имя, используемое инструментами.</td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>Опционально</td>
+<td>Помогает организовать группы по уровню, миссии, назначению или роли.</td>
+</tr>
+<tr>
+<td><code>data</code></td>
+<td>Да</td>
+<td>Массив записей транспортных средств. Пустые группы являются корректным JSON, но бесполезны.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="vehicle-entry-fields">
+
+  Поля записи транспортного средства
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Обязательно</th>
+<th>Примечания</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>model</code></td>
+<td>Да</td>
+<td>Папка/идентификатор модели транспортного средства.</td>
+</tr>
+<tr>
+<td><code>config</code></td>
+<td>Рекомендуется</td>
+<td>Идентификатор конфигурации транспортного средства. Если отсутствует или некорректен, спаун может завершиться неудачей или использовать нежелательное значение по умолчанию в зависимости от вызывающей системы.</td>
+</tr>
+<tr>
+<td><code>paintName</code></td>
+<td>Опционально</td>
+<td>Может использоваться некоторыми рабочими процессами редактора/трафика для задания варианта окраски.</td>
+</tr>
+</tbody>
+</table>
+<p>Некоторые инструменты могут сохранять дополнительные поля для каждого транспортного средства, например, данные об окраске или метаданные спауна. Не удаляйте неизвестные поля из существующей группы, если вы не уверены, что потребляющая система в них не нуждается.</p>
+<p>Минимальная группа из одного автомобиля:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"One Car Test"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"data"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"model"</span><span class="p">:</span> <span class="s2">"pickup"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"config"</span><span class="p">:</span> <span class="s2">"d15_4wd_A_facelift"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h2 id="file-locations">
+
+  Расположение файлов
+</h2>
+<p>Общие группы транспортных средств могут храниться по пути:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">vehicleGroups/**/*.vehGroup.json
+</span></span></code></pre>
+</div><p>Группы, специфичные для уровня, могут храниться в корне уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/*.vehGroup.json
+</span></span></code></pre>
+</div><p>Распространённые имена файлов для уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/traffic.vehGroup.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/police.vehGroup.json
+</span></span></code></pre>
+</div><p>Группы, специфичные для миссии, как правило, хранятся вместе с миссией:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">gameplay/missions/&lt;levelName&gt;/&lt;missionType&gt;/&lt;missionName&gt;/custom.vehGroup.json
+</span></span></code></pre>
+</div>
+<h2 id="lookup-behavior">
+
+  Поведение при поиске
+</h2>
+<p>Инструменты трафика и миссий могут загружать группы транспортных средств из разных мест в зависимости от контекста:</p>
+<table>
+<thead>
+<tr>
+<th>Контекст</th>
+<th>Типичный поиск</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Трафик уровня</td>
+<td>Ищет в директории текущего уровня соответствующие файлы <code>*.vehGroup.json</code>, например, с именами, содержащими <code>traffic</code> или <code>police</code>.</td>
+</tr>
+<tr>
+<td>Пользовательский трафик миссии</td>
+<td>Использует локальный файл миссии, как правило <code>custom.vehGroup.json</code>.</td>
+</tr>
+<tr>
+<td>Общие/пользовательские группы инструментов</td>
+<td>При наличии поддержки обращается к файлам в директории <code>/vehicleGroups/</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Если существует несколько совпадающих файлов, инструменты могут выбрать один из подходящего набора. Используйте понятные имена файлов и теги, если уровень или миссия содержат несколько групп.</p>
+<h2 id="common-uses">
+
+  Распространённые варианты использования
+</h2>
+<table>
+<thead>
+<tr>
+<th>Имя файла</th>
+<th>Типичное использование</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>traffic.vehGroup.json</code></td>
+<td>Общий пул транспортных средств для фонового трафика уровня.</td>
+</tr>
+<tr>
+<td><code>police.vehGroup.json</code></td>
+<td>Пул полицейских транспортных средств для уровня.</td>
+</tr>
+<tr>
+<td><code>custom.vehGroup.json</code></td>
+<td>Пользовательская группа транспортных средств для конкретной миссии.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="creating-groups-with-tools">
+
+  Создание групп с помощью инструментов
+</h2>
+<p>Простейший способ создать группу транспортных средств — воспользоваться встроенными инструментами редактора:</p>
+<ol>
+<li>Откройте World Editor.</li>
+<li>Откройте Traffic Manager или инструмент Vehicle Groups из редактора.</li>
+<li>Выберите модели/конфигурации транспортных средств, которые вы хотите включить в группу.</li>
+<li>Сохраните группу в файл <code>*.vehGroup.json</code>.</li>
+<li>Поместите файл туда, где его будет искать нужная потребляющая система.</li>
+<li>Протестируйте группу в Traffic Manager, Mission Editor или в игровом функционале, который её использует.</li>
+</ol>
+<p>Traffic Manager также может загружать файл группы транспортных средств напрямую для тестирования. Если группа загружается там, но не в миссии или уровне, проблема, как правило, связана с расположением файла, именованием или настройкой потребляющей системы, а не со структурой файла.</p>
+<h2 id="writing-groups-by-hand">
+
+  Создание групп вручную
+</h2>
+<p>Файлы групп транспортных средств достаточно просты, чтобы писать их вручную:</p>
+<ol>
+<li>Выберите место хранения файла.</li>
+<li>Добавьте <code>type</code>, <code>name</code> и опционально <code>tags</code>.</li>
+<li>Добавьте массив <code>data</code>.</li>
+<li>Добавьте по одному объекту на каждую конфигурацию транспортного средства.</li>
+<li>Протестируйте группу в системе, которая её использует.</li>
+</ol>
+<p>При редактировании вручную проверяйте идентификаторы модели/конфигурации по заведомо рабочим конфигурациям транспортных средств. Опечатка может привести к тому, что группа загрузится, но нужное транспортное средство так и не появится.</p>
+<h2 id="level-traffic-groups">
+
+  Группы трафика уровня
+</h2>
+<p>Для уровней наиболее распространённое соглашение таково:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">traffic.vehGroup.json
+</span></span><span class="line"><span class="cl">police.vehGroup.json
+</span></span></code></pre>
+</div><p>Используйте <code>traffic.vehGroup.json</code> для обычного фонового трафика и <code>police.vehGroup.json</code> для спауна полиции. Эти файлы должны соответствовать региону, эпохе и дорожной сети уровня. Например, избегайте крупногабаритных транспортных средств на уровне с узкими дорогами, если только это не предусмотрено намеренно.</p>
+<p>Чтобы создать группу для уровня:</p>
+<ol>
+<li>Создайте временную группу в Traffic Manager или инструменте Vehicle Groups.</li>
+<li>Сохраните её в корень уровня как <code>traffic.vehGroup.json</code> или <code>police.vehGroup.json</code>.</li>
+<li>Загрузите уровень и запустите трафик.</li>
+<li>Проверьте разнообразие, размеры транспортных средств и производительность.</li>
+<li>Корректируйте группу до тех пор, пока трафик не будет соответствовать уровню.</li>
+</ol>
+<h2 id="mission-custom-groups">
+
+  Пользовательские группы для миссий
+</h2>
+<p>Миссии могут использовать локальную группу, когда требуется детерминированный или ограниченный трафик ИИ. Типичный путь:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">gameplay/missions/&lt;levelName&gt;/&lt;missionType&gt;/&lt;missionName&gt;/custom.vehGroup.json
+</span></span></code></pre>
+</div><p>Локальные группы миссии полезны, когда:</p>
+<ul>
+<li>Для выполнения задания должны появляться только конкретные транспортные средства.</li>
+<li>Миссии нужен тематический трафик, независимый от настроек уровня по умолчанию.</li>
+<li>В тесте или обучении необходимо исключить случайный выбор транспортных средств.</li>
+</ul>
+<p>Держите пользовательские группы миссий небольшими, если только миссия намеренно не предполагает разнообразия.</p>
+<p>Чтобы создать пользовательскую группу для миссии:</p>
+<ol>
+<li>Откройте миссию в Mission Editor.</li>
+<li>Включите опцию пользовательской группы транспортных средств для соответствующего модуля трафика/настройки.</li>
+<li>Сохраните или выберите <code>custom.vehGroup.json</code> в папке миссии.</li>
+<li>Протестируйте миссию с нуля, а не только из предварительного просмотра в редакторе.</li>
+</ol>
+<h2 id="choosing-vehicles">
+
+  Выбор транспортных средств
+</h2>
+<p>Рекомендации для опытных авторов:</p>
+<ul>
+<li>Отдавайте предпочтение конфигурациям, которые полны и надёжно появляются при спауне.</li>
+<li>Учитывайте габариты, массу, скорость и тип привода транспортного средства применительно к целевым дорогам.</li>
+<li>В группах трафика обеспечивайте достаточное разнообразие, чтобы избежать однообразия, но не настолько большое, чтобы редкие транспортные средства начали преобладать.</li>
+<li>В группах полиции используйте конфигурации с ожидаемым полицейским оснащением и поведением.</li>
+<li>Избегайте конфигураций, зависящих от модов, если только группа транспортных средств не является частью этого мода и явно не требует их наличия.</li>
+<li>Если конфигурация переименована или удалена, обновите все группы, ссылающиеся на неё.</li>
+</ul>
+<h2 id="troubleshooting">
+
+  Устранение неполадок
+</h2>
+<h3 id="group-is-not-found">
+
+  Группа не найдена
+</h3>
+<p>Проверьте:</p>
+<ul>
+<li>Файл сохранён в расположении, которое просматривает потребляющая система.</li>
+<li>Имя файла соответствует ожидаемому соглашению, например <code>traffic</code>, <code>police</code> или <code>custom</code>.</li>
+<li>Расширение файла точно соответствует <code>.vehGroup.json</code>.</li>
+<li>Файл является корректным JSON.</li>
+</ul>
+<h3 id="group-loads-but-vehicles-do-not-spawn">
+
+  Группа загружается, но транспортные средства не появляются
+</h3>
+<p>Проверьте:</p>
+<ul>
+<li>Каждая модель <code>model</code> существует.</li>
+<li>Каждая конфигурация <code>config</code> существует для данной модели.</li>
+<li>Потребляющая система трафика или миссии действительно использует эту группу.</li>
+<li>На уровне есть корректные дороги для спауна, места парковки или данные спауна миссии.</li>
+</ul>
+<h3 id="wrong-vehicles-appear">
+
+  Появляются не те транспортные средства
+</h3>
+<p>Проверьте:</p>
+<ul>
+<li>Выбирается другой подходящий файл группы.</li>
+<li>Группа конкретной миссии переопределяет группу уровня.</li>
+<li>Игровая система использует генерируемый трафик вместо пользовательской группы.</li>
+</ul>
+<h2 id="validation-checklist">
+
+  Контрольный список проверки
+</h2>
+<ul>
+<li>JSON-файл загружается без ошибок.</li>
+<li>Каждая модель <code>model</code> существует.</li>
+<li>Каждая конфигурация <code>config</code> существует для своей модели.</li>
+<li>Файл группы сохранён там, где его ожидает потребляющий инструмент или система.</li>
+<li>Имя группы и теги описывают предполагаемое назначение.</li>
+<li>Миссия, уровень или инструмент, которому нужна группа, могут её найти.</li>
+<li>Выбранные транспортные средства соответствуют дорогам, миссии и бюджету производительности.</li>
+</ul>
+<h2 id="related-pages">
+
+  Связанные страницы
+</h2>
+<ul>
+<li><a data-doc="levels/gameplay_data" href="/docs/levels/gameplay_data">Level Gameplay Data</a>
+</li>
+<li><a data-doc="levels/level_formats/signals" href="/docs/levels/level_formats/signals">Traffic Signals</a>
+</li>
+<li><a data-doc="levels/level_formats/map" href="/docs/levels/level_formats/map">Navigation Map</a>
+</li>
+</ul>

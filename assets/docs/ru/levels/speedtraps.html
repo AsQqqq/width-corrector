@@ -1,0 +1,474 @@
+<p>На этой странице описано, как добавить радары контроля скорости и камеры фиксации проезда на красный свет на уровень.</p>
+<p>Радары контроля скорости создаются из стандартных объектов уровня:</p>
+<ul>
+<li>Объект <code>BeamNGTrigger</code>, обнаруживающий транспортные средства.</li>
+<li>Необязательный световой объект, как правило <code>SpotLight</code>, используемый в качестве вспышки камеры.</li>
+</ul>
+<p>Триггер содержит динамические поля, которые сообщают игре, какого типа радар и как он должен работать.</p>
+<hr/>
+<h2 id="overview">
+
+  Обзор
+</h2>
+<p>Типичная конфигурация радара контроля скорости включает:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">BeamNGTrigger
+</span></span><span class="line"><span class="cl">SpotLight
+</span></span></code></pre>
+</div><p>Триггер является функциональной частью. Световой объект необязателен и используется только для визуального эффекта вспышки.</p>
+<p>Когда транспортное средство въезжает в триггер, игра проверяет:</p>
+<ol>
+<li>Настроен ли триггер как радар контроля скорости или камера фиксации проезда на красный свет.</li>
+<li>Движется ли транспортное средство в направлении положительной локальной оси Y триггера.</li>
+<li>Превышает ли скорость транспортного средства заданный порог.</li>
+<li>Для камер фиксации проезда на красный свет — горит ли в данный момент красный сигнал у связанного светофора.</li>
+<li>Нужно ли активировать необязательную вспышку света.</li>
+</ol>
+<div class="bng-notice note">Значения скорости для радаров контроля скорости задаются в метрах в секунду.</div>
+<hr/>
+<h2 id="creating-the-trigger">
+
+  Создание триггера
+</h2>
+<p>В World Editor создайте объект <code>BeamNGTrigger</code> и разместите его там, где радар должен фиксировать транспортные средства.</p>
+<p>Триггер должен:</p>
+<ul>
+<li>Перекрывать полную ширину дороги или полосы движения.</li>
+<li>Иметь глубину в несколько метров по направлению движения.</li>
+<li>Быть повёрнут таким образом, чтобы положительная локальная ось Y указывала в направлении движения транспортных средств.</li>
+<li>Иметь уникальное имя объекта.</li>
+</ul>
+<div class="bng-notice warning">Если триггер слишком тонкий, быстрые транспортные средства могут проскочить сквозь него, не будучи надёжно зафиксированными.</div>
+<hr/>
+<h2 id="trigger-direction">
+
+  Направление триггера
+</h2>
+<p>Триггер срабатывает только для транспортных средств, движущихся в направлении положительной локальной оси Y.</p>
+<p>Иными словами, триггер имеет направление «вперёд». Транспортные средства, движущиеся в противоположном направлении, игнорируются.</p>
+<p>Убедитесь, что триггер повёрнут правильно:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Positive local Y axis = valid travel direction
+</span></span></code></pre>
+</div><p>Если радар не срабатывает, возможно, триггер направлен в неверную сторону.</p>
+<hr/>
+<h2 id="speed-trap-trigger-fields">
+
+  Поля триггера радара контроля скорости
+</h2>
+<p>Выберите <code>BeamNGTrigger</code> и добавьте следующие динамические поля.</p>
+<h3 id="required-fields">
+
+  Обязательные поля
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Значение</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>speedTrapType</code></td>
+<td><code>speed</code></td>
+<td>Отмечает данный триггер как радар контроля скорости.</td>
+</tr>
+<tr>
+<td><code>speedLimit</code></td>
+<td>Число, в м/с</td>
+<td>Ограничение скорости, используемое радаром.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="optional-fields">
+
+  Необязательные поля
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Значение</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>speedLimitTolerance</code></td>
+<td>Число, в м/с</td>
+<td>Дополнительная скорость сверх ограничения, после которой срабатывает радар.</td>
+</tr>
+<tr>
+<td><code>speedTrapLightName</code></td>
+<td>Имя объекта</td>
+<td>Имя светового объекта, используемого для эффекта вспышки.</td>
+</tr>
+</tbody>
+</table>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">speedTrapType = speed
+</span></span><span class="line"><span class="cl">speedLimit = 13.89
+</span></span><span class="line"><span class="cl">speedLimitTolerance = 2.78
+</span></span><span class="line"><span class="cl">speedTrapLightName = speedTrapLight_01
+</span></span></code></pre>
+</div><p>Этот пример означает:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Speed limit: 13.89 m/s ≈ 50 km/h
+</span></span><span class="line"><span class="cl">Tolerance:   2.78 m/s ≈ 10 km/h
+</span></span><span class="line"><span class="cl">Trigger at:  16.67 m/s ≈ 60 km/h
+</span></span></code></pre>
+</div><p>Если <code>speedLimitTolerance</code> не задано, игра использует допуск по умолчанию — 10% от ограничения скорости.</p>
+<hr/>
+<h2 id="red-light-camera-trigger-fields">
+
+  Поля триггера камеры фиксации проезда на красный свет
+</h2>
+<p>Камера фиксации проезда на красный свет также использует <code>BeamNGTrigger</code>, но с другими динамическими полями.</p>
+<h3 id="required-fields-1">
+
+  Обязательные поля
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Значение</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>speedTrapType</code></td>
+<td><code>redLight</code></td>
+<td>Отмечает данный триггер как камеру фиксации проезда на красный свет.</td>
+</tr>
+<tr>
+<td><code>trafficSignalId</code></td>
+<td>Имя/идентификатор сигнала</td>
+<td>Светофор, к которому относится данная камера.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="optional-fields-1">
+
+  Необязательные поля
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Значение</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>triggerSpeed</code></td>
+<td>Число, в м/с</td>
+<td>Минимальная скорость, необходимая для срабатывания камеры.</td>
+</tr>
+<tr>
+<td><code>speedTrapLightName</code></td>
+<td>Имя объекта</td>
+<td>Имя светового объекта, используемого для эффекта вспышки.</td>
+</tr>
+</tbody>
+</table>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">speedTrapType = redLight
+</span></span><span class="line"><span class="cl">trafficSignalId = trafficSignal_01
+</span></span><span class="line"><span class="cl">triggerSpeed = 5
+</span></span><span class="line"><span class="cl">speedTrapLightName = redLightCameraFlash_01
+</span></span></code></pre>
+</div><p>Если <code>triggerSpeed</code> не задано, используется значение по умолчанию:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">5 m/s
+</span></span></code></pre>
+</div><p>Камера срабатывает только в том случае, если связанный светофор в данный момент показывает красный сигнал.</p>
+<hr/>
+<h2 id="red-light-camera-placement">
+
+  Размещение камеры фиксации проезда на красный свет
+</h2>
+<p>Разместите триггер камеры фиксации проезда на красный свет вблизи стоп-линии или сразу за ней — в зависимости от планировки перекрёстка.</p>
+<p>Триггер должен фиксировать транспортные средства, въезжающие на перекрёсток при движении на красный свет.</p>
+<p>Рекомендуемая конфигурация:</p>
+<ul>
+<li>Триггер перекрывает контролируемую полосу или полосы движения.</li>
+<li>Триггер выровнен по допустимому направлению движения.</li>
+<li>Триггер имеет достаточную глубину для надёжного обнаружения быстрых транспортных средств.</li>
+<li>Триггер расположен так, чтобы транспортные средства, правильно остановившиеся перед стоп-линией, его не активировали.</li>
+</ul>
+<hr/>
+<h2 id="finding-the-traffic-signal-id">
+
+  Определение идентификатора светофора
+</h2>
+<p>Для камер фиксации проезда на красный свет триггер должен знать, к какому светофору он относится.</p>
+<p>Идентификаторы светофоров можно просмотреть, включив отладочный вывод светофоров из консоли:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="n">core_trafficSignals.debugLevel</span> <span class="o">=</span> <span class="mi">2</span>
+</span></span></code></pre>
+</div><p>Используйте отображаемое имя/идентификатор сигнала в качестве значения для:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">trafficSignalId
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">trafficSignalId = trafficSignal_01
+</span></span></code></pre>
+</div><hr/>
+<h2 id="creating-the-flash-light">
+
+  Создание вспышки света
+</h2>
+<p>Создайте световой объект вблизи радара контроля скорости или камеры.</p>
+<p>Чаще всего используется <code>SpotLight</code>, однако подойдёт любой световой объект, поддерживающий включение и отключение.</p>
+<p>Световой объект должен:</p>
+<ul>
+<li>Иметь уникальное имя объекта.</li>
+<li>Быть указан в поле <code>speedTrapLightName</code> триггера.</li>
+<li>По умолчанию быть отключён.</li>
+</ul>
+<p>Установите для поля enabled светового объекта значение:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">enabled = false
+</span></span></code></pre>
+</div><p>При необходимости световой объект можно настроить визуально:</p>
+<ul>
+<li>Цвет</li>
+<li>Яркость</li>
+<li>Дальность</li>
+<li>Поворот</li>
+<li>Угол конуса</li>
+<li>Тип блика (flare)</li>
+</ul>
+<p>Для вспышки камеры рекомендуется использовать яркий белый свет с бликом.</p>
+<p>Пример имени объекта:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">speedTrapLight_01
+</span></span></code></pre>
+</div><p>Затем укажите его в триггере:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">speedTrapLightName = speedTrapLight_01
+</span></span></code></pre>
+</div><div class="bng-notice note">Световой объект необязателен. Радар контроля скорости может работать без объекта вспышки.</div>
+<hr/>
+<h2 id="speed-units">
+
+  Единицы измерения скорости
+</h2>
+<p>Значения скорости для радаров задаются в метрах в секунду.</p>
+<p>Полезные значения для перевода:</p>
+<table>
+<thead>
+<tr>
+<th>Скорость</th>
+<th>Метры в секунду</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>30 km/h</td>
+<td>8.33 m/s</td>
+</tr>
+<tr>
+<td>50 km/h</td>
+<td>13.89 m/s</td>
+</tr>
+<tr>
+<td>60 km/h</td>
+<td>16.67 m/s</td>
+</tr>
+<tr>
+<td>80 km/h</td>
+<td>22.22 m/s</td>
+</tr>
+<tr>
+<td>100 km/h</td>
+<td>27.78 m/s</td>
+</tr>
+<tr>
+<td>120 km/h</td>
+<td>33.33 m/s</td>
+</tr>
+</tbody>
+</table>
+<p>Формула:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">km/h ÷ 3.6 = m/s
+</span></span></code></pre>
+</div><p>Для миль в час:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">mph × 0.44704 = m/s
+</span></span></code></pre>
+</div><hr/>
+<h2 id="example-basic-speed-trap">
+
+  Пример: базовый радар контроля скорости
+</h2>
+<p>Объекты:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">BeamNGTrigger: speedTrapTrigger_01
+</span></span><span class="line"><span class="cl">SpotLight:     speedTrapLight_01
+</span></span></code></pre>
+</div><p>Динамические поля триггера:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">speedTrapType = speed
+</span></span><span class="line"><span class="cl">speedLimit = 22.22
+</span></span><span class="line"><span class="cl">speedLimitTolerance = 2.78
+</span></span><span class="line"><span class="cl">speedTrapLightName = speedTrapLight_01
+</span></span></code></pre>
+</div><p>В результате создаётся радар контроля скорости со следующими параметрами:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">Speed limit: 80 km/h
+</span></span><span class="line"><span class="cl">Tolerance:   10 km/h
+</span></span><span class="line"><span class="cl">Trigger at:  90 km/h
+</span></span></code></pre>
+</div><hr/>
+<h2 id="example-red-light-camera">
+
+  Пример: камера фиксации проезда на красный свет
+</h2>
+<p>Объекты:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">BeamNGTrigger: redLightCameraTrigger_01
+</span></span><span class="line"><span class="cl">SpotLight:     redLightCameraFlash_01
+</span></span><span class="line"><span class="cl">TrafficSignal: trafficSignal_01
+</span></span></code></pre>
+</div><p>Динамические поля триггера:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">speedTrapType = redLight
+</span></span><span class="line"><span class="cl">trafficSignalId = trafficSignal_01
+</span></span><span class="line"><span class="cl">triggerSpeed = 5
+</span></span><span class="line"><span class="cl">speedTrapLightName = redLightCameraFlash_01
+</span></span></code></pre>
+</div><p>Камера срабатывает при выполнении следующих условий:</p>
+<ul>
+<li>Транспортное средство въезжает в триггер.</li>
+<li>Транспортное средство движется в направлении положительной локальной оси Y триггера.</li>
+<li>Скорость транспортного средства превышает <code>5 m/s</code>.</li>
+<li>Связанный светофор показывает красный сигнал.</li>
+</ul>
+<hr/>
+<h2 id="runtime-behavior">
+
+  Поведение во время работы
+</h2>
+<p>Когда транспортное средство въезжает в настроенный триггер, игра проверяет данные радара контроля скорости.</p>
+<p>Для обычных радаров контроля скорости:</p>
+<ul>
+<li>Скорость транспортного средства сравнивается со значением <code>speedLimit + speedLimitTolerance</code>.</li>
+<li>Если транспортное средство едет слишком быстро, срабатывает событие радара контроля скорости.</li>
+<li>Если настроена вспышка, свет кратковременно включается, а затем выключается.</li>
+</ul>
+<p>Для камер фиксации проезда на красный свет:</p>
+<ul>
+<li>Скорость транспортного средства сравнивается со значением <code>triggerSpeed</code>.</li>
+<li>Проверяется состояние связанного светофора.</li>
+<li>Камера срабатывает только при красном сигнале светофора.</li>
+<li>Если настроена вспышка, свет вспыхивает.</li>
+</ul>
+<p>Радары контроля скорости игнорируются, если транспортное средство находится слишком далеко от активной камеры.</p>
+<hr/>
+<h2 id="leaderboards">
+
+  Таблицы рекордов
+</h2>
+<p>В режиме свободной езды (freeroam) рекорды радаров контроля скорости могут сохраняться отдельно для каждого уровня.</p>
+<p>Рекорды хранятся по уровню и имени триггера. В связи с этим имена триггеров радаров контроля скорости должны быть уникальными и неизменными.</p>
+<p>Не переименовывайте триггер радара контроля скорости после выпуска, если только вы намеренно не хотите начать новую запись в таблице рекордов.</p>
+<hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>Используйте один объект <code>BeamNGTrigger</code> на каждый радар контроля скорости или камеру фиксации проезда на красный свет.</li>
+<li>Давайте каждому триггеру и световому объекту понятное уникальное имя.</li>
+<li>Делайте триггер достаточно широким, чтобы он перекрывал всю зону обнаружения.</li>
+<li>Делайте триггер глубиной в несколько метров для надёжного обнаружения.</li>
+<li>Поворачивайте триггер так, чтобы положительная локальная ось Y указывала в допустимое направление движения.</li>
+<li>Используйте метры в секунду для всех значений скорости.</li>
+<li>Следите за тем, чтобы значение <code>speedTrapLightName</code> точно совпадало с именем светового объекта.</li>
+<li>По умолчанию отключайте световой объект вспышки.</li>
+<li>Используйте видимый тип блика для вспышек камеры.</li>
+<li>Проверяйте работу с медленными, обычными и быстрыми транспортными средствами.</li>
+<li>Проверяйте оба направления движения, чтобы убедиться, что срабатывает только нужное направление.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="speed-trap-does-not-trigger">
+
+  Радар контроля скорости не срабатывает
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Поле <code>speedTrapType</code> отсутствует или написано с ошибкой.</li>
+<li>Транспортное средство движется противоположно положительной оси Y триггера.</li>
+<li>Скорость транспортного средства ниже порога срабатывания триггера.</li>
+<li>Триггер слишком тонкий.</li>
+<li>Триггер не перекрывает полосу движения.</li>
+<li>На уровне выполняется активная миссия на переднем плане, которая подавляет поведение радаров контроля скорости в режиме свободной езды.</li>
+</ul>
+<h3 id="speed-trap-triggers-from-the-wrong-direction">
+
+  Радар контроля скорости срабатывает с неправильного направления
+</h3>
+<p>Триггер повёрнут неправильно.</p>
+<p>Поверните <code>BeamNGTrigger</code> так, чтобы его положительная локальная ось Y указывала в нужное направление движения.</p>
+<h3 id="flash-does-not-appear">
+
+  Вспышка не появляется
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Значение <code>speedTrapLightName</code> не совпадает с именем светового объекта.</li>
+<li>Световой объект не существует.</li>
+<li>Свет слишком тусклый или расположен слишком далеко.</li>
+<li>Световой объект не имеет подходящего блика или дальности.</li>
+<li>Свет уже включён, что делает вспышку незаметной.</li>
+</ul>
+<h3 id="red-light-camera-does-not-trigger">
+
+  Камера фиксации проезда на красный свет не срабатывает
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Поле <code>speedTrapType</code> не установлено в значение <code>redLight</code>.</li>
+<li>Значение <code>trafficSignalId</code> неверно.</li>
+<li>Светофор не показывает красный сигнал.</li>
+<li>Значение <code>triggerSpeed</code> слишком высокое.</li>
+<li>Триггер направлен в неверную сторону.</li>
+<li>Триггер размещён не на нужной стоп-линии или полосе движения.</li>
+</ul>
+<hr/>
+<h2 id="summary">
+
+  Итог
+</h2>
+<p>Для добавления радара контроля скорости:</p>
+<ol>
+<li>Разместите <code>BeamNGTrigger</code>.</li>
+<li>Поверните его так, чтобы положительная локальная ось Y указывала в направлении движения.</li>
+<li>Добавьте <code>speedTrapType = speed</code>.</li>
+<li>Установите <code>speedLimit</code> в метрах в секунду.</li>
+<li>При необходимости добавьте <code>speedLimitTolerance</code>.</li>
+<li>При необходимости добавьте отключённый <code>SpotLight</code> и укажите его имя в поле <code>speedTrapLightName</code>.</li>
+</ol>
+<p>Для добавления камеры фиксации проезда на красный свет:</p>
+<ol>
+<li>Разместите <code>BeamNGTrigger</code> вблизи стоп-линии.</li>
+<li>Поверните его так, чтобы положительная локальная ось Y указывала в контролируемом направлении.</li>
+<li>Добавьте <code>speedTrapType = redLight</code>.</li>
+<li>Установите <code>trafficSignalId</code>.</li>
+<li>При необходимости установите <code>triggerSpeed</code>.</li>
+<li>При необходимости добавьте отключённый световой объект вспышки и укажите его имя в поле <code>speedTrapLightName</code>.</li>
+</ol>

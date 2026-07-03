@@ -1,0 +1,2128 @@
+<p>pressureWheel — основной метод создания колёс в BeamNG. Это физическая модель шины реального времени, построенная из нод, балок и треугольников.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/wheels/TireJbeam.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/wheels/TireJbeam_hu1aec9fbe618426f1a00b4c7a6c9fbec9_446709_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Система колеса давления автоматически генерирует колесо с заданными параметрами вокруг пары нод, выступающих в роли оси. Положение и ориентация нод определяют положение и ориентацию колеса.</p>
+<p>В связи со сложностью системы и большим количеством параметров рекомендуется копировать разделы оригинального jbeam при использовании колёс давления и изменять только необходимые значения.</p>
+<h3 id="wheel-construction">
+
+  Конструкция колеса
+</h3>
+<p>Колёса состоят из двух основных компонентов.</p>
+<p>Первый элемент — ступица, соответствующая внешнему слою обода. Её ноды крепятся к оси — набору из двух предопределённых нод, прикреплённых к ступице транспортного средства.</p>
+<p>Второй элемент — шина, имеющая собственный набор нод на внешнем слое протектора, соединённых с нодами ступицы несколькими балками. Группа давления настраивается с использованием как нод ступицы, так и нод шины.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/wheels/PressureWheelPicture.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/wheels/PressureWheelPicture_hu2bffa3b9dba0ae438fa4cfa7f6fb0a8c_529443_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Балки между ступицей и осью являются достаточно жёсткими стандартными балками, отражающими жёсткую конструкцию колеса.</p>
+<p>Ноды шины связаны с нодами ступицы и между собой набором балок, отражающих структуру шины и обеспечивающих деформацию протектора и гибкость боковины.</p>
+<p>Радиальные балки — основные несущие элементы шины. Они генерируются как анизотропные балки, что позволяет им быть достаточно мягкими на сжатие, имитируя эластичность шины, и при этом оставаться жёсткими на растяжение, не давая шине расширяться на высоких скоростях.</p>
+<p>Усилительные балки соединяют ноды шины с одной стороны с нодами ступицы с другой. Они обеспечивают боковую жёсткость шины, при этом допуская определённый изгиб боковины в поворотах, как у реальной шины.</p>
+<h3 id="tire-friction-parameters">
+
+  Параметры трения шины
+</h3>
+<p>Для наиболее точного воспроизведения поведения реальных шин система колеса давления использует ряд расширенных параметров трения, зависящих от скорости скольжения и нагрузки на шину.</p>
+<p>Каждая поверхность в BeamNG имеет параметры статического и кинетического трения, а также stribekVelocity, определяющий переход между статическим и кинетическим трением.</p>
+<p>Различные параметры трения шины задаются как множители этих параметров поверхности.</p>
+<h4 id="friction-velocity">
+
+  Зависимость трения от скорости
+</h4>
+<p>Первые два параметра — "frictionCoef" и "slidingFrictionCoef" — являются множителями трения при качении и скольжении шины соответственно. Как и для большинства объектов, для поддержания скольжения шины требуется меньшее усилие, чем для его начала, поэтому коэффициент скользящего трения ниже коэффициента статического трения.</p>
+<p>Поскольку резина обладает упругостью, шины не переходят от статического к кинетическому трению резко, а делают это постепенно. Для моделирования этого поведения можно использовать кривую Стрибека, описывающую переходный режим от статического к кинетическому трению.</p>
+<p>Параметр stribeckVelocity влияет на общую длину перехода: большие значения означают более медленный переход шины к скольжению.</p>
+<p>Параметр stribeckExponent сглаживает верхнюю и нижнюю части кривой, придавая ей более колоколообразную форму.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/wheels/SlidingFrictionCoef.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/wheels/SlidingFrictionCoef_hua4b8877dc2aa528b369aeafee8a88fd5_57225_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<h4 id="tire-load">
+
+  Нагрузка на шину
+</h4>
+<p>В стандартных моделях трения сила трения прямо пропорциональна нагрузке на поверхность. Однако с шинами всё несколько сложнее, поскольку они не полностью жёсткие в зоне контакта с дорогой. Коэффициент трения шин при меньших нагрузках сравнительно выше, что также помогает шине более плавно реагировать на изменения нагрузки при торможении и в поворотах.</p>
+<p>Используются три параметра: "noLoadCoef", "loadSensitivitySlope" и "fullLoadCoef". noLoadCoef обычно немного выше единицы, а fullLoadCoef немного ниже. Наклон чувствительности к нагрузке влияет на скорость достижения значения fullLoadCoef. В итоге получается кривая следующего вида:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/vehicle/sections/wheels/TireLoadCoef.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/vehicle/sections/wheels/TireLoadCoef_hub24de22986198ea10565093da5c76365_53526_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Поскольку сила рассчитывается на каждую ноду отдельно, используется нормальная сила на каждую отдельную ноду, а не суммарная сила на колесо.</p>
+<h3 id="required-arguments">
+
+  Обязательные аргументы
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Имя колеса</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Стандартное именование для четырёхколёсных транспортных средств: FR, FL, RR и RL.</p>
+<p>Это имя используется при обращении к колесу в других разделах, например в трансмиссии.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Группа нод (nodegroup) нод ступицы.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Работает аналогично стандартным группам нод.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Группа нод (nodegroup) нод шины.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Работает аналогично стандартным группам нод.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Первая нода оси.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Стандартная схема именования для четырёхколёсных транспортных средств: fw1rr, fw1ll, rw1rr и rw1ll.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Вторая нода оси</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Стандартная схема именования для четырёхколёсных транспортных средств: fw1r, fw1l, rw1r и rw1l.</div>
+</div>
+</div>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Имя стабилизирующей ноды</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Каждая нода ступицы будет соединена балкой с этой нодой. Преимущественно является устаревшим механизмом и в общем случае не используется. Значение 9999 отключает его.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Вместе с nodeCoupling эта нода используется для передачи реактивного момента торможения на подвеску и кузов.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">NodeArm должна располагаться примерно там, где находится тормозной суппорт. Следует учитывать, что эта нода должна быть достаточно удалена от nodeCoupling и иметь достаточную массу. Нода, расположенная слишком близко или имеющая слишком малую массу для заданного тормозного момента, может вызвать нестабильность тормозной системы, что приведёт к плохой тормозной эффективности и перегреву тормозов при включении стояночного тормоза. Для обычного легкового автомобиля масса должна быть не менее 2 кг, для большого грузовика — 5–10 кг.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Направление приложения крутящего момента привода.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Правильное значение (1 или -1) зависит от порядка определения нод оси.</div>
+</div>
+</div>
+<h3 id="optional-arguments">
+
+  Необязательные аргументы
+</h3>
+<h4 id="basic-settings-and-dimensions">
+
+  Основные настройки и размеры
+</h4>
+<p>Эти аргументы определяют размер и положение колеса, а также ряд базовых структурных параметров.</p>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Радиус протектора шины (метры)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Для колеса без физической шины, которому тем не менее необходимы звуки шины, это значение следует установить равным hubRadius.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Радиус ступицы (метры)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Смещение центра колеса относительно средней точки между нодами оси (метры)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Ширина протектора шины (метры)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Ширина ступицы (метры)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Как правило, для автомобильных шин рекомендуется делать tireWidth немного меньше hubWidth.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">При отключении генерируется только ступица, без шины.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Используется в общей системе колёс для поддержки различных вариантов шин на одном ободе.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Определяет, учитывается ли колесо при расчёте показаний спидометра.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Вместе с nodeArm образует рычаг, передающий тормозной момент на подвеску или кузов.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Если не определено, будет использована внутренняя нода оси.</p>
+<p>Должна располагаться в центре колеса, там, где находился бы центр тормозного диска. Должна иметь достаточную массу для требуемой тормозной мощности. Для обычного легкового автомобиля — не менее 2 кг, для большого грузовика — 5–10 кг.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Вместе с torqueArm и torqueArm2 образует набор нод для передачи реактивного момента привода на подвеску или кузов.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Нода torqueCoupling должна располагаться на дифференциале или на выходной ноде дифференциала.</p>
+<p>Как и в случае nodeArm/Coupling, более тяжёлые и дальше расположенные ноды позволяют передавать больший момент до возникновения нестабильности.</p>
+<p>Если torqueCoupling или torqueArm не определены, игра по умолчанию не будет генерировать реакции крутящего момента трансмиссии.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Вместе с torqueCoupling и torqueArm2 образует набор нод для передачи реактивного момента привода на подвеску или кузов.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Эта нода должна располагаться на той же структуре, что и torqueCoupling, и не смещаться относительно неё при обычной езде. В зависимости от компоновки подвески и трансмиссии подходящими вариантами могут быть сам двигатель, ось или подрамники подвески.</p>
+<p>Как и в случае nodeArm/Coupling, более тяжёлые и дальше расположенные ноды позволяют передавать больший момент до возникновения нестабильности.</p>
+<p>Если torqueCoupling или torqueArm не определены, игра по умолчанию не будет генерировать реакции крутящего момента трансмиссии.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Вместе с torqueCoupling и torqueArm образует набор нод для передачи реактивного момента привода на подвеску или кузов.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>По умолчанию будет использована одна из нод оси, если не задано.</p>
+<p>Должна быть частью той же структуры, что и torqueCoupling и torqueArm, и не смещаться относительно них при обычной езде. В зависимости от компоновки подвески и трансмиссии подходящими вариантами могут быть сам двигатель, ось или подрамники подвески.</p>
+<p>Как и в случае nodeArm/Coupling, более тяжёлые и дальше расположенные ноды позволяют передавать больший момент до возникновения нестабильности.</p>
+<p>Эта нода не должна образовывать прямую линию с torqueArm2 и torqueCoupling.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Верхняя нода оси поворота.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Используется расширенным инструментом UI подвески для расчёта кастера.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Нижняя нода оси поворота.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Используется расширенным инструментом UI подвески для расчёта кастера.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Нода оси трансакселя, ближайшая к колесу.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Используется на переднеприводных автомобилях для моделирования влияния углов шарниров полуосей на реакции крутящего момента, влияет на увод при разгоне.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Нода оси трансакселя, удалённая от колеса.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Используется на переднеприводных автомобилях для моделирования влияния углов шарниров полуосей на реакции крутящего момента, влияет на увод при разгоне.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Определяет балки, при разрушении которых передача крутящего момента на колесо прекращается.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Это должны быть балки, представляющие полуоси, передающие мощность от дифференциала к колёсам.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Включает и отключает разрушение меша шины.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Включает и отключает разрушение меша ступицы.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Значение 0 отключает передачу крутящего момента, значение 1 позволяет двигателю приводить колесо в движение.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Этот параметр устарел и заменён системой трансмиссии. Рекомендуется оставить значение 0.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Определяет, имеют ли ноды колеса столкновение с транспортным средством, к которому оно прикреплено.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Обычно устанавливается в false.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Определяет, имеют ли ноды колеса столкновение с другими объектами.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Должно быть всегда установлено в true.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">integer or nil<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Изменяет способ расчёта центральной точки колеса (см. аргумент wheelOffset)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">В официальном контенте этот параметр в настоящее время не используется. В норме центральная точка колеса находится ровно посередине между двумя центральными нодами колеса. Если offsetFromNode установлен в 1, центральная точка рассчитывается как позиция ноды 1 + 0.5 * hubWidth. При значении 2 — как позиция ноды 2 - 0.5 * hubWidth. Может быть полезно, когда подкомпонент колеса изменяет его ширину, но нужно сохранить выравнивание по одной стороне.</div>
+</div>
+</div>
+<h4 id="node-arguments">
+
+  Аргументы нод
+</h4>
+<p>Настройки нод определяют параметры трения колёс, а также массу колёс — как шины, так и ступицы.</p>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Масса нод протектора шины (кг).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Поскольку часть массы шины приходится на боковину и борт, следует начать с реальной массы шины и колеса, но перенести часть массы с нод шины на ноды ступицы.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Масса нод ступицы (кг)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Поскольку часть массы шины приходится на боковину и борт, следует начать с реальной массы шины и колеса, но перенести часть массы с нод шины на ноды ступицы.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Альтернативный способ задания масс нод. Масса ступицы (кг), перезаписывает hubNodeWeight</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Суммарная масса ступицы колеса, распределяемая между всеми нодами ступицы.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Альтернативный способ задания масс нод. Масса шины (кг), перезаписывает nodeWeight</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Суммарная масса шины, распределяемая между всеми нодами ступицы.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Альтернативный способ задания масс нод. Доля массы шины, приходящаяся на ноды ступицы (0.0–1.0), перезаписывает hubNodeWeight и nodeWeight</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Поскольку часть массы шины приходится на боковину и борт, этот параметр перераспределяет заданную долю массы шины с собственных нод шины на ноды ступицы.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Коэффициент трения нод ступицы.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Материал нод ступицы.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">По состоянию на версию <code>0.38.5.0</code> доступны следующие физические материалы:<br/><code>METAL</code>, <code>PLASTIC</code>, <code>RUBBER</code>, <code>GLASS</code>, <code>WOOD</code>, <code>FOLIAGE</code>, <code>CLOTH</code>, <code>WATER</code>, <code>ASPHALT</code>, <code>ASPHALT_WET</code>, <code>SLIPPERY</code>, <code>ROCK</code>, <code>DIRT_DUSTY</code>, <code>DIRT</code>, <code>SAND</code>, <code>SANDY_ROAD</code>, <code>MUD</code>, <code>GRAVEL</code>, <code>GRASS</code>, <code>ICE</code>, <code>SNOW</code>, <code>FIRESMALL</code>, <code>FIREMEDIUM</code>, <code>FIRELARGE</code>, <code>SMOKESMALLBLACK</code>, <code>SMOKEMEDIUMBLACK</code>, <code>STEAM</code>, <code>RUMBLE_STRIP</code>, <code>COBBLESTONE</code>, <code>FOLIAGE_THIN</code>, <code>SPIKE_STRIP</code></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Коэффициент трения нод протектора шины.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Определяет общее сцепление шины.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Коэффициент трения нод протектора шины при скольжении.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Обеспечивает более точное управление кривой скользящего трения.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Влияет на скорость, при которой применяется коэффициент скольжения.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1.75<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Обеспечивает более точное управление кривой скользящего трения.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Меньшие значения дают более плавный переход.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Степень рисунка протектора шины.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Для слик-шины значение равно 0, для внедорожной — около 0.9, для стандартной — 0.7.</p>
+<p>Это значение умножается на коэффициент шероховатости для каждого типа покрытия (грязь имеет высокую шероховатость, асфальт — очень низкую), что означает: шина для грязи хорошо работает на бездорожье, но посредственно на асфальте, а слик отлично ведёт себя на асфальте, но ужасно — на грязи.</p>
+<p>Это значение влияет на звуки шин, поэтому важно задать реалистичное значение, даже если у транспортного средства нет физических шин.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Модификатор коэффициента трения при ненагруженной шине.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Позволяет давать шине сравнительно большее сцепление при малой нагрузке, что способствует более плавной реакции на перераспределение масс и изменения нагрузки.</p>
+<p>Это значение должно быть больше "fullLoadCoef".</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Потеря коэффициента на ньютон нормальной силы</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Коэффициент трения будет снижаться от "noLoadCoef" до достижения "fullLoadCoef", после чего останется стабильным.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Модификатор коэффициента трения при полностью нагруженной шине.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Позволяет давать шине сравнительно меньшее сцепление при полной нагрузке, что способствует более плавной реакции на перераспределение масс и изменения нагрузки.</p>
+<p>Это значение должно быть меньше "noLoadCoef".</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Материал нод протектора шины.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">По состоянию на версию <code>0.38.5.0</code> доступны следующие физические материалы:<br/><code>METAL</code>, <code>PLASTIC</code>, <code>RUBBER</code>, <code>GLASS</code>, <code>WOOD</code>, <code>FOLIAGE</code>, <code>CLOTH</code>, <code>WATER</code>, <code>ASPHALT</code>, <code>ASPHALT_WET</code>, <code>SLIPPERY</code>, <code>ROCK</code>, <code>DIRT_DUSTY</code>, <code>DIRT</code>, <code>SAND</code>, <code>SANDY_ROAD</code>, <code>MUD</code>, <code>GRAVEL</code>, <code>GRASS</code>, <code>ICE</code>, <code>SNOW</code>, <code>FIRESMALL</code>, <code>FIREMEDIUM</code>, <code>FIRELARGE</code>, <code>SMOKESMALLBLACK</code>, <code>SMOKEMEDIUMBLACK</code>, <code>STEAM</code>, <code>RUMBLE_STRIP</code>, <code>COBBLESTONE</code>, <code>FOLIAGE_THIN</code>, <code>SPIKE_STRIP</code></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.6<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Влияет на временнóе поведение трения шины.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Большие значения (до максимума 1) делают поведение шины похожим на мягкий гоночный слик, тогда как меньшие значения соответствуют более жёсткому составу резины.</p>
+<p>Также влияет на звуки шин (более жёсткие шины сильнее скрипят), поэтому важно задать реалистичное значение, даже если у транспортного средства нет физических шин.</p>
+</div>
+</div>
+</div>
+<h4 id="beam-generation-arguments">
+
+  Аргументы генерации балок
+</h4>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">int<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Количество спиц на сторону колеса (должно быть чётным числом)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Рекомендуется держать numRays в диапазоне от 10 (для небольших простых колёс) до 20 (для наиболее плавного хода). Большинство стандартных колёс имеют 16 лучей.</p>
+<p>Хотя колесо с бо́льшим numRay действительно катится плавнее, этот эффект заметен преимущественно на малых скоростях (&lt;10 км/ч).</p>
+<p>Колёса с большим numRay потребляют значительно больше нод, балок и треугольников, увеличивая нагрузку на CPU. Колёса с высоким numRay также быстрее сталкиваются с проблемами стабильности, что может затруднить достижение боковой и продольной жёсткости, соответствующей реальной шине, — в результате управляемость становится плавной, но размытой. Кроме того, они могут сильнее расширяться на высоких скоростях.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Включить диагональные усилительные балки шины.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Имитирует жёсткость соединения боковины с протектором реальной шины.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Включить L-образные усилительные балки шины.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Имитирует жёсткость соединения боковины с протектором реальной шины. Аналогично TireReinfBeams, но является более совершенным методом. При включении TireReinfBeams будут отключены.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Включить дополнительные анизотропные балки боковины.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Добавляет продольную жёсткость; наиболее полезно для шин с высоким профилем или с большим numRay.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Включить дополнительные балки протектора.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Улучшает боковую жёсткость и снижает потерю сцепления на высоких скоростях.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Включить дополнительные периферийные балки.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Влияет на продольную жёсткость.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Включить дополнительные опорные балки от центра колеса к нодам шины.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Новый аргумент в версии <code>0.38</code>. Служит для удержания нод шины на расстоянии от обода после спуска шины, имитируя столкновение нод шины с центром колеса через предварительно сжатые опорные балки. Полезно для очень толстых шин.</div>
+</div>
+</div>
+<h4 id="beam-arguments">
+
+  Аргументы балок
+</h4>
+<p>Настройки балок определяют параметры всех балок, составляющих колесо давления.</p>
+<p>Каждый из перечисленных ниже параметров имеет значения Spring, Damp, Deform и Strength, которые задаются подстановкой соответствующего свойства вместо символа "*".</p>
+<p>Например, настройка жёсткости hubBeams — это "hubBeamSpring", а деформация — "hubBeamDeform". Все эти параметры работают аналогично параметрам стандартных балок.</p>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength балок ступицы</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength поперечных балок протектора ступицы</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Ступица здесь означает колесо. Значение жёсткости должно быть как можно большим без возникновения нестабильности, чтобы минимизировать деформацию колеса и не допустить его расширения на высоких скоростях. Значения демпфирования можно держать очень низкими (&lt;10).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength периферийных балок ступицы (по окружности)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Ступица здесь означает колесо. Значение жёсткости должно быть как можно большим без возникновения нестабильности, чтобы минимизировать деформацию колеса и не допустить его расширения на высоких скоростях. Значения демпфирования можно держать очень низкими (&lt;10).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength боковых балок ступицы (радиальные спицы)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Ступица здесь означает колесо. Значение жёсткости должно быть как можно большим без возникновения нестабильности, чтобы минимизировать деформацию колеса и не допустить его расширения на высоких скоростях. Значения демпфирования можно держать очень низкими (&lt;10).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength анизотропных боковых усилительных балок ступицы (только ступица)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Ступица здесь означает колесо. Используется упрощённой моделью, в которой ступица и шина представляют собой единое целое; применяется в транспортных средствах трафика в целях оптимизации. Не должно использоваться на обычных колёсах.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, DampCutoffHz, Precompression анизотропных боковых балок ступицы (боковина)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Spring и Damp должны быть низкими, чтобы давление воздуха воспринимало массу транспортного средства. Начиная с версии 0.22, параметр spring нередко задаётся как функция давления в шине.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp на растяжение анизотропных боковых балок ступицы (боковина)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Spring и Damp влияют на продольную жёсткость (выше → жёстче), сопротивление качению (выше → лучше), остроту пика кривой боковой силы (выше → пик острее), а также в небольшой мере на жёсткость при сжатии (выше → жёстче при сжатии).</p>
+<p>Значение жёсткости должно быть как можно большим, на границе нестабильности, чтобы не допустить расширения шины на высоких скоростях.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, DampCutoffHz анизотропных боковых усилительных балок ступицы (боковина ±2 ноды)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Spring и Damp должны быть низкими, чтобы давление воздуха воспринимало массу транспортного средства.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp на растяжение анизотропных боковых усилительных балок ступицы (боковина ±2 ноды)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Spring и Damp влияют на продольную жёсткость (выше → жёстче), сопротивление качению (выше → лучше), остроту пика кривой боковой силы (выше → пик мягче), а также в небольшой мере на жёсткость при сжатии (выше → жёстче при сжатии).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, DampCutoffHz, Precompression диагональных усилительных балок шины или L-балок (диагональные)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Spring и Damp преимущественно влияют на боковую жёсткость при малых углах увода (выше → жёстче). Низкие значения могут приводить к тому, что шина будет сильнее заваливаться на боковину при интенсивном прохождении поворотов. Слишком высокое значение снижает стабилизирующий момент.</p>
+<p>Значение жёсткости должно быть как можно большим, на границе нестабильности, чтобы не допустить расширения шины на высоких скоростях.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, DampCutoffHz, Precompression поперечных балок протектора шины</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Spring и Damp преимущественно влияют на боковую жёсткость в диапазоне от малых до больших углов увода (выше → жёстче).</p>
+<p>Значение жёсткости должно быть достаточно высоким — около 50–75% от sideBeamSpringExpansion или на границе стабильности.</p>
+</div>
+</div>
+</div>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, DampCutoffHz, Precompression диагональных усилительных балок протектора (поперечные ±2 ноды)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Spring и Damp преимущественно влияют на боковую жёсткость при малых углах увода (выше → жёстче) и снижают потерю сцепления на высоких скоростях. Держите значение жёсткости в диапазоне 1/4–1/2 от значений wheelTreadBeam.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, DampCutoffHz, Precompression периферийных балок шины (по окружности)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Spring и Damp влияют на продольную жёсткость (выше → жёстче). Также влияют на жёсткость при сжатии, расширение на высоких скоростях и сцепление на высоких скоростях.</p>
+<p>Для узких шин должно быть примерно равно treadBeamSpring, для широких — выше.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, DampCutoffHz, Precompression периферийных балок шины (по окружности)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Spring и Damp влияют на продольную жёсткость (выше → жёстче). Также влияют на жёсткость при сжатии, расширение на высоких скоростях и сцепление на высоких скоростях.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Spring, Damp, Deform, Strength, SidewallRatio, LongExtent опорных балок шины (радиальные спицы)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>SidewallRatio определяет аргумент beamPrecompression опорных балок: диапазон предварительного сжатия = (радиус ступицы − радиус шины) × отношение боковины. По умолчанию равно 0.9, если не задано.</p>
+<p>LongExtent задаёт аргумент beamLongBound опорных балок напрямую. Если не задано, по умолчанию равно 2 × sidewallRatio.</p>
+</div>
+</div>
+</div>
+<h4 id="collision-pressure-tri-arguments">
+
+  Аргументы треугольников столкновений и давления
+</h4>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Давление в PSI, закачиваемое в шины</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Это значение должно соответствовать реальным характеристикам шины для данного размера и области применения.</p>
+<p>Примеры типичных значений для различных применений:</p>
+<ul>
+<li>Легковой автомобиль, стандартная дорожная шина: 25–35 PSI</li>
+<li>Легковой автомобиль, гоночный слик: 22–27 PSI</li>
+<li>Лёгкий грузовик: 30–50 PSI</li>
+<li>Рок-кроулер: 5–15 PSI</li>
+<li>Тяжёлый грузовик: 50–100 PSI</li>
+<li>Воздушное судно: 100+ PSI</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Максимальное давление в шинах в PSI.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Этот параметр введён прежде всего для предотвращения чрезмерного роста внутреннего давления и вызываемой им нестабильности при деформации шины.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Определяет, сталкиваются ли треугольники шины с треугольниками столкновения собственного транспортного средства или других автомобилей.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>При включении шины, например, не будут проходить сквозь моторный щит, однако могут застрять в острых элементах кузова после столкновения. При включении требуется больше ресурсов CPU.</p>
+<p>Этот аргумент, как и прочие связанные с треугольниками столкновений, обычно применяется только на внедорожных транспортных средствах с большими шинами, где точная симуляция столкновений шин более важна.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Определяет, сталкиваются ли треугольники протектора шины с треугольниками столкновения собственного транспортного средства или других автомобилей.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Влияет только на треугольники протектора шины.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Определяет, сталкиваются ли треугольники боковины 1 шины с треугольниками столкновения собственного транспортного средства или других автомобилей.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Сторона 1 — обычно внутренняя, сторона 2 — внешняя.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Определяет, сталкиваются ли треугольники боковины 2 шины с треугольниками столкновения собственного транспортного средства или других автомобилей.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Сторона 1 — обычно внутренняя, сторона 2 — внешняя.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Определяет, сталкиваются ли внутренние треугольники ступицы с треугольниками столкновения собственного транспортного средства или других автомобилей.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Эти треугольники расположены позади поверхности шины и в норме ни с чем не сталкиваются, поэтому данный аргумент не представляет практической пользы в стандартных случаях.</p>
+<p>Не зависит от аргумента triangleCollision.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Определяет, сталкиваются ли треугольники боковины 1 ступицы с треугольниками столкновения собственного транспортного средства или других автомобилей.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Сторона 1 — обычно внутренняя, сторона 2 — внешняя.</p>
+<p>Не зависит от аргумента triangleCollision.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Определяет, сталкиваются ли треугольники боковины 2 ступицы с треугольниками столкновения собственного транспортного средства или других автомобилей.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Сторона 1 — обычно внутренняя, сторона 2 — внешняя.</p>
+<p>Не зависит от аргумента triangleCollision.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">100<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Задаёт гидродинамическое сопротивление шин.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Это значение должно находиться в диапазоне 5–20. Оно вносит относительно небольшой вклад в общее аэродинамическое сопротивление автомобиля, однако важно для корректного поведения шин в воде — чтобы они не проходили сквозь воду беспрепятственно.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Задаёт кожное сопротивление шин.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Дополнительный коэффициент сопротивления, действующий вдоль поверхности шины, а не поперёк неё. Используется для имитации эффекта грунтозацепов грязевых шин.</div>
+</div>
+</div>
+<h3 id="hubcap-arguments">
+
+  Аргументы колпаков
+</h3>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Определяет, следует ли добавлять колпаки к колесу.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Имя группы разрушения (breakgroup) колпака</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Группа нод колпака</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Должна совпадать с параметром group флексбоди колпака.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Определяет, сталкивается ли колпак с миром и другими объектами.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Определяет, сталкивается ли колпак с транспортным средством.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Создаёт балки между центральной нодой колпака и нодами оси колеса.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Смещение колпака относительно торца колеса.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Отрицательные значения перемещают ноды внутрь колеса.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Смещение центральной ноды относительно внешнего края обода колпака.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Отрицательные значения выводят центральную ноду за пределы колеса, положительные — перемещают её внутрь.</p>
+<p>Не следует оставлять значение 0, так как центральная нода служит жёсткостным элементом. Типичное значение — 0.06.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Радиус колпака.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Настройки spring, damp, strength, deform балок, составляющих сам колпак.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Настройки spring, damp, strength, deform балок, крепящих колпак к колесу.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Настройки spring, damp, strength, deform <a data-doc="vehicle/sections/beams/support" href="/docs/vehicle/sections/beams/support">опорных балок</a>
+ между колпаком и колесом.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Масса нод колпака (кг)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Масса центральной ноды колпака (кг)</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Материал нод колпака.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">По состоянию на версию <code>0.38.5.0</code> доступны следующие физические материалы:<br/><code>METAL</code>, <code>PLASTIC</code>, <code>RUBBER</code>, <code>GLASS</code>, <code>WOOD</code>, <code>FOLIAGE</code>, <code>CLOTH</code>, <code>WATER</code>, <code>ASPHALT</code>, <code>ASPHALT_WET</code>, <code>SLIPPERY</code>, <code>ROCK</code>, <code>DIRT_DUSTY</code>, <code>DIRT</code>, <code>SAND</code>, <code>SANDY_ROAD</code>, <code>MUD</code>, <code>GRAVEL</code>, <code>GRASS</code>, <code>ICE</code>, <code>SNOW</code>, <code>FIRESMALL</code>, <code>FIREMEDIUM</code>, <code>FIRELARGE</code>, <code>SMOKESMALLBLACK</code>, <code>SMOKEMEDIUMBLACK</code>, <code>STEAM</code>, <code>RUMBLE_STRIP</code>, <code>COBBLESTONE</code>, <code>FOLIAGE_THIN</code>, <code>SPIKE_STRIP</code></div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Коэффициент трения нод колпака.</div>
+</div>
+</div>
+<h3 id="brakes-arguments">
+
+  Аргументы тормозов
+</h3>
+<p>Эти настройки определяют параметры тормозов данного колеса.</p>
+<p>Большинство параметров относятся к системе тепловых режимов тормозов, которая рассчитывает количество энергии, нагревающей тормозной ротор, и скорость его охлаждения.</p>
+<p>
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Тормозной момент рабочего тормоза (Нм).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Тормозной момент стояночного тормоза (Нм).</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">10<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Упругость тормозного момента (Нм/рад).</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Используется преимущественно в целях стабильности: определённая гибкость тормозного момента позволяет избежать нестабильности в колёсах и подвеске.
+Это значение должно быть пропорционально массе колёс и реакционных нод.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">boolean<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Включает тепловой режим тормозов.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.35<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Диаметр ротора в точке контакта с колодками (метры)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Используется в расчётах теплового режима.</p>
+<p>Определяет площадь охлаждения тормозов.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">10<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Масса ротора (кг)</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Используется в расчётах теплового режима.</p>
+<p>Влияет на тепловую инерцию тормозов. Более тяжёлые роторы нагреваются и остывают медленнее.</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">vented-disc<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Тип ротора</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Используется в расчётах теплового режима и влияет на скорость охлаждения роторов.</p>
+<p>Доступные варианты: "vented-disc, carbon-ceramic-vented-disc, disc и drum".</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">steel<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Материал тормозного ротора</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Используется в расчётах теплового режима и влияет на теплоёмкость роторов, их максимальную рабочую температуру и скорость охлаждения.</p>
+<p>Доступные варианты: "steel, aluminum, aluminium и carbon-ceramic".</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Интенсивность вентиляции тормозов</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Моделирует эффект тормозных воздуховодов и аналогичных систем на охлаждение тормозов.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">string<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">basic<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Материал тормозных колодок.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField"><p>Влияет на кривые тормозного усилия в зависимости от температуры.</p>
+<p>Доступные варианты: "basic, premium, sport, semi-race, full-race, carbon-ceramic и godmode".</p>
+</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Значение входного сигнала тормоза (в долях), при котором применяется brakeSplitCoef.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Должно быть в диапазоне от 0 до 1. Позволяет задать точку, в которой тормозное усилие нарастает медленнее, обеспечивая прогрессивные или регрессивные тормоза.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Форма кривой торможения при входном сигнале выше brakeInputSplit.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Значения ниже 1 дают регрессивную кривую торможения, значения выше 1 — прогрессивную.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Собственный уровень скрипа тормозов.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Для современных тормозов должно быть 0.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Собственный уровень скрипа тормозов на малых скоростях.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Для современных дорожных тормозов должно быть 0.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">1<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Уровень скрипа, возникающего при остеклении тормозных колодок.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">false<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Указывает, включена ли система ABS на тормозах.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.18<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Целевое скольжение, которое ABS должна поддерживать при торможении.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Как и в реальной жизни, шины обеспечивают оптимальное сцепление при ненулевом коэффициенте скольжения. Оптимальное значение индивидуально для каждого автомобиля и требует ручного подбора.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">float<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">100<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Частота пульсации ABS</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">ABS работает путём пульсирующего применения тормозов. Этот параметр изменяет частоту пульсации.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.04<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Сглаживатель для имитации задержки при нажатии тормоза.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Наиболее актуально для пневматических тормозов.</div>
+</div>
+</div>
+<div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col defaultField">0.04<div class="fieldType noselect">default</div>
+</div>
+<div class="col descrField">Сглаживатель для имитации задержки при отпускании тормоза.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">Наиболее актуально для пневматических тормозов.</div>
+</div>
+</div>
+<h3 id="specific-to-simplified-traffic-cars">
+
+  Специфично для упрощённых автомобилей трафика
+</h3>
+<p>Эти аргументы используются для передачи данных о шинах в систему звуков шин для упрощённых транспортных средств трафика, у которых нет физических шин в целях оптимизации.
+
+
+
+
+</p><div class="container argTable">
+<div class="row headerRow">
+<div class="col-sm-3 nameField">
+<h6 class="anchored">
+</h6>
+<div class="fieldType noselect"></div>
+</div>
+<div class="col-sm-2 typeField">number<div class="fieldType noselect">type</div>
+</div>
+<div class="col descrField">Радиус ступицы колеса, воспринимаемый системой звуков шин.</div>
+</div>
+<div class="row innerRow">
+<div class="col innerField">При наличии этого параметра система звуков шин будет использовать его как радиус ступицы, а фактический радиус ступицы будет восприниматься как радиус шины.</div>
+</div>
+</div>
+<h3 id="simple-example">
+
+  Простой пример
+</h3>
+<p>Простое колесо без физической шины, не разделённое на отдельные компоненты.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pressureWheels"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span><span class="s2">"hubGroup"</span><span class="p">,</span><span class="s2">"group"</span><span class="p">,</span><span class="s2">"node1:"</span><span class="p">,</span><span class="s2">"node2:"</span><span class="p">,</span><span class="s2">"nodeS"</span><span class="p">,</span><span class="s2">"nodeArm:"</span><span class="p">,</span><span class="s2">"wheelDir"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//general settings
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"hubRadius"</span><span class="o">:</span><span class="mf">0.08</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelOffset"</span><span class="o">:</span><span class="mf">0.005</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubWidth"</span><span class="o">:</span><span class="mf">0.025</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"numRays"</span><span class="o">:</span><span class="mi">10</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hasTire"</span><span class="o">:</span><span class="kc">false</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//hub options
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"hubBeamSpring"</span><span class="o">:</span><span class="mi">251000</span><span class="p">,</span> <span class="s2">"hubBeamDamp"</span><span class="o">:</span><span class="mi">5</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubBeamDeform"</span><span class="o">:</span><span class="mi">40000</span><span class="p">,</span> <span class="s2">"hubBeamStrength"</span><span class="o">:</span><span class="mi">160000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubNodeWeight"</span><span class="o">:</span><span class="mf">0.1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubNodeMaterial"</span><span class="o">:</span><span class="s2">"|NM_RUBBER"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubFrictionCoef"</span><span class="o">:</span><span class="mf">0.8</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//stabilizer wheel
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"propulsed"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeTorque"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"parkingTorque"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"collision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"STR"</span><span class="p">,</span> <span class="s2">"stabwheel_R"</span><span class="p">,</span> <span class="s2">"stabwheel_R"</span><span class="p">,</span> <span class="s2">"stw1r"</span><span class="p">,</span> <span class="s2">"stw1rr"</span><span class="p">,</span> <span class="mi">9999</span><span class="p">,</span> <span class="s2">"sta1r"</span><span class="p">,</span> <span class="mi">1</span><span class="p">{</span><span class="s2">"speedo"</span><span class="o">:</span><span class="kc">false</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"propulsed"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hasTire"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div>
+<h3 id="advanced-example">
+
+  Расширенный пример
+</h3>
+<p>Пара передних колёс, разбитых на отдельные компоненты.</p>
+<p>Ступицы:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pressureWheels"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span><span class="s2">"hubGroup"</span><span class="p">,</span><span class="s2">"group"</span><span class="p">,</span><span class="s2">"node1:"</span><span class="p">,</span><span class="s2">"node2:"</span><span class="p">,</span><span class="s2">"nodeS"</span><span class="p">,</span><span class="s2">"nodeArm:"</span><span class="p">,</span><span class="s2">"wheelDir"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"disableMeshBreaking"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"disableHubMeshBreaking"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"hasTire"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//general settings
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"hubRadius"</span><span class="o">:</span><span class="mf">0.18</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelOffset"</span><span class="o">:-</span><span class="mf">0.04</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubWidth"</span><span class="o">:</span><span class="mf">0.160</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"numRays"</span><span class="o">:</span><span class="mi">16</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//hub options
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"hubTreadBeamSpring"</span><span class="o">:</span><span class="mi">901000</span><span class="p">,</span> <span class="s2">"hubTreadBeamDamp"</span><span class="o">:</span><span class="mi">6</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubPeripheryBeamSpring"</span><span class="o">:</span><span class="mi">901000</span><span class="p">,</span> <span class="s2">"hubPeripheryBeamDamp"</span><span class="o">:</span><span class="mi">6</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubSideBeamSpring"</span><span class="o">:</span><span class="mi">1351000</span><span class="p">,</span> <span class="s2">"hubSideBeamDamp"</span><span class="o">:</span><span class="mi">6</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubNodeWeight"</span><span class="o">:</span><span class="mf">0.40</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubNodeMaterial"</span><span class="o">:</span><span class="s2">"|NM_METAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubFrictionCoef"</span><span class="o">:</span><span class="mf">0.5</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubBeamDeform"</span><span class="o">:</span><span class="mi">15000</span><span class="p">,</span> <span class="s2">"hubBeamStrength"</span><span class="o">:</span><span class="mi">66000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p>Шины:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pressureWheels"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span><span class="s2">"hubGroup"</span><span class="p">,</span><span class="s2">"group"</span><span class="p">,</span><span class="s2">"node1:"</span><span class="p">,</span><span class="s2">"node2:"</span><span class="p">,</span><span class="s2">"nodeS"</span><span class="p">,</span><span class="s2">"nodeArm:"</span><span class="p">,</span><span class="s2">"wheelDir"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"disableMeshBreaking"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"disableHubMeshBreaking"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"hasTire"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hasTire"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTireReinfBeams"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTireLbeams"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTireSideReinfBeams"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTreadReinfBeams"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTirePeripheryReinfBeams"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//general settings
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"radius"</span><span class="o">:</span><span class="mf">0.28</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"tireWidth"</span><span class="o">:</span><span class="mf">0.135</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//tire options
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"wheelSideBeamSpring"</span><span class="o">:</span><span class="s2">"$=$tirepressure_F*550"</span><span class="p">,</span><span class="s2">"wheelSideBeamDamp"</span><span class="o">:</span><span class="mi">20</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelSideBeamSpringExpansion"</span><span class="o">:</span><span class="mi">281000</span><span class="p">,</span><span class="s2">"wheelSideBeamDampExpansion"</span><span class="o">:</span><span class="mi">30</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelSideTransitionZone"</span><span class="o">:</span><span class="mf">0.09</span><span class="p">,</span><span class="s2">"wheelSideBeamPrecompression"</span><span class="o">:</span><span class="mf">0.98</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelReinfBeamSpring"</span><span class="o">:</span><span class="mi">15000</span><span class="p">,</span><span class="s2">"wheelReinfBeamDamp"</span><span class="o">:</span><span class="mi">140</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelReinfBeamDampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">,</span><span class="s2">"wheelReinfBeamPrecompression"</span><span class="o">:</span><span class="mf">0.98</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelTreadBeamSpring"</span><span class="o">:</span><span class="mi">50000</span><span class="p">,</span><span class="s2">"wheelTreadBeamDamp"</span><span class="o">:</span><span class="mi">50</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelTreadBeamDampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">,</span><span class="s2">"wheelTreadBeamPrecompression"</span><span class="o">:</span><span class="mf">0.98</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelTreadReinfBeamSpring"</span><span class="o">:</span><span class="mi">120000</span><span class="p">,</span><span class="s2">"wheelTreadReinfBeamDamp"</span><span class="o">:</span><span class="mi">40</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelTreadReinfBeamDampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">,</span><span class="s2">"wheelTreadReinfBeamPrecompression"</span><span class="o">:</span><span class="mf">0.98</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelPeripheryBeamSpring"</span><span class="o">:</span><span class="mi">35000</span><span class="p">,</span><span class="s2">"wheelPeripheryBeamDamp"</span><span class="o">:</span><span class="mi">23</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelPeripheryBeamDampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">,</span><span class="s2">"wheelPeripheryBeamPrecompression"</span><span class="o">:</span><span class="mf">0.98</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelPeripheryReinfBeamSpring"</span><span class="o">:</span><span class="mi">95000</span><span class="p">,</span><span class="s2">"wheelPeripheryReinfBeamDamp"</span><span class="o">:</span><span class="mi">23</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelPeripheryReinfBeamDampCutoffHz"</span><span class="o">:</span><span class="mi">500</span><span class="p">,</span><span class="s2">"wheelPeripheryReinfBeamPrecompression"</span><span class="o">:</span><span class="mf">0.98</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//general tire values
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"nodeWeight"</span><span class="o">:</span><span class="mf">0.11</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"nodeMaterial"</span><span class="o">:</span><span class="s2">"|NM_RUBBER"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"triangleCollision"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"pressurePSI"</span><span class="o">:</span><span class="s2">"$tirepressure_F"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"dragCoef"</span><span class="o">:</span><span class="mi">5</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//groundmodel friction multipliers
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"frictionCoef"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"slidingFrictionCoef"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"treadCoef"</span><span class="o">:</span><span class="mf">0.7</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//advanced friction values
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"noLoadCoef"</span><span class="o">:</span><span class="mf">1.28</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"loadSensitivitySlope"</span><span class="o">:</span><span class="mf">0.00019</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"fullLoadCoef"</span><span class="o">:</span><span class="mf">0.4</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"softnessCoef"</span><span class="o">:</span><span class="mf">0.7</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//deform values
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"wheelSideBeamDeform"</span><span class="o">:</span><span class="mi">11000</span><span class="p">,</span><span class="s2">"wheelSideBeamStrength"</span><span class="o">:</span><span class="mi">15000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelTreadBeamDeform"</span><span class="o">:</span><span class="mi">10000</span><span class="p">,</span><span class="s2">"wheelTreadBeamStrength"</span><span class="o">:</span><span class="mi">13000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"wheelPeripheryBeamDeform"</span><span class="o">:</span><span class="mi">40000</span><span class="p">,</span><span class="s2">"wheelPeripheryBeamStrength"</span><span class="o">:</span><span class="mi">40000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p>Колпаки:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pressureWheels"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span><span class="s2">"hubGroup"</span><span class="p">,</span><span class="s2">"group"</span><span class="p">,</span><span class="s2">"node1:"</span><span class="p">,</span><span class="s2">"node2:"</span><span class="p">,</span><span class="s2">"nodeS"</span><span class="p">,</span><span class="s2">"nodeArm:"</span><span class="p">,</span><span class="s2">"wheelDir"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//hubcap options
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"enableHubcaps"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapSelfCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableExtraHubcapBeams"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapOffset"</span><span class="o">:-</span><span class="mf">0.03</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapWidth"</span><span class="o">:-</span><span class="mf">0.025</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapRadius"</span><span class="o">:</span><span class="mf">0.11</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapBeamSpring"</span><span class="o">:</span><span class="mi">121000</span><span class="p">,</span> <span class="s2">"hubcapBeamDamp"</span><span class="o">:</span><span class="mi">4</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapBeamDeform"</span><span class="o">:</span><span class="mi">3500</span><span class="p">,</span> <span class="s2">"hubcapBeamStrength"</span><span class="o">:</span><span class="mi">15000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapAttachBeamSpring"</span><span class="o">:</span><span class="mi">121000</span><span class="p">,</span> <span class="s2">"hubcapAttachBeamDamp"</span><span class="o">:</span><span class="mi">8</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapAttachBeamDeform"</span><span class="o">:</span><span class="mi">1200</span><span class="p">,</span> <span class="s2">"hubcapAttachBeamStrength"</span><span class="o">:</span><span class="mi">1800</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapSupportBeamDeform"</span><span class="o">:</span><span class="mi">2500</span><span class="p">,</span> <span class="s2">"hubcapSupportBeamStrength"</span><span class="o">:</span><span class="mi">5000</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapNodeWeight"</span><span class="o">:</span><span class="mf">0.06</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapCenterNodeWeight"</span><span class="o">:</span><span class="mf">0.06</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapNodeMaterial"</span><span class="o">:</span><span class="s2">"|NM_METAL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapFrictionCoef"</span><span class="o">:</span><span class="mf">0.7</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p>Тормоза:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pressureWheels"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span><span class="s2">"hubGroup"</span><span class="p">,</span><span class="s2">"group"</span><span class="p">,</span><span class="s2">"node1:"</span><span class="p">,</span><span class="s2">"node2:"</span><span class="p">,</span><span class="s2">"nodeS"</span><span class="p">,</span><span class="s2">"nodeArm:"</span><span class="p">,</span><span class="s2">"wheelDir"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//brakes
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"brakeTorque"</span><span class="o">:</span><span class="s2">"$=$brakestrength*1350"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeInputSplit"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeSplitCoef"</span><span class="o">:</span><span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"parkingTorque"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeSpring"</span><span class="o">:</span><span class="mi">125</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//brake thermals
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"enableBrakeThermals"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeDiameter"</span><span class="o">:</span><span class="mf">0.24</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeMass"</span><span class="o">:</span><span class="mf">4.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeType"</span><span class="o">:</span><span class="s2">"vented-disc"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"rotorMaterial"</span><span class="o">:</span><span class="s2">"steel"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeVentingCoef"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//brake sounds
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"squealCoefNatural"</span><span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span><span class="s2">"squealCoefLowSpeed"</span><span class="o">:</span> <span class="mf">0.0</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>
+</div><p>Добавление колёс к автомобилю (обратите внимание, что все предыдущие значения сбрасываются в конце, чтобы не влиять на остальные колёса транспортного средства):</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="s2">"pressureWheels"</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span><span class="s2">"hubGroup"</span><span class="p">,</span><span class="s2">"group"</span><span class="p">,</span><span class="s2">"node1:"</span><span class="p">,</span><span class="s2">"node2:"</span><span class="p">,</span><span class="s2">"nodeS"</span><span class="p">,</span><span class="s2">"nodeArm:"</span><span class="p">,</span><span class="s2">"wheelDir"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//front wheels
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"collision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapBreakGroup"</span><span class="o">:</span><span class="s2">"hubcap_FR"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapGroup"</span><span class="o">:</span><span class="s2">"hubcap_FR"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"axleBeams"</span><span class="o">:</span><span class="p">[</span><span class="s2">"axle_FR"</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"FR"</span><span class="p">,</span> <span class="s2">"wheel_FR"</span><span class="p">,</span> <span class="s2">"tire_FR"</span><span class="p">,</span> <span class="s2">"fw1rr"</span><span class="p">,</span> <span class="s2">"fw1r"</span><span class="p">,</span> <span class="mi">9999</span><span class="p">,</span> <span class="s2">"fh6r"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">"torqueCoupling:"</span><span class="o">:</span><span class="s2">"fh1r"</span><span class="p">,</span><span class="s2">"torqueArm:"</span><span class="o">:</span><span class="s2">"fh2r"</span><span class="p">,</span><span class="s2">"torqueArm2:"</span><span class="o">:</span><span class="s2">"fh3r"</span><span class="p">,</span><span class="s2">"steerAxisUp:"</span><span class="o">:</span><span class="s2">"fh2r"</span><span class="p">,</span><span class="s2">"steerAxisDown:"</span><span class="o">:</span><span class="s2">"fh1r"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapBreakGroup"</span><span class="o">:</span><span class="s2">"hubcap_FL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapGroup"</span><span class="o">:</span><span class="s2">"hubcap_FL"</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"axleBeams"</span><span class="o">:</span><span class="p">[</span><span class="s2">"axle_FL"</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">"FL"</span><span class="p">,</span> <span class="s2">"wheel_FL"</span><span class="p">,</span> <span class="s2">"tire_FL"</span><span class="p">,</span> <span class="s2">"fw1ll"</span><span class="p">,</span> <span class="s2">"fw1l"</span><span class="p">,</span> <span class="mi">9999</span><span class="p">,</span> <span class="s2">"fh6l"</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">"torqueCoupling:"</span><span class="o">:</span><span class="s2">"fh1l"</span><span class="p">,</span><span class="s2">"torqueArm:"</span><span class="o">:</span><span class="s2">"fh2l"</span><span class="p">,</span><span class="s2">"torqueArm2:"</span><span class="o">:</span><span class="s2">"fh3l"</span><span class="p">,</span><span class="s2">"steerAxisUp:"</span><span class="o">:</span><span class="s2">"fh2l"</span><span class="p">,</span><span class="s2">"steerAxisDown:"</span><span class="o">:</span><span class="s2">"fh1l"</span><span class="p">}],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"selfCollision"</span><span class="o">:</span><span class="kc">true</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"axleBeams"</span><span class="o">:</span><span class="p">[]},{</span><span class="s2">"disableMeshBreaking"</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span><span class="s2">"disableTriangleBreaking"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapBreakGroup"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"hubcapGroup"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableHubcaps"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTireLbeams"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTireSideReinfBeams"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTireReinfBeams"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTreadReinfBeams"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableTirePeripheryReinfBeams"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"loadSensitivitySlope"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"noLoadCoef"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"fullLoadCoef"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"frictionCoef"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"slidingFrictionCoef"</span><span class="o">:</span><span class="s2">""</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"softnessCoef"</span><span class="o">:</span><span class="mf">0.5</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"treadCoef"</span><span class="o">:</span><span class="mf">1.0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//cancel out brake properties
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span><span class="s2">"brakeTorque"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"parkingTorque"</span><span class="o">:</span><span class="mi">0</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"enableBrakeThermals"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeDiameter"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeMass"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeType"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"rotorMaterial"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="s2">"brakeVentingCoef"</span><span class="o">:</span><span class="kc">false</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">],</span>
+</span></span></code></pre>

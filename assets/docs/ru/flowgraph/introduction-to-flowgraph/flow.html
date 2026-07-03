@@ -1,0 +1,79 @@
+<hr/>
+<h3 id="understanding-flow">
+
+  Понимание потока
+</h3>
+<p>Поток — это энергия, пульсирующая по связям вашего флоуграфа и оживляющая его.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/flow/1.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/flow/1_hu0dcced160ca4c04d8c87ddbff49c4aae_107899_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Как уже было объяснено в разделе «Нода» страницы <a data-doc="flowgraph/introduction-to-flowgraph/elements" href="/docs/flowgraph/introduction-to-flowgraph/elements">Элементы</a>
+, большинству нод необходим поток для какого-либо функционирования. Только базовые ноды, такие как нода «<em>Number</em>», дают выходной сигнал даже без потока.<br/>
+Флоуграф, не имеющий никакого входящего потока, не будет иметь функционирующих нод, и поэтому при его запуске ничего не произойдёт.<br/>
+Вот ключевая информация о потоке:</p>
+<ul>
+<li>Поток существует только во флоуграфах, но не в стейтграфах.</li>
+<li>Отправной точкой для потока является нода «<em>on Update</em>». Она передаёт поток только в том случае, если флоуграф находится в активном состоянии.</li>
+<li>Большинство нод имеют входной пин потока для активации и выходной пин потока для передачи потока к следующей ноде.</li>
+<li>Некоторые ноды имеют дополнительные выходные пины потока, которые срабатывают только тогда, когда нода завершила свою задачу.</li>
+</ul>
+<br/>
+<h4 id="constant-flow-vs-impulse-flow">
+
+  Постоянный поток vs. Импульсный поток
+</h4>
+<p>Основным источником потока в вашем флоуграфе является выходной пин потока ноды «<em>onUpdate</em>». Она активируется каждый кадр и передаёт поток всем нодам в вашем графе.<br/>
+Но, разумеется, есть вещи, которые не должны происходить постоянно, например, отображение сообщения игроку или сброс ноды.<br/>
+Простейшее решение для этого — нода «<em>Once</em>», которая пропускает постоянный поток только один раз, или, говоря более технически, только в течение одного кадра:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/flow/5.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/flow/5.png"/>
+</span></a></p>
+<p>Вы можете заметить, что выходной пин потока и пин сброса ноды «<em>Once</em>» выглядят иначе, чем обычный пин потока. Это то, что мы называем «<strong>импульсным</strong>» пином.<br/>
+Существует два способа понять импульсные пины во Flowgraph:</p>
+<ul>
+<li><strong>Выходной:</strong><br/>
+Идея выходного импульсного пина проста. Он выдаёт поток только один раз, а не постоянно.</li>
+<li><strong>Входной:</strong><br/>
+Идея входного импульсного пина немного более абстрактна.<br/>
+Он должен получать поток только в течение одного кадра. Если пин получает постоянный поток, нода не будет работать должным образом.</li>
+</ul>
+<p>Ещё один хороший пример импульсного поведения — нода «<em>Countdown</em>»:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/flow/6.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/flow/6_hu1dc1803546ead0f86794a8789077e4c2_47928_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<br/>
+<ul>
+<li><strong>Выходной пин «finished»</strong><br/>
+Выходной импульсный пин «finished» передаёт поток только один раз — по завершении работы ноды. Это удобно для запуска событий после окончания обратного отсчёта.</li>
+<li><strong>Входной пин «reset»</strong><br/>
+Входной импульсный пин «reset» теоретически мог бы получать постоянный поток, но постоянный сброс обратного отсчёта сделал бы ноду бессмысленной. Поэтому он должен получать поток только один раз — для сброса ноды при необходимости.</li>
+</ul>
+<h3 id="working-with-flow">
+
+  Работа с потоком
+</h3>
+<p>Общая идея флоуграфа — строить его слева направо и передавать поток от ноды «on Update» через весь граф.<br/>
+Эта концепция естественным образом приводит к идее цепочечного соединения нод слева направо, что обеспечивает линейную и хорошо читаемую структуру вашего флоуграфа:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/flow/2.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/flow/2.png"/>
+</span></a></p>
+<p>Также возможно разветвлять граф, поскольку количество связей, подключённых к пину, не ограничено.<br/>
+Это особенно уместно для вещей, которые логически происходят одновременно.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/flow/3.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/flow/3_hu5ef936183bfe963ba597148e15dca17c_65055_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Обратите внимание, что при построении подобных разветвлённых структур порядок выполнения различных нод не гарантирован.<br/>
+Также следует учитывать, что при установке <a data-doc="flowgraph/introduction-to-flowgraph/variables" href="/docs/flowgraph/introduction-to-flowgraph/variables">переменной</a>
+ новое значение не будет применено до следующего кадра.</p>
+<br/>
+<h3 id="debugging-flow">
+
+  Отладка потока
+</h3>
+<p>Чтобы понять, как поток распространяется по вашему флоуграфу, вы можете наблюдать за ним во время выполнения.</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/flow/4.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/flow/4.gif"/>
+</span></a></p>
+<p>Это визуализирует все активные связи, которые дают какой-либо выходной сигнал.<br/>
+Если вы хотите лучше понять, какие ноды в данный момент активны в вашем флоуграфе, переключите режим просмотра на «Heatmap». Подробнее об этой функции можно прочитать на странице <a data-doc="flowgraph/editor/windows" href="/docs/flowgraph/editor/windows">Windows</a>
+.</p>

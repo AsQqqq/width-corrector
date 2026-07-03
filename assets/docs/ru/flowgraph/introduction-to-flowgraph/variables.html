@@ -1,0 +1,187 @@
+<hr/>
+<h3 id="general">
+
+  Общее
+</h3>
+<p>Переменные можно использовать для хранения данных внутри графа или всего проекта Flowgraph.<br/>
+Просмотреть их можно в окне «Variables»:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/variables/1.png" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/variables/1_huaee27624532377857e61473af20a091b_45007_0x300_resize_q85_bgfff_box_3.jpg"/>
+</span></a></p>
+<p>Основные разделы:</p>
+<ul>
+<li><strong>Current Graph:</strong><br/>
+Переменные доступны только в текущем просматриваемом графе.</li>
+<li><strong>Manager Variables:</strong><br/>
+Переменные доступны во всём проекте Flowgraph.</li>
+</ul>
+<p>Переменные могут иметь те же типы, что и пины, за исключением таких типов, как «Table» и «Flow».<br/>
+Использовать переменные в flowgraph можно с помощью нод «Get» и «Set». Создать их можно несколькими способами:</p>
+<ul>
+<li>
+<p>Нажав кнопки <kbd>Getter</kbd> или <kbd>Setter</kbd> в окне «Variables».</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/variables/2.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/variables/2.gif"/>
+</span></a></p>
+</li>
+<li>
+<p>Использовав любой другой доступный способ создания нод:</p>
+<p><a class="block button media-show media-image-single" data-type="image" href="https://documentation.beamng.com/modding/flowgraph/introduction-to-flowgraph/variables/3.gif" rel="noopener" target="_blank"><span>
+<img alt="" loading="lazy" src="/docassets/img/modding/flowgraph/introduction-to-flowgraph/variables/3.gif"/>
+</span></a></p>
+</li>
+</ul>
+<br/>
+<h3 id="things-to-look-out-for">
+
+  На что обратить внимание
+</h3>
+<br/>
+<h4 id="frame-delay">
+
+  Задержка кадра
+</h4>
+<p>Важно помнить, что при работе с переменными их значения фактически устанавливаются лишь в конце кадра. Это означает, что если вы задали переменную в начале графа и попытаетесь получить это новое значение позже, там всё ещё будет предыдущее значение переменной — если оно было.<br/>
+Пример-проект «Variables» демонстрирует, как справляться с подобной проблемой.<br/>
+Если есть переменные или общие значения, которые нужно передавать между состояниями, можно воспользоваться переходными переменными (transition variables). Подробнее о них можно прочитать на странице <a data-doc="flowgraph/introduction-to-flowgraph/elements" href="/docs/flowgraph/introduction-to-flowgraph/elements">Elements</a>
+.</p>
+<br/>
+<h4 id="multiple-setters">
+
+  Несколько сеттеров
+</h4>
+<p>Ещё одна особенность, о которой следует помнить при работе с переменными, — это установка переменной несколько раз за один кадр.<br/>
+Поскольку Flowgraph допускает наличие нескольких активных состояний и ветвление в целом, порядок, в котором будут установлены значения переменной, не гарантируется. Это может привести к нежелательному поведению, поэтому мы не рекомендуем использовать переменные таким образом.</p>
+<p>Чтобы дать вам больше контроля над поведением переменной в подобной ситуации, в окне «Variables» можно выбрать различные варианты «Merging».<br/>
+Доступные варианты поведения зависят от типа переменной.</p>
+<div class="bng-table" id="var"><div class="bng-table-header"><div>Тип</div><div>Вариант</div><div>Результат</div></div>
+<div class="bng-table-row"><div>
+<div>Тип</div>
+<div style="color:#ff6600;text-align:left;">Generic</div>
+</div><div>
+<div>Вариант</div>
+<div style="text-align:left;height:4rem;">readOnly</div>
+</div><div>
+<div>Результат</div>
+<div style="text-align:left;font-style:italic">Переменная не может получить новое значение от ноды Setter — только константные значения через окно Variables.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Вариант</div>
+<div style="text-align:left;height:4rem;">first</div>
+</div><div>
+<div>Результат</div>
+<div style="text-align:left;font-style:italic">Первое установленное значение станет новым значением переменной.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Вариант</div>
+<div style="text-align:left;height:4rem;">last</div>
+</div><div>
+<div>Результат</div>
+<div style="text-align:left;font-style:italic">Последнее установленное значение станет новым значением переменной.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип</div>
+<div style="color:#ff6600;text-align:left;">Number</div>
+</div><div>
+<div>Вариант</div>
+<div style="text-align:left;height:4rem;">min</div>
+</div><div>
+<div>Результат</div>
+<div style="text-align:left;font-style:italic">Наименьшее из значений станет новым значением переменной.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Вариант</div>
+<div style="text-align:left;height:4rem;">max</div>
+</div><div>
+<div>Результат</div>
+<div style="text-align:left;font-style:italic">Наибольшее из значений станет новым значением переменной.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Вариант</div>
+<div style="text-align:left;height:4rem;">average</div>
+</div><div>
+<div>Результат</div>
+<div style="text-align:left;font-style:italic">Среднее арифметическое всех значений станет новым значением переменной.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Вариант</div>
+<div style="text-align:left;height:4rem;">sum</div>
+</div><div>
+<div>Результат</div>
+<div style="text-align:left;font-style:italic">Сумма всех значений станет новым значением переменной.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип</div>
+<div style="color:#ff6600;text-align:left;">Bool</div>
+</div><div>
+<div>Вариант</div>
+<div style="text-align:left;height:4rem;">or</div>
+</div><div>
+<div>Результат</div>
+<div style="text-align:left;font-style:italic">Логическое ИЛИ всех установленных значений станет новым значением переменной.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Вариант</div>
+<div style="text-align:left;height:4rem;">and</div>
+</div><div>
+<div>Результат</div>
+<div style="text-align:left;font-style:italic">Логическое И всех установленных значений станет новым значением переменной.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип</div>
+<div style="color:#ff6600;text-align:left;">String</div>
+</div><div>
+<div>Вариант</div>
+<div style="text-align:left;height:4rem;">concat</div>
+</div><div>
+<div>Результат</div>
+<div style="text-align:left;font-style:italic">Все установленные значения будут конкатенированы напрямую.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Вариант</div>
+<div style="text-align:left;height:4rem;">concatComma</div>
+</div><div>
+<div>Результат</div>
+<div style="text-align:left;font-style:italic">Все установленные значения будут конкатенированы с запятой в качестве разделителя.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Вариант</div>
+<div style="text-align:left;height:4rem;">concatSpace</div>
+</div><div>
+<div>Результат</div>
+<div style="text-align:left;font-style:italic">Все установленные значения будут конкатенированы с пробелом в качестве разделителя.</div>
+</div></div>
+<div class="bng-table-row"><div>
+<div>Тип</div>
+<div style="color:#ff6600;text-align:left;"></div>
+</div><div>
+<div>Вариант</div>
+<div style="text-align:left;height:4rem;">concatNewline</div>
+</div><div>
+<div>Результат</div>
+<div style="text-align:left;font-style:italic">Все установленные значения будут конкатенированы с переносом строки в качестве разделителя.</div>
+</div></div></div>

@@ -1,0 +1,800 @@
+<p>В этом документе описывается файл <code>info.json</code>, используемый уровнями BeamNG.</p>
+<p><code>info.json</code> — основной файл метаданных уровня. Он используется селектором уровней, логикой загрузки, интерфейсом точек спауна, системами большой карты и POI, пресетами окружения, системами трафика и геймплея, отображением миникарты, а также частичной логикой геймплея, зависящей от региона.</p>
+<p>Он <strong>не</strong> хранит геометрию уровня. Объекты сцены хранятся отдельно в таких файлах, как <code>main/items.level.json</code>.</p>
+<hr/>
+<h2 id="file-location">
+
+  Расположение файла
+</h2>
+<p>Каждый уровень должен содержать файл <code>info.json</code> в корневой папке уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/info.json
+</span></span></code></pre>
+</div><p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/west_coast_usa/info.json
+</span></span></code></pre>
+</div><p>Если файл <code>info.json</code> отсутствует, уровень всё равно может быть обнаружен при наличии допустимой точки входа, однако метаданные интерфейса будут неполными и в журнал могут быть записаны предупреждения.</p>
+<hr/>
+<h2 id="level-discovery">
+
+  Обнаружение уровней
+</h2>
+<p>Менеджер уровней сканирует:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/levels/
+</span></span></code></pre>
+</div><p>Каждая директория рассматривается как потенциальный уровень.</p>
+<p>Уровень считается работоспособным, если загрузчик может найти допустимую точку входа. Предпочтительный формат — папка дерева сцены <code>main/</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/main/
+</span></span></code></pre>
+</div><p>Старые точки входа, такие как файлы <code>.mis</code> или <code>.level.json</code>, могут по-прежнему поддерживаться для обратной совместимости, однако современные уровни должны использовать структуру папки <code>main/</code>.</p>
+<p>В процессе обнаружения загрузчик читает <code>info.json</code>, добавляет метаданные времени выполнения, разрешает пути к превью, обрабатывает данные точек спауна и применяет значения по умолчанию для отсутствующих необязательных полей.</p>
+<hr/>
+<h2 id="basic-structure">
+
+  Базовая структура
+</h2>
+<p>Упрощённый файл <code>info.json</code>:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"levels.example.info.title"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.info.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"authors"</span><span class="p">:</span> <span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"defaultSpawnPointName"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"country"</span><span class="p">:</span> <span class="s2">"levels.common.country.usa"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"region"</span><span class="p">:</span> <span class="s2">"northAmerica"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"size"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2048</span><span class="p">,</span> <span class="mi">2048</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"previews"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"preview.jpg"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"spawnPoints"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.default.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_default.jpg"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="common-fields">
+
+  Основные поля
+</h2>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>title</code></td>
+<td>string</td>
+<td>Название уровня. Обычно идентификатор перевода.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>string</td>
+<td>Описание уровня. Обычно идентификатор перевода.</td>
+</tr>
+<tr>
+<td><code>authors</code></td>
+<td>string</td>
+<td>Имя автора или авторов.</td>
+</tr>
+<tr>
+<td><code>features</code></td>
+<td>string</td>
+<td>Идентификатор перевода или строка, описывающая особенности уровня.</td>
+</tr>
+<tr>
+<td><code>suitablefor</code></td>
+<td>string</td>
+<td>Идентификатор перевода или строка, описывающая, для чего подходит уровень.</td>
+</tr>
+<tr>
+<td><code>roads</code></td>
+<td>string</td>
+<td>Идентификатор перевода или строка, описывающая дорожную сеть или типы дорог.</td>
+</tr>
+<tr>
+<td><code>biome</code></td>
+<td>string</td>
+<td>Идентификатор перевода или строка, описывающая биом/тип окружения.</td>
+</tr>
+<tr>
+<td><code>country</code></td>
+<td>string</td>
+<td>Идентификатор перевода страны.</td>
+</tr>
+<tr>
+<td><code>region</code></td>
+<td>string</td>
+<td>Идентификатор региона, например <code>northAmerica</code>.</td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td>array[2]</td>
+<td>Приблизительный размер уровня в метрах, обычно <code>[width, height]</code>.</td>
+</tr>
+<tr>
+<td><code>defaultSpawnPointName</code></td>
+<td>string</td>
+<td>Имя объекта точки спауна по умолчанию.</td>
+</tr>
+<tr>
+<td><code>previews</code></td>
+<td>array[string]</td>
+<td>Пути к превью-изображениям уровня относительно папки уровня.</td>
+</tr>
+<tr>
+<td><code>spawnPoints</code></td>
+<td>array[object]</td>
+<td>Метаданные точек спауна, отображаемые в интерфейсе и на большой карте.</td>
+</tr>
+<tr>
+<td><code>minimap</code></td>
+<td>array[object]</td>
+<td>Определения тайлов изображений миникарты.</td>
+</tr>
+<tr>
+<td><code>roadRules</code></td>
+<td>object</td>
+<td>Метаданные правил дорожного движения для уровня.</td>
+</tr>
+<tr>
+<td><code>localUnits</code></td>
+<td>object</td>
+<td>Предпочтения локальных единиц измерения, используемые системами геймплея и интерфейса.</td>
+</tr>
+<tr>
+<td><code>supportsTraffic</code></td>
+<td>bool</td>
+<td>Поддерживает ли уровень трафик. По умолчанию <code>true</code>, если не указано.</td>
+</tr>
+<tr>
+<td><code>supportsTimeOfDay</code></td>
+<td>bool</td>
+<td>Поддерживает ли уровень параметры времени суток. По умолчанию <code>true</code>, если не указано.</td>
+</tr>
+<tr>
+<td><code>timeOfDayPresets</code></td>
+<td>array[object]</td>
+<td>Необязательные пресеты времени суток для данного уровня.</td>
+</tr>
+<tr>
+<td><code>excludeDefaultTimeOfDayOptions</code></td>
+<td>bool</td>
+<td>Если true, стандартные пресеты времени суток не добавляются.</td>
+</tr>
+<tr>
+<td><code>isAuxiliary</code></td>
+<td>bool</td>
+<td>Помечает уровень как вспомогательный/внутренний в зависимости от контекста использования в интерфейсе.</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="translation-ids">
+
+  Идентификаторы перевода
+</h2>
+<p>Большинство текстовых полей, отображаемых пользователю, должны использовать идентификаторы перевода вместо жёстко заданного текста.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"title"</span><span class="err">:</span> <span class="s2">"levels.west_coast_usa.info.title"</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">"description"</span><span class="err">:</span> <span class="s2">"levels.west_coast_usa.info.description"</span>
+</span></span></code></pre>
+</div><p>Это позволяет интерфейсу локализовать названия уровней, описания, имена точек спауна и другие тексты.</p>
+<p>К часто переводимым полям относятся:</p>
+<ul>
+<li><code>title</code></li>
+<li><code>description</code></li>
+<li><code>features</code></li>
+<li><code>suitablefor</code></li>
+<li><code>roads</code></li>
+<li><code>biome</code></li>
+<li><code>country</code></li>
+<li><code>spawnPoints[].translationId</code></li>
+<li><code>spawnPoints[].description</code></li>
+<li><code>spawnPoints[].logbookEntry</code></li>
+</ul>
+<hr/>
+<h2 id="preview-images">
+
+  Превью-изображения
+</h2>
+<p>Массив <code>previews</code> определяет превью-изображения уровня.</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"previews"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"spawns_industrial.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"west_coast_usa_preview1.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">"west_coast_usa_preview2.jpg"</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div><p>Пути указываются относительно папки уровня. При загрузке они преобразуются в полные виртуальные пути.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">"west_coast_usa_preview1.jpg"
+</span></span></code></pre>
+</div><p>становится:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/levels/west_coast_usa/west_coast_usa_preview1.jpg
+</span></span></code></pre>
+</div><p>Первое превью-изображение, как правило, используется в качестве основной миниатюры уровня.</p>
+<p>Если массив <code>previews</code> отсутствует или пуст, система пытается найти резервные пути к превью из точки входа уровня.</p>
+<hr/>
+<h2 id="spawn-points">
+
+  Точки спауна
+</h2>
+<p>Массив <code>spawnPoints</code> определяет варианты спауна, отображаемые в интерфейсе и на большой карте.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"spawnPoints"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.west_coast_usa.spawnpoints.industrial"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.west_coast_usa.spawnpoints.industrial.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"logbookEntry"</span><span class="p">:</span> <span class="s2">"levels.west_coast_usa.spawnpoints.industrial.logbookEntry"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_industrial"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_industrial.jpg"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div>
+<h3 id="spawn-point-fields">
+
+  Поля точки спауна
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>translationId</code></td>
+<td>string</td>
+<td>Идентификатор перевода отображаемого имени точки спауна.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>string</td>
+<td>Идентификатор перевода описания точки спауна.</td>
+</tr>
+<tr>
+<td><code>logbookEntry</code></td>
+<td>string</td>
+<td>Необязательный идентификатор перевода текста журнала/открытия.</td>
+</tr>
+<tr>
+<td><code>objectname</code></td>
+<td>string</td>
+<td>Имя объекта сцены, используемого в качестве трансформа спауна.</td>
+</tr>
+<tr>
+<td><code>preview</code></td>
+<td>string</td>
+<td>Путь к превью-изображению относительно папки уровня.</td>
+</tr>
+<tr>
+<td><code>previews</code></td>
+<td>array[string]</td>
+<td>Необязательный список превью-изображений. Генерируется автоматически, если используется только <code>preview</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Значение <code>objectname</code> должно соответствовать объекту уровня, как правило <code>SpawnSphere</code>.</p>
+<p>Пример объекта сцены:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">"class"</span><span class="p">:</span><span class="s2">"SpawnSphere"</span><span class="p">,</span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"spawns_industrial"</span><span class="p">,</span><span class="nt">"position"</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="nt">"rotationMatrix"</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="default-spawn-point">
+
+  Точка спауна по умолчанию
+</h2>
+<p>Точка спауна по умолчанию выбирается с помощью:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"defaultSpawnPointName"</span><span class="err">:</span> <span class="s2">"spawns_industrial"</span>
+</span></span></code></pre>
+</div><p>Значение должно соответствовать одному из значений <code>spawnPoints[].objectname</code>.</p>
+<p>Когда точка спауна совпадает с <code>defaultSpawnPointName</code>, она внутренне помечается как спаун по умолчанию и получает основной список превью уровня.</p>
+<p>Если совпадающая точка спауна не найдена, загрузчик вставляет резервную запись спауна по умолчанию, используя превью-изображения уровня.</p>
+<hr/>
+<h2 id="spawn-point-pois">
+
+  POI точек спауна
+</h2>
+<p>Точки спауна могут отображаться как POI на большой карте.</p>
+<p>Для каждой точки спауна с полем <code>objectname</code> система находит соответствующий объект сцены и использует его позицию в качестве положения маркера.</p>
+<p>Если объект не найден, в журнал может быть записана ошибка.</p>
+<hr/>
+<h2 id="minimap">
+
+  Миникарта
+</h2>
+<p>Массив <code>minimap</code> определяет один или несколько тайлов изображений миникарты.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"minimap"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"file"</span><span class="p">:</span> <span class="s2">"minimap/terrain.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"size"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2048</span><span class="p">,</span> <span class="mi">2048</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"offset"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"file"</span><span class="p">:</span> <span class="s2">"minimap/island.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"size"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">2048</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"offset"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-1536</span><span class="p">,</span> <span class="mi">3072</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div>
+<h3 id="minimap-fields">
+
+  Поля миникарты
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file</code></td>
+<td>string</td>
+<td>Путь к изображению миникарты относительно папки уровня.</td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td>array[2]</td>
+<td>Размер тайла в единицах мира/карты.</td>
+</tr>
+<tr>
+<td><code>offset</code></td>
+<td>array[2]</td>
+<td>Смещение тайла в единицах мира/карты.</td>
+</tr>
+</tbody>
+</table>
+<p>При загрузке к пути <code>file</code> добавляется префикс директории уровня.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">minimap/terrain.png
+</span></span></code></pre>
+</div><p>становится:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">/levels/west_coast_usa/minimap/terrain.png
+</span></span></code></pre>
+</div><div class="bng-notice warning">Файл <code>info.json</code> должен быть валидным JSON. Не используйте завершающие запятые в записях миникарты и в любых других местах файла.</div>
+<hr/>
+<h2 id="road-rules">
+
+  Правила дорожного движения
+</h2>
+<p>Объект <code>roadRules</code> хранит специфичные для уровня правила дорожного движения, используемые навигацией, ИИ и системами трафика.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"roadRules"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rightHandDrive"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"turnOnRed"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Если <code>roadRules</code> отсутствует, применяются значения по умолчанию:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rightHandDrive"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"turnOnRed"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="supported-road-rule-fields">
+
+  Поддерживаемые поля правил дорожного движения
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>По умолчанию</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rightHandDrive</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Управляет предположениями о стороне полосы при генерации или интерпретации данных полос. <code>false</code> означает правостороннее движение, <code>true</code> — левостороннее движение.</td>
+</tr>
+<tr>
+<td><code>turnOnRed</code></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td>Указывает, разрешён ли поворот на красный свет для данного уровня. Используется логикой трафика и навигации там, где применимо.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="righthanddrive">
+
+  rightHandDrive
+</h3>
+<p><code>rightHandDrive</code> влияет на то, как граф навигации интерпретирует/генерирует направления полос.</p>
+<p>Внутренне направления полос представлены строками:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">+ = lane direction from inNode to outNode
+</span></span><span class="line"><span class="cl">- = lane direction from outNode to inNode
+</span></span></code></pre>
+</div><p>Для двусторонних дорог порядок полос зависит от того, используется ли на уровне правостороннее или левостороннее движение.</p>
+<p>Используйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"rightHandDrive"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre>
+</div><p>для регионов с правосторонним движением.</p>
+<p>Используйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"rightHandDrive"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>для регионов с левосторонним движением.</p>
+<div class="bng-notice info"><code>rightHandDrive</code> не изменяет геометрию дорог визуально. Это поле влияет на навигацию/интерпретацию полос и автоматическую генерацию полос.</div>
+<hr/>
+<h2 id="local-units">
+
+  Локальные единицы измерения
+</h2>
+<p>Объект <code>localUnits</code> определяет специфичные для уровня предпочтения единиц измерения, используемые системами геймплея и интерфейса.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"localUnits"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gasoline"</span><span class="p">:</span> <span class="s2">"gallonUS"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"diesel"</span><span class="p">:</span> <span class="s2">"gallonUS"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>В настоящее время это используется такими системами, как логика отображения цен на топливо. Внутренне цены могут храниться в метрических единицах, тогда как объекты отображения могут преобразовывать значения в зависимости от настроек локальных единиц уровня.</p>
+<p>Например:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"gasoline"</span><span class="err">:</span> <span class="s2">"gallonUS"</span>
+</span></span></code></pre>
+</div><p>позволяет вывескам с ценами на бензин использовать американские галлоны.</p>
+<h3 id="supported-fuel-unit-example">
+
+  Пример поддерживаемых единиц топлива
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Значение</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gasoline</code></td>
+<td><code>gallonUS</code></td>
+<td>Отображать значения, связанные с бензином, в американских галлонах.</td>
+</tr>
+<tr>
+<td><code>diesel</code></td>
+<td><code>gallonUS</code></td>
+<td>Отображать значения, связанные с дизелем, в американских галлонах.</td>
+</tr>
+</tbody>
+</table>
+<p>Если переопределение локальных единиц не задано, системы используют поведение по умолчанию.</p>
+<div class="bng-notice note"><code>localUnits</code> влияет на представление данных и логику геймплея/интерфейса. По возможности это значение должно соответствовать реальному региону, представленному уровнем.</div>
+<hr/>
+<h2 id="traffic-support">
+
+  Поддержка трафика
+</h2>
+<p>Если <code>supportsTraffic</code> не указан, по умолчанию применяется:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"supportsTraffic"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Установите значение <code>false</code>, если уровень не должен использовать системы, связанные с трафиком.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"supportsTraffic"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="time-of-day-support">
+
+  Поддержка времени суток
+</h2>
+<p>Если <code>supportsTimeOfDay</code> не указан, по умолчанию применяется:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"supportsTimeOfDay"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Установите значение <code>false</code>, если уровень не должен предоставлять параметры времени суток.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"supportsTimeOfDay"</span><span class="err">:</span> <span class="kc">false</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="time-of-day-presets">
+
+  Пресеты времени суток
+</h2>
+<p>Уровни могут определять пользовательские пресеты времени суток.</p>
+<p>Пример:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"timeOfDayPresets"</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"key"</span><span class="p">:</span> <span class="s2">"sunrise"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"value"</span><span class="p">:</span> <span class="mf">0.23</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"label"</span><span class="p">:</span> <span class="s2">"ui.environment.time.sunrise"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"key"</span><span class="p">:</span> <span class="s2">"noon"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"value"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"label"</span><span class="p">:</span> <span class="s2">"ui.environment.time.noon"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre>
+</div>
+<h3 id="preset-fields">
+
+  Поля пресета
+</h3>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Тип</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>key</code></td>
+<td>string</td>
+<td>Уникальный ключ пресета.</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td>number</td>
+<td>Значение времени, используемое системой окружения.</td>
+</tr>
+<tr>
+<td><code>label</code></td>
+<td>string</td>
+<td>Отображаемая метка или идентификатор перевода.</td>
+</tr>
+</tbody>
+</table>
+<p>По умолчанию игра запускается с набором стандартных пресетов времени суток, после чего применяет или переопределяет специфичные для уровня пресеты.</p>
+<p>Чтобы исключить стандартные пресеты:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"excludeDefaultTimeOfDayOptions"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Если это поле задано, предоставьте собственные <code>timeOfDayPresets</code>, иначе у уровня может не быть доступных для выбора вариантов времени суток.</p>
+<hr/>
+<h2 id="auxiliary-levels">
+
+  Вспомогательные уровни
+</h2>
+<p>В более старых метаданных может использоваться:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"hidden"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Это поле устарело.</p>
+<p>Используйте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"isAuxiliary"</span><span class="err">:</span> <span class="kc">true</span>
+</span></span></code></pre>
+</div><p>Если обнаружено поле <code>hidden</code>, загрузчик сопоставляет его с <code>isAuxiliary</code> для обратной совместимости и записывает предупреждение.</p>
+<hr/>
+<h2 id="full-example">
+
+  Полный пример
+</h2>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"features"</span><span class="p">:</span> <span class="s2">"levels.example.info.features"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"suitablefor"</span><span class="p">:</span> <span class="s2">"levels.example.info.suitablefor"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"authors"</span><span class="p">:</span> <span class="s2">"BeamNG"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"roads"</span><span class="p">:</span> <span class="s2">"levels.example.info.roads"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"title"</span><span class="p">:</span> <span class="s2">"levels.example.info.title"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.info.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"defaultSpawnPointName"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"country"</span><span class="p">:</span> <span class="s2">"levels.common.country.usa"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"region"</span><span class="p">:</span> <span class="s2">"northAmerica"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"biome"</span><span class="p">:</span> <span class="s2">"levels.example.info.biome"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"size"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2048</span><span class="p">,</span> <span class="mi">2048</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"localUnits"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"gasoline"</span><span class="p">:</span> <span class="s2">"gallonUS"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"diesel"</span><span class="p">:</span> <span class="s2">"gallonUS"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"previews"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"preview.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">"preview_1.jpg"</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"spawnPoints"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"translationId"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.default.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"logbookEntry"</span><span class="p">:</span> <span class="s2">"levels.example.spawnpoints.default.logbookEntry"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"objectname"</span><span class="p">:</span> <span class="s2">"spawns_default"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"spawns_default.jpg"</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"roadRules"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"rightHandDrive"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">"turnOnRed"</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"supportsTraffic"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"supportsTimeOfDay"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"minimap"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"file"</span><span class="p">:</span> <span class="s2">"minimap/terrain.png"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"size"</span><span class="p">:</span> <span class="p">[</span><span class="mi">2048</span><span class="p">,</span> <span class="mi">2048</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"offset"</span><span class="p">:</span> <span class="p">[</span><span class="mi">-1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><hr/>
+<h2 id="loading-behavior">
+
+  Поведение при загрузке
+</h2>
+<p>При формировании списка уровней менеджер уровней:</p>
+<ol>
+<li>Сканирует <code>/levels/</code>.</li>
+<li>Находит допустимые директории уровней.</li>
+<li>Определяет точку входа уровня.</li>
+<li>Читает <code>info.json</code>.</li>
+<li>Добавляет метаданные модов/официального контента.</li>
+<li>Добавляет поля путей времени выполнения.</li>
+<li>Добавляет префикс директории уровня к путям превью.</li>
+<li>Обрабатывает превью точек спауна.</li>
+<li>Помечает точку спауна по умолчанию, если она найдена.</li>
+<li>Добавляет резервную точку спауна по умолчанию при необходимости.</li>
+<li>Добавляет префикс к путям файлов миникарты.</li>
+<li>Применяет значения по умолчанию для отсутствующих флагов поддержки.</li>
+</ol>
+<hr/>
+<h2 id="best-practices">
+
+  Рекомендации
+</h2>
+<ul>
+<li>Всегда включайте <code>info.json</code> в корень уровня.</li>
+<li>Используйте идентификаторы перевода для текстов, отображаемых в интерфейсе.</li>
+<li>Предоставьте хотя бы одно превью-изображение.</li>
+<li>Убедитесь, что пути к превью указаны относительно папки уровня.</li>
+<li>Убедитесь, что <code>defaultSpawnPointName</code> соответствует допустимому объекту точки спауна.</li>
+<li>Сохраняйте стабильными значения <code>objectname</code> точек спауна после их использования в данных геймплея/карьеры.</li>
+<li>Используйте <code>roadRules</code> в соответствии с реальной стороной движения в регионе.</li>
+<li>Используйте <code>localUnits</code> для регионального отображения единиц измерения.</li>
+<li>Избегайте устаревшего поля <code>hidden</code>; используйте <code>isAuxiliary</code>.</li>
+<li>Проверяйте синтаксис JSON перед выпуском.</li>
+<li>Не используйте завершающие запятые.</li>
+<li>Предоставьте данные миникарты, если уровень поддерживает отображение карты/большой карты.</li>
+<li>Устанавливайте <code>supportsTraffic</code> или <code>supportsTimeOfDay</code> в <code>false</code> только тогда, когда соответствующие системы не поддерживаются.</li>
+</ul>
+<hr/>
+<h2 id="common-issues">
+
+  Распространённые проблемы
+</h2>
+<h3 id="level-appears-with-folder-name-instead-of-title">
+
+  Уровень отображается с именем папки вместо названия
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Отсутствует поле <code>title</code></li>
+<li>Недопустимый идентификатор перевода</li>
+<li>Отсутствующий или недопустимый файл <code>info.json</code></li>
+</ul>
+<h3 id="preview-image-missing">
+
+  Превью-изображение отсутствует
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Неверный путь</li>
+<li>Изображение не включено</li>
+<li>Массив <code>previews</code> пуст</li>
+<li>Недопустимое имя файла или расширение</li>
+</ul>
+<h3 id="spawn-point-does-not-work">
+
+  Точка спауна не работает
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li><code>objectname</code> не соответствует объекту сцены</li>
+<li>Объект спауна отсутствует в <code>items.level.json</code></li>
+<li><code>defaultSpawnPointName</code> не совпадает ни с одной точкой спауна</li>
+<li>Объект точки спауна существует, но не загружен</li>
+</ul>
+<h3 id="big-map-spawn-poi-missing">
+
+  POI спауна на большой карте отсутствует
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>У точки спауна нет поля <code>objectname</code></li>
+<li>Указанный объект не найден</li>
+<li>Точка спауна не открыта в режиме карьеры там, где это применимо</li>
+</ul>
+<h3 id="minimap-tile-missing">
+
+  Тайл миникарты отсутствует
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li>Неверный путь в поле <code>file</code></li>
+<li>Отсутствующий файл изображения</li>
+<li>Недопустимая запись миникарты</li>
+<li>Недопустимый JSON из-за завершающей запятой</li>
+</ul>
+<h3 id="time-of-day-options-missing">
+
+  Параметры времени суток отсутствуют
+</h3>
+<p>Возможные причины:</p>
+<ul>
+<li><code>supportsTimeOfDay</code> имеет значение <code>false</code></li>
+<li><code>excludeDefaultTimeOfDayOptions</code> имеет значение true и пользовательские пресеты не заданы</li>
+</ul>
+<h3 id="lane-behavior-feels-wrong">
+
+  Поведение полос ощущается неправильным
+</h3>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"roadRules"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"rightHandDrive"</span><span class="p">:</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Используйте правильное значение для стороны движения, представленной уровнем.</p>
+<h3 id="fuel-price-display-uses-wrong-units">
+
+  Отображение цены на топливо использует неверные единицы
+</h3>
+<p>Проверьте:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">"localUnits"</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"gasoline"</span><span class="p">:</span> <span class="s2">"gallonUS"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"diesel"</span><span class="p">:</span> <span class="s2">"gallonUS"</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Задавайте переопределения локальных единиц только тогда, когда этого требует регион уровня.</p>
+<hr/>
+<h2 id="summary">
+
+  Итог
+</h2>
+<p><code>info.json</code> — основной файл метаданных уровня.</p>
+<p>Он определяет:</p>
+<ul>
+<li>Название и описание в интерфейсе</li>
+<li>Метаданные автора и региона</li>
+<li>Превью-изображения</li>
+<li>Метаданные точек спауна</li>
+<li>Точку спауна по умолчанию</li>
+<li>Тайлы миникарты</li>
+<li>Правила дорожного движения</li>
+<li>Предпочтения локальных единиц измерения</li>
+<li>Поддержку трафика</li>
+<li>Поддержку и пресеты времени суток</li>
+</ul>
+<p>Полный и валидный файл <code>info.json</code> необходим для корректного обнаружения уровня, отображения в интерфейсе, спауна, поддержки миникарты и интеграции с геймплеем.</p>

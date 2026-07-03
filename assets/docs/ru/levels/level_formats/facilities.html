@@ -1,0 +1,497 @@
+<p>На этой странице описаны файлы объектов уровня (facilities).</p>
+<p>Объекты (facilities) определяют именованные игровые локации: гаражи, заправочные станции, автосалоны, компьютеры, частных продавцов, службы доставки и трассы для дрэг-рейсинга. Они придают игровой смысл местам на уровне; пространственные данные при этом обычно берутся из файлов <code>.sites.json</code> и объектов сцены.</p>
+<p>Информацию об установке заправочных и зарядных станций см. в разделе <a data-doc="levels/fuelstations" href="/docs/levels/fuelstations">Fuel Stations</a>
+.</p>
+<h2 id="file-locations">
+
+  Расположение файлов
+</h2>
+<p>Данные об объектах могут читаться из файла <code>info.json</code> уровня, а также из файлов объектов в папке <code>facilities</code> уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/info.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/*.facilities.json
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/**/*.facilities.json
+</span></span></code></pre>
+</div><p>Примеры:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/west_coast_usa/facilities/facilities.facilities.json
+</span></span><span class="line"><span class="cl">levels/west_coast_usa/facilities/dealerships.facilities.json
+</span></span><span class="line"><span class="cl">levels/west_coast_usa/facilities/delivery/shops.facilities.json
+</span></span></code></pre>
+</div><p>Некоторые папки функций также могут содержать файлы, подобные файлам объектов, для своих собственных систем — например, файлы объектов трасс для дрэг-рейсинга. Воспринимайте их как данные, специфичные для конкретной функции, если только они не используются в системе объектов уровня.</p>
+<h2 id="loading-behavior">
+
+  Поведение при загрузке
+</h2>
+<p>Система объектов формирует список объектов для текущего уровня, считывая:</p>
+<ol>
+<li>Файл <code>info.json</code> уровня.</li>
+<li>Все файлы <code>*.facilities.json</code> в папке <code>levels/&lt;levelName&gt;/facilities/</code>, включая вложенные подпапки.</li>
+</ol>
+<p>Это означает, что уровень может хранить простые записи объектов в <code>info.json</code>, а более крупные наборы функций выносить в отдельные файлы:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">facilities.facilities.json
+</span></span><span class="line"><span class="cl">dealerships.facilities.json
+</span></span><span class="line"><span class="cl">delivery/shops.facilities.json
+</span></span><span class="line"><span class="cl">delivery/warehouses.facilities.json
+</span></span></code></pre>
+</div><p>Разделение файлов удобно, когда разные системы или разработчики отвечают за разные типы объектов. Идентификаторы объектов по-прежнему должны быть стабильными и уникальными в пределах своего типа после загрузки всех файлов.</p>
+<h2 id="creating-facility-files">
+
+  Создание файлов объектов
+</h2>
+<p>Универсального редактора для всех типов объектов не существует. Рекомендуемый рабочий процесс: создайте пространственные данные в World Editor, затем напишите или отредактируйте JSON объекта, который ссылается на эти пространственные данные.</p>
+<p>Для большинства типов объектов:</p>
+<ol>
+<li>Создайте или выберите объекты сцены, используемые объектом, — например, игровые зоны, точки интереса (POI), двери, насосы или видимые вывески.</li>
+<li>Создайте необходимые зоны и парковочные места в файле <code>.sites.json</code> — обычно это <code>facilities.sites.json</code> или соседний файл сайтов конкретной функции.</li>
+<li>Создайте или отредактируйте файл <code>*.facilities.json</code> в папке <code>levels/&lt;levelName&gt;/facilities/</code>.</li>
+<li>Добавьте запись объекта в нужный массив верхнего уровня: <code>garages</code>, <code>dealerships</code> или <code>deliveryProviders</code>.</li>
+<li>Укажите ссылки на файл сайтов, имена зон, имена парковочных мест и имена объектов сцены.</li>
+<li>Перезагрузите уровень или перезагрузите игровую систему, использующую данный объект.</li>
+<li>Протестируйте объект в режиме свободной езды, карьере, на большой карте или в пользовательском интерфейсе конкретной функции.</li>
+</ol>
+<p>Используйте специализированный редактор или страницу функции там, где они есть. Например, заправочные станции имеют выделенный процесс настройки, а трассы для дрэг-рейсинга рекомендуется поддерживать через инструменты дрэг-рейсинга там, где это возможно.</p>
+<h2 id="writing-facility-files-by-hand">
+
+  Написание файлов объектов вручную
+</h2>
+<p>При написании вручную начинайте с минимально допустимой записи и добавляйте поля, специфичные для функции, только после того, как объект появится в игре.</p>
+<p>Рекомендуемый порядок:</p>
+<ol>
+<li>Добавьте <code>id</code>, <code>name</code>, <code>description</code> и <code>preview</code>.</li>
+<li>Добавьте <code>sitesFile</code>, <code>zoneNames</code> и <code>parkingSpotNames</code>.</li>
+<li>Убедитесь, что объект обнаруживается и имеет пригодную позицию.</li>
+<li>Добавьте поля, специфичные для типа: фильтры автосалона, двери, метаданные доставки или данные насосов заправочной станции.</li>
+<li>Протестируйте функцию, использующую эти поля.</li>
+</ol>
+<p>Избегайте копирования крупной готовой записи объекта с изменением только идентификатора. Готовые записи могут содержать поля карьеры, экономики, доставки или покупки транспортных средств, которые не нужны для более простого объекта.</p>
+<h2 id="naming-and-organization">
+
+  Именование и организация
+</h2>
+<p>Используйте стабильные идентификаторы и описательные имена:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">garage_downtown
+</span></span><span class="line"><span class="cl">dealership_city_used
+</span></span><span class="line"><span class="cl">delivery_warehouse_west
+</span></span><span class="line"><span class="cl">computer_service_station
+</span></span></code></pre>
+</div><p>Для больших уровней разбивайте файлы по функции или ответственному разработчику:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">facilities/facilities.facilities.json
+</span></span><span class="line"><span class="cl">facilities/dealerships.facilities.json
+</span></span><span class="line"><span class="cl">facilities/delivery/warehouses.facilities.json
+</span></span><span class="line"><span class="cl">facilities/delivery/shops.facilities.json
+</span></span></code></pre>
+</div><p>По возможности храните связанные изображения предварительного просмотра и файлы сайтов конкретной функции рядом с файлом объекта.</p>
+<h2 id="facility-types">
+
+  Типы объектов
+</h2>
+<p>Общая система объектов распознаёт следующие массивы верхнего уровня:</p>
+<table>
+<thead>
+<tr>
+<th>Тип объекта</th>
+<th>Имя массива</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Гараж</td>
+<td><code>garages</code></td>
+</tr>
+<tr>
+<td>Заправочная / зарядная станция</td>
+<td><code>gasStations</code></td>
+</tr>
+<tr>
+<td>Автосалон</td>
+<td><code>dealerships</code></td>
+</tr>
+<tr>
+<td>Компьютер</td>
+<td><code>computers</code></td>
+</tr>
+<tr>
+<td>Частный продавец</td>
+<td><code>privateSellers</code></td>
+</tr>
+<tr>
+<td>Служба доставки</td>
+<td><code>deliveryProviders</code></td>
+</tr>
+<tr>
+<td>Трасса для дрэг-рейсинга</td>
+<td><code>dragstrips</code></td>
+</tr>
+</tbody>
+</table>
+<p>Один файл может содержать один или несколько таких массивов.</p>
+<h2 id="common-structure">
+
+  Общая структура
+</h2>
+<p>Большинство записей объектов имеют небольшой общий основной блок:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"garages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"downtownGarage"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.downtownGarage"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.downtownGarage.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"downtownGarage.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"sitesFile"</span><span class="p">:</span> <span class="s2">"facilities.sites.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"zoneNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"downtownGarageZone"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"parkingSpotNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"downtownGarageParking01"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Поля, специфичные для функции, допускаются и зависят от типа объекта. Например, автосалоны могут иметь фильтры транспортных средств и данные тест-драйва, тогда как заправочные станции определяют поддерживаемые типы топлива и пары объектов насосов.</p>
+<h2 id="structure-by-facility-type">
+
+  Структура по типам объектов
+</h2>
+<p>Приведённые ниже примеры показывают типичную структуру каждого типа объекта. Они намеренно минимальны; готовые уровни могут добавлять дополнительные поля карьеры, экономики, фильтрации, иконок или специфичных для функции данных.</p>
+<h3 id="garage">
+
+  Гараж
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"garages"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"garage_downtown"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.garage_downtown"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.garage_downtown.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"garage_downtown.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"sitesFile"</span><span class="p">:</span> <span class="s2">"facilities.sites.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"zoneNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"garage_downtown_zone"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"parkingSpotNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"garage_downtown_parking_01"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="dealership">
+
+  Автосалон
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dealerships"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"dealership_city_used"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.dealership_city_used"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.dealership_city_used.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"dealership_city_used.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"doors"</span><span class="p">:</span> <span class="p">[[</span><span class="s2">"dealership_city_area"</span><span class="p">,</span> <span class="s2">"dealership_city_icon"</span><span class="p">,</span> <span class="mi">30</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"parkingSpotNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dealership_city_parking_01"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"filter"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"whiteList"</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">"Config Type"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Factory"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">"blackList"</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div><p>Записи <code>doors</code> обычно ссылаются на зону/объект взаимодействия, объект точки интереса/иконки и радиус взаимодействия. Фильтры транспортных средств используются системами покупки автомобилей в карьере; не делайте их слишком жёсткими, пока автосалон не заработает корректно.</p>
+<h3 id="computer">
+
+  Компьютер
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"computers"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"computer_service_station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.computer_service_station"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.computer_service_station.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"computer_service_station.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"doors"</span><span class="p">:</span> <span class="p">[[</span><span class="s2">"computer_service_area"</span><span class="p">,</span> <span class="s2">"computer_service_icon"</span><span class="p">,</span> <span class="mi">20</span><span class="p">]]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="private-seller">
+
+  Частный продавец
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"privateSellers"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"private_seller_hills"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.private_seller_hills"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.private_seller_hills.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"private_seller_hills.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"doors"</span><span class="p">:</span> <span class="p">[[</span><span class="s2">"private_seller_hills_area"</span><span class="p">,</span> <span class="s2">"private_seller_hills_icon"</span><span class="p">,</span> <span class="mi">20</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"parkingSpotNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"private_seller_hills_parking"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="delivery-provider">
+
+  Служба доставки
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"deliveryProviders"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"delivery_warehouse_west"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.delivery_warehouse_west"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.delivery_warehouse_west.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"delivery_warehouse_west.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"sitesFile"</span><span class="p">:</span> <span class="s2">"delivery/warehouses.sites.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"zoneNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"delivery_warehouse_west_zone"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"parkingSpotNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"delivery_warehouse_west_parking_01"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="drag-strip-facility">
+
+  Объект трассы для дрэг-рейсинга
+</h3>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">"dragstrips"</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"id"</span><span class="p">:</span> <span class="s2">"dragstrip_airfield"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.dragstrip_airfield"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"description"</span><span class="p">:</span> <span class="s2">"levels.example.facilities.dragstrip_airfield.description"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"preview"</span><span class="p">:</span> <span class="s2">"dragstrip_airfield.jpg"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"sitesFile"</span><span class="p">:</span> <span class="s2">"facilities.sites.json"</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"zoneNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dragstrip_airfield_zone"</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">"parkingSpotNames"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dragstrip_airfield_parking"</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre>
+</div>
+<h3 id="gas-station">
+
+  Заправочная станция
+</h3>
+<p>Заправочные станции используют то же семейство файлов объектов, однако настройка насосов и типов топлива имеет свою специфику. Подробную структуру см. в разделе <a data-doc="levels/fuelstations" href="/docs/levels/fuelstations">Fuel Stations</a>
+.</p>
+<h2 id="common-facility-fields">
+
+  Общие поля объектов
+</h2>
+<p>Многие записи объектов используют одинаковые паттерны полей:</p>
+<table>
+<thead>
+<tr>
+<th>Поле</th>
+<th>Назначение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>Стабильный идентификатор объекта, используемый геймплеем, точками интереса, сохранениями и скриптами.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>Отображаемое имя или ключ перевода.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Отображаемое описание или ключ перевода.</td>
+</tr>
+<tr>
+<td><code>preview</code></td>
+<td>Изображение предварительного просмотра, отображаемое в интерфейсе там, где поддерживается.</td>
+</tr>
+<tr>
+<td><code>sitesFile</code></td>
+<td>Файл сайтов, используемый для разрешения зон и парковочных мест.</td>
+</tr>
+<tr>
+<td><code>zoneNames</code></td>
+<td>Зоны, связанные с объектом.</td>
+</tr>
+<tr>
+<td><code>parkingSpotNames</code></td>
+<td>Парковочные места, связанные с объектом.</td>
+</tr>
+<tr>
+<td><code>icon</code> / <code>playModeIconName</code></td>
+<td>Необязательные идентификаторы иконок, используемые интерфейсом или маркерами карты.</td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>Необязательные метаданные для фильтрации или поведения, специфичного для функции.</td>
+</tr>
+</tbody>
+</table>
+<p>Загрузчик объектов заполняет некоторые значения по умолчанию. Если поле <code>id</code> отсутствует, идентификатор может быть сгенерирован на основе пути к файлу и индекса, однако это не рекомендуется для авторского контента, поскольку такой идентификатор нестабилен при перемещении файлов.</p>
+<h2 id="spatial-references">
+
+  Пространственные ссылки
+</h2>
+<p>Объекты обычно ссылаются на пространственные данные, а не хранят все позиции непосредственно.</p>
+<table>
+<thead>
+<tr>
+<th>Ссылка</th>
+<th>Обычно разрешается в</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sitesFile</code></td>
+<td>Файл <code>.sites.json</code>, обычно <code>facilities.sites.json</code> или файл рядом с файлом объекта.</td>
+</tr>
+<tr>
+<td><code>zoneNames</code></td>
+<td>Зоны в указанном файле сайтов.</td>
+</tr>
+<tr>
+<td><code>parkingSpotNames</code></td>
+<td>Парковочные места в указанном файле сайтов.</td>
+</tr>
+<tr>
+<td><code>doors</code></td>
+<td>Пары объектов сцены, используемые автосалонами, компьютерами или другими точками взаимодействия.</td>
+</tr>
+<tr>
+<td><code>pumps</code></td>
+<td>Пары объектов игровой зоны и точки интереса заправочной станции.</td>
+</tr>
+</tbody>
+</table>
+<p>Если <code>sitesFile</code> отсутствует, загрузчик по возможности использует <code>facilities.sites.json</code>.</p>
+<p><code>sitesFile</code> может быть одним файлом или, в расширенных конфигурациях, списком файлов. Используйте это, когда объект должен разрешать парковочные места или зоны, распределённые по нескольким файлам сайтов. Применяйте такой подход редко: единственный соседний файл сайтов проще валидировать.</p>
+<h2 id="facility-type-notes">
+
+  Примечания по типам объектов
+</h2>
+<h3 id="garages">
+
+  Гаражи
+</h3>
+<p>Гаражи обычно используют <code>zoneNames</code> и <code>parkingSpotNames</code>. Они задействованы в режиме свободной езды, инвентаре карьеры, процессах восстановления/телепортации и логике ближайших сервисов. Убедитесь, что парковочные места достаточно велики и правильно ориентированы для предполагаемых транспортных средств.</p>
+<p>Для создания простого гаража создайте как минимум одну зону и одно парковочное место, затем добавьте запись гаража, ссылающуюся на них. Протестируйте телепортацию/восстановление с несколькими типоразмерами транспортных средств.</p>
+<h3 id="dealerships-and-private-sellers">
+
+  Автосалоны и частные продавцы
+</h3>
+<p>Автосалоны и частные продавцы нередко включают фильтры транспортных средств, данные о сборах, настройки тест-драйва и ссылки на двери или точки интереса. Поля фильтров транспортных средств используются логикой покупки автомобилей в карьере, поэтому при редактировании инструментами сохраняйте неизвестные ключи фильтров.</p>
+<p>Для создания автосалона сначала создайте объекты дверей/зон взаимодействия и парковочные места, затем добавьте запись автосалона. Добавляйте фильтры только после того, как автосалон корректно появится и откроется.</p>
+<h3 id="computers">
+
+  Компьютеры
+</h3>
+<p>Объекты-компьютеры — это точки взаимодействия для систем карьеры: покупок, тюнинга, страхования и других меню. Они обычно используют ссылки на двери/зоны, а не данные о парковочных местах.</p>
+<p>Для компьютеров важнее всего, чтобы указанный объект взаимодействия существовал и был доступен игроку.</p>
+<h3 id="delivery-providers">
+
+  Службы доставки
+</h3>
+<p>Службы доставки используются логикой генерации и организации доставок. Они обычно объединяют метаданные объекта с сайтами и парковочными местами, специфичными для доставки. Вложенные файлы в папке <code>facilities/delivery/</code> распространены в готовом контенте.</p>
+<p>Обслуживать службы доставки проще всего, когда их файл сайтов находится рядом с файлом провайдера. Это позволяет держать зоны доставки, места получения/выдачи и записи объектов вместе.</p>
+<h3 id="drag-strips">
+
+  Трассы для дрэг-рейсинга
+</h3>
+<p>Объекты трасс для дрэг-рейсинга связывают интерфейс свободной езды/карьеры с данными дрэг-рейсинга. Игровой процесс дрэг-рейсинга по-прежнему использует собственные файлы в папке <code>dragstrips/</code>; запись объекта является уровнем интеграции с картой/карьерой.</p>
+<h3 id="gas-stations">
+
+  Заправочные станции
+</h3>
+<p>Для заправочных станций и точек зарядки электромобилей предусмотрена отдельная страница настройки. Информацию о парах насосов, типах топлива и деталях цен/отображения см. в разделе <a data-doc="levels/fuelstations" href="/docs/levels/fuelstations">Fuel Stations</a>
+.</p>
+<h2 id="preview-paths">
+
+  Пути к изображениям предварительного просмотра
+</h2>
+<p>Изображения предварительного просмотра обычно хранятся рядом с файлом объекта или в папке уровня:</p>
+<div class="highlight">
+<pre class="chroma" tabindex="0"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">levels/&lt;levelName&gt;/facilities/&lt;previewImage&gt;.jpg
+</span></span><span class="line"><span class="cl">levels/&lt;levelName&gt;/&lt;previewImage&gt;.jpg
+</span></span></code></pre>
+</div><p>Если изображение предварительного просмотра отсутствует, интерфейс может использовать универсальную заглушку.</p>
+<h2 id="relationship-with-sites-and-pois">
+
+  Связь с сайтами и точками интереса
+</h2>
+<p>Объекты часто отображаются в режиме свободной езды, карьере и на большой карте. Отображаемый маркер или взаимодействие может поступать из:</p>
+<ul>
+<li>Записи объекта.</li>
+<li>Зон или парковочных мест в файле <code>.sites.json</code>.</li>
+<li>Объектов <code>BeamNGGameplayArea</code> и <code>BeamNGPointOfInterest</code>.</li>
+<li>Систем, специфичных для функции: заправочных станций, служб доставки, автосалонов или трасс для дрэг-рейсинга.</li>
+</ul>
+<p>Используйте <a data-doc="levels/level_formats/sites" href="/docs/levels/level_formats/sites">Sites</a>
+ для данных сайтов и <a data-doc="levels/level_classes/gameplayareas" href="/docs/levels/level_classes/gameplayareas">Gameplay Areas and Points of Interest</a>
+ для вспомогательных объектов сцены.</p>
+<h2 id="troubleshooting">
+
+  Устранение неполадок
+</h2>
+<h3 id="facility-does-not-appear">
+
+  Объект не отображается
+</h3>
+<p>Проверьте:</p>
+<ul>
+<li>Файл находится в <code>info.json</code> или в папке <code>levels/&lt;levelName&gt;/facilities/</code>.</li>
+<li>Расширение файла — <code>*.facilities.json</code>.</li>
+<li>Объект находится в правильном массиве верхнего уровня, например <code>garages</code> или <code>dealerships</code>.</li>
+<li>Идентификатор объекта уникален в пределах своего типа.</li>
+<li>Обязательные поля, специфичные для функции, присутствуют.</li>
+</ul>
+<h3 id="facility-appears-but-has-no-usable-position">
+
+  Объект отображается, но не имеет пригодной позиции
+</h3>
+<p>Проверьте:</p>
+<ul>
+<li><code>sitesFile</code> разрешается в ожидаемый файл <code>.sites.json</code>.</li>
+<li>Каждый элемент <code>zoneNames</code> существует в файле сайтов.</li>
+<li>Каждый элемент <code>parkingSpotNames</code> существует в файле сайтов.</li>
+<li>Ссылки на объекты сцены в полях <code>doors</code> или <code>pumps</code> существуют.</li>
+</ul>
+<h3 id="facility-has-a-missing-preview">
+
+  У объекта отсутствует изображение предварительного просмотра
+</h3>
+<p>Пути к изображениям предварительного просмотра разрешаются относительно файла объекта и папки уровня. По возможности храните изображения предварительного просмотра рядом с файлом объекта.</p>
+<h2 id="validation-checklist">
+
+  Контрольный список валидации
+</h2>
+<ul>
+<li>Идентификаторы объектов уникальны в пределах своего типа.</li>
+<li>Имена и описания, отображаемые пользователю, используют ключи перевода там, где это уместно.</li>
+<li>Изображения предварительного просмотра существуют или имеют приемлемые заглушки.</li>
+<li>Указанные пути <code>sitesFile</code> существуют.</li>
+<li>Указанные зоны и парковочные места существуют в загруженном файле сайтов.</li>
+<li>Указанные объекты сцены, двери, насосы или точки интереса существуют в сцене уровня.</li>
+<li>Поля, специфичные для функции, протестированы в системе, которая их использует.</li>
+<li>Файлы объектов остаются валидными после перемещения записей между файлами или подпапками.</li>
+</ul>
+<h2 id="related-pages">
+
+  Связанные страницы
+</h2>
+<ul>
+<li><a data-doc="levels/level_formats/sites" href="/docs/levels/level_formats/sites">Sites (.sites.json)</a>
+</li>
+<li><a data-doc="levels/fuelstations" href="/docs/levels/fuelstations">Fuel Stations</a>
+</li>
+<li><a data-doc="levels/level_classes/gameplayareas" href="/docs/levels/level_classes/gameplayareas">Gameplay Areas and Points of Interest</a>
+</li>
+<li><a data-doc="levels/gameplay_data" href="/docs/levels/gameplay_data">Level Gameplay Data</a>
+</li>
+</ul>
