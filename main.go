@@ -191,10 +191,17 @@ func main() {
 		openBrowser(srv.appURL)
 	}()
 
-	// тихо проверяем обновления (даём интерфейсу успеть открыться)
+	// проверяем обновления: сразу после старта (даём интерфейсу открыться),
+	// а затем редко в фоне - вдруг релиз вышел, пока программа уже работает.
 	go func() {
 		time.Sleep(2500 * time.Millisecond)
 		srv.checkForUpdate(false)
+
+		ticker := time.NewTicker(updateCheckInterval)
+		defer ticker.Stop()
+		for range ticker.C {
+			srv.checkForUpdate(false)
+		}
 	}()
 
 	// иконка в трее с меню (блокирует main до выхода)

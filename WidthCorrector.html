@@ -1161,6 +1161,25 @@
   #docsContent .bng-notice.warning, #docsContent .bng-notice.danger, #docsContent .alert-warning { border-left-color: var(--red); background: rgba(248,114,114,.06); }
   #docsContent .bng-notice.tip, #docsContent .bng-notice.success { border-left-color: var(--green); background: rgba(54,211,153,.06); }
 
+  /* таблицы BeamNG (bng-table) - кастомный CSS-grid вместо <table>.
+     Число колонок разное в разных таблицах, поэтому grid-auto-flow:column +
+     grid-auto-columns:1fr сами создают столько равных колонок, сколько ячеек. */
+  #docsContent .bng-table { margin: 14px 0; border: 1px solid var(--stroke); border-radius: 11px; overflow: hidden; font-size: 13.5px; }
+  #docsContent .bng-table-header { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--panel); color: var(--text-dim); font-weight: 650; font-size: 12px; }
+  #docsContent .bng-table-header > div { padding: 8px 12px; }
+  #docsContent .bng-table-row { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border-top: 1px solid var(--stroke); color: #cdd3de; }
+  #docsContent .bng-table-row > div { padding: 8px 12px; min-width: 0; }
+  #docsContent .bng-table-row > div + div { border-left: 1px solid var(--stroke); }
+  #docsContent .bng-table-row > div > div { overflow-wrap: anywhere; }
+  /* в каждой ячейке продублирована подпись колонки (для мобильной вёрстки) - на десктопе прячем */
+  #docsContent .bng-table-row > div > div:first-child:not(:last-child) { display: none; }
+  @media (max-width: 640px) {
+    #docsContent .bng-table-header { display: none; }
+    #docsContent .bng-table-row { grid-auto-flow: row; grid-auto-columns: auto; }
+    #docsContent .bng-table-row > div + div { border-left: none; border-top: 1px dashed var(--stroke); }
+    #docsContent .bng-table-row > div > div:first-child:not(:last-child) { display: block; color: var(--text-dim); font-size: 11px; font-weight: 650; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
+  }
+
   .dg-soon {
     margin-top: 14px; font-size: 13px; color: var(--green);
     background: rgba(54,211,153,.08); border: 1px solid rgba(54,211,153,.28);

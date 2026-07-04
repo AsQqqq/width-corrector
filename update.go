@@ -17,12 +17,15 @@ import (
 
 // appVersion - текущая версия сборки. Сравнивается с тегом последнего релиза
 // на GitHub (releases/latest). Поднимай её перед каждым релизом.
-const appVersion = "1.0.4"
+const appVersion = "1.0.5"
 
 const (
 	githubOwner = "AsQqqq"
 	githubRepo  = "width-corrector"
 )
+
+// как часто программа перепроверяет обновления в фоне (помимо старта)
+const updateCheckInterval = 6 * time.Hour
 
 // ghRelease - нужные поля ответа GitHub API (releases/latest).
 type ghRelease struct {
