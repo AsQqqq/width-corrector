@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -86,9 +85,11 @@ type AppConfig struct {
 
 type server struct {
 	configsDir string
+	appURL     string // адрес, на котором реально поднялся сервер (порт подбирается)
 }
 
-const appURL = "http://127.0.0.1:8723"
+// порт по умолчанию; если занят - подбирается следующий свободный
+const defaultPort = 8723
 
 func main() {
 	base := exeDir()
@@ -98,6 +99,24 @@ func main() {
 	}
 
 	srv := &server{configsDir: configsDir}
+
+	// Подчищаем хвосты прошлого обновления (.old/.new рядом с .exe).
+	cleanupOldBinary()
+
+	// --after-update: нас только что запустил обновившийся процесс. Пропускаем
+	// проверку «уже запущено» (старый процесс ещё доживает) и даём ему время
+	// освободить порт.
+	afterUpdate := len(os.Args) > 1 && os.Args[1] == "--after-update"
+
+	// Уже запущена копия? Проверяем ПО ПРОЦЕССАМ (а не по URL) - если наша
+	// копия жива, просто открываем её интерфейс и выходим, не поднимая вторую.
+	if afterUpdate {
+		time.Sleep(1500 * time.Millisecond)
+	} else if url, ok := existingInstanceURL(configsDir); ok {
+		fmt.Println("WidthCorrector уже запущен, открываю", url)
+		openBrowser(url)
+		return
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", srv.handleIndex)
@@ -138,19 +157,23 @@ func main() {
 	mux.HandleFunc("/api/code/config", srv.handleCodeConfig)
 	mux.HandleFunc("/api/code/search", srv.handleCodeSearch)
 
-	addr := strings.TrimPrefix(appURL, "http://")
-
-	// занимаем порт сразу - если занят, показываем диалог вместо тихого падения
-	ln, err := net.Listen("tcp", addr)
+	// Подбираем свободный порт (начиная с defaultPort): если 8723 занят
+	// чужой программой - берём следующий свободный, а не падаем с ошибкой.
+	ln, port, err := listenFreePort(defaultPort)
 	if err != nil {
 		zenity.Error(srv.tr(
-			"Failed to start the server:\n"+err.Error()+"\n\nThe program may already be running.",
-			"Не удалось запустить сервер:\n"+err.Error()+"\n\nВозможно, программа уже запущена."),
+			"Failed to start the server:\n"+err.Error(),
+			"Не удалось запустить сервер:\n"+err.Error()),
 			zenity.Title("WidthCorrector"))
 		return
 	}
+	srv.appURL = fmt.Sprintf("http://127.0.0.1:%d", port)
 
-	fmt.Println("WidthCorrector запущен на", appURL)
+	// Регистрируем себя, чтобы будущие запуски нашли эту копию и её порт.
+	writeRuntimeInfo(configsDir, port)
+	defer removeRuntimeInfo(configsDir)
+
+	fmt.Println("WidthCorrector запущен на", srv.appURL)
 	fmt.Println("Папка конфигов:", configsDir)
 
 	go func() {
@@ -162,11 +185,20 @@ func main() {
 	// сразу открываем интерфейс в браузере
 	go func() {
 		time.Sleep(400 * time.Millisecond)
-		openBrowser(appURL)
+		openBrowser(srv.appURL)
+	}()
+
+	// тихо проверяем обновления (даём интерфейсу успеть открыться)
+	go func() {
+		time.Sleep(2500 * time.Millisecond)
+		srv.checkForUpdate(false)
 	}()
 
 	// иконка в трее с меню (блокирует main до выхода)
-	systray.Run(func() { onTrayReady(srv) }, onTrayExit)
+	systray.Run(func() { onTrayReady(srv) }, func() {
+		removeRuntimeInfo(configsDir) // чистим «визитку» при выходе (os.Exit не вызовет defer)
+		os.Exit(0)
+	})
 }
 
 // ---------- системный трей ----------
@@ -174,11 +206,14 @@ func main() {
 func onTrayReady(s *server) {
 	systray.SetIcon(faviconICO)
 	systray.SetTitle("")
-	systray.SetTooltip("WidthCorrector")
+	systray.SetTooltip("WidthCorrector v" + appVersion)
 
 	mOpen := systray.AddMenuItem(
 		s.tr("Open program", "Открыть программу"),
 		s.tr("Open the interface in the browser", "Открыть интерфейс в браузере"))
+	mUpdate := systray.AddMenuItem(
+		s.tr("Check for updates", "Проверить обновления"),
+		s.tr("Check GitHub for a newer version", "Проверить наличие новой версии на GitHub"))
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem(
 		s.tr("Quit program", "Закрыть программу"),
@@ -188,17 +223,15 @@ func onTrayReady(s *server) {
 		for {
 			select {
 			case <-mOpen.ClickedCh:
-				openBrowser(appURL)
+				openBrowser(s.appURL)
+			case <-mUpdate.ClickedCh:
+				go s.checkForUpdate(true) // manual: покажет ответ даже если версия свежая
 			case <-mQuit.ClickedCh:
 				systray.Quit()
 				return
 			}
 		}
 	}()
-}
-
-func onTrayExit() {
-	os.Exit(0)
 }
 
 // ---------- HTTP-обработчики ----------
@@ -405,7 +438,7 @@ func (s *server) handleAppConfig(w http.ResponseWriter, r *http.Request) {
 		// firstRun = конфига ещё нет рядом (первый запуск) - показываем тутор-подсказки.
 		// Чтение без побочек: файл создаётся при первом POST (в т.ч. когда тутор помечает себя показанным).
 		_, statErr := os.Stat(s.appConfigPath())
-		writeJSON(w, map[string]any{"ok": true, "lang": s.loadAppConfig().Lang, "firstRun": os.IsNotExist(statErr)})
+		writeJSON(w, map[string]any{"ok": true, "lang": s.loadAppConfig().Lang, "firstRun": os.IsNotExist(statErr), "version": appVersion})
 
 	case http.MethodPost:
 		var body struct {

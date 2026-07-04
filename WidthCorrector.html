@@ -2895,6 +2895,11 @@
       // языка ниже сделает POST и создаст конфиг. Тутор читает этот флаг (без своего GET),
       // иначе он бы получил уже созданный конфиг и не показался.
       try { window.__wcFirstRun = !!d.firstRun; } catch (e) {}
+      // Версию задаёт бэкенд (const appVersion в Go) - фронт не хранит её отдельно.
+      if (d.version) {
+        var vEl = document.getElementById("appVersion");
+        if (vEl) vEl.textContent = "v" + String(d.version).replace(/^v/, "");
+      }
       var srv = (d.lang === "ru" || d.lang === "en") ? d.lang : "en";
       if (!hadLS) {
         if (srv !== LANG) {
