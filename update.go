@@ -17,7 +17,7 @@ import (
 
 // appVersion - текущая версия сборки. Сравнивается с тегом последнего релиза
 // на GitHub (releases/latest). Поднимай её перед каждым релизом.
-const appVersion = "1.0.3"
+const appVersion = "1.0.4"
 
 const (
 	githubOwner = "AsQqqq"

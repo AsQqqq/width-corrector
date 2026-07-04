@@ -62,6 +62,9 @@ func init() {
 	if err != nil {
 		panic("не удалось распаковать встроенный интерфейс: " + err.Error())
 	}
+	// Версия задаётся ТОЛЬКО в Go (appVersion) - подставляем её в плейсхолдер
+	// интерфейса, чтобы при обновлении версии HTML править не пришлось.
+	indexHTML = bytes.Replace(indexHTML, []byte("__APP_VERSION__"), []byte("v"+appVersion), 1)
 }
 
 // Config - то, что хранится в configs/<hash>.json
@@ -438,7 +441,7 @@ func (s *server) handleAppConfig(w http.ResponseWriter, r *http.Request) {
 		// firstRun = конфига ещё нет рядом (первый запуск) - показываем тутор-подсказки.
 		// Чтение без побочек: файл создаётся при первом POST (в т.ч. когда тутор помечает себя показанным).
 		_, statErr := os.Stat(s.appConfigPath())
-		writeJSON(w, map[string]any{"ok": true, "lang": s.loadAppConfig().Lang, "firstRun": os.IsNotExist(statErr), "version": appVersion})
+		writeJSON(w, map[string]any{"ok": true, "lang": s.loadAppConfig().Lang, "firstRun": os.IsNotExist(statErr)})
 
 	case http.MethodPost:
 		var body struct {
